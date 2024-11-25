@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Add warning if not all sale order lines are up-to-date for budget -->
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry.sale_margin</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="carpentry_sale.edit_project" />
+
+        <field name="arch" type="xml">
+            <button id="sale_order_lines_fully_validated" position="after">
+                <field name="budget_up_to_date" invisible="1" />
+                <button
+                    id="budget_up_to_date"
+                    type="action"
+                    name="%(sale_project_link.action_project_sale_orders)d"
+                    class="btn-warning p-1"
+                    icon="fa-exclamation-triangle"
+                    groups="sales_team.group_sale_salesman"
+                    attrs="{'invisible': ['|', ('sale_order_count', '=', 0), ('budget_up_to_date', '=', True)]}"
+                    title="The project budget is not fully up-to-date as per project Sales Order"
+                />
+            </button>
+        </field>
+    </record>
+    
+    <!-- 'Budget settings' tab: add a "Fees & margins" right column -->
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry.position.budget.sale_margin</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="carpentry_position_budget.edit_project" />
+
+        <field name="arch" type="xml">
+            <group name="budget_total" position="replace">
+                <group name="group_container" col="12">
+
+                    <!-- Existing "Budget totals": keep it, on the left -->
+                    <group name="budget_total" colspan="5">
+                        <h3 colspan="2">Budget totals</h3>
+                        <separator />
+
+                        $0
+                    </group>
+
+                    <!-- New "Fees & margins" right column -->
+                    <group name="fees_and_margins" colspan="7">
+                        <h3 colspan="2">Fees &amp; Margins</h3>
+                        <separator />
+
+                        <group name="fees_prorata" colspan="2" col="12">
+                            <group colspan="6"><label for="fees_prorata_rate" colspan="2" /></group>
+                            <group colspan="3"><field name="fees_prorata" nolabel="1" colspan="2" /></group>
+                            <group colspan="3"><field name="fees_prorata_rate" nolabel="1" colspan="2" widget="progressbar" options="{'editable': True}" /></group>
+                        </group>
+                        <group name="fees_structure" colspan="2" col="12">
+                            <group colspan="6"><label for="fees_structure_rate" colspan="2" /></group>
+                            <group colspan="3"><field name="fees_structure" nolabel="1" colspan="2" /></group>
+                            <group colspan="3"><field name="fees_structure_rate" nolabel="1" colspan="2" widget="progressbar" options="{'editable': True}" /></group>
+                        </group>
+                        <group name="margin_contributive" colspan="2" col="12">
+                            <group colspan="6"><label for="margin_contributive" colspan="2" /></group>
+                            <group colspan="3"><field name="margin_contributive" nolabel="1" colspan="2" /></group>
+                            <group colspan="3"><field name="margin_contributive_rate" nolabel="1" colspan="2" widget="progressbar" /></group>
+                        </group>
+                        <group name="margin_costs" colspan="2" col="12">
+                            <group colspan="6"><label for="margin_costs" colspan="2" /></group>
+                            <group colspan="3"><field name="margin_costs" nolabel="1" colspan="2" /></group>
+                            <group colspan="3"><field name="margin_costs_rate" nolabel="1" colspan="2" widget="progressbar" /></group>
+                        </group>
+                    </group>
+                </group>
+            </group>
+        </field>
+    </record>
+    
+</odoo>
+        

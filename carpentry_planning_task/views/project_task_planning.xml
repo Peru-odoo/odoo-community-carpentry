@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu-item: make "Planning" a dropdown with:
+      - "Planning"
+      - "Project Tasks"
+    -->
+    <!-- Pre-select project before opening tasks -->
+    <record id="action_srv_open_planning_task" model="ir.actions.server">
+        <field name="name">Project Tasks</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(lambda self: {
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.task',
+                'view_mode': 'tree,kanban,form,calendar,timeline,pivot,graph,activity',
+                'name': f'Tasks / {self.display_name} (W{self.this_week})',
+                'context': {
+                    'search_default_my_favorite_project': True,
+                    'search_default_open_tasks': True
+                }
+            }
+        )</field>
+    </record>
+    <menuitem
+        id="menu_project_planning_planning"
+        name="Planning"
+        parent="carpentry_planning.menu_project_planning"
+        action="carpentry_planning.action_srv_open_planning"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_project_planning_tasks"
+        parent="carpentry_planning.menu_project_planning"
+        action="action_srv_open_planning_task"
+        sequence="20"
+    />
+
+    <!-- Form tasks -->
+    <record id="view_task_form2" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry.planning_task</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+
+        <field name="arch" type="xml">
+            <!-- Date done (`date_end`) -->
+            <field name="date_deadline" position="after">
+                <field name="date_end" />
+            </field>
+            
+            <!-- Planning & launches (3rd column) -->
+            <xpath expr="//sheet/group" position="attributes">
+                <attribute name="col">3</attribute>
+            </xpath>
+            <xpath expr="//sheet/group" position="inside">
+                <group name="group_planning_task">
+                    <!-- `card_ref` and `launch_ids` must be completed in pair -->
+                    <field name="card_ref" attrs="{'required': [('launch_ids', '!=', False)]}" />
+                    <field name="launch_ids" widget="many2many_tags" attrs="{'required': [('card_ref', '!=', False)]}" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    
+    <!-- Task Tree -->
+    <record id="view_task_tree2" model="ir.ui.view">
+        <field name="name">project.task.tree.carpentry.planning_task</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2" />
+
+        <field name="arch" type="xml">
+            <!-- `date_deadline` and `date_end` -->
+            <field name="date_deadline" position="attributes">
+                <attribute name="optional">show</attribute>
+            </field>
+            <field name="date_deadline" position="after">
+                <field name="date_end" optional="show" />
+            </field>
+        </field>
+    </record>
+</odoo>

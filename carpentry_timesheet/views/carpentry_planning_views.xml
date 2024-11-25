@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Planning Kanban View -->
+    <record model="ir.ui.view" id="carpentry_planning_kanban">
+        <field name="name">carpentry.planning.card.kanban.timesheet</field>
+        <field name="model">carpentry.planning.card</field>
+        <field name="inherit_id" ref="carpentry_project.carpentry_planning_kanban" />
+
+        <field name="arch" type="xml">
+            <templates position="before">
+                <field name="task_planned_hours" />
+                <field name="task_remaining_hours" />
+                <field name="task_overtime" />
+                <field name="task_progress" />
+                <field name="task_performance" />
+            </templates>
+
+            <templates position="inside">
+                <t t-name="planning_tasks_timesheet">
+                    <t t-if="record.task_planned_hours.raw_value &gt; 0 or record.task_overtime.raw_value">
+                        <t t-set="color" t-value="'black'"/>
+                        <t t-set="color" t-value="'muted'" t-if="record.task_progress.raw_value &gt; 0"/>
+                        <t t-set="color" t-value="'danger'" t-elif="record.task_remaining_hours.raw_value &lt; 0"/>
+                        <t t-set="color" t-value="'success'" t-elif="record.task_performance.raw_value &gt; 0"/>
+                        <div t-attf-class="oe_kanban_align fw-normal fs-6 border badge text-{{ color }}"
+                            t-attf-title="Remaining hours and performance \nInitialy planned: {{ record.task_planned_hours.raw_value }}h \nLegend: (Black) not started; (Normal) started; (Red) Overrun; (Green) Finished before planned hours">
+                            <t t-esc="record.task_remaining_hours.raw_value" digits="[10,0]" />h 
+
+                            <span t-if="record.task_performance.raw_value"
+                                t-attf-class="{{record.task_performance.raw_value &gt; 0 ? 'text-success' : 'text-danger'}}"
+                                style="font-size: 0.8em"
+                            >
+                                (<t t-esc="'+'" t-if="record.task_performance.raw_value &gt; 0"/>
+                                <t t-esc="record.task_performance.raw_value" digits="[5,0]" />%)
+                            </span>
+                        </div>
+                    </t>
+                </t>
+            </templates>
+
+            <t t-call="planning_tasks" position="after">
+                <t t-call="planning_tasks_timesheet" />
+            </t>
+        </field>
+    </record>
+</odoo>

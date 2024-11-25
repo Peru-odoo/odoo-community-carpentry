@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Task Tree -->
+    <record id="view_task_tree2" model="ir.ui.view">
+        <field name="name">project.task.tree.carpentry_task_base</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2" />
+
+        <field name="arch" type="xml">
+            <!-- Header (buttons) -->
+            <tree position="inside">
+                <field name="name_required" invisible="1" />
+
+                <header>
+                    <button name="%(action_task_carpentry_print)d" type="action" string="Report" icon="fa-file-text" class="mx-2" />
+                    <button name="%(action_send_mail_task_carpentry)d" type="action" string="Send" icon="fa-envelope" class="mx-2" />
+                </header>
+            </tree>
+
+            <!-- Editable, expandable -->
+            <tree position="attributes">
+                <attribute name="expand">True</attribute>
+                <attribute name="editable">top</attribute>
+            </tree>
+            <!-- Burger-menu button to task detailed form -->
+            <field name="priority" position="before">
+                <button name="action_open_task_form" type="object" icon="fa-bars" title="Open" />
+            </field>
+
+            <!-- Project & type : move/add -->
+            <field name="name" position="before">
+                <field name="project_id" position="move" />
+                
+                <!-- On Tree view, never display `root_type_id` (while it's displayed on kanban-quick-create) -->
+                <field name="root_type_id" invisible="1" />
+                
+                <!-- Display `parent_type_id` & `type_id` only on special tasks tree views -->
+                <field name="parent_type_id"
+                    attrs="{'required': [('root_type_id', '!=', False)]}"
+                    invisible="not context.get('default_root_type_id') or context.get('display_type_ids')"
+                />
+                <field name="type_id"
+                    attrs="{'required': [('root_type_id', '!=', False)]}"
+                    invisible="not context.get('default_root_type_id') or context.get('display_type_ids')"
+                />
+                <!-- Display either `type_ids` (instructions) or the previous 2 (others) -->
+                <field name="type_ids"
+                    required="True"
+                    invisible="not context.get('display_type_ids')"
+                />
+            </field>
+
+            <!-- Name: required? -->
+            <field name="name" position="attributes">
+                <attribute name="attrs">{'required': [('name_required', '=', True)]}</attribute>
+            </field>
+            <!-- `project_id`: hides when possible -->
+            <field name="project_id" position="attributes">
+                <attribute name="optional" />
+                <attribute name="invisible">context.get('default_project_id')</attribute>
+            </field>
+
+            <!-- `tag_ids`: optional, since `type` is more used -->
+            <field name="tag_ids" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <!-- `stage_id`: badge -->
+            <field name="stage_id" position="attributes">
+                <attribute name="widget">badge</attribute>
+            </field>
+            
+            <!-- Activities: gain some horizontal space by removing label -->
+            <field name="activity_ids" position="attributes">
+                <attribute name="nolabel">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Task Kanban -->
+    <record id="view_task_kanban" model="ir.ui.view">
+        <field name="name">project.task.kanban.carpentry_task_base</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban" />
+
+        <field name="arch" type="xml">
+            <!-- Replace `name` by `display_name` -->
+            <field name="name" position="replace">
+                <field name="name" invisible="1" /> <!-- never delete, but hide -->
+                <field name="display_name" widget="name_with_subtask_count" />
+            </field>
+            <xpath expr="(//field[@name='name'])[2]" position="replace">
+                <field name="name" invisible="1" /> <!-- never delete, but hide -->
+                <field name="display_name" widget="name_with_subtask_count" />
+            </xpath>
+
+            <!-- Hide Customer -->
+            <t t-if="record.partner_id.value" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </t>
+            
+            <!-- `root_type_id`: display (badge) if page is not specific about one -->
+            <div class="o_kanban_record_headings" position="inside">
+                <field name="root_type_id"
+                    widget="badge"
+                    invisible="not context.get('default_root_type_id')"
+                    attrs="{'invisible': [('root_type_id', '=', False)]}"
+                />
+            </div>
+        </field>
+    </record>
+    <!-- Form Kanban quick-create (Task) -->
+    <record id="quick_create_task_form" model="ir.ui.view">
+        <field name="name">project.task.form.kanban.quick_create.carpentry_task_base</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.quick_create_task_form" />
+
+        <field name="arch" type="xml">
+            <!-- Name: required? -->
+            <form position="inside">
+                <field name="name_required" invisible="1" />
+            </form>
+            <field name="name" position="attributes">
+                <attribute name="attrs">{'required': [('name_required', '=', True)]}</attribute>
+            </field>
+
+            <field name="name" position="after">
+                <!-- Display `types` drop-down menu progressively -->
+                <field name="root_type_id" invisible="context.get('default_root_type_id')" />
+                <field name="parent_type_id" attrs="{
+                        'invisible': [('root_type_id', '=', False)],
+                        'required': [('root_type_id', '!=', False)]
+                    }" invisible="context.get('display_type_ids')"
+                />
+                <field name="type_id" attrs="{
+                        'invisible': [('parent_type_id', '=', False)],
+                        'required': [('parent_type_id', '!=', False)]
+                    }" invisible="context.get('display_type_ids')"
+                />
+                <!-- Display either `type_ids` (instructions) or the previous 2 (others) -->
+                <field name="type_ids"
+                    required="True"
+                    invisible="not context.get('display_type_ids')"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Form tasks -->
+    <record id="view_task_form2" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry_task_base</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+
+        <field name="arch" type="xml">
+            <!-- Name: required? -->
+            <form position="inside">
+                <field name="name_required" invisible="1" />
+            </form>
+            <field name="name" position="attributes">
+                <attribute name="attrs">{'required': [('name_required', '=', True)]}</attribute>
+            </field>
+
+            <!-- `project_id` attributes -->
+            <field name="project_id" position="attributes">
+                <attribute name="attrs">{'readonly': [('id', '!=', False)]}</attribute>
+                <attribute name="options">{'no_create': 1}</attribute>
+            </field>
+
+            <!-- Types -->
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <!-- `root_type_id`: under the name, in editable or badge -->
+                <field name="root_type_id"
+                    widget="badge"
+                    attrs="{'invisible': [('root_type_id', '=', False), ('id', '!=', False)]}"
+                    invisible="context.get('default_root_type_id')"
+                />
+            </xpath>
+            <field name="user_ids" position="after">
+                <!-- `parent_type_id` and `type_id`: left column, under user_ids: 2 progressive drop-down menu -->
+                <field name="parent_type_id" attrs="{
+                        'invisible': [('root_type_id', '=', False)],
+                        'required': [('root_type_id', '!=', False)]
+                    }" invisible="context.get('display_type_ids')"
+                />
+                <field name="type_id" attrs="{
+                        'invisible': [('parent_type_id', '=', False)],
+                        'required': [('parent_type_id', '!=', False)]
+                    }" invisible="context.get('display_type_ids')"
+                />
+                <!-- Display either `type_ids` (instructions) or the previous 2 (others) -->
+                <field name="type_ids"
+                    required="True"
+                    invisible="not context.get('display_type_ids')"
+                />
+            </field>
+
+            <!-- Hide Customer (`partner_id`) -->
+            <field name="partner_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <!-- Hide `launch_ids` when requested -->
+            <group name="group_planning_task" position="attributes">
+                <attribute name="invisible">not context.get('display_launch_ids', True)</attribute>
+            </group>
+        </field>
+    </record>
+
+    <!-- Search tasks -->
+    <record id="view_task_search_form" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry_task_base</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_search_form" />
+
+        <field name="arch" type="xml">
+            <filter name="tasks_due_today" position="before">
+                <filter string="Tasks up to Next Week"
+                    name="tasks_due_nextweek"
+                    domain="[('date_deadline', '&lt;', context_today() + relativedelta(weekday=6) + relativedelta(days=7))]"
+                />
+            </filter>
+
+            <search position="inside">
+                <searchpanel>
+                    <!-- Commun -->
+                    <field name="project_id" invisible="context.get('default_project_id')"/>
+                    <field name="user_ids" select="multi" invisible="context.get('search_default_my_tasks', False) or context.get('carpentry_planning')"/>
+                    <field name="launch_ids" select="multi" invisible="context.get('carpentry_planning') or not context.get('display_launch_ids', True)" />
+                    <field name="root_type_id" select="multi" invisible="context.get('carpentry_planning')" />
+                    <field name="parent_type_id" select="multi" invisible="context.get('carpentry_planning')" />
+                    <field name="type_id" select="multi" invisible="context.get('carpentry_planning')" />
+                    
+                    <!-- Instruction -->
+                    <field name="type_ids" select="multi" invisible="not context.get('display_type_ids')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

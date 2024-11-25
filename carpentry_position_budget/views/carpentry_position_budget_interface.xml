@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Interface with external DB -->
+
+    <record id="open_carpentry_position_budget_interface" model="ir.actions.act_window">
+        <field name="name">Budget interface with external database</field>
+        <field name="res_model">carpentry.position.budget.interface</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+    <menuitem
+        id="menu_carpentry_position_budget_interface"
+        action="open_carpentry_position_budget_interface"
+        parent="project_budget.account_move_budget_section"
+    />
+
+    <!-- Tree -->
+    <record id="carpentry_position_budget_interface_tree" model="ir.ui.view">
+        <field name="name">carpentry.position.budget.interface.tree</field>
+        <field name="model">carpentry.position.budget.interface</field>
+        
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle" />
+                <field name="active" widget="boolean_toggle" />
+                <field name="external_db_type" optional="show" />
+                <field name="external_db_col" />
+                <field name="analytic_account_id" attrs="{'required': [('active', '=', True)]}" />
+                <field name="detailed_type" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form -->
+    <record id="carpentry_position_budget_interface_form" model="ir.ui.view">
+        <field name="name">carpentry.position.budget.interface.form</field>
+        <field name="model">carpentry.position.budget.interface</field>
+        
+        <field name="arch" type="xml">
+            <form>
+                <group name="container">
+                    <group name="left">
+                        <field name="external_db_col" />
+                        <field name="analytic_account_id" attrs="{'required': [('active', '=', True)]}" />
+                    </group>
+                    <group name="right">
+                        <field name="external_db_type" optional="show" />
+                        <field name="detailed_type" />
+                        <field name="active" widget="boolean_toggle" />
+                    </group>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search -->
+    <record id="carpentry_budget_import_interface_search" model="ir.ui.view">
+        <field name="name">carpentry.position.budget.interface.search</field>
+        <field name="model">carpentry.position.budget.interface</field>
+        
+        <field name="arch" type="xml">
+            <search>
+                <field name="external_db_col" />
+                <field name="analytic_account_id" />
+                <field name="external_db_type" />
+
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+</odoo>

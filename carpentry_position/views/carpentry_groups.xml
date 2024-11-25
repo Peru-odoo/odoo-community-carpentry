@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Lot (tree) -->
+    <record id="carpentry_group_lot_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.lot.tree</field>
+        <field name="model">carpentry.group.lot</field>
+
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Phase (tree) -->
+    <record id="carpentry_group_phase_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.phase.tree</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="id" invisible="1" />
+                <field name="project_id" invisible="1" />
+
+                <field name="sequence" widget="handle" />
+                <button name="button_open_affectation_form"
+                    type="object"
+                    icon="fa-bars"
+                    title="Positions affectations"
+                />
+
+                <field name="name" />
+                <field name="section_ids"
+                    widget="many2many_tags"
+                    string="Related Lots"
+                    readonly="1"
+                />
+                <field name="sum_position_quantity_affected" readonly="True" sum="1" />
+            </tree>
+        </field>
+    </record>
+    <!-- Phase (form) -->
+    <record id="carpentry_group_phase_form" model="ir.ui.view">
+        <field name="name">carpentry.group.phase.form</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="next_id" invisible="1" />
+
+                <header invisible="context.get('carpentry_planning')">
+                    <field name="state" widget="statusbar" />
+                </header>
+
+                <sheet>
+                    <div name="affectations" invisible="context.get('carpentry_planning')">
+                        <field name="active" invisible="1" />
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
+
+                        <!-- Body (top: section_ids) -->
+                        <group>
+                            <field name="project_id" readonly="True" />
+                            <field name="name" readonly="True" />
+                            <field
+                                name="section_ids"
+                                widget="many2many_checkboxes"
+                                attrs="{'readonly': [('state', '=', 'select')]}"
+                            />
+                        </group>
+                        
+                        <!-- Buttons -->
+                        <button name="button_state_form"
+                            type="object"
+                            class="btn btn-primary mx-1"
+                            icon="fa-backward"
+                            attrs="{'invisible': [('state', '=', 'preselect')]}"
+                            string="Back to: pre-selection"
+                        />
+                        <button name="button_state_form"
+                            type="object"
+                            class="btn btn-primary mx-1"
+                            icon="fa-forward"
+                            attrs="{'invisible': [('state', '=', 'select')]}"
+                            string="Next: choose positions"
+                        />
+
+                        <!-- Affectations tree -->
+                        <field
+                            name="affectation_ids"
+                            options="{'create': 0}"
+                            widget="one2many"
+                            attrs="{'invisible': [('state', '=', 'preselect')]}"
+                        />
+                    </div>
+                </sheet>
+
+                <footer invisible="not context.get('carpentry_planning')">
+                    <button name="button_open_affectation_form"
+                        type="object"
+                        class="btn btn-primary mx-1"
+                        string="Next"
+                    />
+                    <button string="Save &amp; Close" special="save" class="btn btn-primary mx-1" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <!-- Search -->
+    <record model="ir.ui.view" id="carpentry_group_phase_search">
+        <field name="name">carpentry.group.phase.search</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="project_id" />
+
+                <filter string="★ Projects"
+                    name="my_favorite_projects"
+                    domain="[('project_id.favorite_user_ids','=',uid)]"
+                />
+
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <!-- Launch (tree) -->
+    <record id="carpentry_group_launch_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.launch.tree</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_group_phase_tree" />
+        <field name="mode">primary</field>
+
+        <field name="arch" type="xml">
+            <!-- `section_ids` string -->
+            <field name="section_ids" position="attributes">
+                <attribute name="string">Related Phases</attribute>
+            </field>
+        </field>
+    </record>
+    <!-- Launch (form) -->
+    <record id="carpentry_group_launch_form" model="ir.ui.view">
+        <field name="name">carpentry.group.launch.form</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_group_phase_form" />
+        <field name="mode">primary</field>
+
+        <field name="arch" type="xml">
+            <!-- Different tree view for launches' affectations -->
+            <field name="affectation_ids" position="replace">
+                <field
+                    name="affectation_ids"
+                    widget="one2many"
+                    options="{'create': 0}"
+                    attrs="{'invisible': [('state', '=', 'preselect')]}"
+                >
+                    <tree limit="200">
+                        <field name="section_ref" string="Phase" />
+                        <field name="position_id" />
+                        <field name="quantity_affected_parent" string="Quantity" />
+                    </tree>
+                </field>
+            </field>
+
+            <!-- Carpentry Planning -->
+            <div name="affectations" position="inside">
+                <div name="carpentry_planning" invisible="not context.get('carpentry_planning')">
+                    Commandes liées
+                </div>
+            </div>
+        </field>
+    </record>
+    <!-- Search -->
+    <record model="ir.ui.view" id="carpentry_group_launch_search">
+        <field name="name">carpentry.group.launch.search</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_group_phase_search" />
+        <field name="mode">primary</field>
+
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="sequence" />
+            </field>
+        </field>
+    </record>
+</odoo>

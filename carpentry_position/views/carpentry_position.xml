@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Positions (tree) -->
+    <record id="carpentry_position_tree" model="ir.ui.view">
+        <field name="name">carpentry.position.tree</field>
+        <field name="model">carpentry.position</field>
+
+        <field name="arch" type="xml">
+            <tree multi_edit="1" editable="bottom">
+                <field name="project_id" invisible="context.get('default_project_id')" />
+
+                <field name="sequence" widget="handle" />
+
+                <field name="name" />
+                <field name="lot_id" options="{'create': True}" context="{'default_project_id': project_id}" optional="show" />
+                <field name="quantity" />
+                <field name="quantity_remaining_to_affect" readonly="1" optional="show" />
+                <field name="state" string="Affectation" widget="badge" optional="show"
+                    decoration-muted="state == 'na'"
+                    decoration-danger="state == 'none'"
+                    decoration-warning="state == 'warning_phase' or state == 'warning_launch'"
+                    decoration-success="state == 'done'" />
+                <field name="range" optional="show" />
+                <field name="surface" optional="show" />
+                <field name="description" optional="show" />
+            </tree>
+        </field>
+    </record>
+    <!-- Positions (form) -->
+    <record id="carpentry_position_form" model="ir.ui.view">
+        <field name="name">carpentry.position.form</field>
+        <field name="model">carpentry.position</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar" readonly="1"/>
+                </header>
+
+                <sheet>
+                    <field name="active" invisible="1" />
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
+
+                    <group name="group_container">
+                        <group name="group_left">
+                            <field name="project_id" readonly="1" />
+                            <field name="name" />
+                            <field name="quantity" />
+                            <field name="quantity_remaining_to_affect" />
+                        </group>
+                        <group name="group_right">
+                            <field name="lot_id" />
+                            <field name="range" />
+                            <field name="surface" />
+                            <field name="description" />
+                        </group>
+
+                        <field name="affectation_ids" string="Affectations in Phases" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Positions (search) -->
+    <record model="ir.ui.view" id="carpentry_position_search">
+        <field name="name">carpentry.position.search</field>
+        <field name="model">carpentry.position</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="lot_id" />
+                <field name="range" />
+                <field name="state" />
+                <field name="project_id" />
+
+                <filter string="★ Projects"
+                    name="my_favorite_projects"
+                    domain="[('project_id.favorite_user_ids','=',uid)]"
+                />
+
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

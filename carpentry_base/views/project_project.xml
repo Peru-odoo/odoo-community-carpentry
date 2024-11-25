@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Form -->
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry.position</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project" />
+
+        <field name="arch" type="xml">
+            <!-- Alerts -->
+            <sheet position="after">
+                <field name="warning_banner" invisible="1" />
+
+                <div name="warning_banner"
+                    role="alert"
+                    class="alert alert-warning"
+                    groups="project.group_project_manager"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('warning_banner', '=', False)]}"
+                />
+            </sheet>
+        </field>
+    </record>
+</odoo>

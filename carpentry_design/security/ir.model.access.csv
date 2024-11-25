@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_plan_set,PlanSet,model_carpentry_plan_set,carpentry_design.group_design_user,1,1,1,1
+access_plan_release,PlanRelease,model_carpentry_plan_release,carpentry_design.group_design_user,1,1,1,1

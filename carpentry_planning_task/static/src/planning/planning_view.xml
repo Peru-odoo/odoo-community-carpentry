@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-inherit="carpentry_planning.CarpentryPlanningKanbanView" t-inherit-mode="extension" owl="1">
+        <PlanningDashboard position="after">
+            <PlanningGlobalTasks model="model" />
+        </PlanningDashboard>
+    </t>
+
+</templates>

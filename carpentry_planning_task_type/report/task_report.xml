@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- Actions -->
+    <!-- Print -->
+    <record id="action_task_carpentry_print" model="ir.actions.report">
+        <field name="name">Document Report</field>
+        <field name="model">project.task</field>
+    
+        <field name="report_name">carpentry_planning_task_type.task_report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="print_report_name">"[%s] %s" % (object.project_id.name, object.name)</field>
+        <field name="binding_model_id" ref="model_project_task" />
+        <field name="binding_type">report</field>
+    </record>
+    <!-- Print from 'send' wizard (on `project.project` record to generate only 1 attachment and 1 mail) -->
+    <record id="action_task_carpentry_print_project" model="ir.actions.report">
+        <field name="name">Document Report</field>
+        <field name="model">project.project</field>
+    
+        <field name="report_name">carpentry_planning_task_type.task_report_project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="print_report_name">object.name</field>
+        <!-- not shown to user, only used from email template -->
+    </record>
+    <!-- Send : hide base action and replace it by a ir.action.server that redirects to Send wizard on project.project -->
+    <record id="project.action_send_mail_project_task" model="ir.actions.act_window">
+        <field name="binding_model_id" />
+    </record>
+    <record id="action_send_mail_task_carpentry" model="ir.actions.server">
+        <field name="name">Send Email</field>
+        <field name="model_id" ref="project.model_project_task" />
+        <field name="state">code</field>
+        <field name="code">action = records._send_email()</field>
+        <field name="binding_model_id" ref="project.model_project_task"/>
+        <field name="binding_view_types">list,form</field>
+    </record>
+
+    
+<!-- Email template on `project.project` -->
+    <record id="task_email_template" model="mail.template">
+        <field name="name">Task Report sharing</field>
+        <field name="description">Template mail of task sharing, with report in attachment</field>
+        <field name="model_id" ref="project.model_project_project" />
+        <field name="subject">[{{ object.company_id.name }}] {{ object.name }} : document receipt</field>
+        <field name="email_from">{{ (object.company_id.email or user.email) }}</field>
+
+        <field name="auto_delete" eval="True"/>
+        <!-- Join report in attachment of the message -->
+        <field name="report_name">Document Report</field>
+        <field name="report_template" ref="carpentry_planning_task_type.action_task_carpentry_print_project" />
+            
+        <field name="body_html" type="html">
+            <html>
+                <body>
+                    <p>
+                        Hello,
+                        <br /><br />
+                        Please find attached <t t-esc="object.company_id.name">company</t> document receipt for project <strong t-esc="object.name">project_name</strong>.
+                        A formal and signed return is awaited as a receipt for the acknowledgment of our document sharing.
+                        <br />
+                        <t t-esc="user.signature">Your name</t>
+                    </p>
+                </body>
+            </html>
+        </field>
+    </record>
+
+<!-- Main template -->
+    <!-- From mail wizard. Inputs:
+        * `docs` var: `project.project` recordset
+        * `task_ids` var: `project.task` selected records by the user (`active_ids`)
+    -->
+    <template id="task_report_project">
+        <t t-call="carpentry_planning_task_type.task_report">
+            <t t-set="docs" t-value="docs.env['project.task'].browse(docs._context.get('report_task_ids'))" />
+        </t>
+    </template>
+
+    <!-- Input: `docs` var (`project.task` recordset) : from classic 'report' action from `project.task` -->
+    <template id="task_report">
+        <t t-call="web.html_container">
+            <!-- /!\ TODO: [???] t-foreach à déplacer entre web.html_container et web.internal_layout ? -->
+            <t t-call="web.internal_layout">
+                <div class="page">
+                    <t t-call="carpentry_planning_task_type.task_report_front_page" />
+
+                    <t t-foreach="docs.project_id" t-as="project">
+                        <!-- tasks of the project chosen by the user for the report -->
+                        <t t-set="task_ids" t-value="project.task_ids.filtered(lambda task: task.id in docs.ids)" />
+
+                        <!-- recall project's name at start/top, if several projects in the report -->
+                        <h2 t-if="project_size &gt; 1" style="page-break-before: always">
+                            Project: <span t-field="project.name" />
+                        </h2>
+
+                        <!-- report at tasks record level: print only the records selected by the user -->
+                        <t t-foreach="task_ids" t-as="task">
+                            <t t-call="carpentry_planning_task_type.task_report_single" />
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+<!-- Front-page templates -->
+    <!-- Report front-page | Input: `docs` var (`project.task` recordset) -->
+    <template id="task_report_front_page">
+        <!-- Report title: type of report & date -->
+        <h1>Report of <span t-esc="docs._get_type_strings()" /></h1>
+        <p>Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')" /></p>
+        
+        <!-- Report summary (project & tasks names) -->
+        <t t-foreach="docs.project_id" t-as="project">
+            <t t-call="carpentry_planning_task_type.task_report_project_summary" />
+        </t>
+
+        <!-- Stamp -->
+        <t t-if="docs._get_is_stamp()">
+            <t t-call="carpentry_planning_task_type.task_report_receipt_stamp" />
+            <div style="page-break-after:always" />
+        </t>
+    </template>
+    <!-- Project summary | Input: `project` var (`project.project` record) -->
+    <template t-name="task_report_project_summary">
+        <t t-set="task_ids" t-value="project.task_ids.filtered(lambda task: task.id in docs.ids)" />
+
+        <h4>Project: <span t-field="project.name" /></h4>
+
+        <!-- tag_ids (if given, ie. classic & instructions) -->
+        <!-- <t t-if="task_ids.tag_ids.ids">
+            <p class="mb-3"><strong>Tags(s):</strong> <span t-field="task_ids.tag_ids" t-field-options="{'widget': 'many2many_tags'}" /></p>
+        </t> -->
+
+        <!-- Task types -->
+        <!-- <strong>Summary of <t t-esc="task_ids._get_type_strings()" />:</strong> -->
+        <!-- Task list (names) -->
+        <div t-foreach="task_ids" t-as="task">
+            #<t t-esc="task_index + 1" /> <span t-esc="task._get_prefixed_display_name()" />
+        </div>
+        
+        <hr t-if="not project_last" class="my-4" />
+    </template>
+    <!-- Receipt header | Static -->
+    <template t-name="task_report_receipt_stamp">
+        <div class="border p-2 mt-4">
+            <p>
+                <span class="fw-bold fa fa-exclamation-triangle" />
+                The return of this stamped and signed document will condition the payment of the first work situation.
+            </p>
+
+            <div class="row">
+                <p class="col-4">Receive on ____ / ____ / ________</p>
+                <p class="col-8">
+                    Company __________________________________________<br />
+                    Mr/Mrs ____________________________________________<br />
+                    <em>
+                        (name in full)<br />
+                        <strong>(compulsory stamp and signoff)</strong>
+                    </em>
+                </p>
+            </div>
+        </div>
+    </template>
+
+
+<!-- Tasks (individual) templates -->
+    <!-- Task | Input: `task` var (record of `project.task`) -->
+    <template t-name="task_report_single">
+        <h3 class="mt-3 mb-0">#<span t-esc="task_index + 1"/> : <span t-esc="task.display_name" /></h3>
+        
+        <t t-set="action_open_form" t-value="task.env.ref('carpentry_planning_task_type.action_open_task_by_project').id" />
+        <a t-att-href="'%s/web#id=%s&amp;view_type=form&amp;model=carpentry.task&amp;action=%s' % (web_base_url, task.id, action_open_form)"
+        target="_blank">Open in web browser</a>
+
+        <ul>
+            <!-- <li>Project: <span t-field="task.project_id.name" /></li> -->
+            <t t-if="task.type == 'instruction'">
+                <li>Tag(s): <span t-field="task_ids.tag_ids" t-field-options="{'widget': 'many2many_tags'}" /></li>
+                <li>Author: <span t-field="task.create_uid" /></li>
+            </t>
+            <li t-if="task.user_ids.ids">Assignee(s): <span t-field="task.user_ids" t-field-options="{'widget': 'many2many_avatar_user'}" /></li>
+            <li t-if="task.date_deadline">Deadline: <span t-field="task.date_deadline" t-options="{'widget': 'date'}" /></li>
+            <li t-if="len(task.attachment_ids) > 0" class="fw-bold text-danger">
+                <span class="fa fa-info-circle" /> <t t-esc="len(task.attachment_ids)" /> attachment(s) available in appendix.
+            </li>
+        </ul>
+
+        <div t-if="task.description" class="row border p-2">
+            <div class="col-12" t-field="task.description" />
+        </div>
+
+        <!-- Chatter -->
+        <t t-if="task.message_ids and task.type not in ['instruction']">
+            <strong>Comments</strong>
+
+            <t t-foreach="task.message_ids" t-as="message">
+                <div class="row border p-2 my-3 col-12"><t t-call="carpentry_planning_task_type.task_report_chatter" /></div>
+            </t>
+        </t>
+    </template>
+    <!-- Chatter message | Input: `message` var (record of `mail.message`) -->
+    <template t-name="task_report_chatter">
+        <strong>
+            <span t-field="message.author_id" /> (<span t-field="message.date" t-options="{'widget': 'date'}" />):
+            <div t-field="message.subject" />
+        </strong>
+        <br />
+        
+        <div t-field="message.body" />
+    </template>
+
+    <!-- v2: if needed to generate 1 report per task, and append attachment next to task's report -->
+    <!-- <template t-name="task_report_single_html">
+        <t t-call="web.html_container">
+            <t t-call="web.internal_layout">
+                <div class="page">
+                    <t t-call="task_report_single" />
+                </div>
+            </t>
+        </t>
+    </template> -->
+</odoo>

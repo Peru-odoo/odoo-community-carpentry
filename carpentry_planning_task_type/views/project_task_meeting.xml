@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   
+    <!-- Tree tasks (meetings) -->
+    <record id="view_task_tree_meeting" model="ir.ui.view">
+        <field name="name">project.task.tree.carpentry.meeting</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_tree2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <!-- new fieds (messages last date & count) -->
+            <field name="name" position="after">
+                <field name="message_last_date" />
+                <field name="count_message_ids" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Form tasks (meetings) -->
+    <record id="view_task_form_meeting" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry.meeting</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        
+        <field name="arch" type="xml">
+            <field name="description" position="replace">
+                <field name="description" invisible="1" />
+                <div class="oe_chatter" position="move" /> <!-- !!!!!!!!! A TESTER !!!!!! -->
+            </field>
+        </field>
+    </record>
+
+    <!-- Pre-select project before opening Meeting (tasks) -->
+    <record id="action_open_task_meeting_srv" model="ir.actions.server">
+        <field name="name">Meetings</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(lambda self: {
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.task',
+                'view_mode': 'tree,kanban,agenda,timeline,form,activity',
+                'view_id': env.ref('carpentry_planning_task_type.view_task_tree_meeting').id,
+                'name': 'Meetings',
+                'context': {'default_root_type_id': root_type_meeting},
+                'domain': [('root_type_id', '=', root_type_meeting)]
+            })
+        </field>
+    </record>
+    
+    <menuitem
+        id="menu_project_meeting"
+        parent="carpentry_planning.menu_project_planning"
+        action="action_open_task_meeting_srv"
+        sequence="40"
+    />
+
+</odoo>

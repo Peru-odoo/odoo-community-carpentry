@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Special Task `Need` (tree) -->
+    <record id="view_task_tree_need" model="ir.ui.view">
+        <field name="name">project.task.tree.carpentry.need</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_tree2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <!-- `launch_ids` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" widget="many2many_tags" />
+            </field>
+
+            <!-- `type_deadline` -->
+            <field name="date_deadline" position="attributes">
+                <attribute name="attrs">{'readonly': [('type_deadline', '=', 'computed')]}</attribute>
+            </field>
+            <field name="date_deadline" position="before">
+                <field name="type_deadline" widget="badge"
+                    decoration-info="type_deadline == 'manual'"
+                    decoration-primary="type_deadline == 'computed'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Form tasks -->
+    <record id="view_task_need_form" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry.need</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <!-- `type_deadline` -->
+            <field name="date_deadline" position="attributes">
+                <attribute name="attrs">{'readonly': [('type_deadline', '=', 'computed')]}</attribute>
+            </field>
+            <field name="date_deadline" position="before">
+                <field name="type_deadline" widget="badge"
+                    decoration-info="type_deadline == 'manual'"
+                    decoration-primary="type_deadline == 'computed'"
+                />
+                <field name="deadline_week_offset" attrs="{'invisible': [('type_deadline', '!=', 'computed')]}" />
+            </field>
+            
+            <!-- planning card -->
+            <field name="card_ref" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="launch_ids" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Pre-select project before opening Needs (tasks) -->
+    <record id="action_open_task_need_srv" model="ir.actions.server">
+        <field name="name">View and adapt Needs</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(
+                'carpentry_planning_task_need.action_open_task_need'
+            )
+        </field>
+    </record>
+    <!-- Real action opening the view Needs (tasks) -->
+    <record id="action_open_task_need" model="ir.actions.act_window">
+        <field name="name">View and adapt Needs</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_task_tree_need" />
+        <field name="context">{
+            'default_root_type_id': root_type_need,
+            'default_user_ids': [],
+            'default_type_deadline': 'converted'
+            'search_default_filter_my_role': 1,
+            'display_with_prefix': False,
+        }</field>
+        <field name="domain">[('root_type_id', '=', root_type_need)]</field>
+    </record>
+    <menuitem
+        id="menu_project_need_view"
+        sequence="20"
+        action="action_open_task_need_srv"
+        parent="menu_project_need_section"
+    />
+
+</odoo>

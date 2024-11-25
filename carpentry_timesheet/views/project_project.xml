@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Project Form: add `sum_effective_hours` in Task Count smart button -->
+    <record id="view_project_form_inherit" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.carpentry</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project_task_link.view_project_form_inherit" />
+
+        <field name="arch" type="xml">
+            <field name="task_count" position="after">
+                <field name="sum_effective_hours" /> (h)
+            </field>
+        </field>
+    </record>
+
+    <!-- Project list (show "Internal" project) -->
+    <!-- <record id="project.open_view_project_all" model="ir.actions.act_window">
+        <field name="domain">[]</field>
+    </record>
+    <record id="project.open_view_project_all_group_stage" model="ir.actions.act_window">
+        <field name="domain">[]</field>
+    </record> -->
+    
+    <!-- Role: add `product_id` in readonly -->
+    <record id="carpentry_role_tree" model="ir.ui.view">
+        <field name="name">project.role.tree.timesheet</field>
+        <field name="model">project.role</field>
+        <field name="inherit_id" ref="carpentry_project.carpentry_role_tree" />
+
+        <field name="arch" type="xml">
+            <field name="user_id" position="after">
+                <field name="product_id" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Budget pivot for timesheetable products (carpentry.budget.project) -->
+    <record id="carpentry_project_budget_pivot_timesheetable" model="ir.ui.view">
+        <field name="name">carpentry.budget.project.pivot</field>
+        <field name="model">carpentry.budget.project</field>
+
+        <field name="arch" type="xml">
+            <pivot string="Timesheetable budgets" disable_linking="1">
+                <field name="project_id" type="col" />
+                <field name="product_id" type="row" />
+                <field name="quantity" type="measure" string="Hours" />
+            </pivot>
+        </field>
+    </record>
+</odoo>

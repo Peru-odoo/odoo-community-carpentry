@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Milestone (very small form) - fill-in by user, accessed from planning -->
+    <record model="ir.ui.view" id="carpentry_planning_milestone_form">
+        <field name="name">carpentry.planning.milestone.form</field>
+        <field name="model">carpentry.planning.milestone</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="date" />
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Milestone type (tree) - for config -->
+    <record id="carpentry_planning_milestone_type_tree" model="ir.ui.view">
+        <field name="name">carpentry.planning.milestone.type.tree</field>
+        <field name="model">carpentry.planning.milestone.type</field>
+        
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="icon" />
+                <field name="type" />
+                <field name="column_id" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Milestone actions & config menu-item -->
+    <record id="action_carpentry_planning_milestone_type" model="ir.actions.act_window">
+        <field name="name">Planning Milestones</field>
+        <field name="res_model">carpentry.planning.milestone.type</field>
+        <field name="view_mode">tree</field>
+    </record>
+    <menuitem
+        action="action_carpentry_planning_milestone_type"
+        id="menu_carpentry_planning_milestone_type"
+        parent="menu_project_config_planning"
+    />
+</odoo>

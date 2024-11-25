@@ -1,0 +1,3 @@
+id,name,sequence,column_id:id,icon,type
+launch_milestone_prod_start,Production Start,10,planning_column_plan_release,fa fa-calendar-o,start
+launch_milestone_prod_end,Production End,20,planning_column_plan_release,fa fa-calendar-check-o,end

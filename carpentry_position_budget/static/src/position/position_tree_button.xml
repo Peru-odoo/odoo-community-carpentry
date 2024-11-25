@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="carpentry_position_budget.ListButtons" t-inherit="web.ListView.Buttons">
+        <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
+            <t t-if="props.showButtons">
+                <button type="button"
+                    class="btn btn-primary mx-1"
+                    t-on-click.prevent="openPositionBudget"
+                    string="View budgets"
+                    icon="fa-table"
+                />
+
+                <button type="button"
+                    class="btn btn-primary mx-1"
+                    t-on-click.prevent="openImportWizard"
+                    string="Import budget"
+                    icon="fa-upload"
+                />
+            </t>
+        </xpath>
+    </t>
+
+</templates>

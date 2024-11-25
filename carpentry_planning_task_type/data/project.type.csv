@@ -1,0 +1,4 @@
+id,name,code,project_ok,task_ok
+task_type_meeting,Meeting,Meeting,False,False
+task_type_milestone,Milestone,Milestone,False,False
+task_type_instruction,Instruction,Instruction,False,False

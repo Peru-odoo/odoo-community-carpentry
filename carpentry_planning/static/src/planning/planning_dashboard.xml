@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <div t-name="carpentry_planning.PlanningDashboardCard" owl="1" class="card m-2" t-att-class="props.className">
+        <div class="card-body">
+            <t t-if="props.slots.title"> 
+                <h4 class="card-title mb-2"><t t-slot="title"/></h4>
+            </t>
+            <p class="card-text"><t t-slot="default"/></p>
+        </div>
+    </div>
+
+    <div t-name="carpentry_planning.PlanningDashboard" owl="1" class="o_carpentry_planning_dashboard p-1">
+        <div class="d-flex flex-wrap">
+            <t t-foreach="items" t-as="item" t-key="item_index">
+                <PlanningDashboardCard>
+                    <t t-set-slot="title">
+                        <i t-attf-class="fa {{ item.icon }} me-2" />
+                        <t t-esc="item.title" />
+                    </t>
+                    <t t-call="carpentry_planning.PlanningDashboard.{{ item.id }}" />
+                </PlanningDashboardCard>
+            </t>
+        </div>
+    </div>
+
+</templates>

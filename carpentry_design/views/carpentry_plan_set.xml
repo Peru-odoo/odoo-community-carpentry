@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form (plan.set): display in a wizard. Accessed by user from:
+     - "New Planset" button, fakely replacing standard "New" button of `plan.release` tree 
+     - "Open" button, on groupped line of `plan.release` tree view
+    -->
+    <record id="carpentry_plan_set_form" model="ir.ui.view">
+        <field name="name">carpentry.plan.set.form</field>
+        <field name="model">carpentry.plan.set</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1> <field name="name" placeholder="Name" /> </h1>
+                    </div>
+
+                    <group>
+                        <field name="project_id"
+                            attrs="{'readonly': [('id', '!=', False)]}"
+                            class="text-uppercase"
+                            options="{'no_create': 1}"
+                        />
+                        <field name="sequence" widget="numeric_step" options="{'min': 0}" />
+                        <field name="launch_ids" widget="many2many_checkboxes" />
+                    </group>
+                </sheet>
+                
+                <footer>
+                    <button string="Save &amp; Close" special="save" class="btn btn-primary mx-1" />
+                    <button string="Discard" special="cancel" class="btn btn-secondary mx-1" />
+                    <button string="Delete" type="object" name="unlink"
+                        icon="fa-trash"
+                        class="btn btn-danger mx-1 text-uppercase"
+                        confirm="Are you sure?"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Carpentry Plan Tree view (back-up: never displayed) -->
+    <record id="carpentry_plan_set_tree" model="ir.ui.view">
+        <field name="name">carpentry.plan.set.tree</field>
+        <field name="model">carpentry.plan.set</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="project_id" invisible="context.get('default_project_id')" />
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="launch_ids" widget="many2many_tags" />
+            </tree>
+        </field>
+    </record>
+    <!-- Search (back-up: never displayed) -->
+    <record id="carpentry_plan_set_search" model="ir.ui.view">
+        <field name="name">carpentry.plan.set.search</field>
+        <field name="model">carpentry.plan.set</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Planset" filter_domain="['|', ('name', 'ilike', self), ('project_id', 'ilike', self)]"/>
+                <field name="project_id" />
+                
+                <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids','=',uid)]" />
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

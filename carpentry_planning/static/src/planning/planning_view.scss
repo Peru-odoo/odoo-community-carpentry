@@ -1,0 +1,17 @@
+
+.o_carpentry_planning {
+    .o_carpentry_planning_dashboard {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .o_search_panel_field {
+        .li:hover {
+            background-color: 'secondary';
+        }
+    }
+
+    .o_kanban_record:not(:hover) .o_kanban_record_bottom {
+        display: none;
+    }
+}

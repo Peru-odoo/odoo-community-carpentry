@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Pre-select project before opening Milestone (tasks) -->
+    <record id="action_open_task_milestone_srv" model="ir.actions.server">
+        <field name="name">Milestones</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(lambda self: {
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.task',
+                'view_mode': 'tree,kanban,agenda,timeline,form,activity',
+                'name': 'Milestones',
+                'context': {
+                    'default_root_type_id': root_type_milestone,
+                    'display_launch_ids': False,
+                },
+                'domain': [('root_type_id', '=', root_type_milestone)]
+            })
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_project_milestone"
+        parent="carpentry_planning.menu_project_planning"
+        action="action_open_task_milestone_srv"
+        sequence="30"
+    />
+
+</odoo>

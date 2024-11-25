@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="task_type_need" model="project.type">
+            <field name="name">Need</field>
+            <field name="code">need</field>
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+        <record id="task_type_need_method" model="project.type">
+            <field name="name">Needs (Method)</field>
+            <field name="code">need_method</field>
+            <field name="parent_id" ref="carpentry_planning_task_need.task_type_need" />
+            <field name="role_id" ref="carpentry_planning_task_need.project_role_project" />
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+        <record id="task_type_need_construction" model="project.type">
+            <field name="name">Needs (Construction site)</field>
+            <field name="code">need_construction</field>
+            <field name="parent_id" ref="carpentry_planning_task_need.task_type_need" />
+            <field name="role_id" ref="carpentry_planning_task_need.project_role_construction_manager" />
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+        <record id="example_need_category" model="project.type">
+            <field name="name">Example of a Need Category</field>
+            <field name="code">need_category_example</field>
+            <field name="parent_id" ref="carpentry_planning_task_need.task_type_need_method" />
+            <field name="project_ok">False</field>
+            <field name="task_ok">True</field>
+        </record>
+    </data>
+</odoo>

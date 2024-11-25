@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Planning Dashboard KPI Card: meetings -->
+    <t t-name="carpentry_project.PlanningDashboard.meeting" owl="1">
+        <t t-foreach="data.meetings" t-as="meeting" t-key="meeting_index">
+            <div class="d-flex align-items-center  mb-1">
+                <span t-if="meeting.count_message_ids > 0" class="me-2 text-muted">
+                    <i class="fa fa-clock-o" title="Last Meeting date" /> <t t-esc="meeting.message_last_date" />
+                    <i class="fa fa-repeat ms-2" title="Number of meetings" /> <t t-esc="meeting.count_message_ids" />
+                </span>
+                <a class="cursor-pointer" t-on-click="() => this.openDetails('project.task', meeting.id, meeting.name, 'current')">
+                    <i class="fa fa-users" title="Title" /> <t t-esc="meeting.display_name" />
+                </a>
+                <span t-attf-class="o_status {{ statusColor(meeting.kanban_state) }} ms-2" />
+            </div>
+        </t>
+    </t>
+
+    <!-- Planning Dashboard KPI Card: milestones -->
+    <t t-name="carpentry_project.PlanningDashboard.milestone" owl="1">
+        <table class="text-center">
+            <thead>
+                <tr>
+                    <th scope="col" t-foreach="data.types" t-as="type" t-key="type.id"
+                        t-att-data-tooltip="type.shortname ? type.name : false"
+                        t-esc="type.shortname || type.name"
+                        class="px-1"
+                    />
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td t-foreach="data.types" t-as="type" t-key="type.id">
+                        <t t-foreach="data.milestones[type.id]" t-as="milestone" t-key="milestone.id">
+                            <button
+                                t-attf-class="px-1 py-0 mb-1 btn {{ btnColor(milestone) }}"
+                                t-on-click="() => this.openDetails('project.task', milestone.id, milestone.name)"
+                                t-att-data-tooltip="milestone.display_name"
+                            >
+                                <t t-if="milestone.week_deadline">W<t t-esc="milestone.week_deadline" /></t>
+                                <t t-else="">?</t>
+                            </button>
+                            <br />
+                        </t>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+
+</templates>

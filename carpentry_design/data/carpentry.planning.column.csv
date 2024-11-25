@@ -1,0 +1,2 @@
+id,name,res_model_id:id,sequence,fold,icon,can_open
+planning_column_plan_release,Plan Release,project_design.model_carpentry_plan_release,10,False,fa fa-pencil,True

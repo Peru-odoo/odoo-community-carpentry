@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="carpentry_group_affectation_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.affectation.tree</field>
+        <field name="model">carpentry.group.affectation</field>
+
+        <field name="arch" type="xml">
+            <tree editable="bottom" limit="200">
+                <field name="project_id" invisible="1" />
+
+                <field name="group_ref"
+                    options="{'no_create': 1}"
+                    string="Phase"
+                    readonly="1"
+                />
+                <field name="position_id"
+                    options="{'no_create': 1}"
+                    string="Position"
+                    readonly="1"
+                />
+                <field name="quantity_position" readonly="1"/>
+                <field name="quantity_remaining_to_affect" readonly="1" />
+                <field name="quantity_affected"
+                    sum="1"
+                    required="True"
+                    decoration-bf="True"
+                    decoration-primary="True"
+                />
+            </tree>
+        </field>
+    </record>
+    <!-- Form -->
+    <record id="carpentry_group_affectation_form" model="ir.ui.view">
+        <field name="name">carpentry.group.affectation.form</field>
+        <field name="model">carpentry.group.affectation</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group name="group_section">
+                        <group name="group_left">
+                            <field name="project_id" />
+                            <field name="group_ref" />
+                            <field name="record_ref" />
+                            <field name="section_ref" />
+        
+                            <field name="position_id" />
+                        </group>
+                        <group name="group_right">
+                            <field name="quantity_affected" />
+                            <field name="quantity_position" />
+                            <field name="quantity_remaining_to_affect" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Search -->
+    <record model="ir.ui.view" id="carpentry_group_affectation_search">
+        <field name="name">carpentry.group.affectation.search</field>
+        <field name="model">carpentry.group.affectation</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="record_ref" />
+                <field name="group_ref" />
+                <field name="project_id" />
+
+                <filter string="★ Projects"
+                    name="my_favorite_projects"
+                    domain="[('project_id.favorite_user_ids','=',uid)]"
+                />
+
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

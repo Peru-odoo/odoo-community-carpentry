@@ -1,0 +1,66 @@
+
+# ALUVAL private data (migration only)
+import_tools/data/*/*.csv
+import_tools/data/*/*.tar.gz
+
+# Personal "mess" folders & files
+__old/
+__perso/
+perso_*
+
+# secrets
+secrets/
+*.secrets
+*.pub
+*.cer
+
+# Python environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+__pycache__/
+*.pyc
+
+# System - Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# System - Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.tar.gz
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.mmdb
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

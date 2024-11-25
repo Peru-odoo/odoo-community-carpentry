@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree (sale order) -->
+    <record id="view_order_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree.carpentry</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree" />
+
+        <field name="arch" type="xml">
+            <!-- Add field Description -->
+            <field name="name" position="after">
+                <field name="description" />
+            </field>
+
+            <!-- Add field "Line Status" next to "Status" -->
+            <field name="state" position="before">
+                <field name="lines_validated"
+                    widget="badge"
+                    decoration-success="lines_validated == 'all_validated'"
+                    decoration-warning="lines_validated == 'not_validated'"
+                    decoration-muted="lines_validated == 'none'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Form (sale order) -->
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form.carpentry</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+
+        <field name="arch" type="xml">
+            <!-- Put a Name (`description`) field next to the Code sequence (`name`) -->
+            <h1 position="replace">
+                <label for="description" />
+                <h1 colspan="12">
+                    <group col="12">
+                        <group colspan="3"><field name="name" readonly="1" nolabel="1" colspan="2" /></group>
+                        <group colspan="9"><field name="description" required="1" nolabel="1" colspan="2" /></group>
+                    </group>
+                </h1>
+            </h1>
+
+            <!-- Attachment -->
+            <group name="partner_details" position="inside">
+                <field name="comment" widget="html" />
+                <field name="attachment_ids" widget="many2many_binary" options="{'accepted_file_extensions': '.pdf'}" />
+            </group>
+
+            <!-- `Validated` field on sale.order.line -->
+            <xpath expr="//tree" position="inside">
+                <field name="validated" widget="boolean_toggle" />
+            </xpath>
+
+            <!-- Total(s) -->
+            <field name="tax_totals" position="replace">
+                <field name="amount_untaxed_validated" string="Total (HT) - validated lines only" />
+                <field name="amount_untaxed" string="Total (HT) - all lines" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Search (sale order) -->
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="name">sale.order.search.carpentry</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter" />
+
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <separator/>
+                <filter string="Lines amounts validated" name="line_validated" domain="[('lines_validated', '=', 'all_validated')]" />
+                <filter string="Lines not confirmed" name="line_pending" domain="[('lines_validated', '=', 'not_validated')]" />
+            </field>
+        </field>
+    </record>
+</odoo>

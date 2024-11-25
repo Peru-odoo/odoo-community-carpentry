@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Tree (sale order) -->
+    <record id="view_order_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree.carpentry.sale_budget</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree" />
+
+        <field name="arch" type="xml">
+            <!-- Add field "Budget State" next to "Line State" -->
+            <field name="lines_validated" position="after">
+                <field name="lines_budget_updated"
+                    widget="badge"
+                    decoration-success="lines_budget_updated == 'all_updated'"
+                    decoration-warning="lines_budget_updated == 'not_updated'"
+                    decoration-muted="lines_budget_updated == 'none'"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Form (sale order) -->
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="name">sale.order.form.carpentry.sale_budget</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+
+        <field name="arch" type="xml">
+            <!-- `budget_updated` field on embedded O2m tree of `sale.order.line` -->
+            <field name="validated" position="after">
+                <field name="budget_updated" widget="boolean_toggle" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Search (sale order) -->
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="name">sale.order.search.carpentry.sale_budget</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter" />
+
+        <field name="arch" type="xml">
+            <filter name="line_pending" position="after">
+                <separator/>
+                <filter string="Budget up-to-date" name="budget_ok" domain="[('lines_budget_updated', '=', True)]" />
+                <filter string="Budget partially up-to-date" name="budget_pending" domain="[('lines_budget_updated', '=', False)]" />
+            </filter>
+        </field>
+    </record>
+</odoo>

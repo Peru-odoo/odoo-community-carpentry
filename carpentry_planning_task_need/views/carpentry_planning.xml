@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Customize `card_body` template for needs -->
+    <record model="ir.ui.view" id="carpentry_planning_kanban">
+        <field name="name">carpentry.planning.card.kanban</field>
+        <field name="model">carpentry.planning.card</field>
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_kanban" />
+        
+        <field name="arch" type="xml">
+            <t t-name="card_body" position="inside">
+                <t t-if="record.res_model.raw_value == 'project.type'">
+                    <a title="Closest next objective (or last, if all tasks are done)" name="action_open_tasks" type="object"
+                        t-attf-context="{'launch_id': {{launchId}}}"
+                        t-attf-class="o_kanban_inline_block badge fs-6 fw-normal text-bg-{{record.planning_card_body_color.raw_value}}"
+                    >
+                        <span class="fa fa-calendar me-2" title="Calendar" />
+                        <t t-if="record.task_week.raw_value">W<t t-esc="record.task_week.raw_value" /></t>
+                        <t t-else="">?</t>
+                    </a>
+                </t>
+            </t>
+        </field>
+    </record>
+
+</odoo>

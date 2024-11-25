@@ -1,0 +1,415 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_planning
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-24 08:46+0000\n"
+"PO-Revision-Date: 2024-11-24 09:53+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__active
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_mixin__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model_id
+msgid "Card Model"
+msgstr "Modèle de carte"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_column
+msgid "Carpentry Planning Column"
+msgstr "Colonne du planning de menuiserie"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#, python-format
+msgid "Click to toggle status"
+msgstr "Cliquez pour basculer l'état"
+
+#. module: carpentry_planning
+#. odoo-python
+#: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#, python-format
+msgid "Column %s requires an Identifier"
+msgstr "La colonne %s nécessite un identifiant"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__create_uid
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__create_date
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__date
+msgid "Date"
+msgstr "Date"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__description
+msgid "Description"
+msgstr "Description"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__display_name
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__display_name
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__display_name
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_group_launch__is_done
+msgid "Done?"
+msgstr "Terminé ?"
+
+#. module: carpentry_planning
+#: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_kanban
+msgid "Dropdown menu"
+msgstr "Menu déroulant"
+
+#. module: carpentry_planning
+#: model:ir.model.fields.selection,name:carpentry_planning.selection__carpentry_planning_milestone_type__type__end
+msgid "End"
+msgstr "Fin"
+
+#. module: carpentry_planning
+#. odoo-python
+#: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
+#, python-format
+msgid "End date must be after the start date."
+msgstr "La date de fin doit être postérieure à la date de début."
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__fold
+msgid "Folded?"
+msgstr "Repliée ?"
+
+#. module: carpentry_planning
+#: model:ir.ui.menu,name:carpentry_planning.menu_project_followup
+msgid "Follow-up"
+msgstr "Suivi"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__icon
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__icon
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__icon
+msgid "Icon"
+msgstr "Îcone"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__identifier_res_id
+msgid "Identifier ID"
+msgstr "Identifiant ID"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__identifier_res_model
+msgid "Identifier Model"
+msgstr "Modèle d'identifiant"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__identifier_res_model_id
+msgid "Identifier Model ID"
+msgstr "Identifiant Modèle ID"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__identifier_ref
+msgid "Identifier Ref"
+msgstr "Identificateur Réf"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__identifier_required
+msgid "Identifier Required"
+msgstr "Identifiant requis"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__identifier_ref
+msgid ""
+"Identifier value is needed when 2 columns get their source from same Model. "
+"The identifier model must have a `column_id` field holding the routing "
+"logic. Example: Task Needs to route towards `Needs (Method)` or `Needs "
+"(Field)` "
+msgstr ""
+"L'identifiant est nécessaire lorsque deux colonnes tirent leur donnée du "
+"même modèle. Le modèle du champ `Identificateur` doit, lui, avoir un champ "
+"`column_id` opérant la logique de routage. Exemple : router les tâches "
+"issues de besoin entre les colonnes `Besoin (Méthode)` et `Besoins "
+"(Chantier)` "
+
+#. module: carpentry_planning
+#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__sticky
+msgid ""
+"If the card is displayed whatever domain filter on Planning view (e.g. "
+"Needs Categories)."
+msgstr ""
+"Si la carte est affichée quel que soit le filtre de domaine de la vue "
+"Planning (par exemple, Catégories de besoins)."
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__can_open
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__can_open
+msgid "Kanban Card is clickable"
+msgstr "Carte du Kanban cliquable"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card____last_update
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column____last_update
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone____last_update
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification le"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__write_uid
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__write_date
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_group_launch
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__launch_id
+#: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_search
+msgid "Launch"
+msgstr "Lancement"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__launch_ids
+#, python-format
+msgid "Launches"
+msgstr "Lancements"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#, python-format
+msgid "Launches planning"
+msgstr "Planning par lancement"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__milestone_type_id
+msgid "Milestone type"
+msgstr "Type de jalon"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_group_launch__milestone_ids
+msgid "Milestones"
+msgstr "Jalons"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__res_model
+msgid "Model"
+msgstr "Modèle"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__name
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__name
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__name
+msgid "Name"
+msgstr "Nom"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#, python-format
+msgid "Next"
+msgstr "Suivant"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#, python-format
+msgid "No launches to display."
+msgstr "Aucun lancement à afficher."
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#, python-format
+msgid "Open details"
+msgstr "Détails"
+
+#. module: carpentry_planning
+#: model:ir.actions.server,name:carpentry_planning.action_srv_open_planning
+#: model:ir.ui.menu,name:carpentry_planning.menu_project_config_planning
+#: model:ir.ui.menu,name:carpentry_planning.menu_project_planning
+msgid "Planning"
+msgstr "Planning"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_body_color
+msgid "Planning Card Body Color"
+msgstr "Couleur du corps de la carte du planning"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_color
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_mixin__planning_card_color
+msgid "Planning Card Color"
+msgstr "Couleur de la carte du planning"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_color_is_auto
+msgid "Planning Card Color Is Auto"
+msgstr "Couleur automatique de la carte du planning"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_milestone
+msgid "Planning Milestone"
+msgstr "Jalon"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_milestone_type
+msgid "Planning Milestone Type"
+msgstr "Type de jalon"
+
+#. module: carpentry_planning
+#: model:ir.actions.act_window,name:carpentry_planning.action_carpentry_planning_milestone_type
+#: model:ir.ui.menu,name:carpentry_planning.menu_carpentry_planning_milestone_type
+msgid "Planning Milestones"
+msgstr "Jalons"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_mixin
+msgid "Planning Mixin"
+msgstr "Planning Mixin"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__column_id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__column_id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__column_id
+msgid "Planning column"
+msgstr "Colonne du planning"
+
+#. module: carpentry_planning
+#: model:ir.actions.act_window,name:carpentry_planning.action_carpentry_planning_column
+#: model:ir.ui.menu,name:carpentry_planning.menu_carpentry_planning_column
+msgid "Planning columns"
+msgstr "Colonnes du planning"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#, python-format
+msgid "Previous"
+msgstr "Précédent"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_project_project
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__project_id
+#: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_search
+msgid "Project"
+msgstr "Projet"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__res_id
+msgid "Real record ID"
+msgstr "ID de l'enregistrement réel"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__model_shortname
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model_shortname
+msgid "Res Model Shortname"
+msgstr "Nom court du modèle de l'enregistrement"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__sequence
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__sequence
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__shortname
+msgid "Shortname"
+msgstr "Nom court"
+
+#. module: carpentry_planning
+#: model:ir.model.fields.selection,name:carpentry_planning.selection__carpentry_planning_milestone_type__type__start
+msgid "Start"
+msgstr "Début"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__state
+msgid "State"
+msgstr "État"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__state_value
+msgid "State Value"
+msgstr "Valeur de l'état"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__sticky
+msgid "Sticky"
+msgstr "Toujours affiché"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_project_project__this_week
+msgid "This Week"
+msgstr "Cette semaine"
+
+#. module: carpentry_planning
+#: model:ir.model.constraint,message:carpentry_planning.constraint_carpentry_planning_column_uniq_column
+msgid "This identifier is already used in another column."
+msgstr "Cet identifiant est déjà utilisé pour une autre colonne."
+
+#. module: carpentry_planning
+#: model:ir.model.constraint,message:carpentry_planning.constraint_carpentry_planning_milestone_type_per_column_launch
+msgid "This type of milestone already exists on this launch and column."
+msgstr "Ce type de jalon existe déjà sur ce lancement et cette colonne."
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__type
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_type__type
+msgid "Type"
+msgstr "Type"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__fold
+msgid "Whether the column is hidden in the planning (for all users)."
+msgstr ""
+"Si la colonne est cachée dans le planning (pour tous les utilisateurs)."
+
+#. module: carpentry_planning
+#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__icon
+msgid "fa fa-xxxx"
+msgstr "fa fa-xxxx"

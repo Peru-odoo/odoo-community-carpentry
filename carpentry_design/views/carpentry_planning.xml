@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="carpentry_planning_kanban">
+        <field name="name">carpentry.planning.card.kanban</field>
+        <field name="model">carpentry.planning.card</field>
+        <field name="inherit_id" ref="carpentry_project.carpentry_planning_kanban" />
+        <field name="arch" type="xml">
+            <templates position="before">
+                <field name="week_plan_release" />
+                <field name="week_visa_feedback" />
+            </templates>
+
+            <t t-name="card_body" position="inside">
+                <t t-if="record.res_model.raw_value == 'carpentry.plan.release'">
+                    <span title="Week Plan release" class="mx-0">
+                        <span class="fa fa-calendar" />
+                        W<t t-esc="record.week_plan_release.raw_value" />
+                        <span class="fa fa-long-arrow-right mx-1"/>
+                    </span>
+
+                    <span t-attf-title="{{ record.state_value.raw_value }} (Week Visa Feedback)"
+                        t-attf-class="o_kanban_inline_block badge fs-6 fw-bold text-bg-{{record.planning_card_body_color.raw_value}}"    
+                    >
+                        <t t-if="record.week_visa_feedback.raw_value">W<t t-out="record.week_visa_feedback.raw_value" /></t>
+                        <t t-else="">?</t>
+                    </span>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

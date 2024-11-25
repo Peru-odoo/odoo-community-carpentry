@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <div class="bg-white border-end o_search_panel overflow-auto p-2 ps-4"
+        t-name="carpentry_planning.PlanningLeftSidePanel" owl="1"
+    >
+        <!-- Launches (like multi="one") -->
+        <header class="h6 text-uppercase my-3 d-flex">
+            <div class="flex-grow-1">
+                Launches
+            </div>
+            <div>
+                <i t-attf-class="fa fa-chevron-left mx-1 {{goLeft ? 'cursor-pointer' : 'text-muted'}}"
+                   title="Previous" t-on-click="() => this.move(-1)" data-hotkey="ArrowLeft" />
+                <i t-attf-class="fa fa-chevron-right mx-1 {{goRight ? 'cursor-pointer' : 'text-muted'}}"
+                   title="Next" t-on-click="() => this.move(+1)" data-hotkey="ArrowRight" />
+            </div>
+        </header>
+
+        <ul class="list-group d-block" t-if="launchIds.length">
+            <t t-foreach="launchIds" t-as="launch" t-key="launch.id">
+                <PlanningLeftSidePanel_LaunchItem
+                    launch="launch"
+                    isSelected="launch.id == state.selectedLaunchId"
+                    selectLaunch.bind="selectLaunch" />
+            </t>
+        </ul>
+        <p t-else="">
+            No launches to display.
+        </p>
+    </div>
+    
+    <t t-name="carpentry_planning.PlanningLeftSidePanel_LaunchItem" owl="1">
+        <li class="w-100 d-flex list-group-item cursor-pointer px-1 py-1 my-1 border-0 btn-light"
+            t-att-class="{
+                'text-bg-primary': props.isSelected,
+                'text-decoration-line-through text-muted': state.is_done and !props.isSelected
+            }"
+            t-on-click.self="() => props.selectLaunch(props.launch)"
+        >
+            <div title="Click to toggle status" t-on-click="toggleLaunch">
+                <i t-attf-class="fa {{state.is_done ? 'fa-check-square-o' : 'fa-square-o'}}" />
+            </div>
+            
+            <div t-esc="props.launch.name"
+                 t-on-click="() => props.selectLaunch(props.launch)"
+                 class="flex-grow-1 mx-2" />
+            
+            <div t-on-click="openLaunch" title="Open details">
+                <i class="fa fa-file-text" />
+            </div>
+        </li>
+    </t>
+
+</templates>

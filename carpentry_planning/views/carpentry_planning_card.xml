@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Planning's action -->
+    <record id="action_srv_open_planning" model="ir.actions.server">
+        <field name="name">Planning</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(lambda self: {
+                'type': 'ir.actions.act_window',
+                'res_model': 'carpentry.planning.card',
+                'view_mode': 'kanban',
+                'name': f'Planning / {self.display_name} (W{self.this_week})',
+            })
+        </field>
+    </record>
+    <!-- 2 new main menus:
+        - `Planning`, transformed in section in `carpentry_planning_task[_type/_need]` for Planning, Project tasks, and then Needs, Milestones, ...
+        - `Follow-up`: a section, only relevant for other modules because used by Instructions and Plansets Releases
+      -->
+    <menuitem
+        id="menu_project_planning"
+        name="Planning"
+        parent="project.menu_main_pm"
+        sequence="40"
+        groups="project.group_project_user"
+        action="action_srv_open_planning"
+    />
+    <menuitem id="menu_project_followup"
+        name="Follow-up"
+        parent="project.menu_main_pm"
+        sequence="50"
+        groups="project.group_project_user"
+    />
+
+    <!-- Planning card -->
+    <record model="ir.ui.view" id="carpentry_planning_kanban">
+        <field name="name">carpentry.planning.card.kanban</field>
+        <field name="model">carpentry.planning.card</field>
+        <field name="arch" type="xml">
+            <kanban
+                js_class="carpentry_planning_kanban"
+                default_group_by="column_id"
+                class="o_kanban_small_column"
+                group_create="0"
+                group_edit="0"
+                group_delete="0"
+                groups_draggable="0"
+                archivable="0"
+                quick_create="0"
+                records_draggable="0"
+            >
+
+                <!-- kanban -->
+                <field name="res_model" />
+                <field name="res_id" />
+                <field name="can_open" />
+                <!-- state & colors -->
+                <field name="state" />
+                <field name="state_value" />
+                <field name="description" />
+                <field name="shortname" />
+                <field name="planning_card_body_color" />
+                <field name="planning_card_color_is_auto" />
+                <field name="planning_card_color" />
+
+                <templates>
+                    <t t-name="card_body">
+                        <!-- To be customized in sub-modules -->
+                    </t>
+
+                    <t t-name="kanban-box">
+                        <t t-set="launchId" t-value="props.record.model.launchId" />
+                        
+                        <t t-set="tooltip" t-value="record.description.raw_value" t-if="record.description" />
+                        <t t-set="tooltip" t-value="record.shortname ? record.name.raw_value : false" t-else="" />
+
+                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.planning_card_color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content" t-att-data-tooltip="tooltip">
+                                <div class="o_kanban_record_top mb-0">
+                                    <div class="o_kanban_record_headings">
+                                        <field name="display_name" />
+                                    </div>
+                                    <div>
+                                        <t t-call="card_body" />
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <!-- for tasks -->
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <t t-set="show_dropdown" t-value="!selection_mode and (!record.planning_card_color_is_auto.raw_value)" />
+                                        <t t-if="show_dropdown">
+                                            <div class="o_dropdown_kanban dropdown">
+                                                <a role="button" class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown"
+                                                    data-bs-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu"
+                                                >
+                                                    <span class="fa fa-ellipsis-v"/>
+                                                </a>
+                                                <div class="dropdown-menu" role="menu">
+                                                    <!-- Open buttons -->
+                                                    <!-- <div>
+                                                        <a role="menuitem" type="object" name="action_name_12345" class="dropdown-item">
+                                                            <span class="fa fa-icon" /> Menu line
+                                                        </a>
+                                                    </div> -->
+                                                    
+                                                    <!-- <a role="menuitem" type="bbbbbbbbb" class="dropdown-item">bbbbbbbbb</a> -->
+                                                    <!-- <div role="separator" class="dropdown-divider"></div> -->
+                                                    <t t-if="!record.planning_card_color_is_auto.raw_value">
+                                                        <ul class="oe_kanban_colorpicker" data-field="planning_card_color" />
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="clearfix" />
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search (planning) -->
+    <record id="carpentry_planning_search" model="ir.ui.view">
+        <field name="name">carpentry.planning.card.search</field>
+        <field name="model">carpentry.planning.card</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="project_id" string="Project" />
+                <field name="launch_ids" string="Launch" />
+            </search>
+        </field>
+    </record>
+</odoo>
