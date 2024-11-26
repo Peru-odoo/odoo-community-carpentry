@@ -9,7 +9,7 @@ class CarpentryGroupMixin(models.AbstractModel):
     """
     _name = "carpentry.group.mixin"
     _description = 'Group of Positions'
-    _order = "seq_project DESC, sequence"
+    _order = "sequence"
     _inherit = ["project.default.mixin"]
 
     #===== Fields =====#
@@ -21,11 +21,6 @@ class CarpentryGroupMixin(models.AbstractModel):
     )
     company_id = fields.Many2one(
         related='project_id.company_id'
-    )
-    seq_project = fields.Char(
-        related='project_id.sequence_code',
-        string='Project Code',
-        store=True
     )
     active = fields.Boolean(
         string="Active?", 

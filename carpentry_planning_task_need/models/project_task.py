@@ -132,7 +132,6 @@ class Task(models.Model):
                 )
             )
 
-
     #===== Task copy =====#
     def _fields_to_copy(self):
         return super()._fields_to_copy() | ['type_id', 'need_id']

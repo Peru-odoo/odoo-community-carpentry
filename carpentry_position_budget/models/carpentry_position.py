@@ -49,12 +49,16 @@ class CarpentryPosition(models.Model):
             domain=[('project_id', 'in', self.project_id.ids)],
             groupby=['project_id', 'name'],
             fields=['position_ids:array_agg(id)'],
+            lazy=False
         )
-        position_ids_ = []
-        for x in rg_result:
-            position_ids_ += x['position_ids']
+        mapped_position_name = {
+            (x['project_id'][0], x['name']): x['position_ids']
+            for x in rg_result
+        }
         for position in self:
-            position.warning_name = position.id in position_ids_
+            sibling_ids = mapped_position_name.get((position.project_id.id, position.name), [])
+            sibling_ids = [x for x in sibling_ids if x != position.id] # remove current position
+            position.warning_name = len(sibling_ids)
 
 
     #===== Compute (budgets) =====#

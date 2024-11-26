@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-   
+    <!-- Add smart-button in project form to Instruction -->
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry.task_type.instruction</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project" />
+
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button id="instruction" type="action" name="%(action_open_task_instruction_srv)d" class="oe_stat_button" icon="fa-book">
+                    <field name="instruction_count" widget="statinfo" />
+                </button>
+            </div>
+        </field>
+    </record>
+
+
     <!-- Tree tasks (instructions) -->
     <record id="view_task_tree_instruction" model="ir.ui.view">
         <field name="name">project.task.tree.carpentry.instruction</field>
@@ -32,17 +47,20 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(lambda self: {
+            action = model.action_choose_project_and_redirect({
                 'type': 'ir.actions.act_window',
                 'res_model': 'project.task',
-                'view_mode': 'tree,form',
-                'view_id': env.ref('carpentry_planning_task_type.view_task_tree_instruction').id,
                 'name': 'Instructions',
+                'views': env['project.task']._get_task_views(
+                    type='instruction',
+                    custom=['tree'],
+                    switch=['tree', 'form']
+                ),
                 'context': {
-                    'default_root_type_id': root_type_instruction,
+                    'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_instruction').id,
                     'display_type_ids': True, # hide `parent_type_id` and `type_ids` ; display `type_ids`
                 },
-                'domain': [('root_type_id', '=', root_type_instruction)]
+                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_instruction').id)]
             })
         </field>
     </record>

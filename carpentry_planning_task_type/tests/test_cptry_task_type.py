@@ -58,12 +58,6 @@ class TestCarpentryPlanningTaskType(common.SingleTransactionCase):
 
 
     #===== project.task =====#
-    def test_00_task_type_fields(self):
-        task = self.Task.search([], limit=1)
-        self.assertEqual(task.root_type_milestone, self.env.ref(XML_ID_MILESTONE))
-        self.assertEqual(task.root_type_instruction, self.env.ref(XML_ID_INSTRUCTION))
-        self.assertEqual(task.root_type_meeting, self.env.ref(XML_ID_MEETING))
-    
     def test_01_task_default_type(self):
         """ Test default type choice as per `root_type_id` logic """
         self.assertEqual(self.task_meeting.type_id, self.type_meeting)

@@ -8,7 +8,7 @@
         <field name="arch" type="xml">
             <!-- Import budget button -->
             <header position="inside">
-                <button name="%(action_open_merge_position_wizard)d"
+                <button name="%(action_open_position_budget_import_wizard)d"
                     type="action"
                     string="Import budget"
                     icon="fa-upload"
@@ -28,30 +28,23 @@
             <notebook position="inside">
                 <page name="budget_settings" string="Budget settings">
                     <group name="budget_total">
-                        <group name="budget_line_sum" colspan="2">
-                            <group><label for="budget_line_sum" colspan="2" /></group>
-                            <group><field name="budget_line_sum" nolabel="1" colspan="2" /></group>
-                        </group>
-                        <group name="budget_goods" colspan="2">
-                            <group><label for="budget_goods" colspan="2" /></group>
-                            <group><field name="budget_goods" nolabel="1" colspan="2" /></group>
-                        </group>
-                        <group name="budget_prod" colspan="2">
-                            <group><label for="budget_prod" colspan="2" /></group>
-                            <group><field name="budget_prod" nolabel="1" colspan="2" /></group>
-                        </group>
-                        <group name="budget_install" colspan="2">
-                            <group><label for="budget_install" colspan="2" /></group>
-                            <group><field name="budget_install" nolabel="1" colspan="2" /></group>
-                        </group>
-                        <group name="budget_office" colspan="2">
-                            <group><label for="budget_office" colspan="2" /></group>
-                            <group><field name="budget_office" nolabel="1" colspan="2" /></group>
-                        </group>
-                        <group name="budget_global_fees" colspan="2">
-                            <group><label for="budget_global_fees" colspan="2" /></group>
-                            <group><field name="budget_global_fees" nolabel="1" colspan="2" /></group>
-                        </group>
+                        <field name="budget_line_sum" />
+                        <field name="budget_goods" />
+
+                        <label for="budget_prod" />
+                        <div>
+                            <field name="budget_prod" class="oe_inline" /> <span>h</span>
+                        </div>
+                        <label for="budget_install" />
+                        <div>
+                            <field name="budget_install" class="oe_inline" /> <span>h</span>
+                        </div>
+                        <label for="budget_office" />
+                        <div>
+                            <field name="budget_office" class="oe_inline" /> <span>h</span>
+                        </div>
+
+                        <field name="budget_global_fees" />
                     </group>
                 </page>
             </notebook>

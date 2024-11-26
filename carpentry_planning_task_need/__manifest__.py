@@ -18,10 +18,10 @@
     ],
     'data': [
         # data
-        'data/carpentry.planning.column.xml',
-        'data/carpentry.planning.milestone.type.csv',
         'data/project.role.csv',
         'data/project.type.xml',
+        'data/carpentry.planning.column.xml',
+        'data/carpentry.planning.milestone.type.csv',
         # views
         'views/carpentry_need.xml',
         'views/carpentry_planning.xml',

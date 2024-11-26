@@ -26,7 +26,7 @@
                             <field name="encoding" />
                         </group>
                         <group>
-                            <button name="%(action_open_position_budget_import_wizard)d"
+                            <button name="%(open_carpentry_position_budget_interface)d"
                                 type="action"
                                 colspan="2"
                                 class="btn btn-primary oe_right"
@@ -37,7 +37,7 @@
                             <button name="button_truncate_budget"
                                 type="type"
                                 colspan="2"
-                                class="btn btn-danger"
+                                class="btn btn-danger oe_right text-uppercase"
                                 icon="fa-trash"
                                 string="Truncate budget"
                                 confirm="Are you sure? This will keep positions, but empty their budgets."
@@ -46,60 +46,62 @@
                         </group>
                     </group>
 
-                    <h1>Documentation</h1>
-
-                    <group>
-                        <group>
-                            <h3 colspan="2">Imported data from Orgadata</h3>
-                            <ul colspan="2">
-                                <li>Lots (called 'Phases' in Orgadata)</li>
-                                <li>Positions (called 'Elevation' in Orgadata)</li>
-                                <li>Position's budgets</li>
-                            </ul>
-                        </group>
-                        <group>
-                            <h3 colspan="2">Supported formats</h3>
-                            <ul colspan="2">
-                                <li>Database: SQLite</li>
-                                <li>
-                                    Compression: no compression or optional compression are supported,
-                                    in bzip (.zip) or gzip (.tar.gz).
-                                    If used, the file must be alone in the archive.
-                                </li>
-                            </ul>
-                        </group>
-                    </group>
-
                     <p class="text-info">
                         <span class="fa fa-info-circle" />
-                        If a new budget is imported, the duplicates will be re-created by import process.
+                        If a second budget is imported, it will re-create any previous positions already merged (duplicates).
                     </p>
 
-                    <h3>Import logics</h3>
-                    <p>
-                        This import behaves in <strong>create or update</strong> approach:
-                        if another budget is imported after a first one, the data of the first
-                        will be replaced (i.e. updated), including quantities. Any new data
-                        from the second important will be well created. Existing data in Odoo from
-                        the first important not in the second import will be kept. Depending what you
-                        aim, please import a budget sub-part to avoid loosing any previous work done
-                        in Odoo after the first import.
-                    </p>
-                    <p>
-                        Sometimes, external database may contain unknown columns to Odoo.
-                        When it happens, Odoo add them in the Interface in <strong>ignore state</strong>
-                        and notice you.
-                        If these columns are needed, you may create them before the import in the Interface
-                        or re-play the import after a proper configuration.
-                    </p>
+                    <notebook>
+                        <page name="Documentation">
+                            <group>
+                                <group>
+                                    <h3 colspan="2">Supported formats</h3>
+                                    <ul colspan="2">
+                                        <li>Database: .MDB or SQLite</li>
+                                        <li>
+                                            Compression: no compression or optional compression are supported,
+                                            in bzip (.zip) or gzip (.tar.gz).
+                                            If compressed, the file must be alone in the archive.
+                                        </li>
+                                    </ul>
+                                </group>
+                                <group>
+                                    <h3 colspan="2">Imported data from Orgadata</h3>
+                                    <ul colspan="2">
+                                        <li>Lots (called 'Phases' in Orgadata)</li>
+                                        <li>Positions (called 'Elevation' in Orgadata)</li>
+                                        <li>Position's budgets</li>
+                                    </ul>
+                                </group>
+                            </group>
 
-                    <h3>Impact of changes in Interface configuration</h3>
-                    <p>
-                        Any changes in Interface configuration do not impact previously imported budget.
-                        The only modification having direct impact on Position's Budget is the change
-                        of Default Product of Analytic Account. It changes how the time workloads are valued
-                        in the projects. However, the Product Type of this product should never be changed.
-                    </p>
+                            <h3>Import logics</h3>
+                            <p>
+                                This import behaves in <strong>create or update</strong> approach:
+                                if another budget is imported after a first one, the data of the first
+                                will be replaced (i.e. updated), including quantities. Any new data
+                                from the second important will be well created. Existing data in Odoo from
+                                the first important not in the second import will be kept. Depending what you
+                                aim, please import a budget sub-part to avoid loosing any previous work done
+                                in Odoo after the first import.
+                            </p>
+                            <p>
+                                Sometimes, external database may contain unknown columns to Odoo.
+                                When it happens, Odoo add them in the Interface in <strong>ignore state</strong>
+                                and notice you.
+                                If these columns are needed, you may create them before the import in the Interface
+                                or re-play the import after a proper configuration.
+                            </p>
+
+                            <h3>Impact of changes in Interface configuration</h3>
+                            <p>
+                                Any changes in Interface configuration do not impact previously imported budget.
+                                The only modification having direct impact on Position's Budget is the change
+                                of Default Product of Analytic Account. It changes how the time workloads are valued
+                                in the projects. However, the Product Type of this product should never be changed.
+                            </p>
+                        </page>
+                    </notebook>
                 </sheet>
                 
                 <footer>

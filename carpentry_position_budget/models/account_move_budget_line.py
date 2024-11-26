@@ -2,6 +2,9 @@
 
 from odoo import models, fields, api, _
 
+import logging
+_logger = logging.getLogger(__name__)
+
 class AccountMoveBudgetLine(models.Model):
     _inherit = ["account.move.budget.line"]
 
@@ -38,7 +41,9 @@ class AccountMoveBudgetLine(models.Model):
         'project_id.position_ids.quantity',
         # standard `@api.depends` for `debit`
         'qty_debit',
+        # 1b. valuations of qties -> budget's dates
         'budget_id', 'budget_id.date_from', 'budget_id.date_to',
+        # 1a. products template/variants price & dates
         'product_tmpl_id', 'product_tmpl_id.standard_price',
         'product_variant_ids', 'product_variant_ids.standard_price',  'product_variant_ids.date_from',
     )
@@ -48,25 +53,26 @@ class AccountMoveBudgetLine(models.Model):
             (*) is `qty_debit` or `debit` depending on product's type (service or goods)
         """
         line_ids_computed = self.filtered('is_computed_carpentry')
+
         # compute `debit` standardly, since we overriden the field's `compute` arg
         (self - line_ids_computed)._compute_debit_credit()
-        if not line_ids_computed.ids: # perf early quit
+
+        # perf early quit
+        if not line_ids_computed.ids:
             return
         
-        rg_result = self.env['carpentry.position.budget'].read_group(
-            domain=[('project_id', 'in', line_ids_computed.ids)],
-            groupby=['project_id', 'analytic_account_id'],
-            fields=['amount:sum']
+        # Get budget project's groupped by analytic account
+        budget_brut, _ = self.project_id.position_budget_ids.sum(
+            quantities=self.project_id._get_quantities(),
+            groupby_budget='analytic_account_id',
+            groupby_group=['group_id']
         )
-        mapped_data = {
-            (x['project_id'][0], x['analytic_account_id'][0]): x['amount']
-            for x in rg_result
-        }
 
+        # Write in budget lines
         for line in line_ids_computed:
-            key = (line.project_id.id, line.analytic_account_id.id)
+            amount = budget_brut.get(line.project_id.id, {}).get(line.analytic_account_id.id, 0.0)
             field = 'debit' if line.type == 'standard' else 'qty_debit'
-            line[field] = mapped_data.get(key)
+            line[field] = amount
 
 
     #===== Button ======#

@@ -35,6 +35,7 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
     def test_02_position_warning_name(self):
         self.assertTrue(self.position.warning_name)
         self.assertTrue(self.position_duplicate.warning_name)
+        self.assertFalse(self.project.position_ids[2].warning_name)
     
 
     #===== carpentry.position.merge.wizard =====#

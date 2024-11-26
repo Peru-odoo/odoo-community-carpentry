@@ -25,7 +25,7 @@
     <record id="carpentry_role_tree" model="ir.ui.view">
         <field name="name">project.role.tree.timesheet</field>
         <field name="model">project.role</field>
-        <field name="inherit_id" ref="carpentry_project.carpentry_role_tree" />
+        <field name="inherit_id" ref="carpentry_planning.carpentry_role_tree" />
 
         <field name="arch" type="xml">
             <field name="user_id" position="after">

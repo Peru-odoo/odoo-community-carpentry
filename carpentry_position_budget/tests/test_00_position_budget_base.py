@@ -60,15 +60,19 @@ class TestCarpentryPositionBudget_Base(TestCarpentryPosition_Base):
         cls.Interface = cls.env['carpentry.position.budget.interface']
         cls.Interface.create([{
             'external_db_type': 'orgadata',
-            'external_db_col': 'Fab alu',
+            'external_db_col': 'A_ACC',
+            'analytic_account_id': cls.aac_aluminium.id,
+        }, {
+            'external_db_type': 'orgadata',
+            'external_db_col': 'Fab2',
             'analytic_account_id': cls.aac_prod.id,
         }, {
             'external_db_type': 'orgadata',
-            'external_db_col': 'Pose',
+            'external_db_col': 'Pose1',
             'analytic_account_id': cls.aac_install.id,
         }, {
             'external_db_type': 'orgadata',
-            'external_db_col': 'Pose chantier',
+            'external_db_col': 'Pose2',
             'analytic_account_id': cls.aac_install.id,
         }])
 

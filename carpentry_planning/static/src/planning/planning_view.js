@@ -29,7 +29,7 @@ export class PlanningKanbanRenderer extends KanbanRenderer {
         });
     }
 }
-PlanningKanbanRenderer.template = "carpentry_project.PlanningKanbanRenderer";
+PlanningKanbanRenderer.template = "carpentry_planning.PlanningKanbanRenderer";
 
 // ===== Controller =====
 export class PlanningController extends KanbanController {
@@ -67,7 +67,7 @@ export class PlanningController extends KanbanController {
         }, {onClose: actionReload});
     }
 }
-PlanningController.template = "carpentry_project.CarpentryPlanningKanbanView"
+PlanningController.template = "carpentry_planning.CarpentryPlanningKanbanView"
 PlanningController.components = {
     ...KanbanController.components,
     PlanningKanbanRenderer,

@@ -196,7 +196,7 @@
     <record id="type_tree" model="ir.ui.view">
         <field name="name">project.task.type.tree.carpentry</field>
         <field name="model">project.task.type</field>
-        <field name="inherit_id" ref="carpentry_project.type_tree" />
+        <field name="inherit_id" ref="carpentry_planning.type_tree" />
 
         <field name="arch" type="xml">
             <field name="department_id" position="after">

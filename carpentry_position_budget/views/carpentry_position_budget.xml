@@ -6,7 +6,7 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(lambda self: {
+            action = model.action_choose_project_and_redirect({
                 'type': 'ir.actions.act_window',
                 'res_model': 'account.move.budget.line',
                 'view_mode': 'tree,form',
@@ -20,7 +20,7 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(lambda self: {
+            action = model.action_choose_project_and_redirect({
                 'type': 'ir.actions.act_window',
                 'res_model': 'carpentry.position.budget',
                 'view_mode': 'pivot,tree,form',
@@ -29,7 +29,11 @@
         </field>
     </record>
     <!-- Menu : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
-    <menuitem id="menu_project_main_budget" parent="project.menu_main_pm" sequence="50">
+    <menuitem id="menu_project_main_budget"
+        parent="project.menu_main_pm"
+        sequence="50"
+        name="Budget"
+    >
         <menuitem id="menu_project_budget_lines" action="action_open_project_budget_lines" sequence="20" />
         <menuitem id="menu_project_budget_position_budget" action="action_open_position_budget_srv" sequence="30" />
     </menuitem>

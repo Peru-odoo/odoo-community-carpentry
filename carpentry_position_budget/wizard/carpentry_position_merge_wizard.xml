@@ -18,15 +18,10 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <p class="text-info">
-                        <span class="fa fa-info-circle" />
-                        If a new budget is imported, the duplicates will be re-created by import process.
-                    </p>
-                    
                     <group>
                         <field name="project_id" />
-                        <field name="position_id_target" />
-                        <field name="position_ids_to_merge" widget="many2many_tags" />
+                        <field name="position_id_target" context="{'merge_wizard': True}" />
+                        <field name="position_ids_to_merge" widget="many2many_tags" context="{'merge_wizard': True}" />
                     </group>
                 </sheet>
                 

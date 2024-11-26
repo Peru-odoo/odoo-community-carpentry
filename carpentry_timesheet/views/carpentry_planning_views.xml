@@ -4,7 +4,7 @@
     <record model="ir.ui.view" id="carpentry_planning_kanban">
         <field name="name">carpentry.planning.card.kanban.timesheet</field>
         <field name="model">carpentry.planning.card</field>
-        <field name="inherit_id" ref="carpentry_project.carpentry_planning_kanban" />
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_kanban" />
 
         <field name="arch" type="xml">
             <templates position="before">

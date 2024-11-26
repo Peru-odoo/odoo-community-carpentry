@@ -29,7 +29,7 @@
     </record>
 
     <!-- Form tasks -->
-    <record id="view_task_need_form" model="ir.ui.view">
+    <record id="view_task_form_need" model="ir.ui.view">
         <field name="name">project.task.form.carpentry.need</field>
         <field name="model">project.task</field>
         <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
@@ -61,29 +61,30 @@
 
     <!-- Pre-select project before opening Needs (tasks) -->
     <record id="action_open_task_need_srv" model="ir.actions.server">
-        <field name="name">View and adapt Needs</field>
+        <field name="name">View and adapt needs</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(
-                'carpentry_planning_task_need.action_open_task_need'
-            )
+            action = model.action_choose_project_and_redirect({
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.task',
+                'name': 'View and adapt needs',
+                'views': env['project.task']._get_task_views(
+                    type='need',
+                    custom=['tree', 'form'],
+                    switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity'],
+                    module='carpentry_planning_task_need'
+                ),
+                'context': {
+                    'default_root_type_id': env.ref('carpentry_planning_task_need.task_type_need').id,
+                    'default_user_ids': [],
+                    'default_type_deadline': 'converted',
+                    'search_default_filter_my_role': 1,
+                    'display_with_prefix': False,
+                },
+                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_need.task_type_need').id)]
+            })
         </field>
-    </record>
-    <!-- Real action opening the view Needs (tasks) -->
-    <record id="action_open_task_need" model="ir.actions.act_window">
-        <field name="name">View and adapt Needs</field>
-        <field name="res_model">project.task</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_task_tree_need" />
-        <field name="context">{
-            'default_root_type_id': root_type_need,
-            'default_user_ids': [],
-            'default_type_deadline': 'converted'
-            'search_default_filter_my_role': 1,
-            'display_with_prefix': False,
-        }</field>
-        <field name="domain">[('root_type_id', '=', root_type_need)]</field>
     </record>
     <menuitem
         id="menu_project_need_view"

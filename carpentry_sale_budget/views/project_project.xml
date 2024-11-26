@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Add warning if not all sale order lines are up-to-date for budget -->
-    <record id="edit_project" model="ir.ui.view">
+    <record id="edit_project_sale" model="ir.ui.view">
         <field name="name">project.project.form.carpentry.sale_margin</field>
         <field name="model">project.project</field>
         <field name="inherit_id" ref="carpentry_sale.edit_project" />
@@ -24,48 +24,54 @@
     </record>
     
     <!-- 'Budget settings' tab: add a "Fees & margins" right column -->
-    <record id="edit_project" model="ir.ui.view">
+    <record id="edit_project_budget" model="ir.ui.view">
         <field name="name">project.project.form.carpentry.position.budget.sale_margin</field>
         <field name="model">project.project</field>
         <field name="inherit_id" ref="carpentry_position_budget.edit_project" />
 
         <field name="arch" type="xml">
+            <!-- Prepare the "budget_total" left group -->
+            <group name="budget_total" position="attributes">
+                <attribute name="colspan">2</attribute>
+            </group>
+            <field name="budget_line_sum" position="before">
+                <h3 colspan="2">Budget totals</h3>
+            </field>
+            
+            <!-- Add "Fees & Margins" group to the right -->
             <group name="budget_total" position="replace">
                 <group name="group_container" col="12">
 
                     <!-- Existing "Budget totals": keep it, on the left -->
-                    <group name="budget_total" colspan="5">
-                        <h3 colspan="2">Budget totals</h3>
-                        <separator />
-
-                        $0
-                    </group>
+                    <group colspan="6">$0</group>
 
                     <!-- New "Fees & margins" right column -->
-                    <group name="fees_and_margins" colspan="7">
+                    <group name="fees_and_margins" colspan="6">
                         <h3 colspan="2">Fees &amp; Margins</h3>
-                        <separator />
-
-                        <group name="fees_prorata" colspan="2" col="12">
-                            <group colspan="6"><label for="fees_prorata_rate" colspan="2" /></group>
-                            <group colspan="3"><field name="fees_prorata" nolabel="1" colspan="2" /></group>
-                            <group colspan="3"><field name="fees_prorata_rate" nolabel="1" colspan="2" widget="progressbar" options="{'editable': True}" /></group>
-                        </group>
-                        <group name="fees_structure" colspan="2" col="12">
-                            <group colspan="6"><label for="fees_structure_rate" colspan="2" /></group>
-                            <group colspan="3"><field name="fees_structure" nolabel="1" colspan="2" /></group>
-                            <group colspan="3"><field name="fees_structure_rate" nolabel="1" colspan="2" widget="progressbar" options="{'editable': True}" /></group>
-                        </group>
-                        <group name="margin_contributive" colspan="2" col="12">
-                            <group colspan="6"><label for="margin_contributive" colspan="2" /></group>
-                            <group colspan="3"><field name="margin_contributive" nolabel="1" colspan="2" /></group>
-                            <group colspan="3"><field name="margin_contributive_rate" nolabel="1" colspan="2" widget="progressbar" /></group>
-                        </group>
-                        <group name="margin_costs" colspan="2" col="12">
-                            <group colspan="6"><label for="margin_costs" colspan="2" /></group>
-                            <group colspan="3"><field name="margin_costs" nolabel="1" colspan="2" /></group>
-                            <group colspan="3"><field name="margin_costs_rate" nolabel="1" colspan="2" widget="progressbar" /></group>
-                        </group>
+                        
+                        <label for="fees_prorata_rate"/>
+                        <div name="fees_prorata" class="o_row">
+                            <field name="fees_prorata_rate" widget="progressbar" options="{'editable': True}" />
+                            <field name="fees_prorata" />
+                        </div>
+                        
+                        <label for="fees_structure_rate"/>
+                        <div name="fees_structure" class="o_row">
+                            <field name="fees_structure_rate" widget="progressbar" options="{'editable': True}" />
+                            <field name="fees_structure" />
+                        </div>
+                        
+                        <label for="margin_contributive"/>
+                        <div name="margin_contributive" class="o_row">
+                            <field name="margin_contributive_rate" widget="progressbar" options="{'editable': True}" />
+                            <field name="margin_contributive" />
+                        </div>
+                        
+                        <label for="margin_costs"/>
+                        <div name="margin_costs" class="o_row">
+                            <field name="margin_costs_rate" widget="progressbar" options="{'editable': True}" />
+                            <field name="margin_costs" />
+                        </div>
                     </group>
                 </group>
             </group>

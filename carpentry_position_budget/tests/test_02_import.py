@@ -43,10 +43,16 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
         self.assertTrue(self.position.budget_install, 0.0)
 
     def test_02_import_file_orgadata(self):
+        """ Test import logic and verify positions, lots and budgets were added """
         self.wizard.button_import()
         self.assertTrue(self.project_import.lot_ids.ids)
         self.assertTrue(self.project_import.position_ids.ids)
         self.assertTrue(self.project_import.position_budget_ids.ids)
+
+    def test_03_project_totals(self):
+        """ Test project totals computation """
+        self.assertTrue(self.project_import.budget_line_ids.ids)
+        
         # project totals
         self.assertTrue(self.project_import.budget_install)
         self.assertTrue(self.project_import.budget_prod)

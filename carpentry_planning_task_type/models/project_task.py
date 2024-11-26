@@ -88,24 +88,6 @@ class Task(models.Model):
     )
 
     #===== Fields =====#
-    # -- Root Types --
-    # for domain search & context keys `default_root_type_id`
-    root_type_milestone = fields.Many2one(
-        comodel_name='project.type',
-        string='Milestone Type',
-        compute='_compute_root_types',
-    )
-    root_type_meeting = fields.Many2one(
-        comodel_name='project.type',
-        string='Meeting Type',
-        compute='_compute_root_types',
-    )
-    root_type_instruction = fields.Many2one(
-        comodel_name='project.type',
-        string='Instruction Type',
-        compute='_compute_root_types',
-    )
-
     # -- Original --
     partner_id = fields.Many2one(
         # `partner_id` is already hidden on view: not relevant for Vertical construction
@@ -149,12 +131,6 @@ class Task(models.Model):
         for task in self:
             task.name_required = self.root_type_id.id in required_list
     
-    def _compute_root_types(self):
-        """ Used in domain and context' key for default search filter """
-        self.root_type_milestone = self.env.ref(XML_ID_MILESTONE)
-        self.root_type_meeting = self.env.ref(XML_ID_MEETING)
-        self.root_type_instruction = self.env.ref(XML_ID_INSTRUCTION)
-
     #===== Compute: display_name =====#
     @api.depends('name', 'type_id', 'root_type_id')
     def _compute_display_name(self):
@@ -204,6 +180,22 @@ class Task(models.Model):
         for task in self:
             task.message_last_date = mapped_data.get(task.id, {}).get('last_date')
             task.count_message_ids = mapped_data.get(task.id, {}).get('count')
+
+    #===== Action =====#
+    def _get_task_views(self, type, custom, switch, module='carpentry_planning_task_type'):
+        views = {
+            'tree': self.env.ref('project.view_task_tree2').id,
+            'form': self.env.ref('project.view_task_form2').id,
+            'kanban': self.env.ref('project.view_task_kanban').id,
+            'calendar': self.env.ref('project.view_task_calendar').id,
+            'timeline': self.env.ref('project_timeline.project_task_timeline').id,
+            'activity': self.env.ref('project.project_task_view_activity').id,
+        }
+        return [((
+                views[view_mode] if view_mode not in custom
+                else self.env.ref(f'{module}.view_task_{view_mode}_{type}').id
+            ), view_mode
+        ) for view_mode in switch]
 
     #===== Task copy =====#
     def _fields_to_copy(self):

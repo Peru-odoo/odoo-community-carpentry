@@ -289,10 +289,11 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             if not affectation.group_ref._carpentry_affectation_quantity:
                 continue
-            if affectation.quantity_affected <= 0:
-                raise exceptions.ValidationError(
-                    _("Quantity affected must be strictly greater than 0, delete it instead.")
-                )
+            # 2024-11 - ALY: qty == 0 should be allowed
+            # if affectation.quantity_affected <= 0:
+            #     raise exceptions.ValidationError(
+            #         _("Quantity affected must be strictly greater than 0, delete it instead.")
+            #     )
             elif affectation.quantity_remaining_to_affect < 0:
                 raise exceptions.ValidationError(
                     _("The position cannot be affected to a phase more than "

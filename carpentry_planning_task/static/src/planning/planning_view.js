@@ -25,7 +25,7 @@ const planningControllerPatchGlobalTasks = {
         });
     },
 };
-patch(PlanningController.prototype, planningControllerPatchGlobalTasks);
+patch(PlanningController.prototype, 'planningControllerPatchGlobalTasks', planningControllerPatchGlobalTasks);
 
 // Add PlanningGlobalTasks to planning's component
 PlanningController.components = {

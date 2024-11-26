@@ -16,7 +16,7 @@
                     <field name="market"/>
                     
                     <div>
-                        + <field name="sale_order_lines_fully_validated" nolabel="1" widget="currency" class="fw-bold oe_inline" />
+                        + <field name="sale_order_sum_validated" nolabel="1" widget="currency" class="fw-bold oe_inline" />
                         (validated Sales Order lines)
 
                         <!-- Alert if some sale order lines not validated -->

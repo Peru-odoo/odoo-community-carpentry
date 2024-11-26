@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Carpentry Warranty Aftersale",
-    'summary': "Distinguish construction warranty expenses from standard project lifetime expenses and manage after-sale as sub-projects.",
+    'summary': "Identify warranty expenses and manage after-sale sub-projects (optional).",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',
     'license': 'AGPL-3',
@@ -17,7 +17,7 @@
     'data': [
         # data
         # views
-        'views/project_project.xml',
+        # 'views/project_project.xml',
     ],
 }
 

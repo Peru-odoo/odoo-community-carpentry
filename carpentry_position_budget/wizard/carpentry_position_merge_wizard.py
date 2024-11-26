@@ -34,8 +34,8 @@ class PositionMerge(models.TransientModel):
             position_ids_to_merge = position_ids_selected
         
         defaults_dict.update({
+            'project_id': position_ids_selected.project_id.id,
             'position_ids_to_merge': [Command.set([x.id for x in position_ids_to_merge])],
-            'project_id': position_ids_to_merge.project_id.id
         })
 
         return defaults_dict

@@ -49,6 +49,7 @@ class CarpentryPositionBudget(models.Model):
     detailed_type = fields.Selection(
         # needed for groupby
         related='product_tmpl_id.detailed_type',
+        store=True
     )
     amount = fields.Float(
         # either a currency amount (goods `type`) or a quantity in uom (workforce, service `type`)
@@ -84,7 +85,8 @@ class CarpentryPositionBudget(models.Model):
     
     def _value_qty(self, qty):
         self.ensure_one()
-        return self.product_tmpl_id._value_qty(qty, fields.first(self.project_id.budget_ids))
+        budget_id = fields.first(self.project_id.budget_ids)
+        return self.product_tmpl_id._value_qty(qty, budget_id)
 
 
     #===== Helpers: add or erase budget of a position =====#
@@ -114,23 +116,15 @@ class CarpentryPositionBudget(models.Model):
             :param mode_erase: if False, `amount` is added to existing budget
             :param erase_force: if False, the existing non-updated budgets are kept
         """
-        print('=== _write_budget ===')
-        print('vals_list_budget', vals_list_budget)
-        print('erase_mode', erase_mode)
-        print('erase_force', erase_force)
 
         # get existing budget, to route between `write()` or `create()`
         mapped_existing_ids = {(x.position_id.id, x.analytic_account_id.id): x for x in self}
         to_create, to_delete = [], self
-        print('mapped_existing_ids', mapped_existing_ids)
 
         # write/sum
         for vals in vals_list_budget:
             primary_key = (vals.get('position_id'), vals.get('analytic_account_id'))
             budget = mapped_existing_ids.get(primary_key)
-            print('vals', vals)
-            print('primary_key', primary_key)
-            print('budget', budget)
 
             # note: no need to convert uom here, since `product_tmpl_id` is the same for all `analytic_account_id` (related field)
             if budget:
@@ -140,7 +134,6 @@ class CarpentryPositionBudget(models.Model):
                 to_create.append(vals)
         
         # create
-        print('to_create', to_create)
         self.create(to_create)
 
         # delete
@@ -186,8 +179,12 @@ class CarpentryPositionBudget(models.Model):
                 brut += budget.value
                 valued += budget.value
             else:
-                brut[budget[groupby_budget]] += budget.amount
-                valued[budget[groupby_budget]] += budget.value
+                # manage M2n field (e.g. `analytic_account_id` (.id) vs `detailed_type` (str))
+                field_value = budget[groupby_budget]
+                key = field_value.id if hasattr(field_value, '_name') else field_value
+
+                brut[key] += budget.amount
+                valued[key] += budget.value
         
         return unitary_budgets_brut, unitary_budgets_valued
     

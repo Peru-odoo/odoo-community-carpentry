@@ -147,9 +147,14 @@ class CarpentryPlanningColumn(models.Model):
         for column in self:
             column.res_model_shortname = column.res_model_id.model.replace('carpentry.', '').replace('.', '_')
 
+    @api.depends('identifier_res_model_id', 'identifier_res_id')
     def _compute_identifier_ref(self):
         for column in self:
-            column.identifier_ref = '%s,%s' % (column.identifier_res_model, column.identifier_res_id)
+            if column.identifier_res_model_id.id and column.identifier_res_id:
+                column.identifier_ref = '%s,%s' % (column.identifier_res_model, column.identifier_res_id)
+            else:
+                column.identifier_ref = False
+    
     def _inverse_identifier_ref(self):
         model_ids = self.env['ir.model'].sudo().search([])
         mapped_model_ids = {x.model: x.id for x in model_ids}

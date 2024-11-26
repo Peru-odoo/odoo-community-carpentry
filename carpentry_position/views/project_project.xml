@@ -35,7 +35,7 @@
                     class="oe_stat_button"
                     icon="fa-building-o"
                 >
-                    <field name="position_count" widget="statinfo" />
+                    <field name="position_count" widget="statinfo" string="Positions" />
                 </button>
             </div>
 

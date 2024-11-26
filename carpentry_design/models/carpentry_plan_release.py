@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _
-from odoo.addons.carpentry_project.models.carpentry_planning_card import PLANNING_CARD_COLOR
+from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
 
 import calendar
 

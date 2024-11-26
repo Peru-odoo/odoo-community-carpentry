@@ -40,14 +40,17 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(lambda self: {
+            action = model.action_choose_project_and_redirect({
                 'type': 'ir.actions.act_window',
                 'res_model': 'project.task',
-                'view_mode': 'tree,kanban,agenda,timeline,form,activity',
-                'view_id': env.ref('carpentry_planning_task_type.view_task_tree_meeting').id,
                 'name': 'Meetings',
-                'context': {'default_root_type_id': root_type_meeting},
-                'domain': [('root_type_id', '=', root_type_meeting)]
+                'views': env['project.task']._get_task_views(
+                    type='meeting',
+                    custom=['tree', 'form'],
+                    switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
+                ),
+                'context': {'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_meeting').id},
+                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_meeting').id)]
             })
         </field>
     </record>

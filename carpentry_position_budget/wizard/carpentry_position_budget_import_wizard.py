@@ -62,6 +62,9 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         self._run_import(db_resource)
         # self.with_context(import_budget_no_compute=True)._run_import(db_content, filename, mimetype)
         # self.with_context(import_budget_no_compute=False).project_id._budget_full_refresh()
+        print(self.project_id.position_ids.read(['name']))
+        print("import terminé")
+        print('self.project_id', self.project_id)
 
 
     #===== Import logics =====#
@@ -103,6 +106,7 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
 
     #===== Specific import logics =====#
     def _run_orgadata_import(self, db_resource):
+        print('_run_orgadata_import', self, db_resource)
         read_result = self._read_orgadata(db_resource)
         self._write_orgadata(*read_result)
     
@@ -110,13 +114,13 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         # 1. Get `carpentry.group.lot`
         sql = "SELECT PhaseID, Name FROM Phases"
         cols_mapping = {'PhaseID': 'external_db_id', 'Name': 'name'}
-        Phases = self._read(db_resource, sql, cols_mapping)
+        Phases = self._read_db(db_resource, sql, cols_mapping)
         
         # 2. Get `carpentry.position`
         # Orgadata has a M2M relation table `ElevationGroups` between lots and positions
         # Phases <-> Elevation x2x relation table
         sql = "SELECT ElevationGroupID, PhaseId FROM ElevationGroups"
-        ElevationGroups_to_Phases = self._read(db_resource, sql, format_m2m=True)
+        ElevationGroups_to_Phases = self._read_db(db_resource, sql, format_m2m=True)
 
         # ALY (2024-06-26) :
         # a. removed 'SystemName': 'range' which is in 'Elevations' but missing in 'a_elevations'
@@ -126,13 +130,13 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
             'elevationId': 'external_db_id', 'Name': 'name',
             'Amount': 'quantity', 'Area': 'surface', 'AutoDescription': 'description'
         }
-        Elevations = self._read(db_resource, sql, cols_mapping)
+        Elevations = self._read_db(db_resource, sql, cols_mapping)
 
         # 3. Get `carpentry.position.budget`
         # cols of `a_elevations` are rows of carpentry Interface `carpentry.position.budget.interface`
         # don't pass any `cols_mapping`: one might discover new Orgadata columns
-        Budgets = self._read(db_resource, "SELECT * FROM a_elevations")
-        self._close(db_resource) # close connection with Orgadata mssql db
+        Budgets = self._read_db(db_resource, "SELECT * FROM a_elevations")
+        self._close_db(db_resource) # close connection with Orgadata mssql db
 
         return Phases, ElevationGroups_to_Phases, Elevations,Budgets
 
@@ -156,22 +160,19 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         # 3. Import carpentry.position
         existing_position_ids = self.env['carpentry.position'].search(domain)
         position_ids = self._import_data(Elevations, existing_position_ids)
-        mapped_position_ids = {x.external_db_id: x for x in position_ids}
+        mapped_position_ids = {x.external_db_id: x.id for x in position_ids}
         
-        print('Budgets', Budgets)
-
         # 4. Import carpentry.position.budget
         precision = self.env['decimal.precision'].precision_get('Product Price')
         # Sum-group budget of active columns, in the format for `carpentry_position_budget._erase_budget()`
         mapped_budget = defaultdict(float)
         for elevation in Budgets:
-            position_id = mapped_position_ids.get(int(elevation.get('elevationId')))
-            for analytic_account_id, col in mapped_interface.items():
+            position_id_ = mapped_position_ids.get(int(elevation.get('elevationId')))
+            for col, analytic_account_id_ in mapped_interface.items():
                 amount = elevation.get(col, 0.0)
                 if not float_is_zero(float(amount), precision_digits=precision):
-                    mapped_budget[(position_id, analytic_account_id)] += amount
+                    mapped_budget[(position_id_, analytic_account_id_)] += amount
         # Create if new, write/erase if existing, delete if not touched
-        print('mapped_budget', mapped_budget)
         vals_list_budget = [
             {'position_id': key[0], 'analytic_account_id': key[1], 'amount': amount}
             for key, amount in mapped_budget.items()

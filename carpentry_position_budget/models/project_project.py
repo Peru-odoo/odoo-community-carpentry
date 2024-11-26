@@ -14,11 +14,10 @@ class Project(models.Model):
     )
 
     # project's budget totals: mixin + those 2 fields
-    budget_office = fields.Monetary(
+    budget_office = fields.Float(
         string='Office',
         compute='_compute_budgets',
         store=True,
-        currency_field='currency_id',
     )
     budget_global_fees = fields.Monetary(
         string='Global fees',
@@ -43,20 +42,19 @@ class Project(models.Model):
         return super()._get_warning_banner() | self.position_warning_name
     
     #===== Compute: budget sums =====#
-    def _get_budgets_brut_valued(self):
-        """ Override from `carpentry.group.budget.mixin`
-            :return: same format than `carpentry_position_budget.sum()`
-        """
-        brut, valued = {}, {}
-        for x in self.budget_line_ids:
-            if not x.project_id.id in brut:
-                brut[x.project_id.id] = defaultdict(float)
-                valued[x.project_id.id] = defaultdict(float)
-            brut[x.project_id.id][x.product_tmpl_id.detailed_type] += x.qty_balance
-            valued[x.project_id.id][x.product_tmpl_id.detailed_type] += x.balance
+    def _get_quantities(self):
+        """ Called from `_get_budgets_brut_valued()` of mixin `carpentry.group.budget.mixin` """
+        quantities = {}
+        for position in self.position_ids:
+            # sum position's affected qty to the group
+            key = frozenset({
+                'group_id': position.project_id.id,
+                'position_id': position.id
+            }.items())
+            quantities[key] = position.quantity
+        
+        return quantities
 
-        return brut, valued
-    
     def _compute_budgets_one(self, brut, valued):
         """ Add fields `budget_office` and `budget_global_fees` """
         super()._compute_budgets_one(brut, valued)
@@ -84,7 +82,12 @@ class Project(models.Model):
         'budget_line_ids.standard_price',
     )
     def _compute_budgets(self):
+        # Ensure budget lines are up-to-date before updating project's totals
         self._populate_account_move_budget_line()
+        self.budget_line_ids._compute_debit_carpentry()
+        self.budget_line_ids._compute_debit_credit()
+
+        # Update project's totals
         return super()._compute_budgets()
 
     #===== Compute/Populate: account_move_budget_line =====#
@@ -103,12 +106,18 @@ class Project(models.Model):
         to_remove = existing_line_ids.analytic_account_id - analytic_account_ids
 
         # Delete lines without budget anymore from positions
-        self.budget_line_ids.filtered_domain([('analytic_account_id', 'in', to_remove.ids)]).unlink()
+        domain_unlink = [('analytic_account_id', 'in', to_remove.ids)]
+        self.budget_line_ids.filtered_domain(domain_unlink).unlink()
 
         # Add new lines, if new budget
+        today = fields.Date.today()
+        budget_id = fields.first(self.budget_ids)
         vals_list = [{
             'name': aac_id.product_tmpl_id.name or aac_id.name,
-            'date': fields.Date.today(),
+            'date': (
+                today if today > budget_id.date_from and today < budget_id.date_to
+                else budget_id.date_from
+            ),
             'budget_id': fields.first(self.budget_ids).id,
             'account_id': aac_id.product_tmpl_id._get_product_accounts().get('expense').id,
             'analytic_account_id': aac_id.id,
@@ -118,5 +127,5 @@ class Project(models.Model):
             'debit': 0, # computed in `account.move.budget.line`
             'qty_debit': 0, # same
         } for aac_id in to_add]
-        existing_line_ids.create(vals_list)._compute_debit_carpentry()
+        existing_line_ids.create(vals_list)
     

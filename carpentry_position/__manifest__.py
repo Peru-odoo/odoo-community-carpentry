@@ -13,7 +13,7 @@
 
     'depends': [
         'web_widget_numeric_step', 'web_widget_x2many_2d_matrix', # OCA
-        'project_sequence', 'project_favorite_switch', # other
+        'project_favorite_switch', # other
         'carpentry_base', # carpentry
     ],
     'data': [

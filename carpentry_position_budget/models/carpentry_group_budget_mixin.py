@@ -17,13 +17,13 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     # budget sums
     # only the fields relevant for Carpentry Group (ie. budgets from affectation)
     # but some other can be added here and in `_compute_budgets_one()`: see Project and Positions
-    budget_prod = fields.Integer(
+    budget_prod = fields.Float(
         # in (h)
         string='Prod',
         compute='_compute_budgets',
         store=True,
     )
-    budget_install = fields.Integer(
+    budget_install = fields.Float(
         # in (h)
         string='Install',
         compute='_compute_budgets',
@@ -68,7 +68,10 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     
     def _get_budget_one(self, budget, detailed_types):
         detailed_types = [detailed_types] if isinstance(detailed_types, str) else detailed_types
-        return sum([budget.get(self.id, {}).get(x, 0.0) for x in detailed_types])
+        return sum([
+            budget.get(self.id, {}).get(x, 0.0)
+            for x in detailed_types
+        ])
 
     @api.depends(
         # 1a. products template/variants price & dates

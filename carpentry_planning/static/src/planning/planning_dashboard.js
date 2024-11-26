@@ -3,7 +3,6 @@
 import { Component, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
-import { _lt } from "@web/core/l10n/translation";
 import { registry } from '@web/core/registry';
 import { loadJS } from "@web/core/assets";
 

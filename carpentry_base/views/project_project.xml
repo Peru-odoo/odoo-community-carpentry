@@ -8,7 +8,7 @@
 
         <field name="arch" type="xml">
             <!-- Alerts -->
-            <sheet position="after">
+            <sheet position="before">
                 <field name="warning_banner" invisible="1" />
 
                 <div name="warning_banner"

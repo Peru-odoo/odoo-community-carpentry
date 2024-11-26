@@ -2,7 +2,7 @@
 <templates xml:space="preserve">
 
     <!-- Planning Dashboard KPI Card: meetings -->
-    <t t-name="carpentry_project.PlanningDashboard.meeting" owl="1">
+    <t t-name="carpentry_planning.PlanningDashboard.meeting" owl="1">
         <t t-foreach="data.meetings" t-as="meeting" t-key="meeting_index">
             <div class="d-flex align-items-center  mb-1">
                 <span t-if="meeting.count_message_ids > 0" class="me-2 text-muted">
@@ -18,7 +18,7 @@
     </t>
 
     <!-- Planning Dashboard KPI Card: milestones -->
-    <t t-name="carpentry_project.PlanningDashboard.milestone" owl="1">
+    <t t-name="carpentry_planning.PlanningDashboard.milestone" owl="1">
         <table class="text-center">
             <thead>
                 <tr>

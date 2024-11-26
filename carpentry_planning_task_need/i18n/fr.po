@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-11-24 08:49+0000\n"
-"PO-Revision-Date: 2024-11-24 10:03+0100\n"
+"PO-Revision-Date: 2024-11-26 09:12+0100\n"
 "Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -108,7 +108,7 @@ msgstr "Conducteur de travaux"
 #: model:ir.actions.server,name:carpentry_planning_task_need.action_open_need_family_srv
 #: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_create
 msgid "Create and affect Needs Families"
-msgstr "Créer et affecter des familles de besoins"
+msgstr "Créer et affecter les besoins"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__create_uid

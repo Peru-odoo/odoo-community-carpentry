@@ -2,22 +2,23 @@
 <odoo>
     <!-- Menu-item: make "Planning" a dropdown with:
       - "Planning"
-      - "Project Tasks"
+      - "Tasks by project"
     -->
     <!-- Pre-select project before opening tasks -->
     <record id="action_srv_open_planning_task" model="ir.actions.server">
-        <field name="name">Project Tasks</field>
+        <field name="name">Tasks by project</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect(lambda self: {
+            action = model.action_choose_project_and_redirect({
                 'type': 'ir.actions.act_window',
                 'res_model': 'project.task',
                 'view_mode': 'tree,kanban,form,calendar,timeline,pivot,graph,activity',
-                'name': f'Tasks / {self.display_name} (W{self.this_week})',
+                'name': 'Tasks',
                 'context': {
                     'search_default_my_favorite_project': True,
-                    'search_default_open_tasks': True
+                    'search_default_open_tasks': True,
+                    'display_with_week': True
                 }
             }
         )</field>
