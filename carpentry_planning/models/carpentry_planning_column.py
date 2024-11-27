@@ -95,7 +95,7 @@ class CarpentryPlanningColumn(models.Model):
         """
         all_column_ids = self._compute_identifier_required()
         for column in all_column_ids:
-            if column.identifier_required and not column.identifier_res_id:
+            if column.identifier_required and not (column.identifier_res_id or column.identifier_ref):
                 raise exceptions.ValidationError(
                     _("Column %s requires an Identifier", column.name)
                 )
