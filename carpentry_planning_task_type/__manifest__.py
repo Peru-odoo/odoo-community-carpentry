@@ -28,6 +28,7 @@
         'views/project_task_meeting.xml',
         'views/project_task_milestone.xml',
         'views/project_task_instruction.xml',
+        'views/project_project.xml',
     ],
     'assets': {
         'web.assets_backend': [
