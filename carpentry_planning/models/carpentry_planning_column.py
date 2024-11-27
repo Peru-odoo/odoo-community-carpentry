@@ -44,7 +44,8 @@ class CarpentryPlanningColumn(models.Model):
         inverse='_inverse_identifier_ref',
         help='Identifier value is needed when 2 columns get their source from same Model.'
              ' The identifier model must have a `column_id` field holding the routing logic.'
-             ' Example: Task Needs to route towards `Needs (Method)` or `Needs (Field)` '
+             ' Example: Task Needs to route towards `Needs (Method)` or `Needs (Field)`',
+        precompute=True # for constrain `_constrain_identifier_required()`
     )
     identifier_res_id = fields.Many2oneReference(
         model_field='identifier_res_model',
