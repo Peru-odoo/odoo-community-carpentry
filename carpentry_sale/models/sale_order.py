@@ -19,9 +19,9 @@ class SaleOrder(models.Model):
     )
     lines_validated = fields.Selection(
         selection=[
-            ('none', 'No lines'),
-            ('not_validated', 'Not all validated'),
-            ('all_validated', 'All validated')    
+            ('none', 'None'),
+            ('not_validated', 'Partial'),
+            ('all_validated', 'OK')    
         ],
         string='Line state',
         compute='_compute_lines_validated',
