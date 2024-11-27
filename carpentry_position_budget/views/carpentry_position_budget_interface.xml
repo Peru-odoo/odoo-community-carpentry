@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Interface with external DB -->
-    <record id="open_carpentry_position_budget_interface" model="ir.actions.act_window">
-        <field name="name">Budget interface with external database</field>
-        <field name="res_model">carpentry.position.budget.interface</field>
-        <field name="view_mode">tree,form</field>
-        <field name="context">{'active_test': False}</field>
-    </record>
+    <!-- Action is in `carpentry_position_budget_import_wizard.xml` -->
     <!-- Menu in Accounting/Accounting/Budget and Project/Configuration -->
     <menuitem
         id="menu_carpentry_position_budget_interface_accounting"
