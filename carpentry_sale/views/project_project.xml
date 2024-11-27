@@ -3,7 +3,7 @@
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form.carpentry_sale</field>
         <field name="model">project.project</field>
-        <field name="inherit_id" ref="sale_project_link.edit_project" />
+        <field name="inherit_id" ref="crm_project_link.edit_project" />
 
         <field name="arch" type="xml">
             <!-- Add `Market` fields below `Customer` -->
