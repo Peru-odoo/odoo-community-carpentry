@@ -10,6 +10,13 @@
         <field name="priority">10000</field>
 
         <field name="arch" type="xml">
+            <!-- Tree Order-By -->
+            <tree position="attributes">
+                <attribute name="default_order">
+                    priority DESC, sequence_type ASC, date_deadline ASC, create_date ASC
+                </attribute>
+            </tree>
+
             <!-- `launch_ids` -->
             <field name="project_id" position="after">
                 <field name="launch_id" attrs="{'readonly': [('id', '!=', False)]}" options="{'no_open': 1}" />

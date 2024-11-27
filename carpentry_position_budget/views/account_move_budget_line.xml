@@ -59,13 +59,9 @@
                     'readonly': [('is_computed_carpentry', '=', True)],
                 }</attribute>
             </field>
-            <field name="uom_id" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
-                }</attribute>
-            </field>
         </field>
     </record>
+
     
     <!-- Account Budget Line (Form View) -->
     <record id="view_account_move_budget_line_form" model="ir.ui.view">
@@ -75,11 +71,10 @@
 
         <field name="arch" type="xml">
             <!-- Make all fields READONLY if computed line from Carpentry Budget -->
-            <tree position="inside">
+            <form position="inside">
                 <field name="is_computed_carpentry" invisible="1" />
-            </tree>
+            </form>
 
-            <!-- Make all fields READONLY if computed line from Carpentry Budget -->
             <field name="account_id" position="attributes">
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
@@ -125,11 +120,6 @@
                     'invisible': [('type', '=', 'standard')],
                     'required': [('type', '=', 'date_range')],
                     'readonly': [('is_computed_carpentry', '=', True)],
-                }</attribute>
-            </field>
-            <field name="uom_id" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
                 }</attribute>
             </field>
         </field>

@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Tree (quotations) -->
+    <record id="view_quotation_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree.quotation.carpentry.sale_budget</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="carpentry_sale.view_quotation_tree" />
+
+        <field name="arch" type="xml">
+            <!-- Add field "Budget State" next to "Line State" -->
+            <field name="lines_validated" position="after">
+                <field name="lines_budget_updated"
+                    widget="badge"
+                    decoration-success="lines_budget_updated == 'all_updated'"
+                    decoration-warning="lines_budget_updated == 'not_updated'"
+                    decoration-muted="lines_budget_updated == 'none'"
+                />
+            </field>
+        </field>
+    </record>
     <!-- Tree (sale order) -->
     <record id="view_order_tree" model="ir.ui.view">
         <field name="name">sale.order.tree.carpentry.sale_budget</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_tree" />
+        <field name="inherit_id" ref="carpentry_sale.view_order_tree" />
 
         <field name="arch" type="xml">
             <!-- Add field "Budget State" next to "Line State" -->

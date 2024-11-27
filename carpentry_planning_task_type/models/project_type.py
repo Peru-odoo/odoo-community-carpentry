@@ -20,7 +20,9 @@ class ProjectType(models.Model):
         store=True,
         readonly=True
     )
-    sequence = fields.Integer()
+    sequence = fields.Integer(
+        # is used to filter task by `sequence_type ASC`
+    )
     color = fields.Integer(
         string='Color',
         default=_get_default_color

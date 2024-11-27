@@ -5,6 +5,7 @@ from odoo import models, fields, api
 class Task(models.Model):
     _name = 'project.task'
     _inherit = ["project.task", "project.default.mixin"]
+    _order = 'priority DESC, date_deadline ASC, create_date ASC'
 
     #===== Fields methods =====#
     @api.model

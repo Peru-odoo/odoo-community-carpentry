@@ -9,6 +9,11 @@
         <field name="priority">10000</field>
 
         <field name="arch" type="xml">
+            <!-- Tree Order-By -->
+            <tree position="attributes">
+                <attribute name="default_order">sequence_type ASC, priority DESC, create_date ASC</attribute>
+            </tree>
+            
             <!-- Make `parent_type_id` editable -->
             <field name="parent_type_id" position="attributes">
                 <attribute name="readonly">False</attribute>

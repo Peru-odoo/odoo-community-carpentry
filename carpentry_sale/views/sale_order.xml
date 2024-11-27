@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Tree (quotations) -->
+    <record id="view_quotation_tree" model="ir.ui.view">
+        <field name="name">sale.order.tree.quotation.carpentry</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree" />
+
+        <field name="arch" type="xml">
+            <!-- Add field Description -->
+            <field name="name" position="after">
+                <field name="description" />
+            </field>
+
+            <!-- Add field "Line Status" next to "Status" -->
+            <field name="state" position="before">
+                <field name="lines_validated"
+                    widget="badge"
+                    decoration-success="lines_validated == 'all_validated'"
+                    decoration-warning="lines_validated == 'not_validated'"
+                    decoration-muted="lines_validated == 'none'"
+                />
+            </field>
+        </field>
+    </record>
     <!-- Tree (sale order) -->
     <record id="view_order_tree" model="ir.ui.view">
         <field name="name">sale.order.tree.carpentry</field>

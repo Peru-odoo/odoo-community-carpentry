@@ -13,7 +13,6 @@ class Task(models.Model):
     """ Manages special tasks: Instructions, Meetings, Milestones """
     _inherit = ['project.task']
     _rec_name = 'display_name'
-    _order = 'priority DESC, type_sequence ASC, date_deadline DESC, create_date ASC'
 
     #===== Fields' methods =====#
     @api.model
@@ -156,7 +155,7 @@ class Task(models.Model):
         required_list = self._get_name_required_type_list()
         required_by_ctx = self._context.get('default_root_type_id') in required_list # for new task, without id yet
         for task in self:
-            task.name_required = required_by_ctx or self.root_type_id.id in required_list
+            task.name_required = required_by_ctx or task.root_type_id.id in required_list
     def _get_name_required_type_list(self):
         return [self.env.ref(XML_ID_INSTRUCTION).id]
 
