@@ -8,6 +8,21 @@ class CarpentryNeed(models.Model):
     _description = 'Need'
     _order = "deadline_week_offset DESC"
 
+    #===== Fields methods =====#
+    def _default_parent_type_id(self):
+        """ Return a default `parent_type_id` according to user role(s) on the project,
+            else 1st one
+        """
+        domain = [('root_type_id', '=', self.env.ref(XML_ID_NEED).id)]
+        parent_type_ids = self.env['project.type'].search(domain)
+        
+        # current user's role(s) on the project
+        role_ids = self.project_id._get_user_role_ids(self.env.user)
+        suggestion = parent_type_ids.filtered(lambda x: x.role_id.id in role_ids.ids)
+
+        return fields.first(suggestion) if suggestion.ids else fields.first(parent_type_ids)
+
+    #===== Fields =====#
     project_id = fields.Many2one(
         related='family_ids.project_id',
         store=True,
@@ -29,7 +44,11 @@ class CarpentryNeed(models.Model):
         required=True,
         ondelete='restrict',
         index='btree_not_null',
-        domain="[('parent_id', '=', parent_type_id)]"
+        domain="""[
+            ('root_type_id', '=', root_type_need),
+            ('parent_id', '=', parent_type_id),
+            ('task_ok', '=', True)
+        ]"""
     )
     parent_type_id = fields.Many2one(
         # for UX: to filter `type_id` options
@@ -37,6 +56,7 @@ class CarpentryNeed(models.Model):
         comodel_name='project.type',
         string='Type of Need',
         domain="[('root_type_id', '=', root_type_need), ('task_ok', '=', False)]",
+        default=_default_parent_type_id,
         readonly=False,
         store=False
     )
@@ -44,7 +64,8 @@ class CarpentryNeed(models.Model):
         # needed for `default_type_id` and domain search
         comodel_name='project.type',
         string='Need Type',
-        compute='_compute_root_type_need'
+        default=lambda self: self.env.ref(XML_ID_NEED),
+        store=False
     )
     family_ids = fields.Many2many(
         comodel_name='carpentry.need.family',
@@ -74,13 +95,9 @@ class CarpentryNeed(models.Model):
                 _("This need cannot be deleted since used in a Need Family.")
             )
     
-    #===== Compute =====#
-    def _compute_root_type_need(self):
-        """ Used in domain and context' key for default search filter """
-        self.root_type_need = self.env.ref(XML_ID_NEED)
-
     #===== Business methods =====#
-    def _convert_to_task_vals(self, launch_id_, model_id_):
+    def _convert_to_task_vals(self, launch_id_, model_id_, stage_id_):
+        self.ensure_one()
         return {
             'project_id': self.project_id.id,
             'name': self.name,
@@ -88,6 +105,7 @@ class CarpentryNeed(models.Model):
             'need_id': self.id,
             'type_deadline': 'computed',
             'user_ids': [Command.clear()],
+            'stage_id': stage_id_,
             # planning
             'card_res_model_id': model_id_,
             'card_res_id': self.type_id.id,

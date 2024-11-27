@@ -12,15 +12,19 @@
         <field name="arch" type="xml">
             <!-- `launch_ids` -->
             <field name="project_id" position="after">
-                <field name="launch_ids" widget="many2many_tags" />
+                <field name="launch_id" attrs="{'readonly': [('id', '!=', False)]}" options="{'no_open': 1}" />
+                <field name="parent_type_id" string="Type of Need" optional="hide" options="{'no_open': 1}" />
             </field>
 
             <!-- `type_deadline` -->
             <field name="date_deadline" position="attributes">
                 <attribute name="attrs">{'readonly': [('type_deadline', '=', 'computed')]}</attribute>
             </field>
-            <field name="date_deadline" position="before">
-                <field name="type_deadline" widget="badge"
+            <field name="date_deadline" position="after">
+                <field name="type_deadline"
+                    nolabel="1"
+                    widget="badge"
+                    optional="show"
                     decoration-info="type_deadline == 'manual'"
                     decoration-primary="type_deadline == 'computed'"
                 />
@@ -37,12 +41,22 @@
         <field name="priority">10000</field>
 
         <field name="arch" type="xml">
+            <!-- Replace `Root Type ID` by `Parent Type ID` -->
+            <field name="parent_type_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="root_type_id" position="replace">
+                <field name="root_type_id" invisible="1" />
+                <field name="parent_type_id" widget="badge" />
+                <field name="launch_id" widget="badge" />
+            </field>
+            
             <!-- `type_deadline` -->
             <field name="date_deadline" position="attributes">
                 <attribute name="attrs">{'readonly': [('type_deadline', '=', 'computed')]}</attribute>
             </field>
             <field name="date_deadline" position="before">
-                <field name="type_deadline" widget="badge"
+                <field name="type_deadline" widget="badge" optional="hide"
                     decoration-info="type_deadline == 'manual'"
                     decoration-primary="type_deadline == 'computed'"
                 />
@@ -54,8 +68,29 @@
                 <attribute name="invisible">1</attribute>
             </field>
             <field name="launch_ids" position="attributes">
-                <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </field>
+        </field>
+    </record>
+
+    <!-- Search tasks need -->
+    <record id="view_task_search_form" model="ir.ui.view">
+        <field name="name">project.task.search.carpentry.need</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_search_form" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <searchpanel position="replace">
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')"/>
+                    <field name="user_ids" select="multi" />
+                    <field name="launch_ids" select="multi" />
+                    <field name="parent_type_id" hierarchize="0" string="Type of Need" />
+                    <field name="type_id" hierarchize="1" />
+                </searchpanel>
+            </searchpanel>
         </field>
     </record>
 
@@ -69,6 +104,7 @@
                 'type': 'ir.actions.act_window',
                 'res_model': 'project.task',
                 'name': 'View and adapt needs',
+                'search_view_id': [env.ref('carpentry_planning_task_need.view_task_search_form').id, 'search'],
                 'views': env['project.task']._get_task_views(
                     type='need',
                     custom=['tree', 'form'],
@@ -78,7 +114,7 @@
                 'context': {
                     'default_root_type_id': env.ref('carpentry_planning_task_need.task_type_need').id,
                     'default_user_ids': [],
-                    'default_type_deadline': 'converted',
+                    'default_type_deadline': 'manual',
                     'search_default_filter_my_role': 1,
                     'display_with_prefix': False,
                 },

@@ -9,27 +9,12 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="sequence" widget="handle" />
-                <field name="display_name" />
+                <field name="complete_name" />
                 <field name="code" />
                 <field name="role_id" />
                 <field name="project_ok" widget="boolean_toggle" />
                 <field name="task_ok" widget="boolean_toggle" />
             </tree>
-        </field>
-    </record>
-
-    <!-- Form: add `shortname` field -->
-    <record id="project_type_form" model="ir.ui.view">
-        <field name="name">project.type.form.role_link</field>
-        <field name="model">project.type</field>
-        <field name="inherit_id" ref="project_type.project_type_form" />
-
-        <field name="arch" type="xml">
-            <field name="code" position="after">
-                <!-- Can't modified role if computed from parents -->
-                <field name="computed_role_id" invisible="1" />
-                <field name="role_id" attrs="{'readonly': [('computed_role_id', '!=', False)]}" />
-            </field>
         </field>
     </record>
 

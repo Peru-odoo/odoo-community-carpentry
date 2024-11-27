@@ -12,7 +12,7 @@ class SaleOrder(models.Model):
     )
     comment = fields.Text(string='Internal Note')
     attachment_ids = fields.Many2many(
-        'ir.attachment', 
+        'ir.attachment',
         string='Attachments',
         required=False,
         copy=False

@@ -9,7 +9,7 @@ class ProductTemplate(models.Model):
         # needed for in-code groupby per those categories
         # like budget sum per Carpentry Group (positions, launches, phases, ...)
         selection_add=[
-            ('service_prod', 'Service (production))'),
+            ('service_prod', 'Service (production)'),
             ('service_install', 'Service (on-site installation)'),
             ('service_office', 'Service (office)'),
             ('consu_project_global', 'Consumable (project global fees)'),

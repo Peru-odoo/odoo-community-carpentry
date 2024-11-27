@@ -48,6 +48,10 @@
             <field name="date_deadline" position="after">
                 <field name="date_end" />
             </field>
+            <!-- Always display `date_deadline` (normally hidden if closed) -->
+            <field name="date_deadline" position="attributes">
+                <attribute name="attrs" />
+            </field>
             
             <!-- Planning & launches (3rd column) -->
             <xpath expr="//sheet/group" position="attributes">
@@ -56,13 +60,13 @@
             <xpath expr="//sheet/group" position="inside">
                 <group name="group_planning_task">
                     <!-- `card_ref` and `launch_ids` must be completed in pair -->
-                    <field name="card_ref" attrs="{'required': [('launch_ids', '!=', False)]}" />
+                    <field name="card_ref" attrs="{'required': [('launch_ids', '!=', [])]}" />
                     <field name="launch_ids" widget="many2many_tags" attrs="{'required': [('card_ref', '!=', False)]}" />
                 </group>
             </xpath>
         </field>
     </record>
-
+    
     
     <!-- Task Tree -->
     <record id="view_task_tree2" model="ir.ui.view">
@@ -76,7 +80,12 @@
                 <attribute name="optional">show</attribute>
             </field>
             <field name="date_deadline" position="after">
-                <field name="date_end" optional="show" />
+                <field name="date_end" optional="show" widget="date" />
+            </field>
+
+            <!-- Always display `date_deadline` (normally hidden if closed) -->
+            <field name="date_deadline" position="attributes">
+                <attribute name="attrs" />
             </field>
         </field>
     </record>

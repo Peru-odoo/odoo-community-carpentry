@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Tree tasks (milestone) -->
+    <record id="view_task_tree_milestone" model="ir.ui.view">
+        <field name="name">project.task.tree.carpentry.milestone</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_tree2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <!-- Make `parent_type_id` editable -->
+            <field name="parent_type_id" position="attributes">
+                <attribute name="readonly">False</attribute>
+            </field>
+
+            <!-- Hide name -->
+            <field name="name" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+        </field>
+    </record>
 
     <!-- Pre-select project before opening Milestone (tasks) -->
     <record id="action_open_task_milestone_srv" model="ir.actions.server">
@@ -13,12 +33,12 @@
                 'name': 'Milestones',
                 'views': env['project.task']._get_task_views(
                     type='milestone',
-                    custom=[],
+                    custom=['tree'],
                     switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
                 ),
                 'context': {
                     'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_milestone').id,
-                    'display_launch_ids': False,
+                    # 'display_launch_ids': False,
                 },
                 'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_milestone').id)]
             })

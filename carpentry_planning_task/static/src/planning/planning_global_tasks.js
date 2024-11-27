@@ -20,16 +20,12 @@ export class PlanningGlobalTasks extends Component {
     get globalTasksViewProps() {
         const domain = [
             ['project_id', '=', this.projectId], ['launch_ids', '=', false],
-            ['type', '=', 'classic']
+            ['type_id', '=', false]
         ]
         const context = {
             'default_project_id': this.projectId,
-            'default_type': 'classic',
             'search_default_open_tasks': true,
             'search_default_closed_last_7_days': true,
-            // same than action Global Task
-            'hide_stage_id': 1,
-            // todo: default_... (-> regarder les actions)
         };
         const display = {
             controlPanel: {

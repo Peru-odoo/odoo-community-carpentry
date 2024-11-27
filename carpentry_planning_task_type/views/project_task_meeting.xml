@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-   
     <!-- Tree tasks (meetings) -->
     <record id="view_task_tree_meeting" model="ir.ui.view">
         <field name="name">project.task.tree.carpentry.meeting</field>
@@ -10,8 +9,13 @@
         <field name="priority">10000</field>
 
         <field name="arch" type="xml">
+            <!-- hide parent_type_id -->
+            <field name="parent_type_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
             <!-- new fieds (messages last date & count) -->
-            <field name="name" position="after">
+            <field name="stage_id" position="before">
                 <field name="message_last_date" />
                 <field name="count_message_ids" />
             </field>
@@ -27,9 +31,8 @@
         <field name="priority">10000</field>
         
         <field name="arch" type="xml">
-            <field name="description" position="replace">
-                <field name="description" invisible="1" />
-                <div class="oe_chatter" position="move" /> <!-- !!!!!!!!! A TESTER !!!!!! -->
+            <field name="description" position="attributes">
+                <attribute name="invisible">1</attribute>
             </field>
         </field>
     </record>

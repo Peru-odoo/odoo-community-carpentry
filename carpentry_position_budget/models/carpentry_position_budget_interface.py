@@ -35,14 +35,17 @@ class CarpentryPositionBudgetInterface(models.Model):
         string="Analytic Account",
         index='btree_not_null',
         ondelete='restrict',
-        help='Make the link between budget, income and charges.'
+        domain=[('product_tmpl_id', '!=', False)],
+        help='Make the link between budget, income and charges. Must have a "Default Product"'
+            ' in order to distinguish budget types (service or consummable).'
     )
     detailed_type = fields.Selection(
         # identifies goods (€) vs. services (h)
         related='analytic_account_id.product_tmpl_id.detailed_type',
         help='Identifies the type of budget amount from remote database,'
              ' i.e. work-force quantities or currency amount. Corresponds to'
-             ' the type of the default product on analytic account\'s.'
+             ' the type of the default product on analytic account\'s.',
+        required=True
     )
 
     active = fields.Boolean(

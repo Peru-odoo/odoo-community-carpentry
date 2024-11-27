@@ -29,21 +29,23 @@ class Task(models.Model):
         return defaults_dict
 
     def _get_default_type_id(self):
-        """ Set a default `type_id` within the possible allowed by `root_type_id` """
+        """ Set a default `type_id` within the possible allowed
+            by `root_type_id` and `parent_type_id`
+        """
         # Get possible `type_ids`
         root_type_id = self.root_type_id.id or self._context.get('default_root_type_id')
         domain = [
             ('root_type_id', '=', root_type_id),
-            ('task_ok', '=', True)
-        ]
+            ('task_ok', '=', True),
+        ]+([('parent_id', '=', self.parent_type_id.id)] if self.parent_type_id.id else [])
         type_ids = self.env['project.type'].search(domain)
-        
+
         # If some seems more relevant/compatible with roles of current user
         # auto-suggest this default in preference
         domain_role = [('role_id.assignment_ids.user_id', '=', self.env.uid)]
         filtered_type_ids = type_ids.filtered_domain(domain_role)
         type_ids = filtered_type_ids if filtered_type_ids.ids else type_ids
-        
+
         return fields.first(type_ids)
     
     @api.model
@@ -72,13 +74,19 @@ class Task(models.Model):
         comodel_name='project.type',
         string='Parent Category',
         related='type_id.parent_id',
+        readonly=True,
         store=True,
         domain="[('root_type_id', '=', root_type_id), ('task_ok', '=', False)]",
     )
     type_id = fields.Many2one(
         # from module `project_type`
         string='Category',
-        domain="[('root_type_id', '=', root_type_id), ('task_ok', '=', True)]",
+        required=True,
+        domain="""[
+            ('root_type_id', '=', root_type_id),
+            ('parent_id', '=', parent_type_id),
+            ('task_ok', '=', True)
+        ]""",
         group_expand='_read_group_type_id'
     )
     type_sequence = fields.Integer(
@@ -89,6 +97,9 @@ class Task(models.Model):
 
     #===== Fields =====#
     # -- Original --
+    name = fields.Char(
+        required=False
+    )
     partner_id = fields.Many2one(
         # `partner_id` is already hidden on view: not relevant for Vertical construction
         # to have it in tasks. Disable also the ORM field, so it is never added to chatter
@@ -102,15 +113,16 @@ class Task(models.Model):
     type_ids = fields.Many2many(
         comodel_name='project.type',
         relation='project_task_subtype_rel',
-        string='Categories'
+        string='Categories',
+        domain="[('root_type_id', '=', root_type_id), ('task_ok', '=', True)]",
     )
     # meetings
     message_last_date = fields.Date(
-        string='Last Meeting date',
+        string='Last Message',
         compute='_compute_message_fields'
     )
     count_message_ids = fields.Integer(
-        string='Meetings Count',
+        string='Message Count',
         compute='_compute_message_fields'
     )
 
@@ -123,14 +135,31 @@ class Task(models.Model):
         compute='_compute_name_required'
     )
 
+    #===== Constrain =====#
+    @api.constrains('root_type_id', 'parent_type_id', 'type_id')
+    def _constrain_type_id(self):
+        """ Ensure `task.type_id` follow type hierarchy (i.e. is a child of `task.parent_type_id`) """
+        for task in self:
+            error = (
+                task.type_id.parent_id != task.parent_type_id
+                or task.type_id.root_type_id != task.root_type_id
+            )
+            if error:
+                raise exceptions.ValidationError(
+                    _("Task Category must be in Parent's Category.")
+                )
+
 
     #===== Compute: user-interface =====#
     @api.depends('root_type_id')
     def _compute_name_required(self):
-        required_list = [self.env.ref(XML_ID_INSTRUCTION).id]
+        required_list = self._get_name_required_type_list()
+        required_by_ctx = self._context.get('default_root_type_id') in required_list # for new task, without id yet
         for task in self:
-            task.name_required = self.root_type_id.id in required_list
-    
+            task.name_required = required_by_ctx or self.root_type_id.id in required_list
+    def _get_name_required_type_list(self):
+        return [self.env.ref(XML_ID_INSTRUCTION).id]
+
     #===== Compute: display_name =====#
     @api.depends('name', 'type_id', 'root_type_id')
     def _compute_display_name(self):
@@ -159,9 +188,9 @@ class Task(models.Model):
         return self.root_type_id not in no_prefix
     
     #===== Onchange: type =====#
-    @api.onchange('root_type_id')
-    def _onchange_root_type_id(self):
-        """ At task creation, pre-fill `type_id` if a `root_type_id` is chosen """
+    @api.onchange('root_type_id', 'parent_type_id')
+    def _onchange_root_parent_type_id(self):
+        """ Update pre-select `type_id` to follow its parent """
         for task in self:
             task.type_id = task._get_default_type_id()
 
@@ -196,6 +225,18 @@ class Task(models.Model):
                 else self.env.ref(f'{module}.view_task_{view_mode}_{type}').id
             ), view_mode
         ) for view_mode in switch]
+
+    #===== Buttons / action =====#
+    def action_open_task_form(self):
+        """ Redirect to task' specific form on tree's button `Details` """
+        action = super().action_open_task_form()
+
+        views = self._context.get('action_origin', {}).get('views', {}) # see `project.choice.wizard` for `action_origin`
+        views_form = [x[0] for x in views if x[1] == 'form']
+        if len(views_form):
+            action |= {'view_id': views_form[0]}
+        
+        return action
 
     #===== Task copy =====#
     def _fields_to_copy(self):

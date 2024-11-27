@@ -48,13 +48,14 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
             f.date_end = fields.Datetime.today()
         self.assertTrue(self.task.is_late)
         self.assertTrue(self.task.is_closed)
+        self.assertEqual(self.task.kanban_state, 'done')
 
-    def test_03_task_open_form(self):
+    def test_04_task_open_form(self):
         self.assertTrue(self.task.action_open_task_form().get('res_id'), self.task.id)
 
 
     #===== carpentry.planning.task =====#
-    def test_04_planning_search_read_extended(self):
+    def test_05_planning_search_read_extended(self):
         """ Test trick of appending fake task fields to `carpentry_planning_column.read_group` result
             Reminder: if `search_read` don't find a domain part with `launch_ids`, it returns []
         """
@@ -67,7 +68,7 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
         fields_list = self.Card._get_task_fields_list()
         self.assertTrue(all([field in res[0] for field in fields_list]))
 
-    def test_04_planning_action_open_task(self):
+    def test_06_planning_action_open_task(self):
         cards = self.Card.search([('launch_ids', '=', self.project.launch_ids.ids[0])])
         card = fields.first(cards).with_context({
             'project_id': self.project.id,

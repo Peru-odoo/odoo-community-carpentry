@@ -62,9 +62,6 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         self._run_import(db_resource)
         # self.with_context(import_budget_no_compute=True)._run_import(db_content, filename, mimetype)
         # self.with_context(import_budget_no_compute=False).project_id._budget_full_refresh()
-        print(self.project_id.position_ids.read(['name']))
-        print("import terminé")
-        print('self.project_id', self.project_id)
 
 
     #===== Import logics =====#
@@ -106,7 +103,6 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
 
     #===== Specific import logics =====#
     def _run_orgadata_import(self, db_resource):
-        print('_run_orgadata_import', self, db_resource)
         read_result = self._read_orgadata(db_resource)
         self._write_orgadata(*read_result)
     

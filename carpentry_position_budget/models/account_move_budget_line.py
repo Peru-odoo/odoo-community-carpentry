@@ -73,11 +73,3 @@ class AccountMoveBudgetLine(models.Model):
             amount = budget_brut.get(line.project_id.id, {}).get(line.analytic_account_id.id, 0.0)
             field = 'debit' if line.type == 'standard' else 'qty_debit'
             line[field] = amount
-
-
-    #===== Button ======#
-    def button_open_budget_line_form(self):
-        return super().button_open_budget_line_form() | (
-            {'view_id': 'carpentry_position_budget.view_account_move_budget_line_form_readonly'}
-            if self.is_computed_carpentry else {}
-        )

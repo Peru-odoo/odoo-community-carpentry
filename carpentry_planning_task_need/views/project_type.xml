@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Adds 2 fields `shortname`, and `column_id` for groups="base.group_no_one" -->
+    <!-- Add `column_id` for groups="base.group_no_one" -->
 
     <!-- Form -->
     <record id="project_type_form" model="ir.ui.view">
@@ -24,11 +24,8 @@
             <tree>
                 <field name="sequence" widget="handle" />
                 <field name="complete_name" />
-                <field name="shortname" />
                 <field name="code" />
                 <field name="root_type_id" />
-                <field name="project_ok" />
-                <field name="task_ok" />
                 <field name="column_id" groups="base.group_no_one" />
             </tree>
         </field>

@@ -12,10 +12,11 @@ class Task(models.Model):
     #===== Fields's methods =====#
     def _filter_needs(self, filter_computed=True):
         """ From a task recordset, return only the needs """
-        return self.filtered(lambda x: (
-            x.root_type_id.id == self.env.ref(XML_ID_NEED).id
-            and (not filter_computed or x.type_deadline == 'computed')
-        ))
+        return self.filtered(lambda x: x.need_id.id)
+        # return self.filtered(lambda x: (
+        #     x.root_type_id.id == self.env.ref(XML_ID_NEED).id
+        #     and (not filter_computed or x.type_deadline == 'computed')
+        # ))
 
     #===== Fields =====#
     root_type_need = fields.Many2one(
@@ -39,17 +40,18 @@ class Task(models.Model):
             ('manual', 'Manual'),
             ('computed', 'Auto'),
         ],
-        default='manual',
-        readonly=True,
-        help= '- "Classic" means a standard Task;\n'
-              '- "Need" means the deadline is computed from planning column'
-              ' milestone date. Affecting users will convert it to next status;\n'
-              '- "Converted Need" means users were affected, changing the task deadline'
-              ' to a fix and editable value.'
+        default='manual'
     )
     deadline_week_offset = fields.Integer(
         related='need_id.deadline_week_offset', 
         store=True
+    )
+    launch_id = fields.Many2one(
+        comodel_name='carpentry.group.launch',
+        compute='_compute_launch_id',
+        inverse='_inverse_launch_id',
+        required=True,
+        domain="[('project_id', '=', project_id)]"
     )
 
     #===== Constrains =====#
@@ -72,28 +74,40 @@ class Task(models.Model):
         """ Cannot change `type_id` for Task of `type=need` """
         if self._filter_needs(filter_computed=False).ids:
             raise exceptions.ValidationError(
-                _("Cannot change a Need Category once Task is created.")
+                _("Cannot change a Need Category of the Task once it is created.")
             )
 
-    @api.depends('launch_ids')
+    @api.depends('type_id', 'launch_ids')
     def _constrain_single_launch_ids(self):
         """ Task of `type=need` are affected to a single launch only """
         for task in self._filter_needs(filter_computed=False):
             if len(task.launch_ids.ids) != 1:
                 raise exceptions.ValidationError(
-                    _("Tasks of type 'Need' must be affected to a single launch only.")
+                    _("Tasks of type 'Need' can be affected to a single launch only.")
                 )
 
-    #===== Compute task type ======#
+    #===== Compute `name_required`, `task type` & `launch_id` ======#
+    def _get_name_required_type_list(self):
+        return super()._get_name_required_type_list() + [self.env.ref(XML_ID_NEED).id]
+    
     def _compute_root_type_need(self):
         """ Used in domain and context' key for default search filter """
         self.root_type_need = self.env.ref(XML_ID_NEED)
+
+    def _compute_launch_id(self):
+        for task in self:
+            task.launch_id = fields.first(task.launch_ids)
+    def _inverse_launch_id(self):
+        for task in self:
+            task.launch_ids = [Command.set(task.launch_id.ids)]
 
     #===== Compute & onchange: user_ids, deadline =====#
     @api.onchange('user_ids')
     def _onchange_user_ids(self):
         """ When a task of type `Need` is assigned to user, make the deadline writable """
-        self._filter_needs().type_deadline = 'manual'
+        for task in self._filter_needs(filter_computed=False):
+            task.type_deadline = 'manual' if task.user_ids.ids else 'computed'
+        # self._origin._filter_needs(filter_computed=False).type_deadline = 'manual'
     
     @api.depends(
         'type_id', 'deadline_week_offset',
@@ -120,7 +134,7 @@ class Task(models.Model):
         # Compute `date_deadline`
         for task in self:
             key = (
-                fields.first(task.launch_ids).id, # only 1 launch allowed for task of type need
+                task.launch_id.id, # only 1 launch allowed for task of type need
                 task.type_id.column_id.column_id_need_date.id or task.type_id.column_id.id
             )
             date_start = mapped_date_start.get(key) # start date of Production or Installation

@@ -9,9 +9,7 @@ class Task(models.Model):
     #===== Fields methods =====#
     @api.model
     def _selection_planning_card_model(self):
-        """ Give user the option to link a Planning Card from Task form,
-            but only cards linked to launches (e.g. not needs).
-        """
+        """ Give user the option to link a Planning Card from Task form """
         return [(x.model, x.name) for x in self._get_planning_model_ids()]
     def _get_planning_model_ids(self):
         domain = [('fold', '=', False)]
@@ -84,26 +82,56 @@ class Task(models.Model):
             # [add/keep] launches of `card_ref` if new, keep `card_ref`'s one if `launch_ids` was changed
             task.launch_ids += task.card_ref.launch_ids
 
-    #===== Compute dates: is_late =====#
+    #===== Onchange: link `date_end`, `kanban_state` and `stage_id` =====#
     @api.onchange('date_end')
     def _onchange_date_end(self):
         """ Shortcut: since we display `date_end` in Tree and Form view,
-            when user set it, consider the tasks as done => update `stage_id` accordingly
+            when user set it, consider the tasks as done
+            => update `stage_id` and `kanban_state` accordingly
         """
-        stage_done = self.env['project.task.type'].search([('fold', '=', True)], limit=1)
+        res = self._get_stage_open_done()
         for task in self:
-            task.stage_id = stage_done.id
+            task._change_state_one('date_end', bool(task.date_end), *res)
     
+    @api.onchange('kanban_state')
+    def _onchange_kanban_state(self):
+        """ Shortcut: when user set `kanban_state`, change task
+            `stage_id` and `date_end` accordingly
+        """
+        res = self._get_stage_open_done()
+        for task in self:
+            has_closed = task._change_state_one('kanban_state', task.kanban_state == 'done', *res)
+            if has_closed:
+                task.date_end = fields.Date.today()
+    
+    def _get_stage_open_done(self):
+        stage_ids = self.env['project.task.type'].search([])
+        stage_open = fields.first(stage_ids.filtered_domain([('fold', '=', False)]))
+        stage_done = fields.first(stage_ids.filtered_domain([('fold', '=', True)]))
+        return stage_open, stage_done
+    
+    def _change_state_one(self, field, is_closed, stage_open, stage_done):
+        """ Move to Open or Closed stage """
+        self.ensure_one()
+        has_changed = self._origin[field] != self[field]
+        if has_changed:
+            if is_closed:
+                self.stage_id = stage_done.id
+                self.kanban_state = 'done'
+            else:
+                self.stage_id = stage_open.id
+                self.kanban_state = 'normal'
+        return has_changed and is_closed
+    
+    #===== Compute dates: is_late =====#
     @api.depends('date_deadline', 'date_end')
     def _compute_is_late(self):
         for task in self:
             # (i) `date_end` is `datetime` while `date_deadline` is `date`
             date_end_or_today = bool(task.date_end) and task.date_end.date() or fields.Date.today()
-            task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline
-
+            task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline         
 
     #===== Buttons / action =====#
-    @api.model
     def action_open_task_form(self):
         action = {
             'type': 'ir.actions.act_window',

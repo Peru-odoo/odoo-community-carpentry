@@ -41,11 +41,12 @@ class CarpentryNeedFamily(models.Model):
         comodel_name='project.role',
         related='parent_type_id.role_id',
     )
-    my_role = fields.Boolean(
-        # only for search filter
-        compute=True, # required else `search` is ignored
-        search='_search_my_role'
-    )
+    # my_role = fields.Boolean(
+    #     # (!) actually doesn't work but keep it, in case of magic idea
+    #     # only for search filter
+    #     compute=True, # required else `search` is ignored
+    #     search='_search_my_role'
+    # )
 
     _sql_constraints = [(
         'name_unique',
@@ -81,18 +82,18 @@ class CarpentryNeedFamily(models.Model):
         return result
 
     #===== Compute =====#
-    @api.model
-    def _search_my_role(self, operator, value):
-        """ Filter 'My Role':
-             1. On Need Families linked to the current user, via role assignation (e.g. project manager, field manager)
-             2. Or all Need Families, if user is not linked to any Need Family (e.g. Administrator)
-            (!) A user affected to role A on project 1 and role B on project 2 will see Need Families of
-                project 1's Role B and project 2's Role A
-        """
-        return [
-            ('project_id.assignment_ids.user_id', '=', self.env.uid), # user affected on this project
-            ('role_id.assignment_ids.user_id', '=', self.env.uid) # user affected to this role (on any project)
-        ]
+    # @api.model
+    # def _search_my_role(self, operator, value):
+    #     """ Filter 'My Role':
+    #          1. On Need Families linked to the current user, via role assignation (e.g. project manager, field manager)
+    #          2. Or all Need Families, if user is not linked to any Need Family (e.g. Administrator)
+    #         (!) A user affected to role A on project 1 and role B on project 2 will see Need Families of
+    #             project 1's Role B and project 2's Role A
+    #     """
+    #     return [
+    #         ('project_id.assignment_ids.user_id', '=', self.env.uid), # user affected on this project
+    #         ('role_id.assignment_ids.user_id', '=', self.env.uid) # user affected to this role (on any project)
+    #     ]
 
     #===== Logics =====#
     def _reconcile_with_tasks(self, project_ids_):
@@ -107,6 +108,10 @@ class CarpentryNeedFamily(models.Model):
                 launches : create only 1 task per launch per need
             => computation must always be done at project level
         """
+        # Computation considers archived tasks,
+        # (e.g. a generated need we actually don't want on 1 launch)
+        self = self.with_context(active_test=False)
+
         # 1. Define existing & target
         # existing
         domain_task = [
@@ -131,14 +136,14 @@ class CarpentryNeedFamily(models.Model):
 
         # 2. Delete tasks if a need were removed (only non-converted need)
         to_delete = task_ids.filtered(lambda task: (
-            task.type_deadline == 'computed' and
             (task.launch_ids[0], task.need_id) in (existing_tuples - target_tuples)
         ))
         to_delete.with_context(force_delete=True).unlink()
 
         # 3. Create tasks from added need or launch to (a) family(ies)
         model_id_ = self.env['ir.model'].sudo().search([('model', '=', 'project.type')]).id
+        stage_id_ = self.env['project.task.type'].sudo().search([('fold', '=', False)], limit=1).id
         self.env['project.task'].create([
-            need._convert_to_task_vals(launch.id, model_id_)
+            need._convert_to_task_vals(launch.id, model_id_, stage_id_)
             for launch, need in (target_tuples - existing_tuples)
         ])

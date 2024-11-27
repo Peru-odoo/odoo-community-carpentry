@@ -59,6 +59,7 @@
                 'context': {
                     'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_instruction').id,
                     'display_type_ids': True, # hide `parent_type_id` and `type_ids` ; display `type_ids`
+                    'display_parent_type_id': False
                 },
                 'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_instruction').id)]
             })

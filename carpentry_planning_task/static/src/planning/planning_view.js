@@ -5,9 +5,6 @@ import { PlanningController } from "@carpentry_planning/planning/planning_view";
 import { PlanningGlobalTasks } from "./planning_global_tasks";
 
 const planningControllerPatchGlobalTasks = {
-    setup() {
-        super.setup();
-    },
     async openRecord (record) {
         if (record._values.can_open) {
             return super.openRecord(record);

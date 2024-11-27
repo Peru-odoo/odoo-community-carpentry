@@ -6,6 +6,8 @@ import { useService } from "@web/core/utils/hooks";
 // Launch item (<li> element)
 export class PlanningLeftSidePanel_LaunchItem extends Component {
     setup () {
+        super.setup();
+        
         this.orm = useService("orm");
         this.action = useService("action");
         this.state = useState({is_done: this.props.launch.is_done});

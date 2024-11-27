@@ -166,7 +166,12 @@ class CarpentryPositionBudget(models.Model):
             # this is why `self` should be filtered on only wanted `groupby_budget` field
             # /!\ values can be int (ids_) or str (like for `detailed_type`, which is a selection field)
             key_ids = self.mapped(groupby_budget)
-            default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
+            try:
+                default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
+            except:
+                raise exceptions.ValidationError(
+                    _('Error when computing unitary position budget: analytic account or default product is missing.')
+                )
         
         # 2. Sum-group unitary budgets by position, by `groupby_budget`
         unitary_budgets_brut, unitary_budgets_valued = {}, {}

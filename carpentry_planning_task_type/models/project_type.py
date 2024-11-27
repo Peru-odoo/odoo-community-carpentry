@@ -2,27 +2,37 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 
+from random import randint
+
 class ProjectType(models.Model):
     _inherit = ['project.type']
+    _rec_name = 'display_name'
+    
+    #===== Fields methods =====#
+    def _get_default_color(self):
+        return randint(1, 11)
 
     #===== Fields =====#
-    code = fields.Char(
-        # for planning card
-        string='Shortname',
-        help='Name on planning cards'
-    )
-    shortname = fields.Char(
-        # for planning card
-        related='code',
-        string='Shortname (planning)'
-    )
-    sequence = fields.Integer()
     root_type_id = fields.Many2one(
         comodel_name='project.type',
         string='Root Type',
         compute='_compute_root_type_id',
         store=True,
         readonly=True
+    )
+    sequence = fields.Integer()
+    color = fields.Integer(
+        string='Color',
+        default=_get_default_color
+    )
+    # --- for planning ---
+    code = fields.Char(
+        string='Shortname',
+        help='Name on planning cards'
+    )
+    shortname = fields.Char(
+        related='code',
+        string='Shortname (planning)'
     )
 
     #===== Constrains & compute: root type =====#
@@ -47,3 +57,12 @@ class ProjectType(models.Model):
             while root_type_id.parent_id.id:
                 root_type_id = root_type_id.parent_id
             type.root_type_id = root_type_id
+
+    #===== Compute : display_name =====#
+    @api.depends('name')
+    def _compute_display_name(self):
+        for type in self:
+            type.display_name = type._get_display_name_one()
+    
+    def _get_display_name_one(self):
+        return self.name

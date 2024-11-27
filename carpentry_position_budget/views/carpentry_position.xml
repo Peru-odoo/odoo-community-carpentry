@@ -34,7 +34,7 @@
                     type="action"
                     icon="fa-compress" 
                     attrs="{'invisible': [('warning_name', '=', False)]}"
-                    help="Merge to resolve the conflict with other position(s) with the same name"
+                    title="Merge to resolve the conflict with other position(s) with the same name"
                 />
             </field>
 

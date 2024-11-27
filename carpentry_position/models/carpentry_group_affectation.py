@@ -277,7 +277,9 @@ class CarpentryGroupAffectation(models.Model):
             sibling_ids = set(mapped_siblings_ids.get(key, [])) - set([affectation.id])
 
             if len(sibling_ids) > 0:
-                raise exceptions.ValidationError(_('One line cannot be affected to several columns.'))
+                raise exceptions.ValidationError(
+                    _('One line cannot be affected to several columns (%s).', affectation.display_name)
+                )
 
     #===== Quantities & M2o: constrain & compute =====#
     @api.onchange('quantity_affected')
