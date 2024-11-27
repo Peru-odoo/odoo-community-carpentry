@@ -109,8 +109,14 @@ class CarpentryPlanningColumn(models.Model):
         if self._context.get('no_test_mirroring_column_id'):
             return
         
-        for column_id in self:
-            column_id.identifier_ref._synch_mirroring_column_id(column_id)
+        for column_id in self.filtered(lambda x: x.identifier_ref):
+            try:
+                column_id.identifier_ref._synch_mirroring_column_id(column_id)
+            except:
+                raise exceptions.ValidationError(_(
+                    "Model of identifier %s cannot be chosen (not foreseen for it)."
+                    " Column: %s", column_id.identifier_ref, column_id.name
+                ))
     
     @api.model_create_multi
     def create(self, vals_list):
