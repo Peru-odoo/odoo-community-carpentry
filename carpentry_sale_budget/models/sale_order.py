@@ -8,8 +8,8 @@ class SaleOrder(models.Model):
     lines_budget_updated = fields.Selection(
         selection=[
             ('none', 'None'),
-            ('not_validated', 'Partial'),
-            ('all_validated', 'OK')
+            ('not_updated', 'Partial'),
+            ('all_updated', 'OK')
         ],
         string='Budget state',
         compute='_compute_lines_budget_updated',
