@@ -9,7 +9,7 @@
     'application': False,
     'installable': True,
     'auto_install': False,
-    'category': 'Carpentry',
+    'category': 'Carpentry/Carpentry',
     'version': '16.0.1.0.1',
 
     'depends': ['carpentry_base', 'carpentry_sale', 'carpentry_position_budget'],
