@@ -42,8 +42,8 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
             self.budget.with_user(user_project).check_access("read")
     
     def test_02_security_access_rules_global_user(self):
-        """ Global Reader should see all project budget, even with no role """
+        """ User (all projects) should see all project budget, even with no role """
         try:
             self.budget.with_user(user_project_global).check_access("read")
         except:
-            self.fail('User project Global Reader should see all project budget')
+            self.fail('User (all projects) should see all project budget')
