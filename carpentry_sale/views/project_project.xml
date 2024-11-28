@@ -17,7 +17,7 @@
                     
                     <div>
                         + <field name="sale_order_sum_validated" nolabel="1" widget="currency" class="fw-bold oe_inline" />
-                        (validated Sales Order lines)
+                        (quotations and sales order)
 
                         <!-- Alert if some sale order lines not validated -->
                         <field name="sale_order_count" invisible="1" />
@@ -34,7 +34,7 @@
                         <br />
 
                         = <field name="market_reviewed" nolabel="1" widget="currency" class="fw-bold oe_inline" />
-                        (Reviewed Market)
+                        (reviewed market)
                     </div>
                 </div>
             </field>
