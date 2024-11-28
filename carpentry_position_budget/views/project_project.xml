@@ -26,7 +26,7 @@
 
             <!-- Notebook: 'Budget settings' tab -->
             <notebook position="inside">
-                <page name="budget_settings" string="Budget settings">
+                <page name="budget" string="Budget">
                     <group name="budget_total">
                         <field name="budget_line_sum" />
                         <field name="budget_goods" />
