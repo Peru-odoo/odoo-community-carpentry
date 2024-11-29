@@ -39,7 +39,7 @@
                 </button>
             </div>
 
-            <notebook position="inside">
+            <page name="settings" position="before">
                 <!-- <page name="lots" string="Lots">
                     <label for="lot_ids" />
                     <field name="lot_ids" />
