@@ -47,7 +47,7 @@
                         <field name="budget_global_fees" />
                     </group>
                 </page>
-            </notebook>
+            </page>
         </field>
     </record>
     

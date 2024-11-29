@@ -127,7 +127,7 @@
                         </field>
                     </div>
                 </page>
-            </notebook>
+            </page>
         </field>
     </record>
 </odoo>
