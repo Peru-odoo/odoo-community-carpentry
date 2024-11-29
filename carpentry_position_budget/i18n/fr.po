@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-11-26 12:10+0000\n"
-"PO-Revision-Date: 2024-11-28 01:21+0100\n"
+"PO-Revision-Date: 2024-11-29 13:06+0100\n"
 "Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -284,7 +284,7 @@ msgstr "Frais globaux"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_goods
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_goods
 msgid "Goods"
-msgstr "Fournitures"
+msgstr "Fourniture"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__id
@@ -349,7 +349,7 @@ msgstr "Données importées d'Orgadata"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_install
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_install
 msgid "Install"
-msgstr "Installer"
+msgstr "Pose"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position_budget_interface

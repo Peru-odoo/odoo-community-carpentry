@@ -21,7 +21,7 @@ class ProjectType(models.Model):
         readonly=True
     )
     sequence = fields.Integer(
-        # is used to filter task by `sequence_type ASC`
+        # is used to filter task by `type_sequence ASC`
     )
     color = fields.Integer(
         string='Color',

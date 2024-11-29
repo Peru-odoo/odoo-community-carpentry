@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <!-- Tree Order-By -->
             <tree position="attributes">
-                <attribute name="default_order">sequence_type ASC, priority DESC, create_date ASC</attribute>
+                <attribute name="default_order">type_sequence ASC, priority DESC, create_date ASC</attribute>
             </tree>
             
             <!-- Make `parent_type_id` editable -->
