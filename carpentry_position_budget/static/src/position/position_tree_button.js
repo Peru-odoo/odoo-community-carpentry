@@ -12,10 +12,18 @@ export class PositionListController extends ListController {
     }
 
     async openPositionBudget() {
-        this.actionService.doAction('carpentry_position_budget.action_open_position_budget_srv');
+        const additionalContext = this.env.model.root.context;
+        this.actionService.doAction(
+            'carpentry_position_budget.action_open_position_budget_srv',
+            {additionalContext}
+        );
     }
     async openImportWizard() {
-        this.actionService.doAction('carpentry_position_budget.action_open_position_budget_import_wizard');
+        const additionalContext = this.env.model.root.context;
+        this.actionService.doAction(
+            'carpentry_position_budget.action_open_position_budget_import_wizard',
+            {additionalContext}
+        );
     }
 }
 
