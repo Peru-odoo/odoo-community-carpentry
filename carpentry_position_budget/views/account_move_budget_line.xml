@@ -73,7 +73,10 @@
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
             <field name="standard_price" position="attributes">
-                <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
+                <attribute name="attrs">{
+                    'invisible': [('type', '!=', 'fix')],
+                    'readonly': [('is_computed_carpentry', '=', True)]
+                }</attribute>
             </field>
         </field>
     </record>

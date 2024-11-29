@@ -135,3 +135,19 @@ class Project(models.Model):
             today if today > budget_id.date_from and today < budget_id.date_to
             else budget_id.date_from
         )
+
+    #===== Button =====#
+    def button_open_budget_lines(self):
+        """ When opening a budget from project menu, only allows to add `Global Project Fees` budget """
+        budget_id = fields.first(self.budget_ids)
+        view_id_ = self.env.ref('project_budget.view_account_move_budget_line_tree_simplified').id
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move.budget.line',
+            'view_mode': 'tree',
+            'view_id': view_id_, # simplified budget lines view for projects 
+            'name': _('Budget lines'),
+            'context': self._get_default_vals_budget_line(budget_id, default=True),
+            'domain': [('project_id', '=', self.id)]
+        }

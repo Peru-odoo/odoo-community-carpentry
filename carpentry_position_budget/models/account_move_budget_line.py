@@ -2,11 +2,19 @@
 
 from odoo import models, fields, api, _
 
-import logging
-_logger = logging.getLogger(__name__)
-
 class AccountMoveBudgetLine(models.Model):
     _inherit = ["account.move.budget.line"]
+
+    def _domain_analytic_account_id(self):
+        """ Restrict some analytic account selection in budget only to accountants """
+        return (
+            [] if self.env.user.has_group('account.group_account_manager')
+            else [('budget_only_accountant', '=', False)]
+        )
+
+    analytic_account_id = fields.Many2one(
+        domain=_domain_analytic_account_id
+    )
 
     is_computed_carpentry = fields.Boolean(
         default=False,
@@ -30,7 +38,6 @@ class AccountMoveBudgetLine(models.Model):
         store=True,
         readonly=False
     )
-
 
     @api.depends(
         # 1. positions' budgets
