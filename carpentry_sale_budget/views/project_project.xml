@@ -7,6 +7,7 @@
         <field name="inherit_id" ref="carpentry_sale.edit_project" />
 
         <field name="arch" type="xml">
+            <!-- Alert `budget_up_to_date` next to quotations & sales order total -->
             <button id="sale_order_lines_fully_validated" position="after">
                 <field name="budget_up_to_date" invisible="1" />
                 <button
@@ -30,6 +31,11 @@
         <field name="inherit_id" ref="carpentry_position_budget.edit_project" />
 
         <field name="arch" type="xml">
+            <!-- Show `Budget` smart-button to salesman too -->
+            <button name="%(carpentry_position_budget.action_open_position_budget_import_wizard)d" position="attributes">
+                <attribute name="groups">project.group_project_manager,sales_team.group_sale_salesman</attribute>
+            </button>
+
             <!-- Prepare the "budget_total" left group -->
             <group name="budget_total" position="attributes">
                 <attribute name="colspan">2</attribute>

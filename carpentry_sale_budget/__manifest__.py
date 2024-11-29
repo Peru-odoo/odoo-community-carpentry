@@ -14,6 +14,9 @@
 
     'depends': ['carpentry_base', 'carpentry_sale', 'carpentry_position_budget'],
     'data': [
+        # security
+        'security/ir.model.access.csv',
+        # views
         'views/project_project.xml',
         'views/sale_order.xml',
     ],

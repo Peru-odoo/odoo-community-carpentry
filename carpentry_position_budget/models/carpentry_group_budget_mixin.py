@@ -47,7 +47,7 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     
     #===== Compute (budgets) =====#
     def _get_budgets_brut_valued(self):
-        return self.env['carpentry.position.budget'].sum(
+        return self.env['carpentry.position.budget'].sudo().sum(
             quantities=self._get_quantities(),
             groupby_group=['group_id'],
             groupby_budget='detailed_type',
@@ -61,10 +61,10 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
-        self.budget_prod = self._get_budget_one(brut, 'service_prod')
-        self.budget_install = self._get_budget_one(brut, 'service_install')
-        self.budget_goods = self._get_budget_one(valued, ['consu', 'storable'])
-        self.budget_total = self._get_budget_one(valued, ['service_prod', 'service_install', 'consu', 'storable'])
+        self.budget_prod = self.sudo()._get_budget_one(brut, 'service_prod')
+        self.budget_install = self.sudo()._get_budget_one(brut, 'service_install')
+        self.budget_goods = self.sudo()._get_budget_one(valued, ['consu', 'storable'])
+        self.budget_total = self.sudo()._get_budget_one(valued, ['service_prod', 'service_install', 'consu', 'storable'])
     
     def _get_budget_one(self, budget, detailed_types):
         detailed_types = [detailed_types] if isinstance(detailed_types, str) else detailed_types
