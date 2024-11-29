@@ -48,13 +48,11 @@ class Task(models.Model):
         return fields.first(type_ids)
     
     @api.model
-    def _read_group_type_id(self, records, domain, order):
-        """ For Kanban view, render all tasks of the same `root_type_id` """
-        domain = ['|', 
-            ('id', 'in', records.ids),
-            ('root_type_id', 'in', records.root_type_id.ids)
-        ]
-        return self.env['project.type'].search(domain)
+    def _read_group_types(self, records, domain, order, task_ok=True):
+        return self.env['project.type'].search([
+            ('task_ok', 'in', records.mapped('task_ok')), # of the same hierarchy level
+            ('root_type_id', 'in', records.root_type_id.ids), # in the same type category
+        ])
 
 
     #===== Fields =====#
@@ -76,6 +74,7 @@ class Task(models.Model):
         readonly=True,
         store=True,
         domain="[('root_type_id', '=', root_type_id), ('task_ok', '=', False)]",
+        group_expand='_read_group_types'
     )
     type_id = fields.Many2one(
         # from module `project_type`
@@ -86,7 +85,7 @@ class Task(models.Model):
             ('parent_id', '=', parent_type_id),
             ('task_ok', '=', True)
         ]""",
-        group_expand='_read_group_type_id'
+        group_expand='_read_group_types'
     )
     type_sequence = fields.Integer(
         related='type_id.sequence',

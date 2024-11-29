@@ -57,12 +57,12 @@ class SaleOrder(models.Model):
 
 
     #====== Compute: line status =====#
-    @api.depends('order_line.validated')
+    @api.depends('order_line', 'order_line.validated')
     def _compute_lines_validated(self):
         for order in self:
             if not order.order_line.ids:
                 order.lines_validated = 'none'
-            elif order.order_line.mapped('validated') == [True]:
+            elif set(order.order_line.mapped('validated')) == {True}:
                 order.lines_validated = 'all_validated'
             else:
                 order.lines_validated = 'not_validated'
@@ -79,7 +79,7 @@ class SaleOrder(models.Model):
         self.order_line.validated = True
 
     #====== Compute: totals (validated / not validated) =====#
-    @api.depends('amount_total', 'order_line.validated')
+    @api.depends('amount_total', 'order_line', 'order_line.validated')
     def _compute_totals_validated(self):
         """ Compute the total amounts of the SO **only for the validated lines** """
         for order in self:

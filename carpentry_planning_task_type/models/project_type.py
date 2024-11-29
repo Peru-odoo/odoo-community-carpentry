@@ -67,4 +67,4 @@ class ProjectType(models.Model):
             type.display_name = type._get_display_name_one()
     
     def _get_display_name_one(self):
-        return self.name
+        return self.shortname if self._context.get('display_short_name') else self.name

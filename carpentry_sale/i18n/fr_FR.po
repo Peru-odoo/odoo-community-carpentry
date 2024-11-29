@@ -1,0 +1,169 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-29 13:28+0000\n"
+"PO-Revision-Date: 2024-11-29 13:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
+msgid "(quotations and sales order)"
+msgstr ""
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
+msgid "(reviewed market)"
+msgstr ""
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
+msgid ""
+"<br/>\n"
+"\n"
+"                        ="
+msgstr ""
+
+#. module: carpentry_sale
+#: model:ir.model.fields,help:carpentry_sale.field_project_project__market
+msgid "Amount of initial contract with the customer."
+msgstr "Montant du contrat initial avec le client."
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__attachment_ids
+msgid "Attachments"
+msgstr "Pièces jointes"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order_line__project_id
+msgid "Generated Project"
+msgstr "Projet généré"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,help:carpentry_sale.field_project_project__market_reviewed
+msgid ""
+"Initial market + validated sale order lines (based on analytic distribution)"
+msgstr ""
+"Marché initial + lignes de commande client validées (basée sur leur "
+"distribution analytique)"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__comment
+msgid "Internal Note"
+msgstr ""
+
+#. module: carpentry_sale
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order_line__validated
+msgid "Is the amount validated with client?"
+msgstr "Montant validé avec le client ?"
+
+#. module: carpentry_sale
+#: model:ir.model,name:carpentry_sale.model_crm_lead
+msgid "Lead/Opportunity"
+msgstr "Piste/Opportunité"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__lines_validated
+msgid "Line state"
+msgstr "État des lignes"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
+msgid "Lines amounts validated"
+msgstr "Lignes validées"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
+msgid "Lines not confirmed"
+msgstr "Lignes non validées"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__market
+msgid "Market"
+msgstr "Marché"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__description
+msgid "Name"
+msgstr "Nom"
+
+#. module: carpentry_sale
+#: model:ir.model.fields.selection,name:carpentry_sale.selection__sale_order__lines_validated__none
+msgid "None"
+msgstr "Vide"
+
+#. module: carpentry_sale
+#: model:ir.model.fields.selection,name:carpentry_sale.selection__sale_order__lines_validated__all_validated
+msgid "OK"
+msgstr ""
+
+#. module: carpentry_sale
+#: model:ir.model.fields.selection,name:carpentry_sale.selection__sale_order__lines_validated__not_validated
+msgid "Partial"
+msgstr "Partiel"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__sale_order_sum_validated
+msgid "Quotations & Sale Orders total validated amount"
+msgstr "Montant total validé des devis et commandes clients"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__market_reviewed
+msgid "Reviewed Market"
+msgstr "Marché revu"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__sale_order_lines_fully_validated
+msgid "Sale Order Lines Fully Validated"
+msgstr "Lignes de commande client entièrement validées"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order_line__project_id
+msgid "Select a non billable project on which tasks can be created."
+msgstr ""
+"Sélectionnez un projet non facturable sur lequel des tâches peuvent être "
+"créées."
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
+msgid "Some lines of Sales Order are not validated"
+msgstr "Certaines lignes de la commande client ne sont pas validées"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_tax_validated
+msgid "Taxes (validated lines)"
+msgstr "Taxes (lignes validées)"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
+msgid "Total (HT) - all lines"
+msgstr "Total (HT) - toutes les lignes"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
+msgid "Total (HT) - validated lines only"
+msgstr "Total (HT) - lignes validées uniquement"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_total_validated
+msgid "Total (validated lines)"
+msgstr "Total (lignes validées)"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_untaxed_validated
+msgid "Untaxed Amount (validated lines)"
+msgstr "Montant non taxé (lignes validées)"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order_line__validated
+msgid "Validated?"
+msgstr "Validé ?"

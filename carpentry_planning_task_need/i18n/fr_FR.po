@@ -1,0 +1,394 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_planning_task_need
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-11-29 13:28+0000\n"
+"PO-Revision-Date: 2024-11-29 13:28+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
+msgid "<span class=\"fa fa-calendar me-2\" title=\"Calendar\"/>"
+msgstr "<span class=\"fa fa-calendar me-2\" title=\"Calendrier\"/>"
+
+#. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/carpentry_need_family.py:0
+#, python-format
+msgid "A Need Family cannot mix Needs of different type."
+msgstr ""
+"Une famille de besoins ne peut pas mélanger des besoins de types différents."
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.constraint,message:carpentry_planning_task_need.constraint_carpentry_need_family_name_unique
+msgid "A Need Family with this name already exists in the project."
+msgstr "Une famille de besoins avec ce nom existe déjà dans le projet."
+
+#. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_task.py:0
+#, python-format
+msgid ""
+"A Task of type 'Need' which is not converted to an independant Task cannot "
+"be delete. Please rather use Needs menus to delete the Need, or unaffect the"
+" Need from the Launch."
+msgstr ""
+"Une tâche de type 'Besoin' qui n'est pas convertie en tâche indépendante ne "
+"peut pas être supprimée. Veuillez plutôt utiliser les menus Besoins pour "
+"supprimer le Besoin, ou désaffecter le Besoin du Lancement."
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__active
+msgid "Active"
+msgstr "Actif"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
+msgid "Are you sure?"
+msgstr "Êtes-vous sûr ?"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields.selection,name:carpentry_planning_task_need.selection__project_task__type_deadline__computed
+msgid "Auto"
+msgstr ""
+
+#. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_task.py:0
+#, python-format
+msgid "Cannot change a Need Category of the Task once it is created."
+msgstr ""
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_column
+msgid "Carpentry Planning Column"
+msgstr "Colonne du planning de menuiserie"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
+msgid "Closest next objective (or last, if all tasks are done)"
+msgstr ""
+"Objectif suivant le plus proche (ou dernier, si toutes les tâches sont "
+"accomplies)"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_planning_column__column_id_need_date
+msgid ""
+"Column whose `start` milestone will be used as reference to compute needs "
+"automated deadline. If none, same column's milestones as the needs cards "
+"will be used."
+msgstr ""
+"Colonne dont le jalon \"Début\" sera utilisé comme référence pour calculer "
+"l'échéance automatisée des besoins. Si non-renseigné, le jalon \"Début\" de "
+"cette même colonne sera utilisé."
+
+#. module: carpentry_planning_task_need
+#: model:project.role,name:carpentry_planning_task_need.project_role_construction_manager
+msgid "Construction Site manager"
+msgstr "Conducteur de travaux"
+
+#. module: carpentry_planning_task_need
+#: model:ir.actions.act_window,name:carpentry_planning_task_need.action_open_need_family
+#: model:ir.actions.server,name:carpentry_planning_task_need.action_open_need_family_srv
+#: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_create
+msgid "Create and affect needs"
+msgstr "Créer et affecter les besoins"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__create_uid
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__create_date
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__date_deadline
+msgid "Deadline"
+msgstr "Date limite"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
+msgid "Delete"
+msgstr "Supprimer"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__display_name
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: carpentry_planning_task_need
+#: model:project.type,name:carpentry_planning_task_need.example_need_category
+msgid "Example of a Need Category"
+msgstr "Exemple de catégorie de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_output
+msgid "Go for Output"
+msgstr "Accord débit"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_buy
+msgid "Go for Purchase"
+msgstr "Accord achat"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__id
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__id
+msgid "ID"
+msgstr ""
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_install_end
+msgid "Installation End"
+msgstr "Fin de la pose"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_install_start
+msgid "Installation Start"
+msgstr "Début de la pose"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need____last_update
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification le"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__write_uid
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__write_date
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__launch_id
+msgid "Launch"
+msgstr ""
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
+msgid "Launches"
+msgstr "Lancements"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields.selection,name:carpentry_planning_task_need.selection__project_task__type_deadline__manual
+msgid "Manual"
+msgstr "Manuel"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_search
+msgid "Name"
+msgstr "Nom"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__name
+#: model:project.type,name:carpentry_planning_task_need.task_type_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_search
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
+msgid "Need"
+msgstr "Besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__type_id
+msgid "Need Category"
+msgstr "Catégorie de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__root_type_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__parent_type_id
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__root_type_need
+msgid "Need Type"
+msgstr "Type de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_need_family
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__name
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_form
+msgid "Need family"
+msgstr "Famille de besoin"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_form
+msgid "Need name"
+msgstr "Nom du besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__need_id
+msgid "Need template"
+msgstr "Modèle de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_section
+msgid "Needs"
+msgstr "Besoins"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.column,name:carpentry_planning_task_need.planning_column_need_construction
+#: model:project.type,name:carpentry_planning_task_need.task_type_need_construction
+msgid "Needs (Construction site)"
+msgstr "Besoins (travaux)"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.column,name:carpentry_planning_task_need.planning_column_need_method
+#: model:project.type,name:carpentry_planning_task_need.task_type_need_method
+msgid "Needs (Method)"
+msgstr "Besoins (méthode)"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__family_ids
+msgid "Needs Families"
+msgstr "Familles de besoins"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_column__column_id_need_date
+msgid "Needs milestone column"
+msgstr "Besoin d'une colonne de jalons"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__need_ids
+msgid "Needs templates"
+msgstr "Modèle de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_need__deadline_week_offset
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_project_task__deadline_week_offset
+msgid ""
+"Number of week before a given milestone of the launch (e.g. start of "
+"Production or Installation)"
+msgstr ""
+"Nombre de semaine avant un jalon du lancement (ex: début de la production ou"
+" de la pose)"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__planning_card_color
+msgid "Planning Card Color"
+msgstr "Couleur de la carte du planning"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__planning_card_color_is_auto
+msgid "Planning Card Color Is Auto"
+msgstr "Couleur automatique de la carte dans le planning"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__column_id
+msgid "Planning Column"
+msgstr "Colonne du planning"
+
+#. module: carpentry_planning_task_need
+#: model:carpentry.planning.column,name:carpentry_planning_task_need.planning_column_production
+msgid "Production"
+msgstr "Fabrication"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__project_id
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__project_id
+msgid "Project"
+msgstr "Projet"
+
+#. module: carpentry_planning_task_need
+#: model:project.role,name:carpentry_planning_task_need.project_role_project
+msgid "Project Manager"
+msgstr "Chef de projet"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__role_id
+msgid "Role"
+msgstr "Rôle"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__task_ids
+msgid "Tasks"
+msgstr "Tâches"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_need_family__role_id
+msgid ""
+"Tasks affected to this type will be auto-assigned to users carrying this "
+"role in the project. If not configured, assignees of this task's type are "
+"not modified."
+msgstr ""
+"Les tâches affectées à ce type seront automatiquement attribuées aux "
+"utilisateurs ayant ce rôle dans le projet. Si cette option n'est pas "
+"configurée, les assignés de ce type de tâche ne sont pas modifiés."
+
+#. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_task.py:0
+#, python-format
+msgid "Tasks of type 'Need' can be affected to a single launch only."
+msgstr ""
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.constraint,message:carpentry_planning_task_need.constraint_carpentry_need_name_unique
+msgid "This Need's name already exist in the project."
+msgstr "Le nom de ce besoin existe déjà dans le projet."
+
+#. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/carpentry_need.py:0
+#, python-format
+msgid "This need cannot be deleted since used in a Need Family."
+msgstr ""
+"Ce besoin ne peut pas être supprimé puisqu'il est utilisé dans une famille "
+"de besoins."
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__type_deadline
+msgid "Type Deadline"
+msgstr "Type de date objectif"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__parent_type_id
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.view_task_search_form
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.view_task_tree_need
+msgid "Type of Need"
+msgstr "Type de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.actions.server,name:carpentry_planning_task_need.action_open_task_need_srv
+#: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_view
+msgid "View and adapt needs"
+msgstr "Voir et ajuster les besoins"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__deadline_week_offset
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__deadline_week_offset
+msgid "Weeks offset"
+msgstr "Semaines d'avance"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_need__project_id
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_need_family__project_id
+msgid "Within your favorite projects"
+msgstr "Parmis vos projets favoris"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_search
+msgid "★ Projects"
+msgstr "★ Projets"

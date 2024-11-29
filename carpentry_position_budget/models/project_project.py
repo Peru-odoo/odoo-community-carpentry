@@ -98,7 +98,7 @@ class Project(models.Model):
         if self._context.get('import_budget_no_compute'):
             return
         
-        # Ensure projects has linked budgets, before any computation
+        # Ensure project.budget_ids exist, before any further calculations
         self._inverse_budget_template_ids()
         
         # Get existing computed lines & list of just-updated 'account_analytic_ids' in position's budgets
@@ -113,14 +113,10 @@ class Project(models.Model):
         self.budget_line_ids.filtered_domain(domain_unlink).sudo().unlink()
 
         # Add new lines, if new budget
-        today = fields.Date.today()
         budget_id = fields.first(self.budget_ids)
         vals_list = [{
             'name': aac_id.product_tmpl_id.name or aac_id.name,
-            'date': (
-                today if today > budget_id.date_from and today < budget_id.date_to
-                else budget_id.date_from
-            ),
+            'date': self._get_default_project_budget_line_date(budget_id),
             'budget_id': fields.first(self.budget_ids).id,
             'account_id': aac_id.product_tmpl_id._get_product_accounts().get('expense').id,
             'analytic_account_id': aac_id.id,
@@ -132,3 +128,10 @@ class Project(models.Model):
         } for aac_id in to_add]
         existing_line_ids.create(vals_list)
     
+    def _get_default_project_budget_line_date(self, budget_id):
+        """ Tries `today` if within budget dates, else `budget_id.date_from` """
+        today = fields.Date.today()
+        return (
+            today if today > budget_id.date_from and today < budget_id.date_to
+            else budget_id.date_from
+        )

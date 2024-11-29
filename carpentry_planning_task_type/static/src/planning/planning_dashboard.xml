@@ -22,17 +22,17 @@
         <table class="text-center">
             <thead>
                 <tr>
-                    <th scope="col" t-foreach="data.types" t-as="type" t-key="type.id"
-                        t-att-data-tooltip="type.shortname ? type.name : false"
-                        t-esc="type.shortname || type.name"
+                    <th scope="col" t-foreach="data.parent_types" t-as="parent_type" t-key="parent_type.id"
+                        t-att-data-tooltip="parent_type.display_name"
+                        t-esc="parent_type.display_name"
                         class="px-1"
                     />
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td t-foreach="data.types" t-as="type" t-key="type.id">
-                        <t t-foreach="data.milestones[type.id]" t-as="milestone" t-key="milestone.id">
+                    <td t-foreach="data.parent_types" t-as="parent_type" t-key="parent_type.id">
+                        <t t-foreach="data.milestones[parent_type.id] ?? []" t-as="milestone" t-key="milestone.id">
                             <button
                                 t-attf-class="px-1 py-0 mb-1 btn {{ btnColor(milestone) }}"
                                 t-on-click="() => this.openDetails('project.task', milestone.id, milestone.name)"
