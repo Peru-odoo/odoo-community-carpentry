@@ -13,7 +13,7 @@
             <!-- Tree Order-By -->
             <tree position="attributes">
                 <attribute name="default_order">
-                    priority DESC, sequence_type ASC, date_deadline ASC, create_date ASC
+                    priority DESC, type_sequence ASC, date_deadline ASC, create_date ASC
                 </attribute>
             </tree>
 

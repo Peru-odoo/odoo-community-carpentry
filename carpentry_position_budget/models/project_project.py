@@ -98,6 +98,9 @@ class Project(models.Model):
         if self._context.get('import_budget_no_compute'):
             return
         
+        # Ensure projects has linked budgets, before any computation
+        self._inverse_budget_template_ids()
+        
         # Get existing computed lines & list of just-updated 'account_analytic_ids' in position's budgets
         existing_line_ids = self.budget_line_ids.filtered('is_computed_carpentry')
         analytic_account_ids = self.position_budget_ids.mapped('analytic_account_id')

@@ -152,8 +152,14 @@ class Task(models.Model):
     #===== Compute: user-interface =====#
     @api.depends('root_type_id')
     def _compute_name_required(self):
+        """ Required for:
+            1. standard Task ; `default_root_type_id = False`
+            2. instruction
+            3. need (see module `carpentry_planning_task_need`)
+        """
         required_list = self._get_name_required_type_list()
-        required_by_ctx = self._context.get('default_root_type_id') in required_list # for new task, without id yet
+        default_root_type_id = self._context.get('default_root_type_id')
+        required_by_ctx = not default_root_type_id or default_root_type_id in required_list # for new task, without id yet
         for task in self:
             task.name_required = required_by_ctx or task.root_type_id.id in required_list
     def _get_name_required_type_list(self):
