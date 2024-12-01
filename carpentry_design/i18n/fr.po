@@ -1,0 +1,526 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_design
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-01 18:40+0000\n"
+"PO-Revision-Date: 2024-12-01 19:52+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_planning_kanban
+msgid ""
+"<span class=\"fa fa-calendar\"/>\n"
+"                        W"
+msgstr ""
+"<span class=\"fa fa-calendar\"/>\n"
+"                        S"
+
+#. module: carpentry_design
+#: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__success
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Accepted"
+msgstr "Accepté"
+
+#. module: carpentry_design
+#: model:ir.module.category,description:carpentry_design.module_category_services_carpentry_design
+msgid "Access to Plans and Visas management"
+msgstr "Accéder aux plans et visas"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_needaction
+msgid "Action Needed"
+msgstr "Action requise"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__active
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__active
+msgid "Active?"
+msgstr "Actif ?"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_ids
+msgid "Activities"
+msgstr "Activités"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Style d'affichage d'une activité exceptionnelle"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_state
+msgid "Activity State"
+msgstr "État de l'activité"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Icone du type d'activité"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Archived included"
+msgstr "Archivé inclus"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_attachment_count
+msgid "Attachment Count"
+msgstr "Nombre de pièces jointes"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__description
+msgid "Comment"
+msgstr "Remarque"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__company_id
+msgid "Company"
+msgstr "Société"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_form
+msgid "Create Tasks"
+msgstr "Créer des tâches"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_form
+msgid "Create tasks shown in Planning top-list, linked to this document"
+msgstr ""
+"Ces tâches apparaîtront sur la liste haute du planning du projet, en "
+"gardant le lien avec ce document"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__create_uid
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__create_uid
+msgid "Created by"
+msgstr "Créé par"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__create_date
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__create_date
+msgid "Created on"
+msgstr "Créé le"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__date_plan_publish
+msgid "Date Plan publishing"
+msgstr "Date publication"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__date_visa_feedback
+msgid "Date Visa feedback"
+msgstr "Date Visa"
+
+#. module: carpentry_design
+#: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__warning
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Defect"
+msgstr "Défaut"
+
+#. module: carpentry_design
+#: model:ir.module.category,name:carpentry_design.module_category_services_carpentry_design
+msgid "Design"
+msgstr "Conception"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__display_name
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__display_name
+msgid "Display Name"
+msgstr "Nom affiché"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_follower_ids
+msgid "Followers"
+msgstr "Abonnés"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Abonnés (partenaires)"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Îcone font-awesome, par exemple fa-task"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Group By"
+msgstr "Grouper par"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__has_message
+msgid "Has Message"
+msgstr "A un message"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__id
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__id
+msgid "ID"
+msgstr "ID"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_exception_icon
+msgid "Icon"
+msgstr "Icone"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Icone pour indiquer une activité exceptionnelle."
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si activé, de nouveaux messages nécessitent votre attention."
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si activé, des messages ont une erreur d'envoi."
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__name
+msgid "Index"
+msgstr "Indice"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_is_follower
+msgid "Is Follower"
+msgstr "Est abonné"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_description
+msgid "Last Comment"
+msgstr "Dernière description"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release____last_update
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set____last_update
+msgid "Last Modified on"
+msgstr "Dernière modification le"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_week_publish
+msgid "Last Publishing"
+msgstr "Dernière édition"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_id
+msgid "Last Release"
+msgstr "Dernière version"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_state
+msgid "Last State"
+msgstr "Dernier État"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__write_uid
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__write_uid
+msgid "Last Updated by"
+msgstr "Dernière mise à jour par"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__write_date
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__write_date
+msgid "Last Updated on"
+msgstr "Dernière mise à jour le"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_week_visa_feedback
+msgid "Last Visa"
+msgstr "Dernier visa"
+
+#. module: carpentry_design
+#: model:ir.model,name:carpentry_design.model_carpentry_group_launch
+msgid "Launch"
+msgstr "Lancement"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__launch_ids
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__launch_ids
+msgid "Launches"
+msgstr "Lancements"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Pièce jointe principale"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_has_error
+msgid "Message Delivery error"
+msgstr "Erreur d'envoi du message"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_ids
+msgid "Messages"
+msgstr "Messages"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Date butoir de l'activité"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__plan_set_name
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__name
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_form
+msgid "Name"
+msgstr "Nom"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "Prochaine activité du calendrier"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Date butoir de l'activité suivante"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_summary
+msgid "Next Activity Summary"
+msgstr "Résumé de l'activité suivante"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_type_id
+msgid "Next Activity Type"
+msgstr "Type de l'activité suivante"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__next_id
+msgid "Next ID"
+msgstr "Prochaine carte d'identité"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Nombre d'actions"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_has_error_counter
+msgid "Number of errors"
+msgstr "Nombre d'erreurs"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Nombre de messages nécessitant une action"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Nombre de messages en échec d'envoi"
+
+#. module: carpentry_design
+#: model:ir.model,name:carpentry_design.model_carpentry_plan_release
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_planning_card__plan_release_id
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+msgid "Plan Release"
+msgstr "Publication"
+
+#. module: carpentry_design
+#: model:carpentry.planning.column,name:carpentry_design.planning_column_need_method
+msgid "Plan Releases"
+msgstr "Publications"
+
+#. module: carpentry_design
+#: model:ir.model,name:carpentry_design.model_carpentry_plan_set
+msgid "Plan Set"
+msgstr "Jeu de plan"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_planning_card__plan_set_name
+msgid "Plan Set Name"
+msgstr "Nom du jeu de plan"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_group_launch__plan_set_id
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__plan_set_id
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Plan set"
+msgstr "Jeu de plan"
+
+#. module: carpentry_design
+#: model:ir.actions.act_window,name:carpentry_design.action_open_plan_set
+msgid "Plan sets"
+msgstr "Jeux de plans"
+
+#. module: carpentry_design
+#: model:ir.actions.server,name:carpentry_design.action_open_plan_set_srv
+#: model:ir.ui.menu,name:carpentry_design.menu_project_plan
+msgid "Plan sets releases"
+msgstr "Publications de jeux de plans"
+
+#. module: carpentry_design
+#: model:ir.model,name:carpentry_design.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_body_color
+msgid "Planning Card Body Color"
+msgstr "Couleur du corps de la carte planning"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_color
+msgid "Planning Card Color"
+msgstr "Couleur du côté de la carte planning"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_color_is_auto
+msgid "Planning Card Color Is Auto"
+msgstr "Si la couleur de la carte planning est automatique"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_project_project__plan_set_count
+msgid "Plans Sets"
+msgstr "Jeux de plans"
+
+#. module: carpentry_design
+#: model:ir.model,name:carpentry_design.model_project_project
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__project_id
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__project_id
+msgid "Project"
+msgstr "Projet"
+
+#. module: carpentry_design
+#: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__danger
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "Refused"
+msgstr "Refusé"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__plan_release_ids
+msgid "Releases"
+msgstr "Publications"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_user_id
+msgid "Responsible User"
+msgstr "Utilisateur responsable"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__sequence
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: carpentry_design
+#: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__muted
+msgid "Stand-by"
+msgstr "En attente"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__state
+msgid "State"
+msgstr "État"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__state_color
+msgid "State Color"
+msgstr "Couleur de l'état"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "State of last release"
+msgstr "État de la dernière publication"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Statut basé sur les activités\n"
+"En retard : La date d'échéance est déjà dépassée\n"
+"Aujourd'hui : La date de l'activité est aujourd'hui\n"
+"Planifié : Activités futures."
+
+#. module: carpentry_design
+#: model:ir.model.constraint,message:carpentry_design.constraint_carpentry_plan_release_unique_name_release_planset
+msgid "This plan Index is already used in this Plan Set."
+msgstr ""
+"Cet indice de publication est déjà utilisé dans ce jeu de plans."
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Type de l'activité-alerte sur l'enregistrement."
+
+#. module: carpentry_design
+#: model:res.groups,name:carpentry_design.group_design_user
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__website_message_ids
+msgid "Website Messages"
+msgstr "Messages du site Web"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__website_message_ids
+msgid "Website communication history"
+msgstr "Historique des échanges sur le site Web"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_release__date_visa_feedback
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_release__week_publish
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__last_release_week_publish
+msgid "Week"
+msgstr "Semaine"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_planning_kanban
+msgid "Week Plan release"
+msgstr "Semaine de publication"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__week_publish
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_planning_card__week_publish
+msgid "Week Publish"
+msgstr "Semaine de publication"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__week_visa_feedback
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_planning_card__week_visa_feedback
+msgid "Week Visa Feedback"
+msgstr "Semaine du retour VISA"
+
+#. module: carpentry_design
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_release__project_id
+#: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__project_id
+msgid "Within your favorite projects"
+msgstr "Parmis vos projets favoris"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_planning_kanban
+msgid "{{ record.state_value.raw_value }} (Week Visa Feedback)"
+msgstr "{{ record.state_value.raw_value }} (Semaine du VISA)"
+
+#. module: carpentry_design
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
+#: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
+msgid "★ Projects"
+msgstr "★ Projets"
