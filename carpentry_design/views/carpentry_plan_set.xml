@@ -36,6 +36,7 @@
                         class="btn btn-primary mx-1"
                         string="Create Tasks"
                         help="Create tasks shown in Planning top-list, linked to this document"
+                        attrs="{'invisible': [('id', '=', False)]}"
                     />
                 </header>
                 
@@ -44,19 +45,22 @@
                         <h1> <field name="name" placeholder="Name" /> </h1>
                     </div>
 
-                    <group name="container">
+                    <group name="container" col="12">
                         <!-- Left: project & releases -->
-                        <group name="left">
+                        <group name="left" colspan="8">
                             <field name="project_id"
                                 attrs="{'readonly': [('id', '!=', False)]}"
                                 options="{'no_create': 1}"
                             />
-                            <field name="plan_release_ids" />
+
+                            <label for="plan_release_ids" />
+                            <field name="plan_release_ids" nolabel="1" colspan="2" />
                         </group>
 
                         <!-- Right: launch affectation -->
-                        <group name="right">
-                            <field name="launch_ids" widget="many2many_checkboxes" />
+                        <group name="right" colspan="4">
+                            <label for="launch_ids" />
+                            <field name="launch_ids" nolabel="1" colspan="2" widget="many2many_checkboxes" />
                         </group>
                     </group>
                 </sheet>
@@ -75,18 +79,17 @@
         <field name="model">carpentry.plan.set</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="project_id" invisible="context.get('default_project_id')" />
                 <field name="sequence" widget="handle" />
+                <field name="project_id" invisible="context.get('default_project_id')" />
                 <field name="name" />
-                <field name="launch_ids" widget="many2many_tags" />
+                <field name="launch_ids" widget="many2many_tags" optional="show" />
 
                 <!-- Last release info -->
-                <field name="last_release_id" optional="show" />
-                <field name="last_release_week_publish" optional="show" />
-                <field name="last_release_week_visa_feedback" optional="show" />
+                <field name="last_release_id" />
+                <field name="last_release_week_publish" />
+                <field name="last_release_week_visa_feedback" />
                 <field name="last_release_description" optional="show" />
                 <field name="last_release_state" widget="badge"
-                    decoration-bf="True"
                     decoration-warning="last_release_state == 'warning'"
                     decoration-danger="last_release_state == 'danger'"
                     decoration-success="last_release_state == 'success'"
@@ -107,11 +110,13 @@
                 
                 <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids','=',uid)]" />
                 <separator/>
+
+                <filter string="Accepted" name="accepted" domain="[('last_release_state', '=', 'success')]" />
+                <filter string="Defect" name="defect" domain="[('last_release_state', '=', 'warning')]" />
+                <filter string="Refused" name="refused" domain="[('last_release_state', '=', 'danger')]" />
+
                 <filter string="Archived included" name="archived_included" domain="[('active','in',[True,False])]" />
                 <separator/>
-                <filter string="Accepted" name="accepted" domain="[('last_release_state', '=', 'accepted')]" />
-                <filter string="Defect" name="defect" domain="[('last_release_state', '=', 'defect')]" />
-                <filter string="Refused" name="refused" domain="[('last_release_state', '=', 'refused')]" />
 
                 <group expand="0" string="Group By">
                     <filter string="State of last release" name="groupby_last_release_state" context="{'group_by': 'last_release_state'}" />

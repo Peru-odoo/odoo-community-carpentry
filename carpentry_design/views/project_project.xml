@@ -14,6 +14,7 @@
                     groups="carpentry_design.group_design_user"
                     class="oe_stat_button"
                     icon="fa-pencil"
+                    attrs="{'invisible': [('plan_set_count', '=' 0)]}"
                 >
                     <field name="plan_set_count" widget="statinfo" />
                 </button>

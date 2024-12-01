@@ -250,8 +250,10 @@ class Task(models.Model):
 
             `See carpentry_planning_task` for parent method
         """
-        context |= {'display_standard_form': True}
-        return super().action_open_planning_task_tree(domain, context, self, self.project_id.id)
+        if self.id:
+            context |= {'display_standard_form': True}
+            record_id = self
+        return super().action_open_planning_task_tree(domain, context, record_id, project_id_)
 
     #===== Task copy =====#
     def _fields_to_copy(self):

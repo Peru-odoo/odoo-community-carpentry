@@ -69,11 +69,10 @@
                 
                 <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids','=',uid)]" />
                 <separator/>
-                <filter string="Archived included" name="archived_included" domain="[('active','in',[True,False])]" />
-                <separator/>
-                <filter string="Accepted" name="accepted" domain="[('state','=','accepted')]" />
-                <filter string="Defect" name="defect" domain="[('state','=','defect')]" />
-                <filter string="Refused" name="refused" domain="[('state','=','refused')]" />
+                
+                <filter string="Accepted" name="accepted" domain="[('state','=','success')]" />
+                <filter string="Defect" name="defect" domain="[('state','=','warning')]" />
+                <filter string="Refused" name="refused" domain="[('state','=','danger')]" />
                 <separator/>
 
                 <group expand="0" string="Group By">

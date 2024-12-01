@@ -12,7 +12,7 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'project', # odoo
+        'project', 'mail', # odoo
         'project_role_visibility', # other (for security access)
         'project_favorite_switch', # other
         'carpentry_base', 'carpentry_planning', 'carpentry_position', # carpentry

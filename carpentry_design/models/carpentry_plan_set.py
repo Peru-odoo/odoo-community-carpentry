@@ -30,7 +30,7 @@ class PlanSet(models.Model):
         store=True # save for perf optim.
     )
     last_release_description = fields.Text(
-        string='Last Description',
+        string='Last Comment',
         related='last_release_id.description'
     )
     last_release_week_publish = fields.Integer(

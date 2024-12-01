@@ -185,7 +185,7 @@
                     type="object"
                     class="btn btn-primary mx-1"
                     string="Create Tasks"
-                    attrs="{'invisible': [('parent_type_id', '=', False)]}"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('parent_type_id', '=', False)]}"
                     help="Create tasks shown in Planning top-list, linked to this document"
                 />
             </header>

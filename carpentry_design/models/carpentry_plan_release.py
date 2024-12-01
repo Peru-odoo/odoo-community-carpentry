@@ -9,7 +9,7 @@ class PlanRelease(models.Model):
     _name = "carpentry.plan.release"
     _description = "Plan Release"
     _inherit = ["carpentry.planning.mixin"]
-    _order = "date_plan_publish"
+    _order = "date_plan_publish DESC, name DESC, create_date DESC"
     _date_name = "date_plan_publish"
 
     #===== Fields =====#
@@ -46,11 +46,13 @@ class PlanRelease(models.Model):
         required=True
     )
     date_visa_feedback = fields.Date(
-        string='Date Visa feedback'
+        string='Date Visa feedback',
+        help='Week'
     )
     # computed
     week_publish = fields.Integer(
-        compute='_compute_weeks'
+        compute='_compute_weeks',
+        help='Week'
     )
     week_visa_feedback = fields.Integer(
         compute='_compute_weeks'
