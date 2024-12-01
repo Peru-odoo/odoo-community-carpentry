@@ -30,7 +30,7 @@ class ProjectType(models.Model):
     #===== Compute =====#
     @api.depends('parent_id', 'parent_id.column_id')
     def _compute_column_id(self):
-        """ `column_id` must be state and stored here because used in SQL view
+        """ `column_id` must be stated and stored here because used in SQL view
             of Carpentry Planning to route records of `project.type` between
             the right columns of Carpentry Planning
         """
@@ -42,6 +42,7 @@ class ProjectType(models.Model):
     def _synch_mirroring_column_id(self, column_id):
         """ Called by `carpentry.planning.column` on changes on `identifier_ref` """
         self.column_id = column_id
+        self.child_ids.column_id = column_id
     
     @api.model
     def _get_planning_subheaders(self, column_id, launch_id):

@@ -9,6 +9,7 @@
             <tree>
                 <field name="project_id" invisible="context.get('default_project_id')" optional="show" />
                 <field name="name" />
+                <field name="parent_type_id" widget="badge" />
                 <field name="launch_ids" widget="many2many_tags" optional="show" />
                 <field name="need_ids" widget="many2many_tags" optional="show" />
             </tree>
@@ -21,10 +22,9 @@
         <field name="model">carpentry.need.family</field>
         <field name="arch" type="xml">
             <form>
-                <field name="parent_type_id" invisible="1" />
-
                 <!-- Form content -->
                 <sheet>
+                    <field name="parent_type_id" widget="badge" attrs="{'invisible': [('need_ids', '=', [])]}" />
                     <div class="oe_title">
                         <h1> <field name="name" placeholder="Need family" /> </h1>
                     </div>
@@ -36,8 +36,13 @@
                                 attrs="{'readonly': [('id', '!=', False)]}"
                                 options="{'no_create': 1}" />
                             
+                            <field name="parent_type_id" widget="radio"
+                                attrs="{'invisible': [('need_ids', '!=', [])]}"
+                            />
+
                             <field name="need_ids" nolabel="1" colspan="2"
-                                context="{'default_parent_type_id': parent_type_id}" />
+                                context="{'default_parent_type_id': parent_type_id}"
+                            />
                         </group>
 
                         <!-- Right: launches -->
@@ -102,21 +107,15 @@
         <field name="model">carpentry.need</field>
         <field name="arch" type="xml">
             <form>
-                <field name="root_type_need" invisible="1" />
-
                 <sheet>
                     <div class="oe_title">
                         <h1> <field name="name" placeholder="Need name" /> </h1>
                     </div>
 
-                    <group name="group_container">
-                        <group name="group_left">
-                            <field name="parent_type_id" options="{'no_create_edit': 1}" widget="radio" />
-                            <field name="type_id" options="{'no_create_edit': 1}" widget="radio"  />
-                        </group>
-                        <group name="group_right">
-                            <field name="deadline_week_offset" widget="numeric_step" options="{'min': 1}" />
-                        </group>
+                    <group class="w-50">
+                        <field name="parent_type_id" widget="radio" invisible="context.get('default_parent_type_id', False)" />
+                        <field name="deadline_week_offset" widget="numeric_step" options="{'min': 1}" />
+                        <field name="type_id" widget="radio" />
                     </group>
                 </sheet>
             </form>

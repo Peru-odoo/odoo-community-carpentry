@@ -22,8 +22,12 @@ class CarpentryPlanningColumn(models.Model):
     )
     res_model_id = fields.Many2one(
         comodel_name='ir.model',
-        string='Card Model'
+        string='Card Model ID'
         # can't set `required=True` for `comodel_name='ir.model'`
+    )
+    res_model = fields.Char(
+        string='Card Model',
+        related='res_model_id.model',
     )
     res_model_shortname = fields.Char(
         compute='_compute_res_model_shortname'

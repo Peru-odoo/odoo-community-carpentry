@@ -3,10 +3,10 @@
 from odoo import models, fields, api, Command, _
 
 class Launch(models.Model):
-    _inherit = "carpentry.group.launch"
+    _inherit = ["carpentry.group.launch"]
 
     plan_set_id = fields.Many2one(
-        'carpentry.plan.set',
-        string='Planset',
+        comodel_name='carpentry.plan.set',
+        string='Plan set',
         domain="[('project_id', '=', project_id)]"
     )

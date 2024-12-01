@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add smart-button in project form to Planset Releases -->
+    <!-- Add smart-button in project form to Plan set Releases -->
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form.carpentry.design</field>
         <field name="model">project.project</field>
@@ -8,7 +8,13 @@
 
         <field name="arch" type="xml">
             <div name="button_box" position="inside">
-                <button id="planset" type="action" name="%(action_open_plan_set_release_srv)d" class="oe_stat_button" icon="fa-pencil">
+                <button id="planset"
+                    name="%(action_open_plan_set_srv)d"
+                    type="action"
+                    groups="carpentry_design.group_design_user"
+                    class="oe_stat_button"
+                    icon="fa-pencil"
+                >
                     <field name="plan_set_count" widget="statinfo" />
                 </button>
             </div>

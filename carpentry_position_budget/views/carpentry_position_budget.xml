@@ -6,12 +6,7 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'account.move.budget.line',
-                'view_mode': 'tree,form',
-                'name': 'Projects budgets'
-            })
+            action = model.action_choose_project_and_redirect('button_open_budget_lines')
         </field>
     </record>
     <!-- Pre-select project before opening Positions detailed budgets (tasks) -->
@@ -37,6 +32,7 @@
         <menuitem id="menu_project_budget_lines" action="action_open_project_budget_lines" sequence="20" />
         <menuitem id="menu_project_budget_position_budget" action="action_open_position_budget_srv" sequence="30" />
     </menuitem>
+
 
     <!-- Pivot -->
     <record id="carpentry_budget_pivot" model="ir.ui.view">

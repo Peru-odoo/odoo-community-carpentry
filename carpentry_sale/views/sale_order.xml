@@ -91,11 +91,11 @@
         <field name="inherit_id" ref="sale.view_sales_order_filter" />
 
         <field name="arch" type="xml">
-            <field name="name" position="after">
+            <filter name="my_sale_orders_filter" position="after">
                 <separator/>
                 <filter string="Lines amounts validated" name="line_validated" domain="[('lines_validated', '=', 'all_validated')]" />
                 <filter string="Lines not confirmed" name="line_pending" domain="[('lines_validated', '=', 'not_validated')]" />
-            </field>
+            </filter>
         </field>
     </record>
 </odoo>

@@ -5,7 +5,7 @@ from datetime import date
 
 class CarpentryGroupMixin(models.AbstractModel):
     """ Basic fields and features commun to some carpentry models, related to projects
-        Like for: Phases, Launches, Purchase Order, Fab Order, Planset, ...
+        Like for: Phases, Launches, Purchase Order, Fab Order, Plan set, ...
     """
     _name = "carpentry.group.mixin"
     _description = 'Group of Positions'
@@ -23,7 +23,7 @@ class CarpentryGroupMixin(models.AbstractModel):
         related='project_id.company_id'
     )
     active = fields.Boolean(
-        string="Active?", 
+        string="Active?",
         default=True
     )
     

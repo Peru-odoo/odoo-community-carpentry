@@ -165,13 +165,6 @@
                     </tree>
                 </field>
             </field>
-
-            <!-- Carpentry Planning -->
-            <div name="affectations" position="inside">
-                <div name="carpentry_planning" invisible="not context.get('carpentry_planning')">
-                    Commandes liées
-                </div>
-            </div>
         </field>
     </record>
     <!-- Search -->

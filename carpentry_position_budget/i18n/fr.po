@@ -6,39 +6,42 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-26 12:10+0000\n"
-"PO-Revision-Date: 2024-11-29 13:06+0100\n"
-"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"POT-Creation-Date: 2024-11-29 13:28+0000\n"
+"PO-Revision-Date: 2024-11-30 00:31+0100\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid ""
 "<span attrs=\"{'invisible': [('position_warning_name', '=', False)]}\">\n"
-"                    One or more positions have the same name. Open <strong>Positions</strong> to merge some if "
-"needed.\n"
+"                    One or more positions have the same name. Open <strong>Positions</strong> to merge some if needed.\n"
 "                </span>"
 msgstr ""
 "<span attrs=\"{'invisible': [('position_warning_name', '=', False)]}\">\n"
-"                    Un ou plusieurs repères ont le même nom. Ouvrez l'onglet <strong>Repères</strong> pour en "
-"fusionner si nécessaire.\n"
+"                    Un ou plusieurs repères ont le même nom. Ouvrez l'onglet <strong>Repères</strong> pour en fusionner si "
+"nécessaire.\n"
 "                </span>"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_position_merge_wizard
 msgid ""
 "<span class=\"fa fa-info-circle\"/>\n"
-"                        If a new budget is imported, the duplicates will be re-created by import process."
+"                        If a second budget is imported, it will re-create any previous positions already merged (duplicates)."
 msgstr ""
 "<span class=\"fa fa-info-circle\"/>\n"
-"                        Si un nouveau budget est importé, les doublons seront recréés par le processus d'importation."
+"                        Si un nouveau budget est importé, les doublons seront recréés."
+
+#. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
+msgid "<span>h</span>"
+msgstr "<span>h</span>"
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_position_analytic
@@ -82,13 +85,13 @@ msgstr "Compte analytique"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid ""
 "Any changes in Interface configuration do not impact previously imported budget.\n"
-"                        The only modification having direct impact on Position's Budget is the change\n"
-"                        of Default Product of Analytic Account. It changes how the time workloads are valued\n"
-"                        in the projects. However, the Product Type of this product should never be changed."
+"                                The only modification having direct impact on Position's Budget is the change\n"
+"                                of Default Product of Analytic Account. It changes how the time workloads are valued\n"
+"                                in the projects. However, the Product Type of this product should never be changed."
 msgstr ""
 "Toute modification de la configuration de l'interface n'a pas d'impact sur le budget précédemment importé.\n"
-"La seule modification ayant un impact direct sur le budget de la position est le changement du produit par défaut du "
-"compte analytique.\n"
+"La seule modification ayant un impact direct sur le budget de la position est le changement du produit par défaut du compte "
+"analytique.\n"
 "Il modifie la façon dont les charges de travail sont évaluées dans les projets.\n"
 "Cependant, le type de produit de cet article ne doit jamais être modifié."
 
@@ -99,6 +102,7 @@ msgstr "Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budge
 
 #. module: carpentry_position_budget
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_main_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Budget"
 msgstr "Budget"
 
@@ -114,14 +118,10 @@ msgstr "Import de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.actions.act_window,name:carpentry_position_budget.open_carpentry_position_budget_interface
-#: model:ir.ui.menu,name:carpentry_position_budget.menu_carpentry_position_budget_interface
+#: model:ir.ui.menu,name:carpentry_position_budget.menu_carpentry_position_budget_interface_accounting
+#: model:ir.ui.menu,name:carpentry_position_budget.menu_carpentry_position_budget_interface_project
 msgid "Budget interface with external database"
 msgstr "Interface base de données externe (budget)"
-
-#. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
-msgid "Budget settings"
-msgstr "Budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_budget_mixin
@@ -144,8 +144,8 @@ msgstr "La colonne %s a été ajoutée à l'interface d'import en mode ignorée 
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid ""
 "Compression: no compression or optional compression are supported,\n"
-"                                    in bzip (.zip) or gzip (.tar.gz).\n"
-"                                    If used, the file must be alone in the archive."
+"                                            in bzip (.zip) or gzip (.tar.gz).\n"
+"                                            If compressed, the file must be alone in the archive."
 msgstr ""
 "Compression : optionnelle, sont supportés bzip (.zip) et gzip (.tar.gz).\n"
 "Si utilisé, le fichier doit être seul dans l'archive."
@@ -183,7 +183,7 @@ msgstr "Devise"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
-msgid "Database: SQLite"
+msgid "Database: .MDB or SQLite"
 msgstr "Base de données : MDB et SQLite"
 
 #. module: carpentry_position_budget
@@ -216,11 +216,6 @@ msgid "Display Name"
 msgstr "Nom affiché"
 
 #. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
-msgid "Documentation"
-msgstr "Documentation"
-
-#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_position_tree
 msgid "Duplicate"
 msgstr "Dupliquer"
@@ -234,6 +229,15 @@ msgstr "Doublons à fusionner"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__encoding
 msgid "Encoding"
 msgstr "Encodage"
+
+#. module: carpentry_position_budget
+#. odoo-python
+#: code:addons/carpentry_position_budget/models/carpentry_position_budget.py:0
+#, python-format
+msgid "Error when computing unitary position budget: analytic account or default product is missing."
+msgstr ""
+"Erreur lors du calcul du budget unitaire d'une position: une configuration de compte analytique ou de produit par défaut est "
+"manquante."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__external_db_id
@@ -267,8 +271,8 @@ msgid ""
 " 1. pre-selection of Account from product's expense account (or product's category's in budget lines;\n"
 " 2. date-ranged valuation of budget lines, as per product variant cost per date range."
 msgstr ""
-"Pour le budget, cet article sera présélectionné dans les lignes budgétaires liées à ce compte analytique, ce qui "
-"permet par conséquence :\n"
+"Pour le budget, cet article sera présélectionné dans les lignes budgétaires liées à ce compte analytique, ce qui permet par "
+"conséquence :\n"
 " 1. la présélection du compte de charges de l'article (ou de la catégorie d'article) dans les lignes budgétaires ;\n"
 " 2. la valorisation des lignes budgétaires suivant le prix datés par variants de produit."
 
@@ -284,7 +288,7 @@ msgstr "Frais globaux"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_goods
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_goods
 msgid "Goods"
-msgstr "Fourniture"
+msgstr "Fournitures"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__id
@@ -302,12 +306,11 @@ msgstr "ISO-8859-1"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__detailed_type
 msgid ""
-"Identifies the type of budget amount from remote database, i.e. work-force quantities or currency amount. "
-"Corresponds to the type of the default product on analytic account's."
+"Identifies the type of budget amount from remote database, i.e. work-force quantities or currency amount. Corresponds to the "
+"type of the default product on analytic account's."
 msgstr ""
-"Identifie le type de montant du budget provenant de la base de données externe, c'est-à-dire s'il s'agit de de "
-"quantité (ex. main-d'œuvre) ou d'un montant en devise (ex. €). Correspond au type d'article par défaut sur les "
-"comptes analytiques."
+"Identifie le type de montant du budget provenant de la base de données externe, c'est-à-dire s'il s'agit de quantité (ex. "
+"main-d'œuvre) ou d'un montant en devise (ex. €). Correspond au type d'article par défaut sur les comptes analytiques."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__active
@@ -396,16 +399,6 @@ msgid "Launch"
 msgstr "Lancement"
 
 #. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_form
-msgid "Line information"
-msgstr "Informations sur les lignes"
-
-#. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_form
-msgid "Line settings"
-msgstr "Paramètres de la ligne"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__lot_id
 msgid "Lot"
 msgstr "Lot"
@@ -422,7 +415,9 @@ msgstr "Lots (appelés \"phases\" dans Orgadata)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
-msgid "Make the link between budget, income and charges."
+msgid ""
+"Make the link between budget, income and charges. Must have a \"Default Product\" in order to distinguish budget types "
+"(service or consummable)."
 msgstr "Fait le lien entre le budget, les revenus et les charges."
 
 #. module: carpentry_position_budget
@@ -470,8 +465,7 @@ msgstr "Phase"
 #: code:addons/carpentry_position_budget/wizard/carpentry_position_merge_wizard.py:0
 #, python-format
 msgid "Please remove all the affectations to phases and launches of the positions to merge before merging."
-msgstr ""
-"Veuillez supprimer toutes les affectations aux phases et lancements des repères à fusionner avant de les fusionner."
+msgstr "Veuillez supprimer toutes les affectations aux phases et lancements des repères à fusionner avant de les fusionner."
 
 #. module: carpentry_position_budget
 #. odoo-python
@@ -548,12 +542,6 @@ msgid "Product Type"
 msgstr "Type de produit"
 
 #. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_form
-msgid "Product Variant"
-msgstr "Variant de produit"
-
-#. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__project_id
@@ -588,17 +576,17 @@ msgstr "Service (pose)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__product_template__detailed_type__service_prod
-msgid "Service (production))"
-msgstr "Service (production)"
+msgid "Service (production)"
+msgstr "Service (fabrication)"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid ""
 "Sometimes, external database may contain unknown columns to Odoo.\n"
-"                        When it happens, Odoo add them in the Interface in <strong>ignore state</strong>\n"
-"                        and notice you.\n"
-"                        If these columns are needed, you may create them before the import in the Interface\n"
-"                        or re-play the import after a proper configuration."
+"                                When it happens, Odoo add them in the Interface in <strong>ignore state</strong>\n"
+"                                and notice you.\n"
+"                                If these columns are needed, you may create them before the import in the Interface\n"
+"                                or re-play the import after a proper configuration."
 msgstr ""
 "Parfois, la base de données externe peut contenir des colonnes inconnues d'Odoo.\n"
 "                        Lorsque cela se produit, Odoo les ajoute dans l'interface en <strong>mode ignoré</strong>\n"
@@ -625,20 +613,19 @@ msgstr "Cette \"Colonne externe\" existe déjà pour ce type de base de données
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid ""
 "This import behaves in <strong>create or update</strong> approach:\n"
-"                        if another budget is imported after a first one, the data of the first\n"
-"                        will be replaced (i.e. updated), including quantities. Any new data\n"
-"                        from the second important will be well created. Existing data in Odoo from\n"
-"                        the first important not in the second import will be kept. Depending what you\n"
-"                        aim, please import a budget sub-part to avoid loosing any previous work done\n"
-"                        in Odoo after the first import."
+"                                if another budget is imported after a first one, the data of the first\n"
+"                                will be replaced (i.e. updated), including quantities. Any new data\n"
+"                                from the second important will be well created. Existing data in Odoo from\n"
+"                                the first important not in the second import will be kept. Depending what you\n"
+"                                aim, please import a budget sub-part to avoid loosing any previous work done\n"
+"                                in Odoo after the first import."
 msgstr ""
-"Cet import se comporte en mode <strong>création ou une mise à jour</strong>: si un autre budget est importé après un "
-"premier budget, les données du premier budget seront remplacées (c'est-à-dire mises à jour), y compris les "
-"quantités.\n"
-"Toute nouvelle donnée du second import sera bien créée. Les données existantes dans Odoo provenant du premier "
-"important et qui ne sont pas dans le second import seront conservées.\n"
-"En fonction de ce que vous recherchez, importez une sous-partie du budget pour éviter de perdre tout le travail "
-"effectué dans Odoo après le premier import."
+"Cet import se comporte en mode <strong>création ou une mise à jour</strong>: si un autre budget est importé après un premier "
+"budget, les données du premier budget seront remplacées (c'est-à-dire mises à jour), y compris les quantités.\n"
+"Toute nouvelle donnée du second import sera bien créée. Les données existantes dans Odoo provenant du premier important et "
+"qui ne sont pas dans le second import seront conservées.\n"
+"En fonction de ce que vous recherchez, importez une sous-partie du budget pour éviter de perdre tout le travail effectué "
+"dans Odoo après le premier import."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__active
@@ -691,19 +678,9 @@ msgid "Used to rapproach incomes, charges and budget in accounting reports."
 msgstr "Utilisé pour rapprocher les revenus, les charges et le budget dans les rapports comptables."
 
 #. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_form
-msgid "Valuation per date range"
-msgstr "Valorisation par plage de dates"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__value
 msgid "Value"
 msgstr "Valeur"
-
-#. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_form
-msgid "Values"
-msgstr "Valeurs"
 
 #. module: carpentry_position_budget
 #. odoo-javascript

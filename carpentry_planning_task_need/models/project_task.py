@@ -19,12 +19,6 @@ class Task(models.Model):
         # ))
 
     #===== Fields =====#
-    root_type_need = fields.Many2one(
-        # needed for `default_root_type_id` and domain search
-        comodel_name='project.type',
-        string='Need Type',
-        compute='_compute_root_type_need',
-    )
     need_id = fields.Many2one(
         comodel_name='carpentry.need',
         string='Need template',
@@ -89,10 +83,6 @@ class Task(models.Model):
     #===== Compute `name_required`, `task type` & `launch_id` ======#
     def _get_name_required_type_list(self):
         return super()._get_name_required_type_list() + [self.env.ref(XML_ID_NEED).id]
-    
-    def _compute_root_type_need(self):
-        """ Used in domain and context' key for default search filter """
-        self.root_type_need = self.env.ref(XML_ID_NEED)
 
     def _compute_launch_id(self):
         for task in self:
@@ -149,3 +139,20 @@ class Task(models.Model):
     #===== Task copy =====#
     def _fields_to_copy(self):
         return super()._fields_to_copy() | ['type_id', 'need_id']
+
+    #===== Actions & Buttons on Planning View =====#
+    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id=False):
+        """ Called from planning cards
+            For need, add additional `default_xx` keys and context
+        """
+
+        if record_id and record_id.id and record_id._name == 'project.type':
+            context |= {
+                'default_parent_type_id': self.env.ref(XML_ID_NEED).id,
+                'default_type_id': record_id.res_id, # card is the need category
+                'default_user_ids': [],
+                'default_type_deadline': 'computed',
+                'display_with_prefix': 1,
+                'display_standard_form': False
+            }
+        return super().action_open_planning_task_tree(domain, context, record_id, project_id)

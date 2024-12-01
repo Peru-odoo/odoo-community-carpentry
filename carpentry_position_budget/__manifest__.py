@@ -34,7 +34,6 @@
         'views/carpentry_position.xml',
         'views/project_project.xml',
         'views/account_move_budget_line.xml',
-        'views/account_analytic_account.xml',
     ],
     'assets': {
         'web.assets_backend': [

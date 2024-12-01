@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-25 20:26+0000\n"
-"PO-Revision-Date: 2024-11-29 12:54+0100\n"
-"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"POT-Creation-Date: 2024-11-29 13:28+0000\n"
+"PO-Revision-Date: 2024-11-29 23:41+0100\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_position
@@ -30,7 +30,7 @@ msgstr " (copié)"
 #: code:addons/carpentry_position/models/carpentry_group_affectation_mixin.py:0
 #, python-format
 msgid "1. Pre-select sections"
-msgstr "1. Présélection des sections"
+msgstr "1. Pré-sélection des sections"
 
 #. module: carpentry_position
 #. odoo-python
@@ -49,9 +49,8 @@ msgid ""
 "                </span>"
 msgstr ""
 "<span attrs=\"{'invisible': [('position_fully_affected', '=', True)]}\">\n"
-"                    La quantité d'au moins une position n'est pas affectée, entièrement ou partiellement, dans les phases\n"
-"                    ou les lancements. Voir les onglets <strong>Repères</strong>, <strong>Phases</strong> ou "
-"<strong>Lancements</strong>\n"
+"Au moins un repère n'est pas entièrement affecté dans les phases ou les lancements. Voir les onglets <strong>Repères</"
+"strong>, <strong>Phases</strong> ou <strong>Lancements</strong>\n"
 "                    pour plus de détails.\n"
 "                </span>"
 
@@ -120,7 +119,7 @@ msgstr "Archivé"
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
 msgid "Back to: pre-selection"
-msgstr "Retour à : présélection"
+msgstr "Retour à : pré-sélection"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__affectation_ids
@@ -131,7 +130,7 @@ msgstr "Affectations enfantes"
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 msgid "Commandes liées"
-msgstr "Commandes liées"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__company_id
@@ -190,9 +189,7 @@ msgstr "Nom affiché"
 #: code:addons/carpentry_position/wizard/carpentry_position_merge.py:0
 #, python-format
 msgid "Ensure duplicates have no phases and launches affectations before merging budgets."
-msgstr ""
-"Assurez-vous que les doublons n'ont pas d'affectation les liants à des phases ou des lancements avant de fusionner les "
-"budgets."
+msgstr "Assurez-vous que les doublons ne sont affectés dans aucune phase ou lancement avant de fusionner les budgets."
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__group_id
@@ -274,11 +271,6 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_launch
-msgid "Launch"
-msgstr "Lancement"
-
-#. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__launch_ids
 #: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
 msgid "Launches"
@@ -307,7 +299,6 @@ msgid "Lot Sequence"
 msgstr "Séquence des lots"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_lot
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__lot_ids
 msgid "Lots"
 msgstr "Lots"
@@ -361,8 +352,8 @@ msgstr "OK"
 #. odoo-python
 #: code:addons/carpentry_position/models/carpentry_group_affectation.py:0
 #, python-format
-msgid "One line cannot be affected to several columns."
-msgstr "Une ligne ne peut pas être affectée à plusieurs colonnes."
+msgid "One line cannot be affected to several columns (%s)."
+msgstr "Une ligne ne peut pas être affectée à plusieurs colonnes (%s)."
 
 #. module: carpentry_position
 #: model:ir.model.fields.selection,name:carpentry_position.selection__carpentry_position__state__warning_launch
@@ -375,7 +366,6 @@ msgid "Partial on phase(s)"
 msgstr "Partiel sur les phase(s)"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_phase
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_tree
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 msgid "Phase"
@@ -397,7 +387,6 @@ msgstr ""
 "                        Elles correspondent aux phases d'installation des postes sur le bâtiment (par exemple les façades)."
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__position_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__position_id
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_tree
@@ -429,6 +418,7 @@ msgstr "Quantité du repère"
 #: model:ir.actions.act_window,name:carpentry_position.button_open_carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__position_ids
+#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
 msgid "Positions"
 msgstr "Repères"
 
@@ -464,25 +454,12 @@ msgid "Positions affectations in Phases"
 msgstr "Affectations des repères dans les phases"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__project_id
 msgid "Project"
 msgstr "Projet"
-
-#. module: carpentry_position
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__seq_project
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__seq_project
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__seq_project
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__seq_project
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__seq_project
-msgid "Project Code"
-msgstr "Code du projet"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__quantity
@@ -678,11 +655,8 @@ msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
 
 #. module: carpentry_position
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_position__project_id
 msgid "Within your favorite projects"
 msgstr "Parmis vos projets favoris"
 

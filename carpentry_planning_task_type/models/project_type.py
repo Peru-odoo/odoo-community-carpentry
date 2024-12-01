@@ -59,6 +59,7 @@ class ProjectType(models.Model):
             while root_type_id.parent_id.id:
                 root_type_id = root_type_id.parent_id
             type.root_type_id = root_type_id
+            type.child_ids.root_type_id = root_type_id
 
     #===== Compute : display_name =====#
     @api.depends('name')

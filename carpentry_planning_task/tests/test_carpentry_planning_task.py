@@ -23,21 +23,22 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
         cls.task = cls.Task.create({'name': 'Test Task 1', 'project_id': cls.project.id})
 
     #===== project.task =====#
-    def test_01_task_card_ref(self):
-        """ We've set `project.project` as a fake model for planning column
-            => link self.project to the task to test `card_ref._inverse()` method 
-        """
-        with Form(self.task) as f:
-            f.card_ref = '%s,%s' % (self.project._name, self.project.id)
-        # Task should be linked to project's, as a planning card
-        self.assertEqual(self.task.card_res_id, self.project.id)
+    # 2024-12-01 (ALY): removed feature of choosing Card Ref from Task's Form (too UI-complex)
+    # def test_01_task_card_ref(self):
+    #     """ We've set `project.project` as a fake model for planning column
+    #         => link self.project to the task to test `card_ref._inverse()` method 
+    #     """
+    #     with Form(self.task) as f:
+    #         f.card_ref = '%s,%s' % (self.project._name, self.project.id)
+    #     # Task should be linked to project's, as a planning card
+    #     self.assertEqual(self.task.card_res_id, self.project.id)
 
-        # Task should be linked to project's `launch_ids` (by `_onchange_card_ref`)
-        self.assertEqual(self.task.launch_ids, self.project.launch_ids)
-        # One should not be able to unlink a launch of the project to the task
-        with Form(self.task) as f:
-            f.launch_ids.remove(id = self.project.launch_ids[0].id)
-        self.assertTrue(self.project.launch_ids[0].id in self.task.launch_ids.ids)
+    #     # Task should be linked to project's `launch_ids` (by `_onchange_card_ref`)
+    #     self.assertEqual(self.task.launch_ids, self.project.launch_ids)
+    #     # One should not be able to unlink a launch of the project to the task
+    #     with Form(self.task) as f:
+    #         f.launch_ids.remove(id = self.project.launch_ids[0].id)
+    #     self.assertTrue(self.project.launch_ids[0].id in self.task.launch_ids.ids)
 
     def test_02_task_onchange_date_end_deadline_late(self):
         """ 1. `date_deadline` is 1 week ago => test if task is late
@@ -51,7 +52,7 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
         self.assertEqual(self.task.kanban_state, 'done')
 
     def test_04_task_open_form(self):
-        self.assertTrue(self.task.action_open_task_form().get('res_id'), self.task.id)
+        self.assertTrue(self.task.action_open_planning_task_form().get('res_id'), self.task.id)
 
 
     #===== carpentry.planning.task =====#

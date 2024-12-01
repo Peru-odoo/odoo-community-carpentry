@@ -127,14 +127,6 @@ class Project(models.Model):
             'qty_debit': 0, # same
         } for aac_id in to_add]
         existing_line_ids.create(vals_list)
-    
-    def _get_default_project_budget_line_date(self, budget_id):
-        """ Tries `today` if within budget dates, else `budget_id.date_from` """
-        today = fields.Date.today()
-        return (
-            today if today > budget_id.date_from and today < budget_id.date_to
-            else budget_id.date_from
-        )
 
     #===== Button =====#
     def button_open_budget_lines(self):

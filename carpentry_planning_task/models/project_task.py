@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _, exceptions, Command
+
+from datetime import timedelta
 
 class Task(models.Model):
     _name = 'project.task'
@@ -8,14 +10,14 @@ class Task(models.Model):
     _order = 'priority DESC, date_deadline ASC, create_date ASC'
 
     #===== Fields methods =====#
-    @api.model
-    def _selection_planning_card_model(self):
-        """ Give user the option to link a Planning Card from Task form """
-        return [(x.model, x.name) for x in self._get_planning_model_ids()]
-    def _get_planning_model_ids(self):
-        domain = [('fold', '=', False)]
-        column_ids = self.env['carpentry.planning.column'].sudo().search(domain)
-        return column_ids.res_model_id
+    # @api.model
+    # def _selection_planning_card_model(self):
+    #     """ Give user the option to link a Planning Card from Task form """
+    #     return [(x.model, x.name) for x in self._get_planning_model_ids()]
+    # def _get_planning_model_ids(self):
+    #     domain = [('fold', '=', False)]
+    #     column_ids = self.env['carpentry.planning.column'].sudo().search(domain)
+    #     return column_ids.res_model_id
     
     #===== Fields (planning) =====#
     card_res_id = fields.Many2oneReference(
@@ -35,15 +37,16 @@ class Task(models.Model):
         string='Planning Card Model Name',
         related='card_res_model_id.model',
     )
-    card_ref = fields.Reference(
-        # user-interface (not stored)
-        selection='_selection_planning_card_model',
-        string='Planning Card',
-        compute='_compute_card_ref',
-        inverse='_inverse_card_ref',
-        readonly=False,
-        ondelete='cascade',
-    )
+    # card_ref = fields.Reference(
+    #     # 2024-12-01 (ALY): removed feature of choosing Card Ref from Task's Form (too UI-complex)
+    #     # user-interface (not stored)
+    #     selection='_selection_planning_card_model',
+    #     string='Planning Card',
+    #     compute='_compute_card_ref',
+    #     inverse='_inverse_card_ref',
+    #     readonly=False,
+    #     ondelete='cascade',
+    # )
     launch_ids = fields.Many2many(
         comodel_name='carpentry.group.launch',
         relation='carpentry_task_rel_launch',
@@ -56,54 +59,57 @@ class Task(models.Model):
     is_late = fields.Boolean(compute='_compute_is_late')
     
     #===== Compute & onchange: card_ref =====#
-    @api.depends('card_res_model', 'card_res_id')
-    def _compute_card_ref(self):
-        for task in self:
-            is_set = bool(task.card_res_model and task.card_res_id)
-            task.card_ref = '%s,%s' % (task.card_res_model, task.card_res_id) if is_set else False
+    # 2024-12-01 (ALY): removed feature of choosing Card Ref from Task's Form (too UI-complex)
+    # @api.depends('card_res_model', 'card_res_id')
+    # def _compute_card_ref(self):
+    #     for task in self:
+    #         is_set = bool(task.card_res_model and task.card_res_id)
+    #         task.card_ref = '%s,%s' % (task.card_res_model, task.card_res_id) if is_set else False
     
-    def _inverse_card_ref(self):
-        mapped_model_ids = {x.model: x.id for x in self._get_planning_model_ids()}
-        for task in self:
-            card = task.card_ref
-            task.card_res_id = bool(card) and card.id
-            task.card_res_model_id = bool(card) and mapped_model_ids.get(card._name)
+    # def _inverse_card_ref(self):
+    #     mapped_model_ids = {x.model: x.id for x in self._get_planning_model_ids()}
+    #     for task in self:
+    #         card = task.card_ref
+    #         task.card_res_id = bool(card) and card.id
+    #         task.card_res_model_id = bool(card) and mapped_model_ids.get(card._name)
     
-    @api.onchange('card_ref', 'launch_ids')
-    def _onchange_card_ref(self):
-        """ Automatically link the task to the launches of their planning card """
-        for task in self:
-            if not task.card_ref:
-                continue
+    # @api.onchange('card_ref', 'launch_ids')
+    # def _onchange_card_ref(self):
+    #     """ Automatically link the task to the launches of their planning card """
+    #     for task in self:
+    #         if not task.card_ref:
+    #             continue
             
-            # [remove] `card_ref` was changed: remove former launches
-            if task._origin.card_ref and task._origin.card_ref != task.card_ref:
-                task.launch_ids -= task._origin.card_ref.launch_ids
+    #         # [remove] `card_ref` was changed: remove former launches
+    #         if task._origin.card_ref and task._origin.card_ref != task.card_ref:
+    #             task.launch_ids -= task._origin.card_ref.launch_ids
             
-            # [add/keep] launches of `card_ref` if new, keep `card_ref`'s one if `launch_ids` was changed
-            task.launch_ids += task.card_ref.launch_ids
+    #         # [add/keep] launches of `card_ref` if new, keep `card_ref`'s one if `launch_ids` was changed
+    #         task.launch_ids += task.card_ref.launch_ids
 
-    #===== Onchange: link `date_end`, `kanban_state` and `stage_id` =====#
-    @api.onchange('date_end')
-    def _onchange_date_end(self):
-        """ Shortcut: since we display `date_end` in Tree and Form view,
-            when user set it, consider the tasks as done
-            => update `stage_id` and `kanban_state` accordingly
+    #===== Compute `stage_id` depending `date_end` =====#
+    @api.depends('date_end')
+    def _compute_stage_id(self):
+        """ == Overwrite Odoo method ==
+            When user set `date_end` consider the tasks as done
         """
         res = self._get_stage_open_done()
         for task in self:
-            task._change_state_one('date_end', bool(task.date_end), *res)
+            is_closed = bool(task.date_end)
+            has_changed = is_closed != task.is_closed
+            task._change_state_one('date_end', has_changed, is_closed, *res)
     
-    @api.onchange('kanban_state')
-    def _onchange_kanban_state(self):
-        """ Shortcut: when user set `kanban_state`, change task
-            `stage_id` and `date_end` accordingly
-        """
-        res = self._get_stage_open_done()
-        for task in self:
-            has_closed = task._change_state_one('kanban_state', task.kanban_state == 'done', *res)
-            if has_closed:
-                task.date_end = fields.Date.today()
+    # Does not work well & actually not wanted
+    # @api.onchange('kanban_state')
+    # def _onchange_kanban_state(self):
+    #     """ Shortcut: when user set `kanban_state`, change task
+    #         `stage_id` and `date_end` accordingly
+    #     """
+    #     res = self._get_stage_open_done()
+    #     for task in self:
+    #         has_closed = task._change_state_one('kanban_state', task.kanban_state == 'done', *res)
+    #         if has_closed:
+    #             task.date_end = fields.Date.today()
     
     def _get_stage_open_done(self):
         stage_ids = self.env['project.task.type'].search([])
@@ -111,17 +117,16 @@ class Task(models.Model):
         stage_done = fields.first(stage_ids.filtered_domain([('fold', '=', True)]))
         return stage_open, stage_done
     
-    def _change_state_one(self, field, is_closed, stage_open, stage_done):
+    def _change_state_one(self, field, has_changed, is_closed, stage_open, stage_done):
         """ Move to Open or Closed stage """
         self.ensure_one()
-        has_changed = self._origin[field] != self[field]
         if has_changed:
             if is_closed:
                 self.stage_id = stage_done.id
-                self.kanban_state = 'done'
+                # self.kanban_state = 'done'
             else:
                 self.stage_id = stage_open.id
-                self.kanban_state = 'normal'
+                # self.kanban_state = 'normal'
         return has_changed and is_closed
     
     #===== Compute dates: is_late =====#
@@ -133,7 +138,7 @@ class Task(models.Model):
             task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline         
 
     #===== Buttons / action =====#
-    def action_open_task_form(self):
+    def action_open_planning_task_form(self):
         action = {
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
@@ -145,6 +150,47 @@ class Task(models.Model):
         }
         return action
     
+    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id_=False):
+        """ Opens tasks tree in a new window
+            :option domain, context: to customize the action
+            :option record_id: opened tree view is filtered on cards related to this record
+            :option project_id_: must be provided if not guessable from `record_id`
+        """
+        # Guess `project_id_` if not given
+        if not project_id_ and record_id and 'project_id' in record_id:
+            project_id_ = record_id.project_id.id
+        
+        # Default for `card_res_...`
+        if record_id and record_id.id:
+            model_id_ = self.env['ir.model']._get(record_id._name).id
+            domain += [
+                ('card_res_id', '=', record_id.id),
+                ('card_res_model_id', '=', model_id_)
+            ]
+            context |= {
+                # 'default_card_ref': '{},{}' . format(record_id._name, record_id.id),
+                'default_card_res_id': record_id.id,
+                'default_card_res_model_id': model_id_,
+                'default_name': record_id.display_name,
+            }
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.task',
+            'view_mode': 'tree',
+            'name': _('Planning Tasks'),
+            'domain': [('project_id', '=', project_id_)] + domain,
+            'context': {
+                # default
+                'default_project_id': project_id_,
+                'default_date_deadline': fields.Date.today() + timedelta(days=7), # next week
+                # other
+                'search_default_open_tasks': 1,
+                'carpentry_planning': True,
+            } | context,
+            'target': 'new'
+        }
+
     #===== Task copy =====#
     def _fields_to_copy(self):
         return super()._fields_to_copy() | ['card_res_id', 'card_res_model', 'launch_ids']

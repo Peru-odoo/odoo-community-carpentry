@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from . import product_template
-from . import account_analytic_account
 from . import account_move_budget_line
 
 from . import carpentry_group_lot

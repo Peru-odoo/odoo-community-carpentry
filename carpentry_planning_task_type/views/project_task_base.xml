@@ -27,8 +27,8 @@
             </tree>
             <!-- Burger-menu button to task detailed form -->
             <field name="priority" position="before">
-                <button name="action_open_task_form" type="object" icon="fa-bars" title="Details" />
-                <button name="action_open_task_form"
+                <button name="action_open_planning_task_form" type="object" icon="fa-bars" title="Details" />
+                <button name="action_open_planning_task_form"
                     type="object"
                     icon="fa-paperclip"
                     attrs="{'invisible': [('attachment_ids', '=', [])]}"
@@ -179,6 +179,17 @@
         <field name="inherit_id" ref="project.view_task_form2" />
 
         <field name="arch" type="xml">
+            <!-- Header: add button `Create Tasks` -->
+            <header position="inside">
+                <button name="action_open_planning_task_tree"
+                    type="object"
+                    class="btn btn-primary mx-1"
+                    string="Create Tasks"
+                    attrs="{'invisible': [('parent_type_id', '=', False)]}"
+                    help="Create tasks shown in Planning top-list, linked to this document"
+                />
+            </header>
+
             <!-- Name: required? -->
             <form position="inside">
                 <field name="name_required" invisible="1" />
@@ -230,9 +241,9 @@
             </field>
 
             <!-- Hide `launch_ids` when requested -->
-            <group name="group_planning_task" position="attributes">
+            <!-- <group name="group_planning_task" position="attributes">
                 <attribute name="invisible">not context.get('display_launch_ids', True)</attribute>
-            </group>
+            </group> -->
         </field>
     </record>
 

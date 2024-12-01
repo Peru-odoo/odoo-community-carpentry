@@ -3,8 +3,6 @@
 from odoo import models, fields, api, _, Command
 from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
 
-from datetime import timedelta
-
 class CarpentryPlanningCard(models.Model):
     _inherit = ['carpentry.planning.card']
     _description = 'Planning Card'
@@ -160,35 +158,16 @@ class CarpentryPlanningCard(models.Model):
     def action_open_tasks(self):
         self.ensure_one()
 
-        project_id = self._context.get('project_id', self.project_id.id)
-        launch_id = self._context.get('launch_id')
-        if not launch_id or not project_id:
-            return False
+        project_id_ = self._context.get('project_id', self.project_id.id)
+        launch_id_ = self._context.get('launch_id')
+        if not launch_id_ or not project_id_:
+            raise exceptions.UserError(
+                _('Cannot open a planning card\'s tasks if Project or Launch is missing.')
+            )
         
-        action = {
-            'type': 'ir.actions.act_window',
-            'res_model': 'project.task',
-            'view_mode': 'tree',
-            'name': self.display_name,
-            'domain': [
-                ('launch_ids', '=', launch_id),
-                ('card_res_id', '=', self.res_id),
-                ('car_res_model', '=', self.res_model)
-            ],
-            'context': {
-                # default
-                'default_name': self.display_name,
-                'default_project_id': project_id,
-                'default_date_deadline': fields.Date.today() + timedelta(days=7), # next week
-                'default_launch_ids': [launch_id],
-                # task reference to card
-                'default_ref_card': '%s,%s' % (self.res_model, self.res_id),
-                'default_res_id': self.res_id,
-                'default_res_model_id': self.env['ir.model']._get(self.res_model).id,
-                # other
-                'search_default_open_tasks': 1,
-                'carpentry_planning': True,
-            },
-            'target': 'new'
-        }
-        return action
+        return self.env['project.task'].action_open_planning_task_tree(
+            domain=[('launch_ids', '=', launch_id_)],
+            context={'default_launch_ids': [launch_id_]},
+            record_id=self,
+            project_id_=project_id_
+        )

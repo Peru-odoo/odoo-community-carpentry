@@ -231,16 +231,27 @@ class Task(models.Model):
         ) for view_mode in switch]
 
     #===== Buttons / action =====#
-    def action_open_task_form(self):
+    def action_open_planning_task_form(self):
         """ Redirect to task' specific form on tree's button `Details` """
-        action = super().action_open_task_form()
+        action = super().action_open_planning_task_form()
 
-        views = self._context.get('action_origin', {}).get('views', {}) # see `project.choice.wizard` for `action_origin`
-        views_form = [x[0] for x in views if x[1] == 'form']
-        if len(views_form):
-            action |= {'view_id': views_form[0]}
+        if not self._context.get('display_standard_form'): # stay on standard form for Planning Tasks
+            views = self._context.get('action_origin', {}).get('views', {}) # see `project.choice.wizard` for `action_origin`
+            views_form = [x[0] for x in views if x[1] == 'form']
+            if len(views_form):
+                action |= {'view_id': views_form[0]}
         
         return action
+
+    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id_=False):
+        """ For `Create Task` button for Meeting, Instruction...:
+            * `record_id` IS the task -> like planning task to Meeting, Instruction ...
+            * don't propagate `default_parent_type_id`
+
+            `See carpentry_planning_task` for parent method
+        """
+        context |= {'display_standard_form': True}
+        return super().action_open_planning_task_tree(domain, context, self, self.project_id.id)
 
     #===== Task copy =====#
     def _fields_to_copy(self):

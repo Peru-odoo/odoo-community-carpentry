@@ -9,19 +9,8 @@ class PlanRelease(models.Model):
     _name = "carpentry.plan.release"
     _description = "Plan Release"
     _inherit = ["carpentry.planning.mixin"]
-    _order = "date_plan_release"
-    _date_name = "date_plan_release"
-
-    #===== Fields' methods =====#
-    @api.model
-    def _group_expand_plan_set_id(self, records, domain, order):
-        """ In Tree view groupped by Plansets, also render the Plansets with no Planset Releases """
-        new_domain = [('release_ids','=',False)]
-        if 'default_project_id' in self._context:
-            new_domain += [('project_id', '=', self._context['default_project_id'])]
-        elif records.project_id.ids:
-            new_domain += [('project_id', 'in', records.project_id.ids)]
-        return (records | records.search(new_domain, order=order)).sorted()
+    _order = "date_plan_publish"
+    _date_name = "date_plan_publish"
 
     #===== Fields =====#
     # relational
@@ -30,11 +19,10 @@ class PlanRelease(models.Model):
         store=True
     )
     plan_set_id = fields.Many2one(
-        comodel_name='carpentry.plan',
-        string='Planset',
+        comodel_name='carpentry.plan.set',
+        string='Plan set',
         required=True,
         index='btree_not_null',
-        group_expand='_group_expand_plan_set_id',
         ondelete='cascade'
     )
     launch_ids = fields.One2many(
@@ -52,8 +40,8 @@ class PlanRelease(models.Model):
     plan_set_name = fields.Char(
         related='plan_set_id.name'
     )
-    date_plan_release = fields.Date(
-        string='Date Plan release',
+    date_plan_publish = fields.Date(
+        string='Date Plan publishing',
         default=fields.Date.today(),
         required=True
     )
@@ -61,7 +49,7 @@ class PlanRelease(models.Model):
         string='Date Visa feedback'
     )
     # computed
-    week_plan_release = fields.Integer(
+    week_publish = fields.Integer(
         compute='_compute_weeks'
     )
     week_visa_feedback = fields.Integer(
@@ -89,7 +77,7 @@ class PlanRelease(models.Model):
 
     # planning
     sequence = fields.Integer(
-        # mandatory for planning: computed based on date_plan_release
+        # mandatory for planning: computed based on date_plan_publish
         compute='_compute_sequence',
         store=True
     )
@@ -103,12 +91,19 @@ class PlanRelease(models.Model):
         string='Planning Card Body Color',
         related='state'
     )
+    
+    #===== Constraints =====#
+    _sql_constraints = [(
+        "unique_name_release_planset",
+        "UNIQUE (name, plan_set_id)",
+        "This plan Index is already used in this Plan Set."
+    )]
 
     #===== Compute =====#
-    @api.depends('date_plan_release', 'date_visa_feedback')
+    @api.depends('date_plan_publish', 'date_visa_feedback')
     def _compute_weeks(self):
         for release in self:
-            release.week_plan_release = release.date_plan_release.isocalendar()[1]
+            release.week_publish = release.date_plan_publish.isocalendar()[1]
             release.week_visa_feedback = bool(release.date_visa_feedback) and release.date_visa_feedback.isocalendar()[1]
     
     #===== Planning =====#
@@ -118,10 +113,10 @@ class PlanRelease(models.Model):
             release.state_color = PLANNING_CARD_COLOR[release.state]
             release.planning_card_color = release.state_color
     
-    @api.depends('date_plan_release')
+    @api.depends('date_plan_publish')
     def _compute_sequence(self):
         for release in self:
-            release.sequence = calendar.timegm(release.date_plan_release.timetuple())
+            release.sequence = calendar.timegm(release.date_plan_publish.timetuple())
 
     @api.model
     def _get_planning_subheaders(self, column_id, launch_id):

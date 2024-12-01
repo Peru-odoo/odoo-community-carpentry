@@ -7,7 +7,7 @@
         
         <field name="arch" type="xml">
             <templates position="before">
-                <field name="week_plan_release" />
+                <field name="week_publish" />
                 <field name="week_visa_feedback" />
             </templates>
 
@@ -15,7 +15,7 @@
                 <t t-if="record.res_model.raw_value == 'carpentry.plan.release'">
                     <span title="Week Plan release" class="mx-0">
                         <span class="fa fa-calendar" />
-                        W<t t-esc="record.week_plan_release.raw_value" />
+                        W<t t-esc="record.week_publish.raw_value" />
                         <span class="fa fa-long-arrow-right mx-1"/>
                     </span>
 

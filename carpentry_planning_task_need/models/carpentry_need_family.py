@@ -8,9 +8,37 @@ class CarpentryNeedFamily(models.Model):
     _inherit = ['project.default.mixin']
     _description = 'Need family'
 
+    #===== Fields methods =====#
+    def _get_domain_parent_type_id(self):
+        return [
+            ('root_type_id', '=', self.env.ref(XML_ID_NEED).id),
+            ('task_ok', '=', False)
+        ]
+    def _get_default_parent_type_id(self):
+        """ Return a default `parent_type_id` following user role(s) on
+            the project and linked `type_id`, else 1st available
+        """
+        # Get all elligible `parent_type_id`
+        parent_type_ids = self.env['project.type'].search(self._get_domain_parent_type_id())
+        
+        # Try to filter by roles, else choose 1st available
+        role_ids = self.project_id._get_user_role_ids()
+        return fields.first(
+            parent_type_ids.filtered(lambda x: x.role_id.id in role_ids.ids)
+            | parent_type_ids
+        )
+
+    #===== Fields =====#
     name = fields.Char(
         string='Need family',
         required=True
+    )
+    parent_type_id = fields.Many2one(
+        # eg. "Need (Method)"
+        comodel_name='project.type',
+        string='Need Type',
+        default=_get_default_parent_type_id,
+        domain=_get_domain_parent_type_id,
     )
     need_ids = fields.Many2many(
         comodel_name='carpentry.need',
@@ -18,7 +46,7 @@ class CarpentryNeedFamily(models.Model):
         column1='family_id',
         column2='need_id',
         string='Needs templates',
-        domain="[('project_id', '=', project_id)]",
+        domain="[('project_id', '=', project_id), ('parent_type_id', '=', parent_type_id)]",
         required=True
     )
     launch_ids = fields.Many2many(
@@ -26,16 +54,8 @@ class CarpentryNeedFamily(models.Model):
         relation='carpentry_need_rel_launch',
         column1='need_id',
         column2='launch_id',
-        string='Launches'
-    )
-    parent_type_id = fields.Many2one(
-        # defined by 1st need added in the family
-        # cf. constrain to prevent mixing different `parent_type_id` in same family
-        # eg. "Need (Method)"
-        comodel_name='project.type',
-        string='Need Type',
-        related='need_ids.type_id.parent_id',
-        store=True
+        string='Launches',
+        domain="[('project_id', '=', project_id)]"
     )
     role_id = fields.Many2one(
         comodel_name='project.role',
@@ -53,7 +73,7 @@ class CarpentryNeedFamily(models.Model):
         'UNIQUE (name, project_id)',
         'A Need Family with this name already exists in the project.'
     )]
-    
+
     #===== Constrains =====#
     @api.constrains('need_ids')
     def _constrains_need_ids(self):
@@ -63,7 +83,7 @@ class CarpentryNeedFamily(models.Model):
                 raise exceptions.ValidationError(
                     _('A Need Family cannot mix Needs of different type.')
                 )
-
+    
     #====== CRUD =====#
     @api.model_create_multi
     def create(self, vals_list):
@@ -141,9 +161,10 @@ class CarpentryNeedFamily(models.Model):
         to_delete.with_context(force_delete=True).unlink()
 
         # 3. Create tasks from added need or launch to (a) family(ies)
-        model_id_ = self.env['ir.model'].sudo().search([('model', '=', 'project.type')]).id
-        stage_id_ = self.env['project.task.type'].sudo().search([('fold', '=', False)], limit=1).id
-        self.env['project.task'].create([
+        domain = [('fold', '=', False), ('user_id', '=', False)]
+        stage_id_ = self.env['project.task.type'].sudo().search(domain, limit=1).id
+
+        self.env['project.task'].sudo().create([
             need._convert_to_task_vals(launch.id, model_id_, stage_id_)
             for launch, need in (target_tuples - existing_tuples)
         ])

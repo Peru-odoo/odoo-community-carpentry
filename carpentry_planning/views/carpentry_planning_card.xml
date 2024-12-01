@@ -17,7 +17,7 @@
     </record>
     <!-- 2 new main menus:
         - `Planning`, transformed in section in `carpentry_planning_task[_type/_need]` for Planning, Project tasks, and then Needs, Milestones, ...
-        - `Follow-up`: a section, only relevant for other modules because used by Instructions and Plansets Releases
+        - `Follow-up`: a section, only relevant for other modules because used by Instructions and Plan sets Releases
       -->
     <menuitem
         id="menu_project_planning"

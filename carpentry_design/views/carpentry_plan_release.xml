@@ -1,46 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Action (carpentry.plan.release)
-         Main view is list of `plan.release`, groupped by `plan.set` 
-    -->
-    <record id="action_open_plan_set_release" model="ir.actions.act_window">
-        <field name="name">Plansets releases</field>
-        <field name="res_model">carpentry.plan.release</field>
-        <field name="view_mode">tree,form</field>
-        <field name="context">{
-            "search_default_groupby_plan_set": True,
-        }</field>
-    </record>
-    <!-- Pre-select project wizard before opening real action -->
-    <record id="action_open_plan_set_release_srv" model="ir.actions.server">
-        <field name="name">Plansets releases</field>
-        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
-        <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect(
-                'carpentry_design.action_open_plan_set_release'
-            )
-        </field>
-    </record>
-    <!-- Menu item -->
-    <menuitem id="menu_project_plan"
-        action="action_open_plan_set_release_srv"
-        parent="carpentry_planning.menu_project_followup"
-        groups="carpentry_design.group_design_user"
-    />
-
     <!-- Tree (carpentry.plan.release) -->
     <record id="carpentry_plan_release_tree" model="ir.ui.view">
         <field name="name">carpentry.plan.release.tree</field>
         <field name="model">carpentry.plan.release</field>
 
         <field name="arch" type="xml">
-            <tree editable="bottom" expand="1" js_class="carpentry_plan_release_tree">
+            <tree editable="bottom">
                 <field name="state_color" invisible="1" />
-
-                <groupby name="plan_set_id">
-                    <button name="button_open_form" type="object" string="Open" icon="fa-bars" />
-                </groupby>
 
                 <field name="project_id" optional="hide" invisible="context.get('default_project_id')" />
                 <field name="plan_set_id" readonly="True" optional="hide" />
@@ -51,13 +18,14 @@
                     decoration-success="state == 'success'"
                 />
                 <field name="name" />
-                <field name="date_plan_release" />
+                <field name="date_plan_publish" />
                 <field name="date_visa_feedback" />
                 <field name="description" />
             </tree>
         </field>
     </record>
-    <!-- Form (plan.release) - as backup, not shown to user -->
+
+    <!-- Form (plan.release) -->
     <record id="carpentry_plan_release_form" model="ir.ui.view">
         <field name="name">carpentry.plan.release.form</field>
         <field name="model">carpentry.plan.release</field>
@@ -65,12 +33,8 @@
             <form>
                 <sheet>
                     <group name="header">
-                        <group>
-                            <field name="project_id" attrs="{'readonly': [('id', '!=', False)]}" />
-                        </group>
-                        <group>
-                            <field name="plan_set_id" attrs="{'readonly': [('id', '!=', False)]}" />
-                        </group>
+                        <field name="project_id" attrs="{'readonly': [('id', '!=', False)]}" />
+                        <field name="plan_set_id" attrs="{'readonly': [('id', '!=', False)]}" />
                     </group>
 
                     <group name="body">
@@ -79,7 +43,7 @@
                             <field name="state" />
                         </group>
                         <group>
-                            <field name="date_plan_release" />
+                            <field name="date_plan_publish" />
                             <field name="date_visa_feedback" />
                         </group>
                     </group>
@@ -90,6 +54,7 @@
             </form>
         </field>
     </record>
+
     <!-- Search -->
     <record id="carpentry_plan_release_search" model="ir.ui.view">
         <field name="name">carpentry.plan.release.search</field>
@@ -112,11 +77,11 @@
                 <separator/>
 
                 <group expand="0" string="Group By">
-                    <filter string="Planset" name="groupby_plan" context="{'group_by': 'plan_set_id'}" />
+                    <filter string="Plan set" name="groupby_plan" context="{'group_by': 'plan_set_id'}" />
                 </group>
 
                 <searchpanel>
-                    <field name="state" select="multi" />
+                    <field name="state" />
                     <field name="project_id" invisible="context.get('default_project_id')" />
                 </searchpanel>
             </search>

@@ -1,44 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Form (plan.set): display in a wizard. Accessed by user from:
-     - "New Planset" button, fakely replacing standard "New" button of `plan.release` tree 
-     - "Open" button, on groupped line of `plan.release` tree view
-    -->
+    <!-- Action -->
+    <record id="action_open_plan_set" model="ir.actions.act_window">
+        <field name="name">Plan sets</field>
+        <field name="res_model">carpentry.plan.set</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <!-- Pre-select project wizard before opening real action -->
+    <record id="action_open_plan_set_srv" model="ir.actions.server">
+        <field name="name">Plan sets releases</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect(
+                'carpentry_design.action_open_plan_set'
+            )
+        </field>
+    </record>
+    <!-- Menu item -->
+    <menuitem id="menu_project_plan"
+        action="action_open_plan_set_srv"
+        parent="carpentry_planning.menu_project_followup"
+        groups="carpentry_design.group_design_user"
+    />
+
     <record id="carpentry_plan_set_form" model="ir.ui.view">
         <field name="name">carpentry.plan.set.form</field>
         <field name="model">carpentry.plan.set</field>
         <field name="arch" type="xml">
             <form>
+                <!-- Button `Create Tasks` -->
+                <header position="inside">
+                    <button name="action_open_planning_task_tree"
+                        type="object"
+                        class="btn btn-primary mx-1"
+                        string="Create Tasks"
+                        help="Create tasks shown in Planning top-list, linked to this document"
+                    />
+                </header>
+                
                 <sheet>
                     <div class="oe_title">
                         <h1> <field name="name" placeholder="Name" /> </h1>
                     </div>
 
-                    <group>
-                        <field name="project_id"
-                            attrs="{'readonly': [('id', '!=', False)]}"
-                            class="text-uppercase"
-                            options="{'no_create': 1}"
-                        />
-                        <field name="sequence" widget="numeric_step" options="{'min': 0}" />
-                        <field name="launch_ids" widget="many2many_checkboxes" />
+                    <group name="container">
+                        <!-- Left: project & releases -->
+                        <group name="left">
+                            <field name="project_id"
+                                attrs="{'readonly': [('id', '!=', False)]}"
+                                options="{'no_create': 1}"
+                            />
+                            <field name="plan_release_ids" />
+                        </group>
+
+                        <!-- Right: launch affectation -->
+                        <group name="right">
+                            <field name="launch_ids" widget="many2many_checkboxes" />
+                        </group>
                     </group>
                 </sheet>
                 
-                <footer>
-                    <button string="Save &amp; Close" special="save" class="btn btn-primary mx-1" />
-                    <button string="Discard" special="cancel" class="btn btn-secondary mx-1" />
-                    <button string="Delete" type="object" name="unlink"
-                        icon="fa-trash"
-                        class="btn btn-danger mx-1 text-uppercase"
-                        confirm="Are you sure?"
-                    />
-                </footer>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" options="{'post_refresh':True}" groups="base.group_user"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
             </form>
         </field>
     </record>
 
-    <!-- Carpentry Plan Tree view (back-up: never displayed) -->
     <record id="carpentry_plan_set_tree" model="ir.ui.view">
         <field name="name">carpentry.plan.set.tree</field>
         <field name="model">carpentry.plan.set</field>
@@ -48,19 +79,44 @@
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="launch_ids" widget="many2many_tags" />
+
+                <!-- Last release info -->
+                <field name="last_release_id" optional="show" />
+                <field name="last_release_week_publish" optional="show" />
+                <field name="last_release_week_visa_feedback" optional="show" />
+                <field name="last_release_description" optional="show" />
+                <field name="last_release_state" widget="badge"
+                    decoration-bf="True"
+                    decoration-warning="last_release_state == 'warning'"
+                    decoration-danger="last_release_state == 'danger'"
+                    decoration-success="last_release_state == 'success'"
+                />
             </tree>
         </field>
     </record>
-    <!-- Search (back-up: never displayed) -->
+
+    <!-- Search -->
     <record id="carpentry_plan_set_search" model="ir.ui.view">
         <field name="name">carpentry.plan.set.search</field>
         <field name="model">carpentry.plan.set</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name" string="Planset" filter_domain="['|', ('name', 'ilike', self), ('project_id', 'ilike', self)]"/>
+                <field name="name" string="Plan set" filter_domain="['|', ('name', 'ilike', self), ('project_id', 'ilike', self), ('launch_ids', 'ilike', self)]"/>
                 <field name="project_id" />
+                <field name="launch_ids" />
                 
                 <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids','=',uid)]" />
+                <separator/>
+                <filter string="Archived included" name="archived_included" domain="[('active','in',[True,False])]" />
+                <separator/>
+                <filter string="Accepted" name="accepted" domain="[('last_release_state', '=', 'accepted')]" />
+                <filter string="Defect" name="defect" domain="[('last_release_state', '=', 'defect')]" />
+                <filter string="Refused" name="refused" domain="[('last_release_state', '=', 'refused')]" />
+
+                <group expand="0" string="Group By">
+                    <filter string="State of last release" name="groupby_last_release_state" context="{'group_by': 'last_release_state'}" />
+                </group>
+
                 <searchpanel>
                     <field name="project_id" invisible="context.get('default_project_id')" />
                 </searchpanel>

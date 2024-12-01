@@ -19,8 +19,9 @@ export class PlanningGlobalTasks extends Component {
     // Global Tasks list view
     get globalTasksViewProps() {
         const domain = [
-            ['project_id', '=', this.projectId], ['launch_ids', '=', false],
-            ['type_id', '=', false]
+            ['project_id', '=', this.projectId],
+            ['launch_ids', '=', false],
+            ['root_type_id', '=', false]
         ]
         const context = {
             'default_project_id': this.projectId,
