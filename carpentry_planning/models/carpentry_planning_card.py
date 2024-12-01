@@ -129,17 +129,20 @@ class CarpentryPlanningCard(models.Model):
         )
 
     def _select(self, column, column_ids):
-        rel_fields = {} # 1 relational field per model in the planning
+        # 1 relational field per model in the planning
+        rel_fields = {}
         for col in column_ids:
             field = f"{col.res_model_shortname}_id"
-            rel_fields[field] = f"{'NULL' if field not in col.res_model_id else 'card.id'} AS {field}"
+            value = "card.id" if col.res_model_id == column.res_model_id else "NULL::integer"
+            rel_fields[field] = f"{value} AS {field}"
+        
         return f"""
             SELECT
                 card.id AS res_id,
                 {column.id} AS column_id,
                 card.active AS active,
                 card.sequence AS sequence,
-                {'NULL' if column.sticky else 'card.project_id'} AS project_id,
+                {'NULL::integer' if column.sticky else 'card.project_id'} AS project_id,
                 {','.join(rel_fields.values())}
         """
     
@@ -148,19 +151,22 @@ class CarpentryPlanningCard(models.Model):
         return f'FROM {model} AS card'
     
     def _join(self, column):
-        return f"LEFT JOIN carpentry_planning_column AS col ON col.id = {column.id}"
+        return ''
+        # return f"LEFT JOIN carpentry_planning_column AS col ON col.id = {column.id}"
     
     def _where(self, column):
         # No relevant available model when doing tests: skip WHERE clause 
         if self._context.get('test_mode'):
             return ''
         
+        # `identifier` is required if 2 columns source cards from same model
+        # => in such case, the original model must have a `column_id` field
+        #    which we use now to route cards between columns
         identifier = bool(
             column.identifier_res_id
             and column.identifier_res_model_id.id
         )
-            
-        return f'WHERE card.column_id = {column.identifier_res_id}' if identifier else ''
+        return f'WHERE card.column_id = {column.id}' if identifier else ''
     
     def _groupby(self, column):
         return 'GROUP BY card.id'

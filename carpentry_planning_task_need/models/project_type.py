@@ -41,7 +41,6 @@ class ProjectType(models.Model):
     #===== Planning =====#
     def _synch_mirroring_column_id(self, column_id):
         """ Called by `carpentry.planning.column` on changes on `identifier_ref` """
-        self.column_id = column_id
         self.child_ids.column_id = column_id
     
     @api.model

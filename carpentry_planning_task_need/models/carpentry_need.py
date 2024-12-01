@@ -71,7 +71,7 @@ class CarpentryNeed(models.Model):
             )
 
     #===== Business methods =====#
-    def _convert_to_task_vals(self, launch_id_, stage_id_):
+    def _convert_to_task_vals(self, launch):
         self.ensure_one()
         return {
             'project_id': self.project_id.id,
@@ -80,9 +80,5 @@ class CarpentryNeed(models.Model):
             'need_id': self.id,
             'type_deadline': 'computed',
             'user_ids': [Command.clear()],
-            'stage_id': stage_id_,
-            # planning
-            'card_res_model_id': self.env['ir.model']._get('task.type').id,
-            'card_res_id': self.type_id.id,
-            'launch_ids': [Command.set([launch_id_])],
+            'launch_ids': [Command.set([launch.id])],
         }

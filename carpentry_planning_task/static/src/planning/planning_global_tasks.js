@@ -31,7 +31,7 @@ export class PlanningGlobalTasks extends Component {
         const display = {
             controlPanel: {
                 'top-left': false, // title ||| TODO: customizer le titre plutôt que de l'effacer
-                'top-right': false, // SearchPanel
+                'top-right': true, // SearchPanel
                 'bottom-left': true, // buttons
                 'bottom-right': true, // searchMenuTypes
             }

@@ -202,9 +202,12 @@ class CarpentryPlanningColumn(models.Model):
         launch_id = self.env['carpentry.group.launch'].browse(launch_id_)
 
         # milestones data preformatting
+        fields = ['id', 'name', 'type', 'icon', 'date', 'column_id']
         mapped_milestone_data = defaultdict(list)
-        for data in launch_id.milestone_ids.read(['id', 'name', 'icon', 'date', 'column_id']):
-            column_id = data['column_id'][0]; del(data['column_id'])
+        for data in launch_id.milestone_ids.read(fields):
+            column_id = data['column_id'][0]
+            del(data['column_id'])
+
             data['week'] = bool(data['date']) and data['date'].isocalendar()[1]
             mapped_milestone_data[column_id].append(data)
         

@@ -9,16 +9,6 @@ class Task(models.Model):
     _inherit = ["project.task", "project.default.mixin"]
     _order = 'priority DESC, date_deadline ASC, create_date ASC'
 
-    #===== Fields methods =====#
-    # @api.model
-    # def _selection_planning_card_model(self):
-    #     """ Give user the option to link a Planning Card from Task form """
-    #     return [(x.model, x.name) for x in self._get_planning_model_ids()]
-    # def _get_planning_model_ids(self):
-    #     domain = [('fold', '=', False)]
-    #     column_ids = self.env['carpentry.planning.column'].sudo().search(domain)
-    #     return column_ids.res_model_id
-    
     #===== Fields (planning) =====#
     card_res_id = fields.Many2oneReference(
         # stored
@@ -37,16 +27,6 @@ class Task(models.Model):
         string='Planning Card Model Name',
         related='card_res_model_id.model',
     )
-    # card_ref = fields.Reference(
-    #     # 2024-12-01 (ALY): removed feature of choosing Card Ref from Task's Form (too UI-complex)
-    #     # user-interface (not stored)
-    #     selection='_selection_planning_card_model',
-    #     string='Planning Card',
-    #     compute='_compute_card_ref',
-    #     inverse='_inverse_card_ref',
-    #     readonly=False,
-    #     ondelete='cascade',
-    # )
     launch_ids = fields.Many2many(
         comodel_name='carpentry.group.launch',
         relation='carpentry_task_rel_launch',
@@ -57,35 +37,6 @@ class Task(models.Model):
     )
 
     is_late = fields.Boolean(compute='_compute_is_late')
-    
-    #===== Compute & onchange: card_ref =====#
-    # 2024-12-01 (ALY): removed feature of choosing Card Ref from Task's Form (too UI-complex)
-    # @api.depends('card_res_model', 'card_res_id')
-    # def _compute_card_ref(self):
-    #     for task in self:
-    #         is_set = bool(task.card_res_model and task.card_res_id)
-    #         task.card_ref = '%s,%s' % (task.card_res_model, task.card_res_id) if is_set else False
-    
-    # def _inverse_card_ref(self):
-    #     mapped_model_ids = {x.model: x.id for x in self._get_planning_model_ids()}
-    #     for task in self:
-    #         card = task.card_ref
-    #         task.card_res_id = bool(card) and card.id
-    #         task.card_res_model_id = bool(card) and mapped_model_ids.get(card._name)
-    
-    # @api.onchange('card_ref', 'launch_ids')
-    # def _onchange_card_ref(self):
-    #     """ Automatically link the task to the launches of their planning card """
-    #     for task in self:
-    #         if not task.card_ref:
-    #             continue
-            
-    #         # [remove] `card_ref` was changed: remove former launches
-    #         if task._origin.card_ref and task._origin.card_ref != task.card_ref:
-    #             task.launch_ids -= task._origin.card_ref.launch_ids
-            
-    #         # [add/keep] launches of `card_ref` if new, keep `card_ref`'s one if `launch_ids` was changed
-    #         task.launch_ids += task.card_ref.launch_ids
 
     #===== Compute `stage_id` depending `date_end` =====#
     @api.depends('date_end')
@@ -98,18 +49,6 @@ class Task(models.Model):
             is_closed = bool(task.date_end)
             has_changed = is_closed != task.is_closed
             task._change_state_one('date_end', has_changed, is_closed, *res)
-    
-    # Does not work well & actually not wanted
-    # @api.onchange('kanban_state')
-    # def _onchange_kanban_state(self):
-    #     """ Shortcut: when user set `kanban_state`, change task
-    #         `stage_id` and `date_end` accordingly
-    #     """
-    #     res = self._get_stage_open_done()
-    #     for task in self:
-    #         has_closed = task._change_state_one('kanban_state', task.kanban_state == 'done', *res)
-    #         if has_closed:
-    #             task.date_end = fields.Date.today()
     
     def _get_stage_open_done(self):
         stage_ids = self.env['project.task.type'].search([])
@@ -168,7 +107,6 @@ class Task(models.Model):
                 ('card_res_model_id', '=', model_id_)
             ]
             context |= {
-                # 'default_card_ref': '{},{}' . format(record_id._name, record_id.id),
                 'default_card_res_id': record_id.id,
                 'default_card_res_model_id': model_id_,
                 'default_name': record_id.display_name,

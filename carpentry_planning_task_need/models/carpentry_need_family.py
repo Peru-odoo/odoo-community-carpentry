@@ -61,12 +61,6 @@ class CarpentryNeedFamily(models.Model):
         comodel_name='project.role',
         related='parent_type_id.role_id',
     )
-    # my_role = fields.Boolean(
-    #     # (!) actually doesn't work but keep it, in case of magic idea
-    #     # only for search filter
-    #     compute=True, # required else `search` is ignored
-    #     search='_search_my_role'
-    # )
 
     _sql_constraints = [(
         'name_unique',
@@ -101,25 +95,10 @@ class CarpentryNeedFamily(models.Model):
         self._reconcile_with_tasks(self.project_id.ids) # after .write()
         return result
 
-    #===== Compute =====#
-    # @api.model
-    # def _search_my_role(self, operator, value):
-    #     """ Filter 'My Role':
-    #          1. On Need Families linked to the current user, via role assignation (e.g. project manager, field manager)
-    #          2. Or all Need Families, if user is not linked to any Need Family (e.g. Administrator)
-    #         (!) A user affected to role A on project 1 and role B on project 2 will see Need Families of
-    #             project 1's Role B and project 2's Role A
-    #     """
-    #     return [
-    #         ('project_id.assignment_ids.user_id', '=', self.env.uid), # user affected on this project
-    #         ('role_id.assignment_ids.user_id', '=', self.env.uid) # user affected to this role (on any project)
-    #     ]
-
     #===== Logics =====#
     def _reconcile_with_tasks(self, project_ids_):
         """ Assess differences between existing tasks of type 'need' *and* needs in launches (via needs family),
             and create any missing tasks or delete any tasks from removed needs
-            (!) Converted needs (i.e. fix deadline) are out of any reconcialition
             
             Copy logic:
              * 1 need translate into 1 task per launch
@@ -136,7 +115,8 @@ class CarpentryNeedFamily(models.Model):
         # existing
         domain_task = [
             ('root_type_id', '=', self.env.ref(XML_ID_NEED).id),
-            ('project_id', 'in', project_ids_)
+            ('project_id', 'in', project_ids_),
+            ('need_id', '!=', False) # created automatically from this method before
         ]
         task_ids = self.env['project.task'].search(domain_task)
         existing_tuples = set([
@@ -161,10 +141,7 @@ class CarpentryNeedFamily(models.Model):
         to_delete.with_context(force_delete=True).unlink()
 
         # 3. Create tasks from added need or launch to (a) family(ies)
-        domain = [('fold', '=', False), ('user_id', '=', False)]
-        stage_id_ = self.env['project.task.type'].sudo().search(domain, limit=1).id
-
         self.env['project.task'].sudo().create([
-            need._convert_to_task_vals(launch.id, model_id_, stage_id_)
+            need._convert_to_task_vals(launch)
             for launch, need in (target_tuples - existing_tuples)
         ])

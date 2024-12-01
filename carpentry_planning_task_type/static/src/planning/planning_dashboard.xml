@@ -6,11 +6,13 @@
         <t t-foreach="data.meetings" t-as="meeting" t-key="meeting_index">
             <div class="d-flex align-items-center  mb-1">
                 <span t-if="meeting.count_message_ids > 0" class="me-2 text-muted">
-                    <i class="fa fa-clock-o" title="Last Meeting date" /> <t t-esc="meeting.message_last_date" />
-                    <i class="fa fa-repeat ms-2" title="Number of meetings" /> <t t-esc="meeting.count_message_ids" />
+                    <i class="fa fa-clock-o me-1" title="Last Meeting date" />
+                    <t t-esc="meeting.message_last_date" />
+                    (x<t t-esc="meeting.count_message_ids" />)
                 </span>
-                <a class="cursor-pointer" t-on-click="() => this.openDetails('project.task', meeting.id, meeting.name, 'current')">
-                    <i class="fa fa-users" title="Title" /> <t t-esc="meeting.display_name" />
+                <a class="cursor-pointer" t-on-click="() => this.openDetails('project.task', meeting.id, meeting.name, 'new')">
+                    <i class="fa fa-users me-1" title="Title" />
+                    <t t-esc="meeting.display_name" />
                 </a>
                 <span t-attf-class="o_status {{ statusColor(meeting.kanban_state) }} ms-2" />
             </div>

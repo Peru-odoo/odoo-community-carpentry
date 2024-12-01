@@ -84,6 +84,7 @@ class CarpentryPlanningCard(models.Model):
             fields=['ids:array_agg(id)'],
             lazy=False
         )
+        print('rg_result', rg_result)
         mapped_task_ids = {(x['card_res_model_id'][0], x['card_res_id']): x['ids'] for x in rg_result}
         for card in self:
             key = (card.column_id.res_model_id.id, card.res_id)
@@ -109,6 +110,8 @@ class CarpentryPlanningCard(models.Model):
         ]
     def _compute_task_fields_one(self):
         self.ensure_one()
+
+        print('_compute_task_fields_one:self', self)
 
         # count
         self.task_count_total = len(self.task_ids.ids)

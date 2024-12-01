@@ -10,8 +10,8 @@
                 <field name="identifier_required" invisible="1" />
 
                 <field name="sequence" widget="handle" />
-                <field name="res_model_id" />
                 <field name="name" />
+                <field name="res_model_id" />
                 <field name="identifier_ref" attrs="{'required': [('identifier_required', '=', True)]}" />
                 <field name="sticky" widget="boolean_toggle" />
                 <field name="fold" widget="boolean_toggle" />

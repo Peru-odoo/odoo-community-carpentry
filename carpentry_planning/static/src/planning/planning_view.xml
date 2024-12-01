@@ -30,7 +30,7 @@
     <t t-name="carpentry_planning.PlanningKanbanRenderer" t-inherit="web.KanbanRenderer" owl="1">
         <xpath expr="//span[hasclass('o_column_title')]" position="before">
             <t t-set="header" t-value="group.model.data.headers[group.resId]" />
-            <i t-attf-class="mx-1 {{ header.icon }}" />
+            <i t-attf-class="me-2 {{ header.icon }}" />
         </xpath>
         
         <xpath expr="//div[hasclass('o_kanban_header_title')]" position="after">
@@ -50,8 +50,9 @@
                 <div t-foreach="header.milestones" t-as="milestone" t-key="milestone.id"
                     t-att-data-tooltip="milestone.name" class="cursor-pointer"
                     t-on-click="() => this.openMilestone(milestone)"
+                    t-attf-class="{{ milestone.type ? 'ms-1' : 'ms-4'}}"
                 >
-                    <i t-attf-class="mx-1 {{ milestone.icon }}" />
+                    <i t-attf-class="me-1 {{ milestone.icon }}" />
                     <t t-if="milestone.week">W<t t-esc="milestone.week" /></t>
                     <t t-else="">?</t>
                 </div>

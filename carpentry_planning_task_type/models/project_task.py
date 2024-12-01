@@ -36,7 +36,7 @@ class Task(models.Model):
         domain = [
             ('root_type_id', '=', root_type_id),
             ('task_ok', '=', True),
-        ]+([('parent_id', '=', self.parent_type_id.id)] if self.parent_type_id.id else [])
+        ] + ([('parent_id', '=', self.parent_type_id.id)] if self.parent_type_id.id else [])
         type_ids = self.env['project.type'].search(domain)
 
         # If some seems more relevant/compatible with roles of current user

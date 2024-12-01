@@ -13,12 +13,18 @@ class Task(models.Model):
     def _filter_needs(self, filter_computed=True):
         """ From a task recordset, return only the needs """
         return self.filtered(lambda x: x.need_id.id)
-        # return self.filtered(lambda x: (
-        #     x.root_type_id.id == self.env.ref(XML_ID_NEED).id
-        #     and (not filter_computed or x.type_deadline == 'computed')
-        # ))
 
     #===== Fields =====#
+    card_res_id = fields.Many2oneReference(
+        compute='_compute_card_res_id',
+        store=True,
+        readonly=False
+    )
+    card_res_model_id = fields.Many2one(
+        compute='_compute_card_res_id',
+        store=True,
+        readonly=False
+    )
     need_id = fields.Many2one(
         comodel_name='carpentry.need',
         string='Need template',
@@ -79,6 +85,18 @@ class Task(models.Model):
                 raise exceptions.ValidationError(
                     _("Tasks of type 'Need' can be affected to a single launch only.")
                 )
+
+    #===== Compute `res_id` and `res_model_id` ======#
+    @api.depends('type_id', 'need_id')
+    def _compute_card_res_id(self):
+        print('_compute_card_res_id:self', self)
+        model_id_ = self.env['ir.model']._get('task.type').id
+        print('model_id_')
+        for task in self._filter_needs():
+            task.card_res_id = task.type_id.id
+            task.card_res_model_id = model_id_
+            print('task.card_res_id', task.card_res_id)
+            print('task.card_res_model_id', task.card_res_model_id)
 
     #===== Compute `name_required`, `task type` & `launch_id` ======#
     def _get_name_required_type_list(self):

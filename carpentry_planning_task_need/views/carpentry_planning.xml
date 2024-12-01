@@ -15,8 +15,10 @@
                         t-attf-class="o_kanban_inline_block badge fs-6 fw-normal text-bg-{{record.planning_card_body_color.raw_value}}"
                     >
                         <span class="fa fa-calendar me-2" title="Calendar" />
-                        <t t-if="record.task_week.raw_value">W<t t-esc="record.task_week.raw_value" /></t>
-                        <t t-else="">?</t>
+                        <t t-esc="record.task_week" />
+                        
+                        <!-- <t t-if="record.task_week.raw_value">W<t t-esc="record.task_week.raw_value" /></t> -->
+                        <!-- <t t-else="">?</t> -->
                     </a>
                 </t>
             </t>
