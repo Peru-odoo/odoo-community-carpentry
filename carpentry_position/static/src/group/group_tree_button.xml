@@ -5,12 +5,10 @@
         <xpath expr="//div[hasclass('o_list_buttons')]" position="inside">
             <t t-if="props.showButtons">
 
-                <!-- invisible="!show_buttons" -->
                 <button type="button"
                     class="btn btn-primary mx-1"
                     t-on-click.prevent="actionQuickCreate"
                     title="Create Phases from Lots, or Launches from Phases."
-                    confirm="Are you sure?"
                 >
                     <span class="fa fa-files-o" />
                     Quick-create

@@ -61,9 +61,12 @@
                                 <field name="external_db_type" />
                                 <field name="encoding" />
 
+                                <field name="budget_coef" widget="progressbar" options="{'editable': True}" />
                                 <field name="column_mode" />
-                                <field name="coefficient" widget="progressbar" options="{'editable': True}" />
-                                <field name="column_ids" widget="many2many_tags" options="{'created': False}" />
+                                <field name="column_ids" widget="many2many_checkboxes" options="{'created': False}" attrs="{
+                                    'invisible': [('column_mode', '=', 'all')],
+                                    'required': [('column_mode', '!=', 'all')]
+                                }" />
                             </group>
                         </page>
                         <page name="doc" string="Documentation">

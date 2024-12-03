@@ -21,15 +21,18 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
         cls.project_import = cls.project.copy({'name': 'Test Project Import 01'})
 
         # import wizard
-        file_res = file_open('carpentry_position_budget/tests/' + cls.ORGADATA_FILENAME, 'rb')
+        cls._open_wizard(cls, cls.project_import)
+    
+    def _open_wizard(self, project_id, vals={}):
+        file_res = file_open('carpentry_position_budget/tests/' + self.ORGADATA_FILENAME, 'rb')
         mdb_file = file_res.read()
-        cls.Wizard = cls.env['carpentry.position.budget.import.wizard']
-        cls.wizard = cls.Wizard.create([{
-            'project_id': cls.project_import.id,
+        self.Wizard = self.env['carpentry.position.budget.import.wizard']
+        self.wizard = self.Wizard.create([{
+            'project_id': project_id.id,
             'external_db_type': 'orgadata',
             'import_file': base64.b64encode(mdb_file),
-            'filename': cls.ORGADATA_FILENAME
-        }])
+            'filename': self.ORGADATA_FILENAME
+        } | vals])
         file_res.close()
 
 
@@ -57,3 +60,31 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
         self.assertTrue(self.project_import.budget_install)
         self.assertTrue(self.project_import.budget_prod)
         self.assertTrue(self.project_import.budget_goods)
+
+    def test_04_budget_coef(self):
+        """ Test coefficient: new import with 40% coef """
+        prod_before = self.project_import.budget_prod
+        self._open_wizard(self.project_import, {'budget_coef': 40})
+        self.wizard.button_import()
+
+        self.assertEqual(round(prod_before * 40/100, 2), round(self.project_import.budget_prod, 2))
+    
+    def test_05_column_mode_ignore(self):
+        """ Test ignoring/only with some columns """
+        # Ignore PROD: we should have budget but not of PROD
+        self._open_wizard(self.project_import, {
+            'column_mode': 'ignore',
+            'column_ids': [Command.set(self.interface_fab2.ids)]
+        })
+        self.wizard.button_import()
+        self.assertFalse(self.project_import.budget_prod)
+        self.assertTrue(self.project_import.budget_install)
+
+        # Only PROD: we should have PROD but no other
+        self._open_wizard(self.project_import, {
+            'column_mode': 'only',
+            'column_ids': [Command.set(self.interface_fab2.ids)]
+        })
+        self.wizard.button_import()
+        self.assertTrue(self.project_import.budget_prod)
+        self.assertFalse(self.project_import.budget_install)

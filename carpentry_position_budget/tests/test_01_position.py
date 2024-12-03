@@ -41,7 +41,10 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
     #===== carpentry.position.merge.wizard =====#
     def test_03_merge_default_get_button(self):
         """ Test default value in 1st flow: 'Merge' button on tree row """
-        self.assertEqual(self.wizard.position_ids_to_merge.ids, self.position_duplicate.ids)
+        self.assertEqual(
+            set(self.wizard.position_ids_to_merge.ids),
+            set((self.position_duplicate | self.position).ids)
+        )
         self.assertEqual(self.wizard.position_id_target.id, self.position.id)
     
     def test_04_merge_default_active_ids(self):
@@ -52,10 +55,15 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
         f.position_id_target = self.position
         wizard2 = f.save()
 
-        # Test _clean_fields()
-        self.assertEqual(wizard2.position_ids_to_merge.ids, (self.project.position_ids - self.position).ids)
+        self.assertEqual(wizard2.position_ids_to_merge.ids, self.project.position_ids.ids)
     
     def test_05_merge_button_logic(self):
         """ Test confirmation of merge wizard button """
+        self.position.quantity = 1
+        self.position_duplicate.quantity = 2
+        self.position.position_budget_ids.unlink() # 0 budget for target
         self.wizard.button_merge()
-        self.assertEqual(self.position.budget_install, self.BUDGET_INSTALL)
+
+        # Qty: should sum & budget: should weighted-avg
+        self.assertEqual(self.position.quantity, 3)
+        self.assertEqual(round(self.position.budget_install, 2), round((0.0 * 1 + self.BUDGET_INSTALL * 2) / 3, 2))

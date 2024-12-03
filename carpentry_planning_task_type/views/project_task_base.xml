@@ -15,7 +15,6 @@
                 <field name="attachment_ids" invisible="1" />
 
                 <header>
-                    <button name="%(action_task_carpentry_print)d" type="action" string="Report" icon="fa-file-text" class="mx-2" />
                     <button name="%(action_send_mail_task_carpentry)d" type="action" string="Send" icon="fa-envelope" class="mx-2" />
                 </header>
             </tree>

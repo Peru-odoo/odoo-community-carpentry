@@ -18,9 +18,8 @@ class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
     def setUpClass(cls):
         super().setUpClass()
 
-        # Each project's position: add some Aluminium, Prod and Install budgets
+        # Each project's position: add Prod and Install budgets (keep Aluminium for fix line)
         for position in cls.project.position_ids:
-            cls._add_budget(position, cls.aac_aluminium, cls.BUDGET_ALUMINIUM)
             cls._add_budget(position, cls.aac_install, cls.BUDGET_INSTALL)
             cls._add_budget(position, cls.aac_prod, cls.BUDGET_PROD)
 
@@ -37,19 +36,16 @@ class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
             groupby_budget='detailed_type'
         )
         self.assertEqual(brut.get(self.position.id), {
-            'consu': self.BUDGET_ALUMINIUM,
             'service_prod': self.BUDGET_PROD,
             'service_install': self.BUDGET_INSTALL
         })
         self.assertEqual(valued.get(self.position.id), {
-            'consu': self.BUDGET_ALUMINIUM,
             'service_prod': self.BUDGET_PROD * self.HOUR_COST,
             'service_install': self.BUDGET_INSTALL * self.HOUR_COST
         })
 
     def test_02_position_subtotal(self):
         subtotal = (
-            self.BUDGET_ALUMINIUM
             + self.BUDGET_PROD * self.HOUR_COST
             + self.BUDGET_INSTALL * self.HOUR_COST
         )

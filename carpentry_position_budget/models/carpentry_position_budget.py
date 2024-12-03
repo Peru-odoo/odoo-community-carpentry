@@ -116,8 +116,10 @@ class CarpentryPositionBudget(models.Model):
         """ Write/add in existing budget or create new budgets 
 
             :param vals_list_budget: `vals_dict` of this model
-            :param mode_erase: if False, `amount` is added to existing budget
-            :param erase_force: if False, the existing non-updated budgets are kept
+            :param mode_erase:  if True,  `amount` is written in place of any existing
+                                 budget, or created if no budget
+                                if False, `amount` is added to existing budget
+            :param erase_force: if True, the existing non-updated budgets are removed
         """
 
         # get existing budget, to route between `write()` or `create()`
@@ -131,7 +133,7 @@ class CarpentryPositionBudget(models.Model):
 
             # note: no need to convert uom here, since `product_tmpl_id` is the same for all `analytic_account_id` (related field)
             if budget:
-                budget.amount = amount if erase_mode else budget.amount + amount
+                budget.amount = vals.get('amount') if erase_mode else budget.amount + vals.get('amount')
                 to_delete -= budget # for `erase_force` if True
             else:
                 to_create.append(vals)

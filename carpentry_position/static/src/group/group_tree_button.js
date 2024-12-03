@@ -9,12 +9,6 @@ export class GroupListController extends ListController {
     setup() {
         super.setup();
         this.actionService = useService('action');
-
-        // onWillStart(() => {
-        //     console.log(this.env.model);
-        //     this.context = this.env.model.root.context;
-        //     this.show_button = 'default_project_id' in this.env.model.root.context
-        // });
     }
 
 

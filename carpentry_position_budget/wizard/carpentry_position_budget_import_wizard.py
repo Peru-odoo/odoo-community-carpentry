@@ -46,6 +46,11 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
     )
 
     # -- settings fields --
+    budget_coef = fields.Integer(
+        # integer for easy
+        string='Budget coefficient (%)',
+        default=100,
+    )
     column_mode = fields.Selection(
         selection=[
             ('all', 'All columns'),
@@ -56,14 +61,10 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         default='all',
         required=True
     )
-    column_coef = fields.Float(
-        string='Coefficient',
-        default=1.0,
-        help='Multiplying factor for imported budgets'
-    )
     column_ids = fields.Many2many(
         # A TESTER : ne pas importer 2 fois la même colonne
         comodel_name='carpentry.position.budget.interface',
+        relation='carpentry_position_budget_import_wizard_rel',
         string='External columns',
         domain="""[
             ('external_db_type', '=', external_db_type),
@@ -71,11 +72,6 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         ]"""
     )
 
-
-    #===== Onchange =====#
-    @api.onchange('column_mode')
-    def _onchange_column_mode(self):
-        pass
 
     #===== Button =====#
     def button_truncate_budget(self):
@@ -102,6 +98,7 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
 
         if self.external_db_type == 'orgadata':
             self._run_orgadata_import(db_resource)
+
 
     def _get_interface(self, cols_external):
         """ Add any discovered cols of `cols_external` in active=False in
@@ -130,7 +127,21 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
             Interface._create_default_and_ignore(vals_list)
 
         mapped_interface = {x.external_db_col: x.analytic_account_id.id for x in interface_ids.filtered('active')}
-        return mapped_interface
+        return self._filter_interface_columns(mapped_interface)
+
+    def _filter_interface_columns(self, mapped_interface):
+        """ Apply `column_mode` by filtering `mapped_interface`:
+            ignore or keep only columns listed in `column_ids`
+        """
+        if self.column_mode == 'all':
+            return mapped_interface
+
+        cols = set(self.column_ids.mapped('external_db_col')) & set(mapped_interface.keys())
+        
+        if self.column_mode == 'only':
+            return {col: mapped_interface.get(col) for col in cols}
+        elif self.column_mode == 'ignore':
+            return {col: analytic for col, analytic in mapped_interface.items() if col not in cols}
 
 
     #===== Specific import logics =====#
@@ -169,7 +180,7 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         return Phases, ElevationGroups_to_Phases, Elevations,Budgets
 
     def _write_orgadata(self, Phases, ElevationGroups_to_Phases, Elevations, Budgets):
-        # 1. Get Odoo's budget column
+        # 1. Get Odoo's budget column, linked to external DB one
         cols_orgadata = [x for x in Budgets[0]] if Budgets else []
         mapped_interface = self._get_interface(cols_orgadata)
 
@@ -200,9 +211,12 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
                 amount = elevation.get(col, 0.0)
                 if not float_is_zero(float(amount), precision_digits=precision):
                     mapped_budget[(position_id_, analytic_account_id_)] += amount
-        # Create if new, write/erase if existing, delete if not touched
-        vals_list_budget = [
-            {'position_id': key[0], 'analytic_account_id': key[1], 'amount': amount}
-            for key, amount in mapped_budget.items()
-        ]
+        
+        # 5. Create if new, write/erase if existing, delete if not touched
+        # and apply `column_coef` to amount
+        vals_list_budget = [{
+            'position_id': key[0],
+            'analytic_account_id': key[1],
+            'amount': amount * self.budget_coef/100
+        } for key, amount in mapped_budget.items()]
         position_ids.position_budget_ids._erase_budget(vals_list_budget)

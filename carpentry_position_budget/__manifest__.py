@@ -27,7 +27,6 @@
         # wizard
         'wizard/carpentry_position_merge_wizard.xml',
         'wizard/carpentry_position_budget_import_wizard.xml',
-        'wizard/carpentry_position_budget_import_coef_wizard.xml',
         # views
         'views/carpentry_groups.xml',
         'views/carpentry_position_budget_interface.xml',

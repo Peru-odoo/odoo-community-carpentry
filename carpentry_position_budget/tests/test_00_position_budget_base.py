@@ -58,7 +58,12 @@ class TestCarpentryPositionBudget_Base(TestCarpentryPosition_Base):
 
         # interface
         cls.Interface = cls.env['carpentry.position.budget.interface']
-        cls.Interface.create([{
+        (
+            cls.interface_aac,
+            cls.interface_fab2,
+            cls.interface_pose1,
+            cls.interface_pose2
+        ) = cls.Interface.create([{
             'external_db_type': 'orgadata',
             'external_db_col': 'A_ACC',
             'analytic_account_id': cls.aac_aluminium.id,
@@ -87,12 +92,12 @@ class TestCarpentryPositionBudget_Base(TestCarpentryPosition_Base):
             'value_ids': [Command.create({'name': y, 'date_from': y + '-01-01'}) for y in ['2022', '2023']]
         })
         # Product Template: variant creation
-        attribute_line_ids = [Command.create({
+        create_attribute_line_ids = [Command.create({
             'attribute_id': cls.attribute.id,
             'value_ids': [Command.set(cls.attribute.value_ids.ids)],
         })]
-        cls.product_prod.attribute_line_ids = attribute_line_ids
-        cls.product_install.attribute_line_ids = attribute_line_ids
+        cls.product_prod.attribute_line_ids = create_attribute_line_ids
+        cls.product_install.attribute_line_ids = create_attribute_line_ids
         # Variants
         cls.product_prod_2022, cls.product_prod_2023 = cls.product_prod.product_variant_ids
         cls.product_install_2022, cls.product_install_2023 = cls.product_install.product_variant_ids

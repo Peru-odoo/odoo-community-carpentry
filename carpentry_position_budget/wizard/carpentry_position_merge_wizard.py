@@ -31,7 +31,7 @@ class PositionMerge(models.TransientModel):
                 ('project_id', '=', position_ids_selected.project_id.id),
                 ('name', 'ilike', position_ids_selected.name)
             ]
-            position_ids_to_merge = Position.search(domain_same_name) - position_ids_selected
+            position_ids_to_merge = Position.search(domain_same_name)
         else:
             position_ids_to_merge = position_ids_selected
         
@@ -70,13 +70,6 @@ class PositionMerge(models.TransientModel):
                 ' the positions to merge before merging.'
             ))
 
-    #===== Onchange =====#
-    @api.onchange('position_ids_to_merge', 'position_id_target')
-    def _clean_fields(self):
-        """ Clean the `to merge` list of the `target` position """
-        for wizard in self:
-            wizard.position_ids_to_merge = [Command.unlink(wizard.position_id_target.id)]
-    
     #===== Action =====#
     def button_merge(self):
         """ Merge logic:
@@ -89,33 +82,44 @@ class PositionMerge(models.TransientModel):
             operation is not erase in case of a new import
         """
         # Checks before merge
-        self._clean_fields()
-        if not self.position_ids_to_merge.ids:
-            raise exceptions.UserError(_('No duplicates to merge.'))
+        target, sources = self.position_id_target, self.position_ids_to_merge
         self._constrain_no_affectation()
+        if not sources.ids:
+            raise exceptions.UserError(_('No duplicates to merge.'))
 
         # Calculation
-        position_ids = self.position_id_target | self.position_ids_to_merge
-        budgets = position_ids.position_budget_ids
-        sum_qty = sum(position_ids.mapped('quantity'))
-        # Budget (!) BEFORE QUANTITY
-        target.write(self._calculate_weighted_average(budgets, target))
-        # Quantity
+        # (!) be careful not to write `target.quantity` before weighted_average
+        sum_qty = target.quantity + sum((sources - target).mapped('quantity'))
+        vals_list_budget = self._calculate_weighted_average_budget(sources, target, sum_qty)
+        # Write
+        target.position_budget_ids._erase_budget(vals_list_budget)
         target.quantity = sum_qty
 
         # Clean: unlink with external DB and remove merged positions
-        self.position_id_target.external_db_id = False
-        self.position_ids_to_merge.unlink()
+        target.external_db_id = False
+        (sources - target).unlink()
 
-    def _calculate_weighted_average(budgets, target):
-        # Sort budgets by 'analytic_account_id' to use groupby groupby
-        budgets.sort(key=itemgetter("analytic_account_id"))
-        
-        # Calculate weighted average, by analytic_account_id
-        vals = {}
-        for analytic_id, budget in groupby(budgets, key=itemgetter("analytic_account_id")):
-            budget = list(budget)  # Convert groupby in list
-            total_weighted_amount = sum(b["amount"] * b["quantity"] for b in budget)
-            vals[analytic_id] = total_weighted_amount / target.quantity if target.quantity > 0 else 0
+    def _calculate_weighted_average_budget(self, sources, target, sum_qty):
+        """ Calculate weighted average SUM(budget*qty)/total_qty
+            :return: same `vals_list_budget` format
+                     than carpentry_position_budget._write_budget()
+        """
+        # make sure values are up-to-date in database
+        sources.flush_recordset(['quantity'])
+        sources.position_budget_ids.flush_recordset(['position_id', 'analytic_account_id', 'amount'])
 
-        return vals
+        self.env.cr.execute("""
+            SELECT
+                budget.analytic_account_id,
+                SUM(budget.amount * position.quantity)
+            FROM carpentry_position_budget AS budget
+                INNER JOIN carpentry_position AS position ON position.id = budget.position_id
+            WHERE position.id IN %s
+            GROUP BY budget.analytic_account_id
+        """, (tuple(sources.ids),))
+
+        return [{
+            'position_id': target.id,
+            'analytic_account_id': row[0],
+            'amount': row[1] / sum_qty
+        } for row in self.env.cr.fetchall()]
