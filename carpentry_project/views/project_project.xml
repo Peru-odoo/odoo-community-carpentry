@@ -63,11 +63,6 @@
                 <field name="label_tasks" position="move" />
                 <field name="user_id" position="move" />
             </field>
-
-            <!-- Hide assignment from project form since we introduce a menu-item for them -->
-            <group name="assignments" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </group>
         </field>
     </record>
 
