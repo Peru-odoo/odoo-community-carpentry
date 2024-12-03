@@ -26,7 +26,7 @@
     <!-- Project Form:
         Hide assignment from project form since we introduce a menu-item for them
     -->
-    <record id="edit_project_role_visibility" model="ir.ui.view">
+    <!-- <record id="edit_project_role_visibility" model="ir.ui.view">
         <field name="name">project.project.form.role_visibility_carpentry</field>
         <field name="model">project.project</field>
         <field name="inherit_id" ref="project_role_visibility.edit_project" />
@@ -36,6 +36,6 @@
                 <attribute name="invisible">1</attribute>
             </group>
         </field>
-    </record>
+    </record> -->
 
 </odoo>
