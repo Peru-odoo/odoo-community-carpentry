@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Icon "Projects" -->
+    <record model="ir.ui.menu" id="project.menu_main_pm">
+        <field name="web_icon">carpentry_base,static/description/icon.png</field>
+    </record>
+
+    <!-- Menu-item:
+        * make former `Projects` menu 1st entry of the new drop-down (used by other Carpentry menu-items)
+    -->
+    <record id="action_open_project_srv" model="ir.actions.server">
+        <!-- Open project list or form depending user's favorites -->
+        <field name="name">Projects</field>
+        <field name="model_id" ref="model_project_project" />
+        <field name="state">code</field>
+        <field name="code">action = model.open_project_list_or_form()</field>
+    </record>
+    <menuitem id="menu_projects_carpentry" parent="project.menu_main_pm" sequence="1" name="Projects">
+        <menuitem id="menu_projects_carpentry_projects" sequence="1" action="action_open_project_srv" />
+    </menuitem>
+    <!-- Hide native menus -->
+    <record id="project.menu_projects" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]" />
+    </record>
+    <record id="project.menu_projects_group_stage" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_no_one')])]" />
+    </record>
+
+
+    <!-- Actions of project.project:
+        * active_test=False
+    -->
+    <record id="project.open_view_project_all" model="ir.actions.act_window">
+        <field name="context">{'active_test': False}</field>
+        <field name="view_mode">tree,kanban,form</field>
+    </record>
+    <record id="project.open_view_project_all_group_stage" model="ir.actions.act_window">
+        <field name="context">{'active_test': False, 'search_default_groupby_stage': 1}</field>
+    </record>
+
+
+    <!-- Project Form -->
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project" />
+
+        <field name="arch" type="xml">
+            <!-- Alerts -->
+            <sheet position="before">
+                <field name="warning_banner" invisible="1" />
+
+                <div name="warning_banner"
+                    role="alert"
+                    class="alert alert-warning"
+                    groups="project.group_project_manager"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('warning_banner', '=', False)]}"
+                />
+            </sheet>
+
+            <!-- `Settings`: move in it the no more relevant fields (to leave them accessible, just in case) -->
+            <field name="alias_contact" position="after">
+                <field name="label_tasks" position="move" />
+                <field name="user_id" position="move" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Project's Tree -->
+    <record id="view_project" model="ir.ui.view">
+        <field name="name">project.project.tree.carpentry</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project" />
+
+        <field name="arch" type="xml">
+            <!-- Order by `sequence_code` -->
+            <tree position="attributes">
+                <attribute name="default_order">sequence_code DESC, sequence, name, id</attribute>
+            </tree>
+
+            <!-- Hides some fields from tree view -->
+            <field name="sequence" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="user_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            
+            <!-- Show `active` (since we load with active_test=False) -->
+            <field name="active" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="widget">boolean_toggle</attribute>
+            </field>
+
+            <!-- Modify `stage_id` -->
+            <field name="stage_id" position="attributes">
+                <attribute name="widget">badge</attribute>
+            </field>
+            <field name="stage_id" position="after">
+                <field name="active" position="move" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Project's Kanban -->
+    <record id="view_project_kanban" model="ir.ui.view">
+        <field name="name">project.project.kanban.aluval</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban" />
+
+        <field name="arch" type="xml">
+            <!-- Order by `sequence_code` -->
+            <kanban position="attributes">
+                <attribute name="default_order">sequence_code DESC, sequence, name, id</attribute>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Project's Search -->
+    <record id="view_project_project_filter" model="ir.ui.view">
+        <field name="name">project.project.select.carpentry</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_project_filter" />
+
+        <field name="arch" type="xml">
+            <!-- Project Manager is not relevant anymore (replaced by whole Roles Management) -->
+            <filter name="Manager" position="attributes"><attribute name="invisible">1</attribute></filter>
+        </field>
+    </record>
+
+</odoo>

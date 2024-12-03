@@ -106,28 +106,3 @@ class Project(models.Model):
             vals_command = vals[prefix + group] # [2, id, vals] if updated
             vals_updated = {vals[1]: vals[2] for vals in vals_command if vals[0] == 1 and vals[2]} # [{temp_id: new_vals}]
             self[group + '_ids']._inverse_affectation_ids_temp(vals_updated)
-
-    #====== Buttons ======#
-    def button_populate_group_from_section(self):
-        self.ensure_one()
-        self._populate_group_from_section()
-    
-    def _populate_group_from_section(self):
-        """ Populate a kind of group (e.g. phase or launch)
-            from its section (e.g. lots or phases)
-        """
-        group = self._context.get('group')
-        field_group = group + '_ids'
-        section = self.env['carpentry.group.' + group]._carpentry_affectation_section
-        if not group or not field_group in self or not section:
-            return False
-
-        vals_list_group = []
-        section_ids = self[section + '_ids']
-        for section in section_ids:
-            vals_list_group.append({
-                'name': section.name,
-                'project_id': self.id,
-                'section_ids': [Command.set(section.ids)]
-            })
-        self[field_group].create(vals_list_group)

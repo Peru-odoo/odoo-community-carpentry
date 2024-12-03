@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Tree -->
     <record id="carpentry_group_affectation_tree" model="ir.ui.view">
         <field name="name">carpentry.group.affectation.tree</field>
         <field name="model">carpentry.group.affectation</field>
@@ -14,9 +15,10 @@
                     readonly="1"
                 />
                 <field name="position_id"
-                    options="{'no_create': 1}"
+                    options="{'no_create': 1, 'no_open': 1}"
                     string="Position"
                     readonly="1"
+                    decoration-bf="True"
                 />
                 <field name="quantity_position" readonly="1"/>
                 <field name="quantity_remaining_to_affect" readonly="1" />
@@ -29,6 +31,7 @@
             </tree>
         </field>
     </record>
+
     <!-- Form -->
     <record id="carpentry_group_affectation_form" model="ir.ui.view">
         <field name="name">carpentry.group.affectation.form</field>
@@ -47,7 +50,7 @@
                             <field name="position_id" />
                         </group>
                         <group name="group_right">
-                            <field name="quantity_affected" />
+                            <field name="quantity_affected" readonly="1" />
                             <field name="quantity_position" />
                             <field name="quantity_remaining_to_affect" />
                         </group>
@@ -56,6 +59,7 @@
             </form>
         </field>
     </record>
+
     <!-- Search -->
     <record model="ir.ui.view" id="carpentry_group_affectation_search">
         <field name="name">carpentry.group.affectation.search</field>
@@ -76,6 +80,56 @@
                     <field name="project_id" invisible="context.get('default_project_id')" />
                 </searchpanel>
             </search>
+        </field>
+    </record>
+
+    
+    <!-- 
+        (!!!) Affectation Temp Matrix is a field of `project.project`
+        Same form for Phase or Launch, varying depending context
+    -->
+    <record id="carpentry_group_affectation_temp_matrix" model="ir.ui.view">
+        <field name="name">carpentry.group.affectation.temp</field>
+        <field name="model">project.project</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <h1><field name="name" class="oe_inline" readonly="1" /></h1>
+
+                <h3 invisible="context.get('res_model') != 'carpentry.group.phase'" >Positions affectation in Phases</h3>
+                <h3 invisible="context.get('res_model') != 'carpentry.group.launch'">Positions affectation in Launches</h3>
+
+                <field
+                    name="affectation_ids_temp_phase"
+                    widget="x2many_2d_matrix"
+                    field_x_axis="group_ref"
+                    field_y_axis="record_ref"
+                    field_value="quantity_affected"
+                    invisible="context.get('res_model') != 'carpentry.group.phase'"
+                >
+                    <tree limit="999999">
+                        <field name="group_ref"/>
+                        <field name="record_ref"/>
+                        <field name="quantity_affected"/>
+                    </tree>
+                </field>
+                
+                <field
+                    name="affectation_ids_temp_launch"
+                    widget="x2many_2d_matrix"
+                    field_x_axis="group_ref"
+                    field_y_axis="record_ref"
+                    field_value="affected"
+                    invisible="context.get('res_model') != 'carpentry.group.launch'"
+                >
+                    <tree limit="999999">
+                        <field name="group_ref"/>
+                        <field name="record_ref"/>
+                        <field name="affected" widget="boolean_toggle" />
+                    </tree>
+                </field>
+            </form>
         </field>
     </record>
 </odoo>

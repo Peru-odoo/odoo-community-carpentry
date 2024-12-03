@@ -16,7 +16,7 @@
             </tree>
 
             <!-- hide fields -->
-            <button name="action_open_planning_task_form" position="attributes">
+            <button name="action_open_planning_form" position="attributes">
                 <attribute name="invisible">1</attribute>
             </button>
             <field name="parent_type_id" position="attributes">
@@ -92,7 +92,7 @@
                 'res_model': 'project.task',
                 'name': 'Meetings',
                 'views': env['project.task']._get_task_views(
-                    type='meeting',
+                    type_code='meeting',
                     custom=['tree', 'form'],
                     switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
                 ),

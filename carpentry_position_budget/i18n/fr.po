@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-11-29 13:28+0000\n"
-"PO-Revision-Date: 2024-11-30 00:31+0100\n"
+"PO-Revision-Date: 2024-12-03 08:15+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -36,7 +36,8 @@ msgid ""
 "                        If a second budget is imported, it will re-create any previous positions already merged (duplicates)."
 msgstr ""
 "<span class=\"fa fa-info-circle\"/>\n"
-"                        Si un nouveau budget est importé, les doublons seront recréés."
+"                        Si un deuxième budget est importé sur une même affaire, tous les repères précédemment fusionnées "
+"seront de nouveau créés par l'import."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
@@ -288,7 +289,7 @@ msgstr "Frais globaux"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_goods
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_goods
 msgid "Goods"
-msgstr "Fournitures"
+msgstr "Fourniture"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__id
@@ -525,7 +526,7 @@ msgstr "Budgets des repères"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_prod
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_prod
 msgid "Prod"
-msgstr "Fab"
+msgstr "Fabrication"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_product_template

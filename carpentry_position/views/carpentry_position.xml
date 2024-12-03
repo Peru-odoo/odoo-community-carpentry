@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Actions -->
+    <record id="action_open_position" model="ir.actions.act_window">
+        <field name="name">Positions</field>
+        <field name="res_model">carpentry.position</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_open_position_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Positions</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_position')</field>
+    </record>
+    <!-- Menu-item -->
+    <menuitem id="menu_carpentry_position" sequence="20" action="action_open_position_srv" parent="carpentry_project.menu_projects_carpentry" />
+
+
+
     <!-- Positions (tree) -->
     <record id="carpentry_position_tree" model="ir.ui.view">
         <field name="name">carpentry.position.tree</field>

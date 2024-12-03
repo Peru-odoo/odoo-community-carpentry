@@ -136,3 +136,20 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         with self.assertRaises(exceptions.ValidationError):
             task.launch_ids = [Command.set(self.project.launch_ids.ids)]
             task._constrain_single_launch_ids() # constrain is not called either
+
+    def test_07_task_standalone(self):
+        task = self.env['project.task'].create({
+            'name': 'Test Standalone Need 01',
+            'launch_id': self.launch.id,
+            'type_id': self.type_need_child.id
+        })
+
+        # Test computation of `res_card_id` and `res_card_model_id` for standalone needs
+        self.assertEqual(task.card_res_model_id.model, 'project.type')
+        self.assertEqual(task.card_res_id, self.type_need_child.id)
+
+        # standalone can be deleted
+        try:
+            task.unlink()
+        except:
+            self.fail('Manual need should be deletable')

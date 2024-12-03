@@ -18,15 +18,16 @@
         'web_notify', # OCA
         'project_role_visibility', # other (for security access)
         'project_favorite_switch', 'project_budget', 'utilities_file_management', # other
-        'carpentry_base', 'carpentry_position', 'carpentry_planning', # carpentry
+        'carpentry_base', 'carpentry_project', 'carpentry_position', 'carpentry_planning', # carpentry
     ],
     'data': [
         # security
         'security/carpentry_position_budget_security.xml',
         'security/ir.model.access.csv',
         # wizard
-        'wizard/carpentry_position_budget_import_wizard.xml',
         'wizard/carpentry_position_merge_wizard.xml',
+        'wizard/carpentry_position_budget_import_wizard.xml',
+        'wizard/carpentry_position_budget_import_coef_wizard.xml',
         # views
         'views/carpentry_groups.xml',
         'views/carpentry_position_budget_interface.xml',

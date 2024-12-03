@@ -10,9 +10,15 @@ class Task(models.Model):
     _rec_name = "display_name"
 
     #===== Fields's methods =====#
-    def _filter_needs(self, filter_computed=True):
-        """ From a task recordset, return only the needs """
-        return self.filtered(lambda x: x.need_id.id)
+    def _filter_needs(self, only_populated=False):
+        """ From a task recordset, return only the needs
+
+            :option only_populated: to filter needs manually created from 'Adjust' menu
+        """
+        return (
+            self.filtered('need_id') if only_populated
+            else self.filtered(lambda x: x.root_type_id.id == self.env.ref(XML_ID_NEED).id)
+        )
 
     #===== Fields =====#
     card_res_id = fields.Many2oneReference(
@@ -61,18 +67,17 @@ class Task(models.Model):
         if self._context.get('force_delete'):
             return
         
-        if self._filter_needs().ids:
+        if self._filter_needs(only_populated=True).ids:
             raise exceptions.ValidationError(
-                _("A Task of type 'Need' which is not converted to an"
-                  " independant Task cannot be delete. Please rather use"
-                  " Needs menus to delete the Need, or unaffect the Need"
+                _("A Task of type 'Need' which computed deadline cannot be"
+                  " deleted. Archive it instead or unaffect the Need Family"
                   " from the Launch.")
             )
 
     @api.depends('type_id')
     def _constrain_no_change_type_id(self):
         """ Cannot change `type_id` for Task of `type=need` """
-        if self._filter_needs(filter_computed=False).ids:
+        if self._filter_needs().ids:
             raise exceptions.ValidationError(
                 _("Cannot change a Need Category of the Task once it is created.")
             )
@@ -80,7 +85,7 @@ class Task(models.Model):
     @api.depends('type_id', 'launch_ids')
     def _constrain_single_launch_ids(self):
         """ Task of `type=need` are affected to a single launch only """
-        for task in self._filter_needs(filter_computed=False):
+        for task in self._filter_needs():
             if len(task.launch_ids.ids) != 1:
                 raise exceptions.ValidationError(
                     _("Tasks of type 'Need' can be affected to a single launch only.")
@@ -89,14 +94,10 @@ class Task(models.Model):
     #===== Compute `res_id` and `res_model_id` ======#
     @api.depends('type_id', 'need_id')
     def _compute_card_res_id(self):
-        print('_compute_card_res_id:self', self)
-        model_id_ = self.env['ir.model']._get('task.type').id
-        print('model_id_')
+        model_id_ = self.env['ir.model']._get('project.type').id
         for task in self._filter_needs():
             task.card_res_id = task.type_id.id
             task.card_res_model_id = model_id_
-            print('task.card_res_id', task.card_res_id)
-            print('task.card_res_model_id', task.card_res_model_id)
 
     #===== Compute `name_required`, `task type` & `launch_id` ======#
     def _get_name_required_type_list(self):
@@ -113,9 +114,8 @@ class Task(models.Model):
     @api.onchange('user_ids')
     def _onchange_user_ids(self):
         """ When a task of type `Need` is assigned to user, make the deadline writable """
-        for task in self._filter_needs(filter_computed=False):
+        for task in self._filter_needs():
             task.type_deadline = 'manual' if task.user_ids.ids else 'computed'
-        # self._origin._filter_needs(filter_computed=False).type_deadline = 'manual'
     
     @api.depends(
         'type_id', 'deadline_week_offset',
@@ -159,7 +159,7 @@ class Task(models.Model):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
     #===== Actions & Buttons on Planning View =====#
-    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id=False):
+    def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
         """ Called from planning cards
             For need, add additional `default_xx` keys and context
         """
@@ -173,4 +173,4 @@ class Task(models.Model):
                 'display_with_prefix': 1,
                 'display_standard_form': False
             }
-        return super().action_open_planning_task_tree(domain, context, record_id, project_id)
+        return super().action_open_planning_tree(domain, context, record_id, project_id_)

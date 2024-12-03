@@ -57,6 +57,9 @@ class CarpentryPositionBudget(models.Model):
         default=0.0,
         required=True,
     )
+    quantity = fields.Integer(
+        related='position_id.quantity'
+    )
     value = fields.Monetary(
         string='Value',
         currency_field='currency_id',

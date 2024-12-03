@@ -58,4 +58,4 @@ class PlanSet(models.Model):
 
     #===== Button =====#
     def action_open_planning_task_tree(self):
-        return self.env['project.task'].action_open_planning_task_tree(record_id=self)
+        return self.env['project.task'].action_open_planning_tree(record_id=self)

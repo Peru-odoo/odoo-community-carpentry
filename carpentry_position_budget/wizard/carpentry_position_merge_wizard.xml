@@ -19,7 +19,7 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="project_id" />
+                        <field name="project_id" invisible="context.get('default_project_id')" />
                         <field name="position_id_target" context="{'merge_wizard': True}" />
                         <field name="position_ids_to_merge" widget="many2many_tags" context="{'merge_wizard': True}" />
                     </group>

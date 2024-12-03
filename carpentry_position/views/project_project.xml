@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Action to open Positions tab from Project form (smart button) -->
-    <record model="ir.actions.act_window" id="button_open_carpentry_position">
-        <field name="name">Positions</field>
-        <field name="res_model">carpentry.position</field>
-        <field name="view_mode">tree</field>
-        <field name="domain">[('project_id', '=', active_id)]</field>
-        <field name="context">{'default_project_id': active_id}</field>
-    </record>
-
     <!-- Form -->
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form.carpentry.position</field>
         <field name="model">project.project</field>
-        <field name="inherit_id" ref="project.edit_project" />
+        <field name="inherit_id" ref="carpentry_project.edit_project" />
 
         <field name="arch" type="xml">
             <!-- Alerts -->
@@ -23,7 +14,7 @@
                 <span attrs="{'invisible': [('position_fully_affected', '=', True)]}">
                     At least one position's quantity is not affected at all or not fully affected in phases
                     or launches. See <strong>Positions</strong>, <strong>Phases</strong> or <strong>Launches</strong>
-                    tabs for more details.
+                    for more details.
                 </span>
             </div>
 
@@ -31,103 +22,13 @@
             <div name="button_box" position="inside">
                 <!-- Positions -->
                 <button type="action"
-                    name="%(button_open_carpentry_position)d"
+                    name="%(action_open_position_srv)d"
                     class="oe_stat_button"
                     icon="fa-building-o"
                 >
                     <field name="position_count" widget="statinfo" string="Positions" />
                 </button>
             </div>
-
-            <page name="settings" position="before">
-                <!-- <page name="lots" string="Lots">
-                    <label for="lot_ids" />
-                    <field name="lot_ids" />
-                </page> -->
-
-                <page name="phases" string="Phases">
-                    <button name="button_populate_group_from_section"
-                        type="object"
-                        context="{'group': 'phase'}"
-                        icon="fa-files-o"
-                        class="btn btn-primary float-end"
-                        groups="project.group_project_manager"
-                        string="Copy from lots"
-                    />
-
-                    <p>
-                        Phases correspond to the contractual groupping of Positions on-site installation with the project's customer.
-                        They match with the installation phases of Positions on the building (e.g. frontages).
-                    </p>
-                    
-                    <label for="phase_ids" />
-                    <field
-                        name="phase_ids"
-                        nolabel="1"
-                        colspan="2"
-                    />
-                    
-                    <div groups="project.group_project_manager">
-                        <h4>Positions affectations in Phases</h4>
-                        
-                        <field
-                            name="affectation_ids_temp_phase"
-                            widget="x2many_2d_matrix"
-                            field_x_axis="group_ref"
-                            field_y_axis="record_ref"
-                            field_value="quantity_affected"
-                        >
-                            <tree limit="999999">
-                                <field name="group_ref"/>
-                                <field name="record_ref"/>
-                                <field name="quantity_affected"/>
-                            </tree>
-                        </field>
-                    </div>
-                </page>
-                <page name="launches" string="Launches">
-                    <button name="button_populate_group_from_section"
-                        type="object"
-                        context="{'group': 'launch'}"
-                        icon="fa-files-o"
-                        class="btn btn-primary float-end"
-                        groups="project.group_project_manager"
-                        string="Copy from phases"
-                    />
-
-                    <p>
-                        Launches correspond to the launch in production of group of Positions. They are
-                        steering unit of the project: every steps of the project can be linked to 1 or several
-                        launch, like Purchase Orders or Production Work Order.
-                        The Project Planning is organized by Launches.
-                    </p>
-
-                    <label for="launch_ids" />
-                    <field
-                        name="launch_ids"
-                        nolabel="1"
-                        colspan="2"
-                    />
-
-                    <div groups="project.group_project_manager">
-                        <h4>Positions affectations in Launches</h4>
-
-                        <field
-                            name="affectation_ids_temp_launch"
-                            widget="x2many_2d_matrix"
-                            field_x_axis="group_ref"
-                            field_y_axis="record_ref"
-                            field_value="affected"
-                        >
-                            <tree limit="999999">
-                                <field name="group_ref"/>
-                                <field name="record_ref"/>
-                                <field name="affected" widget="boolean_toggle" />
-                            </tree>
-                        </field>
-                    </div>
-                </page>
-            </page>
         </field>
     </record>
 </odoo>

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, Command, exceptions, _
-from collections import defaultdict
+
+from itertools import groupby
+from operator import itemgetter
 
 class PositionMerge(models.TransientModel):
     _name = "carpentry.position.merge.wizard"
@@ -77,8 +79,11 @@ class PositionMerge(models.TransientModel):
     
     #===== Action =====#
     def button_merge(self):
-        """ Merging logics: is to sum-add budgets of the `to merge` to the `target`,
-            with `write()` or `create()` in 
+        """ Merge logic:
+            * sum-add the position's qty
+            * avg-weight the budget (barycentre-like), meaning:
+                new unitary budget (of 1 type of budget) = SUM(position qty * position unitary budget) / SUM(position qties)
+                INCLUDING the target position in the AVG
 
             `external_db_id` is cleaned on `position_id_target` so that the merge
             operation is not erase in case of a new import
@@ -89,14 +94,28 @@ class PositionMerge(models.TransientModel):
             raise exceptions.UserError(_('No duplicates to merge.'))
         self._constrain_no_affectation()
 
-        # Sumgroup the budgets to merge
-        domain = [('position_id', 'in', self.position_ids_to_merge.ids)]
-        budget_ids_to_merge = self.env['carpentry.position.budget'].search(domain)
-        vals_list_budget = budget_ids_to_merge._to_vals(
-            replace_keys={'position_id': self.position_id_target.id}
-        )
-        self.position_id_target.position_budget_ids._add_budget(vals_list_budget)
-        self.position_id_target.external_db_id = False
+        # Calculation
+        position_ids = self.position_id_target | self.position_ids_to_merge
+        budgets = position_ids.position_budget_ids
+        sum_qty = sum(position_ids.mapped('quantity'))
+        # Budget (!) BEFORE QUANTITY
+        target.write(self._calculate_weighted_average(budgets, target))
+        # Quantity
+        target.quantity = sum_qty
 
-        # delete duplicates
+        # Clean: unlink with external DB and remove merged positions
+        self.position_id_target.external_db_id = False
         self.position_ids_to_merge.unlink()
+
+    def _calculate_weighted_average(budgets, target):
+        # Sort budgets by 'analytic_account_id' to use groupby groupby
+        budgets.sort(key=itemgetter("analytic_account_id"))
+        
+        # Calculate weighted average, by analytic_account_id
+        vals = {}
+        for analytic_id, budget in groupby(budgets, key=itemgetter("analytic_account_id")):
+            budget = list(budget)  # Convert groupby in list
+            total_weighted_amount = sum(b["amount"] * b["quantity"] for b in budget)
+            vals[analytic_id] = total_weighted_amount / target.quantity if target.quantity > 0 else 0
+
+        return vals

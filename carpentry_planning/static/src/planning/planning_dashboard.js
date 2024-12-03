@@ -66,13 +66,13 @@ export class PlanningDashboard extends Component {
             }
         }
     }
-    openDetails(res_model, res_id, name) {
-        this.actionService.doAction({
-            'type': 'ir.actions.act_window',
-            res_model,
-            res_id,
-            name,
-            'views': [[false, 'form']]
+
+    openDashboardRecord(res_model, res_id) {
+        this.actionService.doActionButton({
+            type: 'object',
+            name: 'action_open_planning_dashboard_card',
+            resId: res_id,
+            resModel: res_model
         });
     }
 }

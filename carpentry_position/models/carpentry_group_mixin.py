@@ -78,16 +78,3 @@ class CarpentryGroupMixin(models.AbstractModel):
             domain += [(group2 + '_res_model', '=', group2_ids._name), (group2 + '_id', 'in', group2_ids.ids)]
         return domain
     
-    
-    #===== Action & Button =====#
-    def button_open_affectation_form(self):
-        return {
-            'type': 'ir.actions.act_window',
-            'name': self._description,
-            'view_mode': 'form',
-            'res_model': self._name,
-            'res_id': self.id,
-            'context': {'display_with_suffix': False},
-            'target': 'new'
-        }
-    

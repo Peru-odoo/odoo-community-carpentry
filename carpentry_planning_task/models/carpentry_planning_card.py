@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _, Command
+from odoo import models, fields, api, _, Command, exceptions
 from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
 
 class CarpentryPlanningCard(models.Model):
@@ -84,7 +84,6 @@ class CarpentryPlanningCard(models.Model):
             fields=['ids:array_agg(id)'],
             lazy=False
         )
-        print('rg_result', rg_result)
         mapped_task_ids = {(x['card_res_model_id'][0], x['card_res_id']): x['ids'] for x in rg_result}
         for card in self:
             key = (card.column_id.res_model_id.id, card.res_id)
@@ -110,8 +109,6 @@ class CarpentryPlanningCard(models.Model):
         ]
     def _compute_task_fields_one(self):
         self.ensure_one()
-
-        print('_compute_task_fields_one:self', self)
 
         # count
         self.task_count_total = len(self.task_ids.ids)
@@ -161,14 +158,20 @@ class CarpentryPlanningCard(models.Model):
     def action_open_tasks(self):
         self.ensure_one()
 
-        project_id_ = self._context.get('project_id', self.project_id.id)
+        project_id_ = self.env['project.default.mixin']._get_project_id(self._context, self)
         launch_id_ = self._context.get('launch_id')
+
+        print('=== action_open_tasks ===')
+        print('project_id_', project_id_)
+        print('launch_id_', launch_id_)
+
         if not launch_id_ or not project_id_:
-            raise exceptions.UserError(
-                _('Cannot open a planning card\'s tasks if Project or Launch is missing.')
-            )
+            raise exceptions.UserError(_(
+                'Cannot open a planning card\'s tasks if Project or Launch is missing. Context: %s',
+                self._context
+            ))
         
-        return self.env['project.task'].action_open_planning_task_tree(
+        return self.env['project.task'].action_open_planning_tree(
             domain=[('launch_ids', '=', launch_id_)],
             context={'default_launch_ids': [launch_id_]},
             record_id=self,

@@ -3,7 +3,7 @@
     <record id="edit_project" model="ir.ui.view">
         <field name="name">project.project.form.carpentry.position.budget</field>
         <field name="model">project.project</field>
-        <field name="inherit_id" ref="project.edit_project" />
+        <field name="inherit_id" ref="carpentry_project.edit_project" />
 
         <field name="arch" type="xml">
             <!-- Import budget button -->

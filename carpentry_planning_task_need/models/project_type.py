@@ -8,10 +8,6 @@ class ProjectType(models.Model):
     _inherit = ['project.type', 'carpentry.planning.mixin']
 
     #===== Fields (planning) =====#
-    shortname = fields.Char(
-        string='Short Name',
-        help='Title of planning cards'
-    )
     column_id = fields.Many2one(
         # required since 2 planning's columns uses `project.type`
         comodel_name='carpentry.planning.column',

@@ -28,10 +28,6 @@ class ProjectType(models.Model):
         default=_get_default_color
     )
     # --- for planning ---
-    code = fields.Char(
-        string='Shortname',
-        help='Name on planning cards'
-    )
     shortname = fields.Char(
         related='code',
         string='Shortname (planning)'
@@ -64,6 +60,7 @@ class ProjectType(models.Model):
     #===== Compute : display_name =====#
     @api.depends('name')
     def _compute_display_name(self):
+        """ Overwritte native module showing full path like `A / B / C` """
         for type in self:
             type.display_name = type._get_display_name_one()
     

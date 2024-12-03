@@ -16,7 +16,6 @@
         <field name="context">{'active_test': False}</field>
     </record>
 
-
     <record id="view_budget_import_wizard" model="ir.ui.view">
         <field name="name">Budget import</field>
         <field name="model">carpentry.position.budget.import.wizard</field>
@@ -29,9 +28,6 @@
                             <field name="project_id" />
                             <field name="filename" invisible="1" />
                             <field name="import_file" widget="binary" filename="filename" />
-                            
-                            <field name="external_db_type" />
-                            <field name="encoding" />
                         </group>
                         <group>
                             <button name="%(open_carpentry_position_budget_interface)d"
@@ -43,7 +39,7 @@
                             />
 
                             <button name="button_truncate_budget"
-                                type="type"
+                                type="object"
                                 colspan="2"
                                 class="btn btn-danger oe_right text-uppercase"
                                 icon="fa-trash"
@@ -56,11 +52,21 @@
 
                     <p class="text-info">
                         <span class="fa fa-info-circle" />
-                        If a second budget is imported, it will re-create any previous positions already merged (duplicates).
+                        If a second budget is imported on the same project, all previously merged positions will be created again by the import.
                     </p>
 
                     <notebook>
-                        <page name="Documentation">
+                        <page name="settings" string="Settings">
+                            <group>
+                                <field name="external_db_type" />
+                                <field name="encoding" />
+
+                                <field name="column_mode" />
+                                <field name="coefficient" widget="progressbar" options="{'editable': True}" />
+                                <field name="column_ids" widget="many2many_tags" options="{'created': False}" />
+                            </group>
+                        </page>
+                        <page name="doc" string="Documentation">
                             <group>
                                 <group>
                                     <h3 colspan="2">Supported formats</h3>

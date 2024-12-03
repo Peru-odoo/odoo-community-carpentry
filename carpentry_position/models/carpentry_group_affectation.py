@@ -142,9 +142,11 @@ class CarpentryGroupAffectation(models.Model):
         domain=[('record_res_model', '=', 'carpentry.group.affectation')]
     )
     position_id = fields.Many2one(
-        'carpentry.position',
+        comodel_name='carpentry.position',
         string='Position',
-        compute='_compute_position_id' 
+        compute='_compute_position_id',
+        store=True,
+        ondelete='restrict'
     )
     
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
@@ -220,7 +222,7 @@ class CarpentryGroupAffectation(models.Model):
         """ Recursively find `position_id` from `record_ref` """
         for affectation in self:
             position_id = affectation.record_ref
-            while position_id._name != 'carpentry.position':
+            while position_id and position_id._name != 'carpentry.position':
                 position_id = position_id.record_ref
             affectation.position_id = position_id
 

@@ -10,6 +10,7 @@ class CarpentryPositionBudgetInterface(models.Model):
     _name = 'carpentry.position.budget.interface'
     _description = 'Interface for Position Budget'
     _order = 'sequence'
+    _rec_name = 'external_db_col'
     
     #===== Fields' methods =====#
     def _selection_external_db_type(self):

@@ -45,6 +45,38 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         required=True,
     )
 
+    # -- settings fields --
+    column_mode = fields.Selection(
+        selection=[
+            ('all', 'All columns'),
+            ('ignore', 'All columns, but some listed'),
+            ('only', 'Only listed columns, ignore all others')
+        ],
+        string='Import mode',
+        default='all',
+        required=True
+    )
+    column_coef = fields.Float(
+        string='Coefficient',
+        default=1.0,
+        help='Multiplying factor for imported budgets'
+    )
+    column_ids = fields.Many2many(
+        # A TESTER : ne pas importer 2 fois la même colonne
+        comodel_name='carpentry.position.budget.interface',
+        string='External columns',
+        domain="""[
+            ('external_db_type', '=', external_db_type),
+            ('active', '=', True),
+        ]"""
+    )
+
+
+    #===== Onchange =====#
+    @api.onchange('column_mode')
+    def _onchange_column_mode(self):
+        pass
+
     #===== Button =====#
     def button_truncate_budget(self):
         self.project_id.position_budget_ids.unlink()

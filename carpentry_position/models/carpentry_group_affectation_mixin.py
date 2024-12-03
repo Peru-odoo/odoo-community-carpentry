@@ -21,19 +21,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     # for affectation shortcut (e.g. `lot_ids` for phases, `phase_ids` for launches)
     _carpentry_affectation_section = False # # when lines are grouped (eg. positions groupped by lot for affectations of Phases)
 
-    #====== Fields =====#
-    def _selection_state(self):
-        """ [For overwriting] stages of affectation form """
-        return [
-            ('preselect', _('1. Pre-select sections')),
-            ('select', _('2. Choose positions')),
-        ]
-    
+
     affectation_ids = fields.One2many(
-        'carpentry.group.affectation',
-        'group_id',
+        comodel_name='carpentry.group.affectation',
+        inverse_name='group_id',
         string='Positions Affectations',
-        domain=[('group_res_model', '=', _name)] # this line must be overriten/copied in heriting models
+        domain=[('group_res_model', '=', _name)], # this line must be overriten/copied in heriting models
     )
     section_ids = fields.One2many(
         comodel_name=_name, # this line must be overriten/copied in heriting models
@@ -41,7 +34,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         domain="[('project_id', '=', project_id)]",
         compute='_compute_section_ids',
         inverse='_inverse_section_ids',
-        help='With at least 1 position in commun'
+        help='With at least 1 position in commun',
     )
     sum_position_quantity_affected = fields.Integer(
         string='Positions Count',
@@ -49,9 +42,13 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         help='Sum of affected quantities',
         store=True
     )
-    state = fields.Selection(
-        '_selection_state',
-        default=lambda self: self._selection_state()[0][0]
+    readonly_affectation = fields.Boolean(
+        # technical UI field to `readonly` either `section_ids` or `affectation_ids`,
+        # because the 2 cannot be modified at same time without form saving
+        # Little trick: this boolean is displayed with widget `boolean_toggle` which triggers
+        # a form saving when modified by user
+        string='Readonly Affectation',
+        default=True,
     )
 
     #===== CRUD =====#
@@ -61,6 +58,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """
         self.env['carpentry.group.affectation'].search(self._get_domain_affect()).unlink()
         return super().unlink()
+
 
     @api.onchange('sequence')
     def _onchange_sequence(self):
@@ -84,19 +82,6 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             affectation_ids_section = mapped_affectation_ids_section.get(group.id)
             if affectation_ids_section:
                 affectation_ids_section.seq_section = group.sequence
-
-    #===== State button (affectation) =====#
-    def button_state(self):
-        """ Change state from a button, according to parameter from context """
-        self.state = self._context.get('state_new', self._selection_state()[0][0])
-    def button_state_toggle(self):
-        """ Toggle state """
-        selection = self._selection_state()
-        self.state = selection[0][0] if self.state != selection[0][0] else selection[1][0]
-    def button_state_form(self):
-        """ Toggle state & reopen form """
-        self.button_state_toggle()
-        return self.button_open_affectation_form()
 
     #====== Affectation Temp ======#
     # -- Generic methods to be / that can be overritten, for compute and/or inverse of `affectation.temp` --
@@ -266,6 +251,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         # check constrain once all CRUD is done, else constrain is mis-computed
         real_ids.with_context(constrain_quantity_affected_silent=False)._constrain_quantity()
     
+    
     #===== Affectation shortcut =====#
     @api.depends('affectation_ids')
     def _compute_section_ids(self):
@@ -316,10 +302,26 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             vals_list = [
                 (
                     group._get_affect_vals(mapped_model_ids, record_ref=affectation)
-                    | {'quantity_affected': affectation.quantity_remaining_to_affect}
+                    | {'quantity_affected': 0} # other possibility: `affectation.quantity_remaining_to_affect`
                 ) for affectation in new_affectation_ids
             ]
             group.affectation_ids = [Command.create(vals) for vals in vals_list]
+
+    #====== Buttons for Affectation shortcuts ======#
+    def _populate_group_from_section(self):
+        """ Populate a kind of group (e.g. phase or launch)
+            from its section (e.g. lots or phases)
+        """
+        project_id_ = self._get_project_id(raise_if_not_found=True)
+        section_field = self._carpentry_affectation_section
+
+        section_ids = self.env['project.project'].browse(project_id_)[section_field + '_ids']
+        self.create([{
+            'name': section.name,
+            'project_id': project_id_,
+            'section_ids': [Command.set(section.ids)]
+        } for section in section_ids])
+
 
     #====== Affectations counters ======#
     @api.depends('affectation_ids')
@@ -358,3 +360,22 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         
         return quantities
 
+
+    #===== Button =====#
+    def button_group_quick_create(self):
+        self._populate_group_from_section()
+    
+    def toggle_readonly_affectation(self):
+        self.readonly_affectation = not self.readonly_affectation
+
+    def button_open_affectation_matrix(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.project',
+            'res_id': self._get_project_id(raise_if_not_found=True),
+            'view_mode': 'form',
+            'view_id': self.env.ref('carpentry_position.carpentry_group_affectation_temp_matrix').id,
+            'context': self._context | {
+                'res_model': self._name
+            }
+        }

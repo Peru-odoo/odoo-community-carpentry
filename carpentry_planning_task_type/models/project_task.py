@@ -61,7 +61,8 @@ class Task(models.Model):
         string='Task Type',
         related='type_id.root_type_id',
         store=True,
-        readonly=True
+        readonly=True,
+        domain=[('parent_id', '=', False), ('task_ok', '=', False)]
     )
     parent_type_id = fields.Many2one(
         # in N-levels type hierarchy:
@@ -132,6 +133,10 @@ class Task(models.Model):
     name_required = fields.Boolean(
         compute='_compute_name_required'
     )
+    can_create_linked_tasks = fields.Boolean(
+        default=False,
+        compute='_compute_can_create_linked_tasks'
+    )
 
     #===== Constrain =====#
     @api.constrains('root_type_id', 'parent_type_id', 'type_id')
@@ -163,6 +168,19 @@ class Task(models.Model):
             task.name_required = required_by_ctx or task.root_type_id.id in required_list
     def _get_name_required_type_list(self):
         return [self.env.ref(XML_ID_INSTRUCTION).id]
+    
+    @api.depends('root_type_id', 'parent_type_id', 'type_id')
+    def _compute_can_create_linked_tasks(self):
+        """ Possible for: instruction, meeting and milestone """
+        can_create_list = self._get_can_create_linked_tasks_type_list()
+        for task in self:
+            task.can_create_linked_tasks = task.root_type_id.id in can_create_list
+    def _get_can_create_linked_tasks_type_list(self):
+        return [
+            self.env.ref(XML_ID_INSTRUCTION).id,
+            self.env.ref(XML_ID_MEETING).id,
+            self.env.ref(XML_ID_MILESTONE).id
+        ]
 
     #===== Compute: display_name =====#
     @api.depends('name', 'type_id', 'root_type_id')
@@ -215,8 +233,10 @@ class Task(models.Model):
             task.count_message_ids = mapped_data.get(task.id, {}).get('count')
 
     #===== Action =====#
-    def _get_task_views(self, type, custom, switch, module='carpentry_planning_task_type'):
-        views = {
+    def _get_task_views(self, type_code, custom, switch=[], module='carpentry_planning_task_type'):
+        switch = switch or custom
+
+        standard_views = {
             'tree': self.env.ref('project.view_task_tree2').id,
             'form': self.env.ref('project.view_task_form2').id,
             'kanban': self.env.ref('project.view_task_kanban').id,
@@ -224,26 +244,46 @@ class Task(models.Model):
             'timeline': self.env.ref('project_timeline.project_task_timeline').id,
             'activity': self.env.ref('project.project_task_view_activity').id,
         }
-        return [((
-                views[view_mode] if view_mode not in custom
-                else self.env.ref(f'{module}.view_task_{view_mode}_{type}').id
-            ), view_mode
-        ) for view_mode in switch]
+        
+        # Loads custom view if requested and available, else standard Task views by default
+        views = []
+        for view_mode in switch:
+            view_id = standard_views[view_mode]
+            
+            if type_code and view_mode in custom:
+                custom_xml_id = self.env.ref(
+                    f'{module}.view_task_{view_mode}_{type_code}',
+                    raise_if_not_found=False
+                )
+                view_id = custom_xml_id.id if custom_xml_id else view_id
+            
+            views.append((view_id, view_mode))
+        
+        return views
+
 
     #===== Buttons / action =====#
-    def action_open_planning_task_form(self):
-        """ Redirect to task' specific form on tree's button `Details` """
-        action = super().action_open_planning_task_form()
+    def action_open_planning_dashboard_card(self):
+        """ Called on Planning's Dashboard card items click """
+        return self.action_open_planning_form()
 
-        if not self._context.get('display_standard_form'): # stay on standard form for Planning Tasks
-            views = self._context.get('action_origin', {}).get('views', {}) # see `project.choice.wizard` for `action_origin`
-            views_form = [x[0] for x in views if x[1] == 'form']
-            if len(views_form):
-                action |= {'view_id': views_form[0]}
+    def action_open_planning_form(self):
+        """ Redirect to task' specific form on tree's button `Details` """
+        type_code = self.root_type_id.code
+        views_form = self.env['project.task']._get_task_views(type_code, ['form'])
+
+        # return specific Task Form, if available
+        action = super().action_open_planning_form() | {
+            'view_id': views_form[0]
+        }
+        action['context'] |= {
+            # required for correct `name_required` computation
+            'default_root_type_id': self.root_type_id.id
+        }
         
         return action
 
-    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id_=False):
+    def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
         """ For `Create Task` button for Meeting, Instruction...:
             * `record_id` IS the task -> like planning task to Meeting, Instruction ...
             * don't propagate `default_parent_type_id`
@@ -253,7 +293,7 @@ class Task(models.Model):
         if self.id:
             context |= {'display_standard_form': True}
             record_id = self
-        return super().action_open_planning_task_tree(domain, context, record_id, project_id_)
+        return super().action_open_planning_tree(domain, context, record_id, project_id_)
 
     #===== Task copy =====#
     def _fields_to_copy(self):

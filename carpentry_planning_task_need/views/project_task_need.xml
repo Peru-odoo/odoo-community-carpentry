@@ -113,7 +113,7 @@
                 'name': 'View and adapt needs',
                 'search_view_id': [env.ref('carpentry_planning_task_need.view_task_search_form').id, 'search'],
                 'views': env['project.task']._get_task_views(
-                    type='need',
+                    type_code='need',
                     custom=['tree', 'form'],
                     switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity'],
                     module='carpentry_planning_task_need'

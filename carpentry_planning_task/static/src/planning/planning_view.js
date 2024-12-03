@@ -14,9 +14,9 @@ const planningControllerPatchGlobalTasks = {
         const actionReload = async () => await this.model.load(this.model.root);
         this.actionService.doActionButton({
             type: 'object',
+            resModel: 'carpentry.planning.card',
             name: 'action_open_tasks',
             resId: record._values.id,
-            resModel: 'carpentry.planning.card',
             context: {'launch_id': this.model.launchId, 'project_id': this.model.projectId},
             onClose: actionReload,
         });

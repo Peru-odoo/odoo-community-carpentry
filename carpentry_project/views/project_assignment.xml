@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Action: Role Assignments -->
+    <record id="action_open_assignment" model="ir.actions.act_window">
+        <field name="name">Role Assignments</field>
+        <field name="res_model">project.assignment</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+        <field name="context">{'search_default_groupby_role': 1}</field>
+    </record>
+    <record id="action_open_assignment_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Role Assignments</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_project.action_open_assignment')</field>
+    </record>
+
+    <menuitem id="menu_carpentry_role_assignment"
+        action="action_open_assignment_srv"
+        parent="carpentry_project.menu_projects_carpentry"
+        sequence="5"
+    />
+
+</odoo>

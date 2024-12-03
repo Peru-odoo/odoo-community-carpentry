@@ -34,7 +34,7 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
         self.assertEqual(self.task.kanban_state, 'done')
 
     def test_04_task_open_form(self):
-        self.assertTrue(self.task.action_open_planning_task_form().get('res_id'), self.task.id)
+        self.assertTrue(self.task.action_open_planning_form().get('res_id'), self.task.id)
 
 
     #===== carpentry.planning.task =====#

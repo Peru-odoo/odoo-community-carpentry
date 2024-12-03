@@ -27,8 +27,8 @@
             </tree>
             <!-- Burger-menu button to task detailed form -->
             <field name="priority" position="before">
-                <button name="action_open_planning_task_form" type="object" icon="fa-bars" title="Details" />
-                <button name="action_open_planning_task_form"
+                <button name="action_open_planning_form" type="object" icon="fa-bars" title="Details" />
+                <button name="action_open_planning_form"
                     type="object"
                     icon="fa-paperclip"
                     attrs="{'invisible': [('attachment_ids', '=', [])]}"
@@ -181,11 +181,12 @@
         <field name="arch" type="xml">
             <!-- Header: add button `Create Tasks` -->
             <header position="inside">
-                <button name="action_open_planning_task_tree"
+                <field name="can_create_linked_tasks" invisible="1" />
+                <button name="action_open_planning_tree"
                     type="object"
                     class="btn btn-primary mx-1"
                     string="Create Tasks"
-                    attrs="{'invisible': ['|', ('id', '=', False), ('parent_type_id', '=', False)]}"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('can_create_linked_tasks', '=', False)]}"
                     help="Create tasks shown in Planning top-list, linked to this document"
                 />
             </header>
@@ -216,12 +217,13 @@
             </xpath>
             <field name="user_ids" position="after">
                 <!-- `parent_type_id` and `type_id`: left column, under user_ids: 2 progressive drop-down menu -->
-                <field name="parent_type_id" attrs="{
+                <!-- <field name="parent_type_id" attrs="{
                         'invisible': [('root_type_id', '=', False)],
                         'required': [('root_type_id', '!=', False)]
                     }" invisible="context.get('display_type_ids')"
                     options="{'no_create': 1}"
-                />
+                /> -->
+                <field name="parent_type_id" invisible="1" />
                 <field name="type_id" position="move" />
                 <!-- Display either `type_ids` (instructions) or the previous 2 (others) -->
                 <field name="type_ids"

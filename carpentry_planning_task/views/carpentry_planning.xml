@@ -3,55 +3,55 @@
     <record model="ir.ui.view" id="carpentry_planning_kanban">
         <field name="name">carpentry.planning.card.kanban</field>
         <field name="model">carpentry.planning.card</field>
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_kanban" />
+
         <field name="arch" type="xml">
-            <kanban>
-                <!-- Load tasks fields -->
-                <templates position="before">
-                    <field name="task_is_all_done" />
-                    <field name="task_has_late" />
-                    <field name="task_ids" />
-                    <field name="task_count_done" />
-                    <field name="task_count_total" />
-                    <field name="task_state" />
-                    <field name="task_week" />
-                </templates>
+            <!-- Load tasks fields -->
+            <templates position="before">
+                <field name="task_is_all_done" />
+                <field name="task_has_late" />
+                <field name="task_ids" />
+                <field name="task_count_done" />
+                <field name="task_count_total" />
+                <field name="task_state" />
+                <field name="task_week" />
+            </templates>
 
-                <!-- Add `planning_task` sub-template -->
-                <templates position="inside">
-                    <t t-name="planning_tasks">
-                        <t t-set="fw" t-value="'fw-bold'" t-if="record.task_state.raw_value == 'warning' or record.task_state.raw_value == 'danger'" />
+            <!-- Add `planning_task` sub-template -->
+            <templates position="inside">
+                <t t-name="planning_tasks">
+                    <t t-set="fw" t-value="'fw-bold'" t-if="record.task_state.raw_value == 'warning' or record.task_state.raw_value == 'danger'" />
 
-                        <!-- Content & title -->
-                        <t t-if="record.task_count_total.raw_value > 0">
-                            <t t-set="textColor" t-value="record.task_state.raw_value" />
-                            <t t-set="content"><t t-esc="record.task_count_done.raw_value" />/<t t-esc="record.task_count_total.raw_value" /></t>
-                            <t t-set="title">Tasks remaining / Tasks total
-                                - Normal: in progress
-                                - Red: at least 1 open task is late
-                                - Orange: all done with overdue
-                                - Green: all done on time
-                            </t>
+                    <!-- Content & title -->
+                    <t t-if="record.task_count_total.raw_value > 0">
+                        <t t-set="textColor" t-value="record.task_state.raw_value" />
+                        <t t-set="content"><t t-esc="record.task_count_done.raw_value" />/<t t-esc="record.task_count_total.raw_value" /></t>
+                        <t t-set="title" t-translation="on">Tasks remaining / Tasks total
+                            - Normal: in progress
+                            - Red: at least 1 open task is late
+                            - Orange: all done with overdue
+                            - Green: all done on time
                         </t>
-                        <t t-else="">
-                            <t t-set="textColor" t-value="'info'" />
-                            <t t-set="title">Add a new task</t>
-                            <t t-set="content"><i class="fa fa-plus-square-o" title="title" /> Task</t>
-                        </t>
-
-                        <a id="tasks" name="action_open_tasks" type="object" t-attf-context="{'launch_id': {{launchId}}}"
-                            t-attf-class="o_kanban_inline_block badge fs-6 border {{fw}} text-{{textColor}}"
-                            t-att-title="title"
-                        >
-                            <t t-out="content" />
-                        </a>
                     </t>
-                </templates>
+                    <t t-else="">
+                        <t t-set="textColor" t-value="'info'" />
+                        <t t-set="title">Add a new task</t>
+                        <t t-set="content"><i class="fa fa-plus-square-o" title="title" /> Task</t>
+                    </t>
 
-                <!-- Call `planning_tasks` -->
-                <div class="oe_kanban_bottom_left" position="inside">
-                    <t t-call="planning_tasks" />
-                </div>
-            </kanban>
+                    <a id="tasks" name="action_open_tasks" type="object" t-attf-context="{'launch_id': {{launchId}}}"
+                        t-attf-class="o_kanban_inline_block badge fs-6 border {{fw}} text-{{textColor}}"
+                        t-att-title="title"
+                    >
+                        <t t-out="content" />
+                    </a>
+                </t>
+            </templates>
+
+            <!-- Call `planning_tasks` -->
+            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
+                <t t-call="planning_tasks" />
+            </xpath>
         </field>
     </record>
 </odoo>

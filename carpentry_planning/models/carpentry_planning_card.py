@@ -29,7 +29,7 @@ class CarpentryPlanningCard(models.Model):
     #===== Fields =====#
     # base (view)
     project_id = fields.Many2one(
-        'project.project',
+        comodel_name='project.project',
         string='Project'
     )
     sequence = fields.Integer()

@@ -77,7 +77,7 @@ class Task(models.Model):
             task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline         
 
     #===== Buttons / action =====#
-    def action_open_planning_task_form(self):
+    def action_open_planning_form(self):
         action = {
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
@@ -89,7 +89,7 @@ class Task(models.Model):
         }
         return action
     
-    def action_open_planning_task_tree(self, domain=[], context={}, record_id=False, project_id_=False):
+    def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
         """ Opens tasks tree in a new window
             :option domain, context: to customize the action
             :option record_id: opened tree view is filtered on cards related to this record
@@ -101,14 +101,22 @@ class Task(models.Model):
         
         # Default for `card_res_...`
         if record_id and record_id.id:
-            model_id_ = self.env['ir.model']._get(record_id._name).id
+
+            # If `record` is a planning card
+            if record_id._name == 'carpentry.planning.card':
+                res_id_ = record_id.res_id
+                res_model_id_ = record_id.column_id.res_model_id.id
+            else: # Any other models (i.e. a Plan Set, a Task Meeting, ...)
+                res_id_ = record_id.id
+                res_model_id_ = self.env['ir.model']._get(record_id._name).id
+                
             domain += [
-                ('card_res_id', '=', record_id.id),
-                ('card_res_model_id', '=', model_id_)
+                ('card_res_id', '=', res_id_),
+                ('card_res_model_id', '=', res_model_id_)
             ]
             context |= {
-                'default_card_res_id': record_id.id,
-                'default_card_res_model_id': model_id_,
+                'default_card_res_id': res_id_,
+                'default_card_res_model_id': res_model_id_,
                 'default_name': record_id.display_name,
             }
         
@@ -116,7 +124,7 @@ class Task(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
             'view_mode': 'tree',
-            'name': _('Planning Tasks'),
+            'name': context.get('default_name', _('Planning Tasks')),
             'domain': [('project_id', '=', project_id_)] + domain,
             'context': {
                 # default

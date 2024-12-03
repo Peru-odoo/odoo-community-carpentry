@@ -11,10 +11,9 @@
     'category': 'Carpentry',
     'version': '16.0.1.0.1',
 
-    'depends': ['project'],
+    'depends': ['base'],
     'data': [
-        # views
         # 'views/res_config_settings.xml',
-        'views/project_project.xml',
+        # 'views/project_project.xml',
     ]
 }

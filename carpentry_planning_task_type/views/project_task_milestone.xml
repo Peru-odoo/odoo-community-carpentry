@@ -37,7 +37,7 @@
                 'res_model': 'project.task',
                 'name': 'Milestones',
                 'views': env['project.task']._get_task_views(
-                    type='milestone',
+                    type_code='milestone',
                     custom=['tree'],
                     switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
                 ),

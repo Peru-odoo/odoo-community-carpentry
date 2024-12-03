@@ -49,7 +49,7 @@ class Project(models.Model):
 
     def _get_planning_dashboard_task_milestones(self):
         # parent_types
-        fields = ['id', 'display_name']
+        fields = ['id', 'name', 'shortname']
         domain = [
             ('root_type_id', '=', self.env.ref(XML_ID_MILESTONE).id),
             ('task_ok', '=', False)
