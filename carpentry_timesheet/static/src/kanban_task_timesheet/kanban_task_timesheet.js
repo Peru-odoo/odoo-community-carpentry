@@ -21,7 +21,7 @@ export class TimesheetKanbanController extends KanbanController {
                 [false, 'graph'],
                 [false, 'tree'],
             ],
-            domain: "[('timesheetable', '=', true)]",
+            domain: "[('analytic_account_id.timesheetable', '=', true)]",
             target: 'new'
         });
     }
