@@ -20,7 +20,7 @@
     ],
     'data': [
         # data
-        'data/project.type.csv',
+        'data/project.type.xml',
         # report
         'report/task_report.xml',
         # views

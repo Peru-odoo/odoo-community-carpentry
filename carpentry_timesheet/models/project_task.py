@@ -10,13 +10,6 @@ class Task(models.Model):
     _inherit = ['project.task']
 
     #===== Fields method =====#
-    def _domain_analytic_account_id(self):
-        """ Lock selectable analytic to HR ones **AND** having budget on the project """
-        return expression.AND([
-            self.env['hr.department']._domain_analytic_account_id(),
-            [('budget_line_ids.project_id', 'in', 'project_id')]
-        ])
-
     @api.model
     def _read_group_analytic(self, analytics, domain, order):
         """ Show all timesheetable in column, in task's kanban view """
@@ -25,7 +18,11 @@ class Task(models.Model):
 
     #===== Fields =====#
     analytic_account_id = fields.Many2one(
-        domain=_domain_analytic_account_id,
+        domain="""[
+            ('timesheetable', '=', True),
+            ('budget_line_ids.project_id', 'in', project_id)
+            '|', ('company_id', '=', False), ('company_id', '=', company_id),
+        ]""",
         group_expand='_read_group_analytic' # for kanban columns
     )
 

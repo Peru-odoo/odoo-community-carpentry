@@ -32,7 +32,7 @@ class AccountAnalyticAccount(models.Model):
             analytic.timesheetable = (
                 analytic.product_tmpl_id.id and
                 analytic.product_tmpl_id.budget_ok and
-                analytic.product_tmpl_id.detailed_type == 'service_office'
+                analytic.product_tmpl_id.type == 'service'
                 # self.product_tmpl_id.uom_id.category_id.id == wtime.id
             )
     

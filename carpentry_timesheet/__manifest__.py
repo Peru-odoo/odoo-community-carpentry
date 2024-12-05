@@ -16,7 +16,7 @@
         'project_favorite_switch', # other
         'project_budget_timesheet', 'hr_timesheet_sheet_copy', 'project_task_analytic_hr', 'project_task_analytic_type', # other
         'carpentry_base', 'carpentry_planning', # carpentry
-        'carpentry_position_budget', # for 'Budget' menu and product's `detailed_type` 'service_office'
+        'carpentry_position_budget', # for 'Budget' menu
     ],
     'data': [
         # views

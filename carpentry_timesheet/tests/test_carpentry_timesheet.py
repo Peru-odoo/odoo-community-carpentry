@@ -26,10 +26,10 @@ class TestCarpentryTimesheet(TestProjectBudgetTimesheet):
         cls.Timesheet = cls.env['account.analytic.line']
 
     #===== account.analytic.account =====#
-    # def test_01_analytic_task_timesheetable(self):
-    #     """ Test computation of computed boolean `timesheetable` on analytic.account """
-    #     self.assertTrue(self.analytic.timesheetable)
-    #     self.assertTrue(self.task1.allow_timesheets)
+    def test_01_analytic_task_timesheetable(self):
+        """ Test computation of computed boolean `timesheetable` on analytic.account """
+        self.assertTrue(self.analytic.timesheetable)
+        self.assertTrue(self.task1.allow_timesheets)
     
     #===== project.task =====#
     def test_02_task_perf_compute(self):

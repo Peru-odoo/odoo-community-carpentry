@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="task_type_meeting" model="project.type">
+            <field name="name">Meeting</field>
+            <field name="code">meeting</field>
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+        <record id="task_type_milestone" model="project.type">
+            <field name="name">Milestone</field>
+            <field name="code">milestone</field>
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+        <record id="task_type_instruction" model="project.type">
+            <field name="name">Instruction</field>
+            <field name="code">instruction</field>
+            <field name="project_ok">False</field>
+            <field name="task_ok">False</field>
+        </record>
+    </data>
+</odoo>
