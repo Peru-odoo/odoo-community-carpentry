@@ -16,7 +16,7 @@
                     (False, 'form'), # 'project.view_task_form2'
                 ],
                 'context': {
-                    'default_priority': '1',
+                    'default_priority': str(1),
                     'default_planned_hours_required': 1,
                     'search_default_budget_timesheet': 1,
                 }

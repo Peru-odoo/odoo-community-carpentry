@@ -22,13 +22,14 @@ class ProjectProject(models.Model):
 
     #===== Button / Action =====#
     def open_project_list_or_form(self):
+        print("== open_project_list_or_form ==")
         project_id_ = self.env['project.default.mixin']._get_project_id()
 
         if not project_id_:
             # 2 views depending configuration of project's group by stage or not
             group = '_group_stage' if self.env.user.has_group('project.group_project_stages') else ''
             xml_id = 'project.open_view_project_all' + group
-            action = self.env['ir.actions.act_window']._for_xml_id(xml_id)
+            action = self.env['ir.actions.act_window'].sudo()._for_xml_id(xml_id)
 
         else:
             action = {
