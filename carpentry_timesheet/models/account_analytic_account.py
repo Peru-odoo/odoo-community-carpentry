@@ -30,9 +30,9 @@ class AccountAnalyticAccount(models.Model):
         # wtime = self.env.ref('uom.uom_categ_wtime')
         for analytic in self:
             analytic.timesheetable = (
-                self.product_tmpl_id.id and
-                self.product_tmpl_id.budget_ok and
-                self.product_tmpl_id.detailed_type == 'service_office'
+                analytic.product_tmpl_id.id and
+                analytic.product_tmpl_id.budget_ok and
+                analytic.product_tmpl_id.detailed_type == 'service_office'
                 # self.product_tmpl_id.uom_id.category_id.id == wtime.id
             )
     
