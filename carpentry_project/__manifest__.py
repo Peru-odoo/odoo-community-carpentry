@@ -20,6 +20,7 @@
     'data': [
         'views/project_project.xml',
         'views/project_assignment.xml',
+        'views/project_role.xml',
     ],
     "uninstall_hook": "uninstall_hook",
 }

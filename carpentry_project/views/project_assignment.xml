@@ -22,19 +22,40 @@
         sequence="5"
     />
 
-    
-    <!-- Project Form:
-        Hide assignment from project form since we introduce a menu-item for them
-    -->
-    <record id="edit_project_role_visibility" model="ir.ui.view">
-        <field name="name">project.project.form.role_visibility_carpentry</field>
-        <field name="model">project.project</field>
-        <field name="inherit_id" ref="project_role_visibility.edit_project" />
+    <!-- Kanban of Assignments: small columns, hide role name -->
+    <record id="project_assignment_kanban" model="ir.ui.view">
+        <field name="name">project.assignment.kanban.carpentry</field>
+        <field name="model">project.assignment</field>
+        <field name="inherit_id" ref="project_role.project_assignment_kanban" />
 
         <field name="arch" type="xml">
-            <group name="assignments" position="attributes">
+            <kanban position="attributes">
+                <attribute name="class">o_kanban_small_column</attribute>
+                <attribute name="on_create">quick_create</attribute>
+                <attribute name="quick_create_view">carpentry_project.quick_create_assignment_form</attribute>
+            </kanban>
+
+            <t t-esc="record.role_id.value" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </group>
+            </t>
+        </field>
+    </record>
+
+    <!-- Quick Create Form for Kanban Assignments -->
+    <record id="quick_create_assignment_form" model="ir.ui.view">
+        <field name="name">project.assignment.kanban.quick_create.carpentry</field>
+        <field name="model">project.assignment</field>
+        <field name="priority">1000</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="project_id" invisible="1" />
+                <field name="role_id" invisible="1" />
+                
+                <group>
+                    <field name="user_id" />
+                </group>
+            </form>
         </field>
     </record>
 

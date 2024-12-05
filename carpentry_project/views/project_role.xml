@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Role's Tree -->
+    <record id="project_role_view_tree" model="ir.ui.view">
+        <field name="name">project.role.view.tree.carpentry</field>
+        <field name="model">project.role</field>
+        <field name="inherit_id" ref="project_role.project_role_view_tree" />
+
+        <field name="arch" type="xml">
+            <!-- Add `sequence` field in tree view, for Role's position in Assignation's kanban view -->
+            <field name="complete_name" position="before">
+                <field name="sequence" widget="handle" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Role's Form -->
+    <record id="project_role_view_form" model="ir.ui.view">
+        <field name="name">project.role.view.form.carpentry</field>
+        <field name="model">project.role</field>
+        <field name="inherit_id" ref="project_role.project_role_view_form" />
+
+        <field name="arch" type="xml">
+            <!-- Add `fold` field in Role form, for Assignation's kanban view -->
+            <form position="inside">
+                <field name="fold" widget="boolean_toggle" />
+            </form>
+        </field>
+    </record>
+</odoo>

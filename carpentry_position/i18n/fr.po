@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-02 12:01+0000\n"
-"PO-Revision-Date: 2024-12-02 13:03+0100\n"
+"POT-Creation-Date: 2024-12-05 18:53+0000\n"
+"PO-Revision-Date: 2024-12-05 20:00+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -26,31 +26,19 @@ msgid " (copied)"
 msgstr " (copié)"
 
 #. module: carpentry_position
-#. odoo-python
-#: code:addons/carpentry_position/models/carpentry_group_affectation_mixin.py:0
-#, python-format
-msgid "1. Pre-select sections"
-msgstr "1. Pré-sélection des sections"
-
-#. module: carpentry_position
-#. odoo-python
-#: code:addons/carpentry_position/models/carpentry_group_affectation_mixin.py:0
-#, python-format
-msgid "2. Choose positions"
-msgstr "2. Choix des repères"
-
-#. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
 msgid ""
 "<span attrs=\"{'invisible': [('position_fully_affected', '=', True)]}\">\n"
-"                    At least one position's quantity is not affected at all or not fully affected in phases\n"
-"                    or launches. See <strong>Positions</strong>, <strong>Phases</strong> or <strong>Launches</strong>\n"
-"                    tabs for more details.\n"
+"                    At least one position's quantity is not affected at all or not fully affected in "
+"phases\n"
+"                    or launches. See <strong>Positions</strong>, <strong>Phases</strong> or "
+"<strong>Launches</strong>\n"
+"                    for more details.\n"
 "                </span>"
 msgstr ""
 "<span attrs=\"{'invisible': [('position_fully_affected', '=', True)]}\">\n"
-"Au moins un repère n'est pas entièrement affecté dans les phases ou les lancements. Voir les onglets <strong>Repères</"
-"strong>, <strong>Phases</strong> ou <strong>Lancements</strong>\n"
+"Au moins un repère n'est pas entièrement affecté dans les phases ou les lancements. Voir les onglets "
+"<strong>Repères</strong>, <strong>Phases</strong> ou <strong>Lancements</strong>\n"
 "                    pour plus de détails.\n"
 "                </span>"
 
@@ -66,22 +54,29 @@ msgstr "Actif ?"
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_position_tree
 msgid "Affectation"
-msgstr "Affectation"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_temp_launch
 msgid "Affectation Ids Temp Launch"
-msgstr "Affectation Ids Temp Launch"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_temp_phase
 msgid "Affectation Ids Temp Phase"
-msgstr "Affectation Ids Temp Phase"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model,name:carpentry_position.model_carpentry_group_affectation_mixin
 msgid "Affectation Mixin"
-msgstr "Affectation Mixin"
+msgstr ""
+
+#. module: carpentry_position
+#. odoo-javascript
+#: code:addons/carpentry_position/static/src/group/group_tree_button.xml:0
+#, python-format
+msgid "Affectation matrix"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__state
@@ -92,7 +87,7 @@ msgstr "Statut d'affectation"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids
 msgid "Affectations"
-msgstr "Affectations"
+msgstr ""
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_position_form
@@ -132,14 +127,21 @@ msgid "Company"
 msgstr "Société"
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
-msgid "Copy from lots"
-msgstr "Copier depuis les lots"
+#. odoo-javascript
+#: code:addons/carpentry_position/static/src/group/group_tree_button.xml:0
+#, python-format
+msgid "Create Phases from Lots, or Launches from Phases."
+msgstr "Créer des Phases depuis les Lots, ou des Lancements depuis les Phases."
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
-msgid "Copy from phases"
-msgstr "Copier depuis les phases"
+#: model_terms:ir.actions.act_window,help:carpentry_position.action_open_launch
+msgid "Create a first Launch."
+msgstr "Créer un premier Lancement."
+
+#. module: carpentry_position
+#: model_terms:ir.actions.act_window,help:carpentry_position.action_open_phase
+msgid "Create a first Phase."
+msgstr "Créer une première Phase."
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__create_uid
@@ -162,7 +164,7 @@ msgstr "Créé le"
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__description
 msgid "Description"
-msgstr "Description"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__display_name
@@ -175,11 +177,19 @@ msgid "Display Name"
 msgstr "Nom affiché"
 
 #. module: carpentry_position
-#. odoo-python
-#: code:addons/carpentry_position/wizard/carpentry_position_merge.py:0
-#, python-format
-msgid "Ensure duplicates have no phases and launches affectations before merging budgets."
-msgstr "Assurez-vous que les doublons ne sont affectés dans aucune phase ou lancement avant de fusionner les budgets."
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
+msgid "Edit Affectations"
+msgstr "Modifier les affectations"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
+msgid "Edit Linked Lots"
+msgstr "Modifier les lots liés"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
+msgid "Edit Linked Phases"
+msgstr "Modifier les phases liées"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__group_id
@@ -219,7 +229,7 @@ msgstr "Groupe de repères"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: carpentry_position
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_position__state
@@ -261,30 +271,31 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_launch
-msgid "Launch"
-msgstr "Lancement"
-
-#. module: carpentry_position
 #: model:ir.actions.act_window,name:carpentry_position.action_open_launch
 #: model:ir.actions.server,name:carpentry_position.action_open_launch_srv
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__launch_ids
 #: model:ir.ui.menu,name:carpentry_position.menu_carpentry_launch
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
 msgid "Launches"
 msgstr "Lancements"
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
+#: model_terms:ir.actions.act_window,help:carpentry_position.action_open_launch
 msgid ""
-"Launches correspond to the launch in production of group of Positions. They are\n"
-"                        steering unit of the project: every steps of the project can be linked to 1 or several\n"
-"                        launch, like Purchase Orders or Production Work Order.\n"
-"                        The Project Planning is organized by Launches."
+"Launches correspond to the launch in production of group of Positions. They are the\n"
+"                steering units of the project: every steps of the project can be linked to 1 or "
+"several\n"
+"                launch, like Purchase Orders or Production Work Order.\n"
+"                The Project Planning is organized by Launches."
 msgstr ""
-"Les lancements correspondent à la préparation de la mise en production d'un groupe de repères. Ils sont l'unité de "
-"pilotage du projet : chaque étape du projet peut être liée à 1 ou plusieurs lancements, comme les bons de commande ou les "
-"ordres de fabrication. Le planning du projet est organisé par lancements."
+"Les lancements correspondent au lancement en production d'un ensemble de Repères. Ils sont l'unité de "
+"pilotage d'un chantier : toutes les étapes du projet peuvent être reliées à 1 plusieurs lancements, "
+"comme les commandes fournisseurs ou les ordres de fabrication. Le planning du projet est organisé par "
+"lancement."
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
+msgid "Linked Lots"
+msgstr "Lots liés"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__lot_id
@@ -297,7 +308,6 @@ msgid "Lot Sequence"
 msgstr "Séquence des lots"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_lot
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__lot_ids
 msgid "Lots"
 msgstr "Lots"
@@ -308,6 +318,7 @@ msgstr "Lots"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__name
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__name
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__name
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
 msgid "Name"
 msgstr "Nom"
 
@@ -319,13 +330,6 @@ msgstr "Nom"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__next_id
 msgid "Next ID"
 msgstr "Prochain ID"
-
-#. module: carpentry_position
-#. odoo-python
-#: code:addons/carpentry_position/wizard/carpentry_position_merge.py:0
-#, python-format
-msgid "No duplicates to merge."
-msgstr "Pas de doublons à fusionner."
 
 #. module: carpentry_position
 #: model:ir.model.fields.selection,name:carpentry_position.selection__carpentry_position__state__none
@@ -355,7 +359,6 @@ msgid "Partial on phase(s)"
 msgstr "Partiel sur les phase(s)"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_phase
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_tree
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 msgid "Phase"
@@ -366,21 +369,20 @@ msgstr "Phase"
 #: model:ir.actions.server,name:carpentry_position.action_open_phase_srv
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__phase_ids
 #: model:ir.ui.menu,name:carpentry_position.menu_carpentry_phase
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
 msgid "Phases"
 msgstr "Phases"
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
+#: model_terms:ir.actions.act_window,help:carpentry_position.action_open_phase
 msgid ""
-"Phases correspond to the contractual groupping of Positions on-site installation with the project's customer.\n"
-"                        They match with the installation phases of Positions on the building (e.g. frontages)."
+"Phases correspond to the contractual groupping of Positions on-site installation with the project's "
+"customer.\n"
+"                They match with the installation phases of Positions on the building (e.g. frontages)."
 msgstr ""
-"Les phases correspondent au regroupement contractuel de l'installation des postes sur le site avec le client du projet.\n"
-"                        Elles correspondent aux phases d'installation des postes sur le bâtiment (par exemple les façades)."
+"Les Phases correspondent au regroupement contractuel des phases d'installation des Repères sur le "
+"chantier, en accord avec le client et le planning contractuel du projet."
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__position_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__position_id
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_tree
@@ -435,23 +437,20 @@ msgid "Positions Count"
 msgstr "Repères"
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
-msgid "Positions affectations in Launches"
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_temp_matrix
+msgid "Positions affectation in Launches"
 msgstr "Affectations des repères dans les lancements"
 
 #. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.edit_project
-msgid "Positions affectations in Phases"
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_temp_matrix
+msgid "Positions affectation in Phases"
 msgstr "Affectations des repères dans les phases"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__project_id
 msgid "Project"
 msgstr "Projet"
 
@@ -479,9 +478,24 @@ msgid "Quantity remaining for affection in phases"
 msgstr "Quantité restante pour l'affection dans les phases"
 
 #. module: carpentry_position
+#. odoo-javascript
+#: code:addons/carpentry_position/static/src/group/group_tree_button.xml:0
+#, python-format
+msgid "Quick-create"
+msgstr "Copier"
+
+#. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__range
 msgid "Range"
 msgstr "Gamme"
+
+#. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_mixin__readonly_affectation
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__readonly_affectation
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__readonly_affectation
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__readonly_affectation
+msgid "Readonly Affectation"
+msgstr "Affectation en lecture seule"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__record_id
@@ -513,6 +527,7 @@ msgid "Related Lots"
 msgstr "Lots liés"
 
 #. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_tree
 msgid "Related Phases"
 msgstr "Phases liées"
@@ -584,14 +599,6 @@ msgid "Sequence"
 msgstr "Séquence"
 
 #. module: carpentry_position
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_mixin__state
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__state
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__state
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__state
-msgid "State"
-msgstr "État"
-
-#. module: carpentry_position
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_affectation_mixin__sum_position_quantity_affected
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_launch__sum_position_quantity_affected
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_lot__sum_position_quantity_affected
@@ -615,10 +622,12 @@ msgstr "Le repère ne peut être affecté à une phase plus que sa propre quanti
 #. odoo-python
 #: code:addons/carpentry_position/models/carpentry_group_affectation.py:0
 #, python-format
-msgid "This affectation cannot be deleted since used by another record (like a Launch, Sale Order, Fabrication Order, ...)"
+msgid ""
+"This affectation cannot be deleted since used by another record (like a Launch, Sale Order, "
+"Fabrication Order, ...)"
 msgstr ""
-"Cette affectation ne peut pas être supprimée car elle est utilisée par un autre enregistrement (comme un lancement, une "
-"commande client, un ordre de fabrication, ...)"
+"Cette affectation ne peut pas être supprimée car elle est utilisée par un autre enregistrement (comme "
+"un lancement, une commande client, un ordre de fabrication, ...)"
 
 #. module: carpentry_position
 #: model:ir.model.constraint,message:carpentry_position.constraint_carpentry_group_launch_name_per_project
@@ -645,11 +654,8 @@ msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
 
 #. module: carpentry_position
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_position__project_id
 msgid "Within your favorite projects"
 msgstr "Parmis vos projets favoris"
 

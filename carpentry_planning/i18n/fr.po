@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-29 13:28+0000\n"
-"PO-Revision-Date: 2024-11-29 21:28+0100\n"
+"POT-Creation-Date: 2024-12-05 18:53+0000\n"
+"PO-Revision-Date: 2024-12-05 19:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -31,8 +31,13 @@ msgid "Active"
 msgstr "Actif"
 
 #. module: carpentry_planning
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model_id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model
 msgid "Card Model"
+msgstr "Modèle de carte"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model_id
+msgid "Card Model ID"
 msgstr "Modèle de carte"
 
 #. module: carpentry_planning
@@ -282,6 +287,11 @@ msgid "Planning"
 msgstr "Planning"
 
 #. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_body_color
 msgid "Planning Card Body Color"
 msgstr "Couleur du corps de la carte du planning"
@@ -311,7 +321,7 @@ msgstr "Type de jalon"
 #: model:ir.actions.act_window,name:carpentry_planning.action_carpentry_planning_milestone_type
 #: model:ir.ui.menu,name:carpentry_planning.menu_carpentry_planning_milestone_type
 msgid "Planning Milestones"
-msgstr "Jalons du planning"
+msgstr "Jalons"
 
 #. module: carpentry_planning
 #: model:ir.model,name:carpentry_planning.model_carpentry_planning_mixin

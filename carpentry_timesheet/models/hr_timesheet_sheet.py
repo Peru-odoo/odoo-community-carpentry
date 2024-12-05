@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
+from odoo import models, fields, api, exceptions, _, Command, SUPERUSER_ID
 
 class HrTimesheetSheet(models.Model):
     _inherit = ['hr_timesheet.sheet']
 
-    # add_line_project_id = fields.Many2one(
-    #     domain=lambda self: [
-    #         ('favorite_user_ids', '=', self.env.uid),
-    #         ('stage_id.fold', '=', False)
-    #     ]
-    # )
+    @api.model
+    def _group_expand_add_line_project_id(self, projects, domain, order):
+        """ View all role in assignation kanban view """
+        project_ids_ = projects._search([], order=order, access_rights_uid=SUPERUSER_ID)
+        return projects.browse(project_ids_)
+
+    add_line_project_id = fields.Many2one(
+        group_expand='_group_expand_add_line_project_id'
+    )
 
     #===== Project/Task consistency (UI) =====#
     @api.onchange('add_line_project_id', 'add_line_task_id')
