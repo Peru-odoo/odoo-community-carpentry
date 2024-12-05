@@ -20,7 +20,7 @@ class Task(models.Model):
     analytic_account_id = fields.Many2one(
         domain="""[
             ('timesheetable', '=', True),
-            ('budget_line_ids.project_id', 'in', project_id)
+            ('budget_line_ids.project_id', 'in', project_id),
             '|', ('company_id', '=', False), ('company_id', '=', company_id),
         ]""",
         group_expand='_read_group_analytic' # for kanban columns

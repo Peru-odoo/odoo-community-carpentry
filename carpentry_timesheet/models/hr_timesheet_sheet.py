@@ -13,14 +13,14 @@ class HrTimesheetSheet(models.Model):
     # )
 
     #===== Project/Task consistency (UI) =====#
-    @api.onchange('add_line_project_id', 'add_line_product_id')
+    @api.onchange('add_line_project_id', 'add_line_task_id')
     def _onchange_task_consistency(self):
         """ Clean `add_line_task_id` if `add_line_project_id` is changed
             after a `add_line_task_id` was selected by user.
 
             This finishes to enforce timesheeted tasks belong to their project
         """
-        for timesheet in self:
+        for sheet in self:
             if sheet.add_line_task_id.id and sheet.add_line_task_id.id not in sheet.available_task_ids.ids:
                 sheet.add_line_task_id = False
 
