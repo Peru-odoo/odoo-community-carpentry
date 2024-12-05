@@ -16,7 +16,7 @@
                     (False, 'form'), # 'project.view_task_form2'
                 ],
                 'context': {
-                    'default_priority': 1,
+                    'default_priority': '1',
                     'default_planned_hours_required': 1,
                     'search_default_budget_timesheet': 1,
                 }
@@ -134,8 +134,14 @@
         <field name="inherit_id" ref="project.quick_create_task_form" />
         
         <field name="arch" type="xml">
-            <!-- Hide `user_ids` -->
+            <!-- Hide some fields -->
             <field name="user_ids" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="type_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="description" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
             
@@ -143,6 +149,7 @@
             <group position="inside">
                 <field name="analytic_account_id" invisible="1" />
                 <field name="planned_hours_required" invisible="1" />
+                <field name="priority" invisible="1" />
                 <field name="type_id" invisible="1" />
 
                 <field name="planned_hours"
@@ -150,6 +157,7 @@
                     groups="hr_timesheet.group_hr_timesheet_user"
                     attrs="{'required': [('planned_hours_required', '=', True)]}"
                 />
+                <field name="available_budget" />
             </group>
         </field>
     </record>
