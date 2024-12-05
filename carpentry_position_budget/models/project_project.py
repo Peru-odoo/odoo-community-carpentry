@@ -83,9 +83,9 @@ class Project(models.Model):
     )
     def _compute_budgets(self):
         # Ensure budget lines are up-to-date before updating project's totals
-        self._populate_account_move_budget_line()
-        self.budget_line_ids._compute_debit_carpentry()
-        self.budget_line_ids._compute_debit_credit()
+        self.sudo()._populate_account_move_budget_line()
+        self.sudo().budget_line_ids._compute_debit_carpentry()
+        self.sudo().budget_line_ids._compute_debit_credit()
 
         # Update project's totals
         return super()._compute_budgets()

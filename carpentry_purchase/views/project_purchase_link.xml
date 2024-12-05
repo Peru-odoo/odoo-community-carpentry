@@ -33,18 +33,30 @@
             <button name="button_open_purchase_order" position="attributes">
                 <attribute name="title">Based on analytic distribution of purchases lines</attribute>
                 <attribute name="attrs">{'invisible': [('purchase_count', '=', 0)]}</attribute>
+                <attribute name="groups">
+                    purchase.group_purchase_user,stock.group_stock_user,account.group_account_readonly
+                </attribute>
             </button>
             <button name="button_open_purchase_invoice" position="attributes">
                 <attribute name="title">Based on analytic distribution of purchase invoices lines</attribute>
                 <attribute name="attrs">{'invisible': [('purchase_invoice_count', '=', 0)]}</attribute>
+                <attribute name="groups">
+                    purchase.group_purchase_user,stock.group_stock_user,account.group_account_readonly
+                </attribute>
             </button>
 
             <!-- Hides *lines* buttons -->
             <button name="button_open_purchase_order_line" position="attributes">
                 <attribute name="invisible">1</attribute>
+                <attribute name="groups">
+                    purchase.group_purchase_user,stock.group_stock_user,account.group_account_readonly
+                </attribute>
             </button>
             <button name="button_open_purchase_invoice_line" position="attributes">
                 <attribute name="invisible">1</attribute>
+                <attribute name="groups">
+                    purchase.group_purchase_user,stock.group_stock_user,account.group_account_readonly
+                </attribute>
             </button>
         </field>
     </record>
