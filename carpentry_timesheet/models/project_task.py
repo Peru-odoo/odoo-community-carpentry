@@ -14,7 +14,7 @@ class Task(models.Model):
     def _read_group_analytic(self, analytics, domain, order):
         """ Show all timesheetable in column, in task's kanban view """
         domain = ['|', ('id', 'in', analytics.ids), ('timesheetable', '=', True)]
-        return analytics.search(domain, order=order, access_rights_uid=SUPERUSER_ID)
+        return analytics.sudo().search(domain, order=order)
 
     #===== Fields =====#
     analytic_account_id = fields.Many2one(
