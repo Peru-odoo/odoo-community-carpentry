@@ -13,6 +13,7 @@
 
     'depends': [
         'project', # Odoo CE
+        'base_usability', # akretion
         'project_favorite_switch', 'project_role_visibility', # other (for security access)
         'carpentry_base', # carpentry
     ],

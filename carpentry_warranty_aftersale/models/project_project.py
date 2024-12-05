@@ -4,6 +4,7 @@ from odoo import models, fields, api, exceptions, _, Command
 
 class Project(models.Model):
     _inherit = 'project.project'
+    _order = "sequence_code DESC, sequence ASC, name ASC, id DESC"
 
     active = fields.Boolean(
         tracking=True

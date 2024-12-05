@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action & menu-item: 'Timesheet's Budget' -->
+    <!-- Pre-select project before opening Instruction (tasks) -->
+    <record id="action_open_task_budget_timesheet_srv" model="ir.actions.server">
+        <field name="name">Timesheet's budgets</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect({
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.task',
+                'name': "Timesheet's budgets",
+                'views': [
+                    (env.ref('carpentry_timesheet.view_task_kanban_timesheet').id, 'kanban'),
+                    (False, 'form'), # 'project.view_task_form2'
+                ],
+                'context': {
+                    'default_priority': 1,
+                    'default_planned_hours_required': 1,
+                    'search_default_budget_timesheet': 1,
+                }
+            })
+        </field>
+    </record>
+    <menuitem
+        id="menu_project_task_budget_timesheet"
+        parent="carpentry_position_budget.menu_project_main_budget"
+        action="action_open_task_budget_timesheet_srv"
+        sequence="10"
+    />
+
+
+    <!-- BASE TASK VIEWS (modified) -->
+    <!-- Task Kanban (view) -> **all** tasks, alter `planned_hours` widget and add `performance` widget -->
+    <record id="view_task_kanban" model="ir.ui.view">
+        <field name="name">project.task.timesheet.kanban.carpentry</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_kanban_inherited_progress" />
+
+        <field name="arch" type="xml">
+            <t name="planned_hours" position="replace">
+                <t name="planned_hours"
+                    t-if="record.planned_hours.raw_value &gt; 0 or record.progress.raw_value"
+                    groups="hr_timesheet.group_hr_timesheet_user"
+                >
+                    <!-- Modify `planned_hours` widget logic:
+                        * display if budget is defined **OR** timesheets started (<2nd is new)
+                        * `warning` (orange): timesheets started on the task (native: progress in [80%-100%])
+                        * `danger` (red): no more remaining hours (same)
+                    -->
+                    <t t-set="badge" t-value="'border-success'"/>
+                    <t t-set="badge" t-value="'border-warning'" t-if="record.progress.raw_value &gt; 0"/>
+                    <t t-set="badge" t-value="'border-danger'" t-if="record.remaining_hours.raw_value &lt; 0"/>
+                    
+                    <t t-set="title" t-value="'Remaining days'" t-if="record.encode_uom_in_days.raw_value"/>
+                    <t t-set="title" t-value="'Remaining hours. Initialy planned: {{ record.planned_hours.raw_value }}h'" t-else=""/>
+
+                    <div t-attf-class="oe_kanban_align badge {{ badge }}" t-att-title="title">
+                        <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h <!-- widget="timesheet_uom" ??? -->
+                    </div>
+                    
+                    <!-- Add `performance` widget -->
+                    <t t-set="badge" t-value="'border-danger'" />
+                    <t t-set="badge" t-value="'border-success'" t-if="record.performance.raw_value &gt; 0"/>
+                    <div t-if="record.performance.raw_value" t-attf-class="oe_kanban_align badge {{ badge }}" title="Performance">
+                        <t t-esc="'+'" t-if="record.performance.raw_value &gt; 0"/>
+                        <field name="performance" digits="[2,0]" />%
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+    <!-- Task Form > Timesheets notebook page -->
+    <record model="ir.ui.view" id="view_task_form2_inherited">
+        <field name="name">project.task.form.inherited.carpentry</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited" />
+
+        <field name="arch" type="xml">
+            <!-- Make `planned_hours` required (depending context `default_planned_hours_required`) -->
+            <field name="planned_hours" position="before">
+                <field name="planned_hours_required" invisible="1" />
+            </field>
+            <field name="planned_hours" position="attributes">
+                <field name="attrs">{'required': [('planned_hours_required', '=', True)]}</field>
+            </field>
+
+            <!-- Correct visibility of "remaining hours" -->
+            <!-- <field name="remaining_hours" position="attributes">
+                <attribute name="attrs">{'invisible': [('planned_hours', '=', 0.0), ('remaining_hours', '=', 0.0)]}</attribute>
+            </field>
+            <xpath expr="//label[@for='remaining_hours']/.." position="attributes">
+                <attribute name="attrs">{'invisible': [('planned_hours', '=', 0.0), ('remaining_hours', '=', 0.0)]}</attribute>
+            </xpath> -->
+        </field>
+    </record>
+
+
+    <!-- SPECIAL TASK VIEWS DEDICATED TO TIMESHEETS -->
+    <!-- Task Kanban (view) -> special view for Timesheet's Budget menu -->
+    <record id="view_task_kanban_timesheet" model="ir.ui.view">
+        <field name="name">project.task.kanban.timesheet.carpentry</field>
+        <field name="model">project.task</field>
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_kanban_inherited_progress" />
+
+        <field name="arch" type="xml">
+            <kanban position="attributes">
+                <attribute name="js_class">carpentry_timesheet_button</attribute>
+                <attribute name="default_group_by">analytic_account_id</attribute>
+                <attribute name="quick_create_view">carpentry_timesheet.quick_create_task_form_timesheet</attribute>
+                <attribute name="group_create">False</attribute>
+                <attribute name="group_edit">False</attribute>
+                <attribute name="group_delete">False</attribute>
+            </kanban>
+
+            <!-- Budget timesheet Tasks: print sum of hours in columns' totals -->
+            <progressbar position="replace">
+                <progressbar field="kanban_state"
+                    colors='{"done": "success", "blocked": "danger", "normal": "200"}'
+                    sum_field="planned_hours"
+                />
+            </progressbar>
+        </field>
+    </record>
+    <!-- Form tasks quick-create (kanban) -->
+    <record id="quick_create_task_form_timesheet" model="ir.ui.view">
+        <field name="name">project.task.form.quick_create.carpentry.timesheet</field>
+        <field name="model">project.task</field>
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        <field name="inherit_id" ref="project.quick_create_task_form" />
+        
+        <field name="arch" type="xml">
+            <!-- Hide `user_ids` -->
+            <field name="user_ids" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            
+            <!-- Add `planned_hours` (actually the single field with "name") -->
+            <group position="inside">
+                <field name="analytic_account_id" invisible="1" />
+                <field name="planned_hours_required" invisible="1" />
+                <field name="type_id" invisible="1" />
+
+                <field name="planned_hours"
+                    string="Planned hours"
+                    groups="hr_timesheet.group_hr_timesheet_user"
+                    attrs="{'required': [('planned_hours_required', '=', True)]}"
+                />
+            </group>
+        </field>
+    </record>
+</odoo>

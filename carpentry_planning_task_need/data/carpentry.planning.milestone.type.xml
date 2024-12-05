@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="launch_milestone_method_go_buy" model="carpentry.planning.milestone.type">
+            <field name="name">Go for Purchase</field>
+            <field name="sequence">50</field>
+            <field name="column_id" ref="carpentry_planning_task_need.planning_column_need_method" />
+            <field name="icon">fa fa-eur</field>
+            <field name="type"></field>
+        </record>
+        <record id="launch_milestone_method_go_output" model="carpentry.planning.milestone.type">
+            <field name="name">Go for Output</field>
+            <field name="sequence">60</field>
+            <field name="column_id" ref="carpentry_planning_task_need.planning_column_need_method" />
+            <field name="icon">fa fa-scissors</field>
+            <field name="type"></field>
+        </record>
+        <record id="launch_milestone_install_start" model="carpentry.planning.milestone.type">
+            <field name="name">Installation Start</field>
+            <field name="sequence">30</field>
+            <field name="column_id" ref="carpentry_planning_task_need.planning_column_need_construction" />
+            <field name="icon">fa fa-calendar-o</field>
+            <field name="type">start</field>
+        </record>
+        <record id="launch_milestone_install_end" model="carpentry.planning.milestone.type">
+            <field name="name">Installation End</field>
+            <field name="sequence">40</field>
+            <field name="column_id" ref="carpentry_planning_task_need.planning_column_need_construction" />
+            <field name="icon">fa fa-calendar-check-o</field>
+            <field name="type">end</field>
+        </record>
+    </data>
+</odoo>

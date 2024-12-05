@@ -13,8 +13,9 @@
 
     'depends': [
         'add_attachment_to_report', # other (external)
-        'project_type',  # OCA
+        'project_type', # OCA
         'project_favorite_switch', 'project_task_default_assignee', 'project_task_copy', 'project_task_attachment', # other
+        'project_task_analytic_hr', # for default type
         'carpentry_base', 'carpentry_planning_task', # carpentry
     ],
     'data': [

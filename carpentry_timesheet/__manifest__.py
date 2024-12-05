@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Carpentry Timesheet",
-    'summary': "Timesheet on Carpentry budget",
+    'summary': "Track timesheet per project budgets",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',
     'license': 'AGPL-3',
@@ -12,23 +12,24 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'hr_timesheet', # odoo
-        'project_task_link', # OCA
+        'hr_timesheet_sheet', # OCA
         'project_favorite_switch', # other
-        'carpentry_base', 'carpentry_position_budget', # carpentry
+        'project_budget_timesheet', 'hr_timesheet_sheet_copy', 'project_task_analytic_hr', 'project_task_analytic_type', # other
+        'carpentry_base', 'carpentry_planning', # carpentry
+        'carpentry_position_budget', # for 'Budget' menu and product's `detailed_type` 'service_office'
+    ],
+    'data': [
+        # views
+        'views/carpentry_planning.xml',
+        'views/hr_views.xml',
+        'views/project_task.xml',
+        'views/account_analytic_account.xml',
+        # report
+        'report/hr_timesheet_report_view.xml',
     ],
     'assets': {
         'web.assets_backend': [
             'carpentry_timesheet/static/src/**/*',
-            'carpentry_timesheet/static/src/**/*',
-        ],
-    },
-    'data': [
-        'views/project_task_views.xml',
-        'views/project_views.xml',
-        'views/carpentry_planning_views.xml',
-        'views/hr_views.xml',
-        'views/product_views.xml',
-        'report/hr_timesheet_report_view.xml',
-    ],
+        ]
+    }
 }

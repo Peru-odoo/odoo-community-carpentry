@@ -6,31 +6,39 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 08:38+0000\n"
-"PO-Revision-Date: 2024-09-26 10:41+0200\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2024-12-05 11:32+0000\n"
+"PO-Revision-Date: 2024-12-05 13:03+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: \n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_timesheet
-#: model:ir.model.constraint,message:carpentry_timesheet.constraint_project_task_timesheet_need_product
-msgid "A product must be defined on the task before activating timesheets."
-msgstr "Un produit doit d'abord être défini sur la tâche pour activer le pointage des temps."
+#: model:ir.model,name:carpentry_timesheet.model_account_analytic_account
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_department__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_employee__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_employee_base__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_employee_public__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__analytic_account_id
+msgid "Analytic Account"
+msgstr "Compte analytique"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__allow_timesheets
-msgid "Allow timesheets"
-msgstr "Autoriser les feuilles de temps"
-
-#. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_account_analytic_line
-msgid "Analytic Line"
-msgstr "Ligne analytique"
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__analytic_account_id
+msgid ""
+"Analytic account to which this task and its timesheets are linked.\n"
+"Track the costs and revenues of your task by setting its analytic account on your related documents (e.g. sales orders, invoices, "
+"purchase orders, vendor bills, expenses etc.).\n"
+"By default, the analytic account of the project is set. However, it can be changed on each task individually if necessary."
+msgstr ""
+"Compte analytique auquel sont liés cette tâche et ses feuilles de temps.\n"
+"Suivez les coûts et les revenus de votre tâche en paramétrant ce compte analytique sur vos documents associés (par ex. commandes "
+"clients, factures, bons de commande, factures fournisseurs, notes de frais, etc.).\n"
+"Par défaut, le compte analytique du projet est défini. Toutefois, il peut être changé sur chaque tâche individuellement si nécessaire."
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__user_ids
@@ -38,181 +46,104 @@ msgid "Assignees"
 msgstr "Assignés"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours
-msgid "Budget"
-msgstr "Heures prévues initialement"
+#: model:ir.model,name:carpentry_timesheet.model_hr_employee_base
+msgid "Basic Employee"
+msgstr "Employé de base"
 
 #. module: carpentry_timesheet
-#: model:ir.ui.menu,name:carpentry_timesheet.menu_project_forecast
-msgid "Timesheets"
-msgstr "Imputations"
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_account_analytic_account__budget_line_ids
+msgid "Budget Lines"
+msgstr "Lignes budgétaires"
 
 #. module: carpentry_timesheet
 #: model:ir.ui.menu,name:carpentry_timesheet.carpentry_timesheet_report_by_week
 msgid "By Project & Employee"
-msgstr "Par affaire et par employé"
+msgstr "Par projet et par employé"
 
 #. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_carpentry_planning_card
-msgid "Carpentry Planning Cards"
-msgstr "Cartes du planning de Menuiserie"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_sheet_form
-msgid "Copy previous sheet"
-msgstr "Copier la feuille précédente"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task_type__product_id
-msgid "Default Product"
-msgstr "Produit par défaut"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_department__product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_employee__product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_role__product_id
-msgid "Default Product on task"
-msgstr "Produit par défaut sur la tâche"
+#: model:ir.model.fields,help:carpentry_timesheet.field_account_analytic_account__timesheetable
+msgid "Can only be selected on Tasks if activated. Depends on Product Template configuration."
+msgstr "Ne peut être sélectionné sur les tâches que si activé. Dépend de la configuration du modèle d'article."
 
 #. module: carpentry_timesheet
 #: model:ir.model,name:carpentry_timesheet.model_hr_department
 msgid "Department"
-msgstr "Département"
+msgstr "Service"
 
 #. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_hr_employee
-msgid "Employee"
-msgstr "Employé"
+#: model:ir.model.fields,help:carpentry_timesheet.field_hr_employee__analytic_account_id
+#: model:ir.model.fields,help:carpentry_timesheet.field_hr_employee_base__analytic_account_id
+#: model:ir.model.fields,help:carpentry_timesheet.field_hr_employee_public__analytic_account_id
+msgid "If empty, follows department's"
+msgstr "Si non-renseigné, suit celui définit au niveau du département"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_product_product__employee_ids
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_product_template__employee_ids
-msgid "Employees"
-msgstr "Salariés"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_account_analytic_line__hide_product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__hide_product_id
-msgid "Hide Product"
-msgstr "Cacher l'article"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_employee__hourly_cost
-msgid "Hourly Cost"
-msgstr "Coût horaire"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_project_budget_pivot_timesheetable
-msgid "Hours"
-msgstr "Heures"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__is_planned_hours_required
-msgid "Is Planned Hours Required"
-msgstr "Heures prévues obligatoires ?"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_product_product__is_timesheetable
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_product_template__is_timesheetable
-msgid "Is timesheetable?"
-msgstr "Feuille de temps possible ?"
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours
+msgid "Initially Planned Hours"
+msgstr "Heures prévues initialement"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
 msgid "Last Week"
-msgstr "Semaine dernière"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__product_id
-msgid ""
-"Mandatory for timesheets. Can be manually changed. Set by default: 1. Task's Stage default product ; 2. Employee's default product ; 3. "
-"Parent's task Product, but do not erase if already set."
-msgstr ""
-"Obligatoire pour les feuilles de temps. Peut être modifié manuellement. Défini par défaut : 1. produit par défaut de l'étape de la tâche ; 2. "
-"produit par défaut de l'employé ; 3. produit de la tâche parente, mais n'efface pas s'il déjà défini."
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_task_search_timesheet
-msgid "My Department"
-msgstr "Mon département"
-
-#. module: carpentry_timesheet
-#. odoo-python
-#: code:addons/carpentry_timesheet/models/hr_timesheet_sheet.py:0
-#, python-format
-msgid "No previous timesheet to copy."
-msgstr "Pas de feuille de temps précédente à copier."
+msgstr "La semaine dernière"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_project_task__user_ids
 msgid "Only Assignees can log timesheets on the Tasks"
-msgstr "Seuls les assignés d'une tâche peuvent imputer dessus"
+msgstr "Seuls les assignés peuvent enregistrer des feuilles de temps dans la section Tâches"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,help:carpentry_timesheet.field_project_task_type__product_id
-msgid "Optional. Default Product set on Task of this Stage."
-msgstr "Optionnel. Article par défaut pour les tâches de cette étape."
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__performance
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_kanban_inherited_progress
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_kanban
 msgid "Performance"
 msgstr "Performance"
 
 #. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__performance
+msgid "Performance (%)"
+msgstr "Performance (%)"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours_required
+msgid "Planned Hours Required"
+msgstr "\"Heures prévues\" requis"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
 msgid "Planned hours"
 msgstr "Heures prévues"
+
+#. module: carpentry_timesheet
+#: model:ir.model,name:carpentry_timesheet.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Carte du planning"
 
 #. module: carpentry_timesheet
 #. odoo-python
 #: code:addons/carpentry_timesheet/models/hr_timesheet_sheet.py:0
 #, python-format
 msgid "Please select both Project and Task to add a line."
-msgstr "Veuillez sélectionner une affaire et une tâche pour ajouter une ligne."
+msgstr "Veuillez sélectionner un projet et une tâche pour ajouter une ligne."
 
 #. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_product_template
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_account_analytic_line__product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__product_id
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_timesheets_analysis_report__product_id
-msgid "Product"
-msgstr "Produit"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_task_search_timesheet
-msgid "Produit"
-msgstr "Produit"
-
-#. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_project_project
-msgid "Project"
-msgstr "Affaire"
-
-#. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_project_role
-msgid "Project Role"
-msgstr "Rôle dans l'affaire"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__available_budget
-msgid "Remaining budget (h)"
-msgstr "Budget restant (h)"
+#. odoo-javascript
+#: code:addons/carpentry_timesheet/static/src/kanban_task_timesheet/kanban_task_timesheet.js:0
+#, python-format
+msgid "Project Budgets for Timesheets"
+msgstr "Budgets de projet pour les feuilles de temps"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_planning_kanban
 msgid ""
-"Remaining hours and performance \\nInitialy planned: {{ record.task_planned_hours.raw_value }}h \\nLegend: (Black) not started; (Normal) "
-"started; (Red) Overrun; (Green) Finished before planned hours"
+"Remaining hours and performance \\nInitialy planned: {{ record.task_planned_hours.raw_value }}h \\nLegend: (Black) not started; "
+"(Normal) started; (Red) Overrun; (Green) Finished before planned hours"
 msgstr ""
-"Heures restantes et performance \\nPlanifié initialement: {{ record.task_planned_hours.raw_value }}h \\nLégende: (Noir) pas démarré; (Normal) "
-"démarré; (Rouge) Dépassement; (Vert) Terminé dans le budget"
+"Heures restantes et performance \\nInitialement prévu : {{ record.task_planned_hours.raw_value }}h \\nLégende : (Noir) non démarré ; "
+"(Normal) démarré ; (Rouge) Dépassement ; (Vert) Terminé avant les heures prévues"
 
 #. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_kanban_inherited_progress
-msgid "Remaining hours. Initialy planned: {{ record.planned_hours.raw_value }}h"
-msgstr "Heures restantes. Prévues: {{ record.planned_hours.raw_value }}h"
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__progress_reviewed
+msgid "Reviewed Progress"
+msgstr "Avancement revu"
 
 #. module: carpentry_timesheet
 #: model:ir.model,name:carpentry_timesheet.model_project_task
@@ -222,7 +153,7 @@ msgstr "Tâche"
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_overtime
 msgid "Task Overtime"
-msgstr "Dépassement sur la tâche"
+msgstr "Dépassement de la tâche"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_performance
@@ -235,24 +166,14 @@ msgid "Task Planned Hours"
 msgstr "Heures prévues de la tâche"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_progress
-msgid "Task Progress"
-msgstr "Avancement de la tâche"
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_progress_reviewed
+msgid "Task Progress Reviewed"
+msgstr "Avancement revu de la tâche"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_remaining_hours
 msgid "Task Remaining Hours"
 msgstr "Heures restantes de la tâche"
-
-#. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_project_task_type
-msgid "Task Stage"
-msgstr "Étape de tâche"
-
-#. module: carpentry_timesheet
-#: model:ir.model.constraint,message:carpentry_timesheet.constraint_project_task_hours_need_budget
-msgid "Task budget is exceeding available budget in project for tasks on this product."
-msgstr "Le budget de cette tâche dépasse le budget disponible dans l'affaire pour ce produit."
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
@@ -265,28 +186,22 @@ msgid "Timesheet Sheet"
 msgstr "Feuille de temps"
 
 #. module: carpentry_timesheet
-#: model:ir.actions.act_window,name:carpentry_timesheet.action_open_timesheet_report
-msgid "Timesheet report per Week"
-msgstr "Rapport de feuille de temps par semaine"
+#: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
+#: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
+msgid "Timesheet's budgets"
+msgstr "Budgets des avancements"
 
 #. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.product_template_search_view
-msgid "Timesheetable"
-msgstr "Imputable"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_project_budget_pivot_timesheetable
-msgid "Timesheetable budgets"
-msgstr "Budgets imputables"
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_account_analytic_account__timesheetable
+msgid "Timesheetable?"
+msgstr "Peut être utilisé pour les feuilles de temps ?"
 
 #. module: carpentry_timesheet
 #. odoo-javascript
 #: code:addons/carpentry_timesheet/static/src/planning/planning_dashboard.js:0
-#: model:ir.actions.server,name:carpentry_timesheet.action_open_task_forecast
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_task_search_timesheet
 #, python-format
 msgid "Timesheets"
-msgstr "Imputations"
+msgstr "Feuilles de temps"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_timesheet_pivot
@@ -294,56 +209,30 @@ msgid "Timesheets Analysis By Week"
 msgstr "Analyse des feuilles de temps par semaine"
 
 #. module: carpentry_timesheet
-#: model:ir.model,name:carpentry_timesheet.model_timesheets_analysis_report
-msgid "Timesheets Analysis Report"
-msgstr "Rapport d'analyse des feuilles de temps"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__allow_timesheets
-msgid "Timesheets can be logged on this task."
-msgstr "Des feuilles de temps peuvent être saisies sur cette tâche."
+#: model:ir.actions.act_window,name:carpentry_timesheet.action_open_timesheet_report
+msgid "Timesheets of this Week"
+msgstr "Feuilles de temps de cette semaine"
 
 #. module: carpentry_timesheet
 #. odoo-javascript
-#: code:addons/carpentry_timesheet/static/src/kanban_button.xml:0
+#: code:addons/carpentry_timesheet/static/src/kanban_task_timesheet/kanban_task_timesheet.xml:0
 #, python-format
 msgid "View Budgets"
 msgstr "Voir les budgets"
 
 #. module: carpentry_timesheet
-#. odoo-javascript
-#: code:addons/carpentry_timesheet/static/src/kanban_button.js:0
-#, python-format
-msgid "View Timesheet Budgets"
-msgstr "Voir les budgets des feuilles de temps"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid "You cannot log timesheets on this project either because:"
-msgstr "Vous ne pouvez pas enregistrer des feuilles de temps sur cette affaire car :"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid ""
-"it is linked to an inactive analytic account ;\n"
-"                                please change this account, or reactivate the current one to timesheet on the project."
-msgstr ""
-"il est lié à un compte analytique inactif ;\n"
-"                                veuillez modifier ce compte, ou réactiver le compte actuel, afin d'établir une feuille de temps sur l'affaire."
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid "no product is set on the task (see below)"
-msgstr "aucun article n'est défini sur la tâche (voir ci-dessous)"
-
-#. module: carpentry_timesheet
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid "timesheet are explicitely disabled (see below)"
-msgstr "les feuilles de temps sont explicitement désactivées (voir ci-dessous)"
+#: model:ir.model.fields,help:carpentry_timesheet.field_hr_department__analytic_account_id
+msgid "Will defined the Analytic Account of the Tasks created by the employees of the department."
+msgstr "Définira le compte analytique des tâches créées par les employés de ce département."
 
 #. module: carpentry_timesheet
 #. odoo-javascript
 #: code:addons/carpentry_timesheet/static/src/planning/planning_dashboard.xml:0
 #, python-format
 msgid "timesheets"
-msgstr "imputations"
+msgstr "feuilles de temps"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid "{'required': [('planned_hours_required', '=', True)]}"
+msgstr "{'required' : [('planned_hours_required', '=', True)]} }"

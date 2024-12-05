@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_analytic_account_form" model="ir.ui.view">
+        <field name="name">analytic.analytic.account.form.carpentry_timesheet</field>
+        <field name="model">account.analytic.account</field>
+        <field name="inherit_id" ref="project_budget.view_account_analytic_account_form" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Timesheetable` boolean -->
+            <group name="project_budget" position="inside">
+                <field name="timesheetable" widget="boolean_toggle" />
+            </group>
+        </field>
+    </record>
+</odoo>

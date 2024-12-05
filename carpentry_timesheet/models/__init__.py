@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from . import carpentry_planning_card
 
 from . import hr_department
 from . import hr_employee_base
 from . import hr_timesheet_sheet
 
-from . import product_template
-
-from . import project_project
+from . import account_analytic_account
 from . import project_task
-from . import project_role
+from . import project_type
+
+from . import carpentry_planning_card

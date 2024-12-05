@@ -17,17 +17,15 @@ class Task(models.Model):
     #===== Fields' methods =====#
     @api.model
     def default_get(self, field_names):
-        defaults_dict = super().default_get(field_names)
+        vals = super().default_get(field_names)
         
         # Default `type_id`
         type_id = None
         if 'type_id' in field_names and not self._context.get('default_type_id'):
-            type_id = self._get_default_type_id()
-            defaults_dict['type_id'] = type_id.id
-            defaults_dict['parent_type_id'] = type_id.parent_id.id
-        return defaults_dict
+            vals['type_id'] = self._get_default_type_id()
+        return vals
 
-    def _get_default_type_id(self):
+    def _get_default_type_id(self, vals={}):
         """ Set a default `type_id` within the possible allowed
             by `root_type_id` and `parent_type_id`
         """
@@ -42,10 +40,20 @@ class Task(models.Model):
         # If some seems more relevant/compatible with roles of current user
         # auto-suggest this default in preference
         domain_role = [('role_id.assignment_ids.user_id', '=', self.env.uid)]
-        filtered_type_ids = type_ids.filtered_domain(domain_role)
-        type_ids = filtered_type_ids if filtered_type_ids.ids else type_ids
+        filtered_type_ids = type_ids.sudo().filtered_domain(domain_role)
+        if filtered_type_ids.ids:
+            type_ids = filtered_type_ids
 
-        return fields.first(type_ids)
+        # If some seems more relevant/compatible with **ANALYTIC ACCOUNT** (see `project_task_analytic_hr`)
+        # auto-suggest in last preference
+        if len(type_ids.ids) > 1:
+            analytic = self.env.user.employee_id._get_analytic_account_id()
+            domain_analytic = [('analytic_account_id', '=', analytic.id)]
+            filtered_type_ids = type_ids.filtered_domain(domain_analytic)
+            if filtered_type_ids.ids:
+                type_ids = filtered_type_ids
+
+        return fields.first(type_ids).id
     
     @api.model
     def _read_group_types(self, records, domain, order, task_ok=True):

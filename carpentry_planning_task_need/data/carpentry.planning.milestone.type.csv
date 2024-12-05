@@ -1,5 +1,0 @@
-id,name,sequence,column_id:id,icon,type
-launch_milestone_method_go_buy,Go for Purchase,50,carpentry_planning_task_need.planning_column_need_method,fa fa-eur,
-launch_milestone_method_go_output,Go for Output,60,carpentry_planning_task_need.planning_column_need_method,fa fa-scissors,
-launch_milestone_install_start,Installation Start,30,carpentry_planning_task_need.planning_column_need_construction,fa fa-calendar-o,start
-launch_milestone_install_end,Installation End,40,carpentry_planning_task_need.planning_column_need_construction,fa fa-calendar-check-o,end

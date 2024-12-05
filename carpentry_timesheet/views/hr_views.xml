@@ -1,84 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menu-Item 'To Review': only 1 link -->
-    <record id="hr_timesheet_sheet.menu_hr_to_review" model="ir.ui.menu">
-        <field name="action" ref="hr_timesheet_sheet.act_hr_timesheet_sheet_to_review" />
-    </record>
-    <record id="hr_timesheet_sheet.menu_act_hr_timesheet_sheet_to_review" model="ir.ui.menu">
-        <field name="groups_id" eval="[(6,0,[ref('base_usability.group_nobody')])]" />
-    </record>
-    
-    <!-- Employee & Department forms: add default `product_id` -->
-    <record id="view_employee_form" model="ir.ui.view">
-        <field name="name">hr.employee.form.carpentry</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
-
-        <field name="arch" type="xml">
-            <group name="application_group" position="inside">
-                <field name="product_id" options="{'no_create_edit': 1}" />
-            </group>
-        </field>
-    </record>
-    <record id="view_department_form" model="ir.ui.view">
-        <field name="name">hr.department.form.carpentry</field>
-        <field name="model">hr.department</field>
-        <field name="inherit_id" ref="hr.view_department_form"/>
-
-        <field name="arch" type="xml">
-            <field name="parent_id" position="after">
-                <field name="product_id" options="{'no_create_edit': 1}" />
-                <field name="is_role" widget="boolean_toggle" />
-            </field>
-        </field>
-    </record>
-
-    <!-- Timesheet sheet: customization -->
+    <!-- Timesheet sheet form -->
     <record id="hr_timesheet_sheet_form" model="ir.ui.view">
         <field name="name">hr.timesheet.sheet.tree.carpentry</field>
         <field name="model">hr_timesheet.sheet</field>
         <field name="inherit_id" ref="hr_timesheet_sheet.hr_timesheet_sheet_form"/>
 
         <field name="arch" type="xml">
-            <!-- Header: Button "Same line than previous sheet" -->
-            <header position="inside">
-                <button name="action_timesheet_copy_previous" type="object" string="Copy previous sheet" class="oe_highlight" icon="fa-copy" />
-            </header>
-
-            <!-- Add new line: `product_id`, only visible for project_manager and by default on employee's default product -->
-            <field name="add_line_project_id" position="after">
-                <field name="hide_product_id" invisible="1" />
-                <field name="add_line_product_id" attrs="{'invisible': [('hide_product_id', '=', True)]}" />
-            </field>
-            <field name="add_line_task_id" position="attributes">
-                <attribute name="domain">[
-                    ('id', 'in', available_task_ids),
-                    ('allow_timesheets', '=', True),
-                    ('product_id.product_variant_ids', '=', add_line_product_id)
-                ]</attribute>
-            </field>
-            <button name="button_add_line" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', ('add_line_project_id', '=', False), ('add_line_task_id', '=', False)]}</attribute>
-            </button>
-
-            <!-- Page `Details` -> timesheet_ids -->
+            <!-- Order `timesheet_ids` by date (like in Task view) -->
             <xpath expr="//field[@name='timesheet_ids']/tree" position="attributes">
-                <attribute name="default_order">date ASC</attribute>
+                <attribute name="default_order">date</attribute>
             </xpath>
-            <xpath expr="//field[@name='timesheet_ids']//field[@name='project_id']" position="after">
-                <field name="company_id" invisible="1" />
-                <field name="hide_product_id" invisible="1" />
-                <field name="product_id" required="True" attrs="{'invisible': [('hide_product_id', '=', True)]}"
-                    domain="[('is_timesheetable', '=', True)]" />
-            </xpath>
+
+            <!-- Make `task_id` required, and filter on *timesheetable* tasks -->
             <xpath expr="//field[@name='timesheet_ids']//field[@name='task_id']" position="attributes">
                 <attribute name="required">1</attribute>
-                <attribute name="domain">[
-                    ('project_id', '=', project_id),
-                    ('allow_timesheets', '=', True),
-                    ('product_id.product_variant_ids', '=', product_id)
-                ]</attribute>
+                <attribute name="domain">[('project_id', '=', project_id), ('allow_timesheets', '=', True)]</attribute>
             </xpath>
+
+            <!-- `Description` not required on timesheets -->
             <xpath expr="//field[@name='timesheet_ids']//field[@name='name']" position="attributes">
                 <attribute name="required">0</attribute>
             </xpath>

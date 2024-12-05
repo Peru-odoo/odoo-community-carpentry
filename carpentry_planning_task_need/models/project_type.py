@@ -35,9 +35,35 @@ class ProjectType(models.Model):
 
 
     #===== Planning =====#
+    @api.model
     def _synch_mirroring_column_id(self, column_id):
-        """ Called by `carpentry.planning.column` on changes on `identifier_ref` """
-        self.child_ids.column_id = column_id
+        """ Called by `carpentry.planning.column` on changes on `identifier_ref`
+            This method applies to all records of `project.type` independently of
+             arg `column_id`
+        """
+        # Unset previous
+        self.search([]).column_id = False
+        
+        # Set new
+        domain = [('identifier_res_model', '=', self._name)]
+        parent_type_ids = self.env['carpentry.planning.column'].search(domain).identifier_res_id
+        if parent_type_ids:
+            parent_type_ids.column_id = column_id
+
+        
+    identifier_res_id = fields.Many2oneReference(
+        model_field='identifier_res_model',
+        string='Identifier ID',
+    )
+    identifier_res_model_id = fields.Many2one(
+        comodel_name='ir.model',
+        string='Identifier Model ID',
+        ondelete='cascade'
+    )
+    identifier_res_model = fields.Char(
+        string='Identifier Model',
+        related='identifier_res_model_id.model',
+    )
     
     @api.model
     def _get_planning_subheaders(self, column_id, launch_id):

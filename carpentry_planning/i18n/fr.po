@@ -311,7 +311,7 @@ msgstr "Type de jalon"
 #: model:ir.actions.act_window,name:carpentry_planning.action_carpentry_planning_milestone_type
 #: model:ir.ui.menu,name:carpentry_planning.menu_carpentry_planning_milestone_type
 msgid "Planning Milestones"
-msgstr "Jalons"
+msgstr "Jalons du planning"
 
 #. module: carpentry_planning
 #: model:ir.model,name:carpentry_planning.model_carpentry_planning_mixin
