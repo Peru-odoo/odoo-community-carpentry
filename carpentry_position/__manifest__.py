@@ -18,13 +18,14 @@
         'carpentry_base', 'carpentry_project', # carpentry
     ],
     'data': [
+        # security
+        'security/ir_model.xml',
+        'security/ir.model.access.csv',
         # views
         'views/carpentry_affectation.xml',
         'views/carpentry_groups.xml',
         'views/carpentry_position.xml',
         'views/project_project.xml',
-        # security
-        'security/ir.model.access.csv',
     ],
     'assets': {
         'web.assets_backend': [

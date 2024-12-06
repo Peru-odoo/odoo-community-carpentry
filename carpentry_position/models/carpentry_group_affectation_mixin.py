@@ -26,7 +26,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         comodel_name='carpentry.group.affectation',
         inverse_name='group_id',
         string='Positions Affectations',
-        domain=[('group_res_model', '=', _name)], # this line must be overriten/copied in heriting models
+        domain=[('group_res_model', '=', _name)], # this line must be overriten/copied with `_name` of heriting models
     )
     section_ids = fields.One2many(
         comodel_name=_name, # this line must be overriten/copied in heriting models
@@ -62,6 +62,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     @api.onchange('sequence')
     def _onchange_sequence(self):
+        print('_onchange_sequence')
         """ Manually update affectation's sequences, because @api.depense('record_ref.sequence')
             on Reference field is not supported (see `carpentry.group.affectation`)
 
@@ -91,6 +92,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             - for Phases: project's positions
             - for Launches: phases' affectations
         """
+        print('_get_compute_record_refs')
         self.ensure_one()
     
     def _get_affect_vals(self, mapped_model_ids, record_ref, affectation=False):
@@ -104,12 +106,13 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 * if compute (real->team): **False** or record of *real*
                 * if new affectation (shortcut): False
         """
+        print('_get_affect_vals')
         self.ensure_one()
         group_ref = affectation.group_ref if affectation else self
         record_ref = affectation.record_ref if affectation else record_ref
         section = self._carpentry_affectation_section
 
-        return {
+        vals = {
             'project_id': group_ref.project_id.id,
             # M2o models
             'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(self._name),
@@ -129,17 +132,22 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 if group_ref._carpentry_affectation_quantity else False
             ),
         }
+        print('_get_affect_vals')
+        return vals
     
     def _get_mapped_model_ids(self):
         """ Needed outside of `_get_affect_vals()` for performance """
+        print('_get_mapped_model_ids:start')
         model_ids = self.env['ir.model'].sudo().search([])
+        print('_get_mapped_model_ids:end')
         return {x.model: x.id for x in model_ids}
+    
     @api.model
-
     def _should_inverse(self, vals):
         """ [Can be overritten]
             Function to filter which records to convert from *temp* to *real* affectation
         """
+        print('_should_inverse')
         return (
             vals.get('quantity_affected') > 0 if self._carpentry_affectation_quantity
             else vals.get('affected')
@@ -153,12 +161,15 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
             `self` is a recordset of a Carpentry Group (Phases, Launches, ...)
         """
+        print('_compute_affectation_ids_temp start')
         vals_list = vals_list or self._get_affectation_ids_temp_vals_list()
         matrix = self._write_or_create_temp(vals_list)
+        print('_compute_affectation_ids_temp end')
         return [Command.set(matrix.ids)]
     
     def _get_affectation_ids_temp_vals_list(self):
         # Get real values to put in new `temp_ids`
+        print('_get_affectation_ids_temp_vals_list start')
         mapped_real_ids = {
             (affectation.group_id, affectation.record_id): affectation
             for affectation in self.affectation_ids
@@ -174,12 +185,14 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 affectation = mapped_real_ids.get((group_ref.id, record_ref.id))
                 vals = group_ref._get_affect_vals(mapped_model_ids, record_ref, affectation)
                 vals_list.append(vals | {'affected': bool(affectation)})
+        print('_get_affectation_ids_temp_vals_list end')
         return vals_list
     
     def _write_or_create_temp(self, vals_list):
         """ Returns the affectation_temp_ids that can be used in Command.set() for a O2m on a `form`,
             by searching any existing records in database (and updating them with val_list) or creating them
         """
+        print('_write_or_create_temp start')
         temp_ids = self.env['carpentry.group.affectation.temp'].search(self._get_domain_affect())
         vals_list_create_temp = []
         for vals in vals_list:
@@ -192,6 +205,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 existing_id.write(vals)
             else:
                 vals_list_create_temp.append(vals)
+        print('_write_or_create_temp end')
         return temp_ids | temp_ids.create(vals_list_create_temp)
     
     # -- Inverse of `affectation.temp` to `real` --
@@ -207,6 +221,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             * `vals_list`: {temp_id: vals} of **updated only** `affectation_ids_temp`
                 where `vals` **only** keys are updated vals (i.e. `quantity_affected` or `affected`)
         """
+        print('_inverse_affectation_ids_temp start')
         self = self.with_context(constrain_quantity_affected_silent=True)
         vals_list_create, ids_to_remove = [], []
 
@@ -250,6 +265,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
         # check constrain once all CRUD is done, else constrain is mis-computed
         real_ids.with_context(constrain_quantity_affected_silent=False)._constrain_quantity()
+        print('_inverse_affectation_ids_temp end')
     
     
     #===== Affectation shortcut =====#
@@ -271,6 +287,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """
         if not self._carpentry_affectation_section:
             return
+        print('_inverse_section_ids start')
         
         mapped_model_ids = self._get_mapped_model_ids()
         for group in self:
@@ -306,12 +323,14 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 ) for affectation in new_affectation_ids
             ]
             group.affectation_ids = [Command.create(vals) for vals in vals_list]
+        print('_inverse_section_ids end')
 
     #====== Buttons for Affectation shortcuts ======#
     def _populate_group_from_section(self):
         """ Populate a kind of group (e.g. phase or launch)
             from its section (e.g. lots or phases)
         """
+        print('_populate_group_from_section start')
         project_id_ = self._get_project_id(raise_if_not_found=True)
         section_field = self._carpentry_affectation_section
 
@@ -321,6 +340,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'project_id': project_id_,
             'section_ids': [Command.set(section.ids)]
         } for section in section_ids])
+        print('_populate_group_from_section end')
 
 
     #====== Affectations counters ======#
@@ -329,6 +349,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation',
             eg. for a phase or a launch
         """
+        print('_compute_sum_position_quantity_affected start')
         # Get and group mapped data by `group_id`
         mapped_data = defaultdict(int)
         for key, qty in self._get_quantities().items():
@@ -337,10 +358,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         # Set sum or 0
         for record in self:
             record.sum_position_quantity_affected = mapped_data.get(record.id, 0)
+        print('_compute_sum_position_quantity_affected end')
 
     def _get_quantities(self):
         """ :return: param of `carpentry_position_budget.sum()` """
         quantities = defaultdict(int)
+        print('_get_quantities start')
         
         for affectation in self.affectation_ids:
             # handle nested affectation to find related `position_id` of this affectation
@@ -358,6 +381,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             field_qty = 'quantity_affected_parent' if nested else 'quantity_affected'
             quantities[key] += affectation[field_qty]
         
+        print('_get_quantities end')
         return quantities
 
 

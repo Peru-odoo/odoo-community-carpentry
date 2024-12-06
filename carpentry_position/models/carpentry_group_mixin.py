@@ -34,10 +34,6 @@ class CarpentryGroupMixin(models.AbstractModel):
         store=True,
         copy=False
     )
-    next_id = fields.Integer(
-        string='Next ID',
-        compute='_compute_next_id'
-    )
 
     _sql_constraints = [(
         "name_per_project",
@@ -57,16 +53,6 @@ class CarpentryGroupMixin(models.AbstractModel):
         for group in self:
             group.sequence = mapped_data.get(group.project_id.id, 0) + 1
             mapped_data[group.project_id.id] = group.sequence
-
-    def _compute_next_id(self):
-        """ Needed for 'Save & Next' button on form wizzard """
-        for record in self:
-            domain = [
-                ('sequence', '>=', record.sequence),
-                ('project_id', '=', record.project_id.id
-            )]
-            record.next_id = self.env[self._name].search(domain, limit=1, offset=1).id
-
 
     #===== Affectation method =====#
     def _get_domain_affect(self, group='group', group2_ids=None, group2='record'):

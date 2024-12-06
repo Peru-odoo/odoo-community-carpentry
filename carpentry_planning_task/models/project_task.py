@@ -108,7 +108,7 @@ class Task(models.Model):
                 res_model_id_ = record_id.column_id.res_model_id.id
             else: # Any other models (i.e. a Plan Set, a Task Meeting, ...)
                 res_id_ = record_id.id
-                res_model_id_ = self.env['ir.model']._get(record_id._name).id
+                res_model_id_ = self.env['ir.model'].sudo()._get(record_id._name).id
                 
             domain += [
                 ('card_res_id', '=', res_id_),

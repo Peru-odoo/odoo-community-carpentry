@@ -94,7 +94,7 @@ class Task(models.Model):
     #===== Compute `res_id` and `res_model_id` ======#
     @api.depends('type_id', 'need_id')
     def _compute_card_res_id(self):
-        model_id_ = self.env['ir.model']._get('project.type').id
+        model_id_ = self.env['ir.model'].sudo()._get('project.type').id
         for task in self._filter_needs():
             task.card_res_id = task.type_id.id
             task.card_res_model_id = model_id_

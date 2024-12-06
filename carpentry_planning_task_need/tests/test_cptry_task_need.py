@@ -145,7 +145,7 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         })
 
         # Test computation of `res_card_id` and `res_card_model_id` for standalone needs
-        self.assertEqual(task.card_res_model_id.model, 'project.type')
+        self.assertEqual(task.card_res_model, 'project.type')
         self.assertEqual(task.card_res_id, self.type_need_child.id)
 
         # standalone can be deleted

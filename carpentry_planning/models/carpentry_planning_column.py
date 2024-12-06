@@ -155,7 +155,7 @@ class CarpentryPlanningColumn(models.Model):
     #===== Compute =====#
     def _compute_res_model_shortname(self):
         for column in self:
-            column.res_model_shortname = column.res_model_id.model.replace('carpentry.', '').replace('.', '_')
+            column.res_model_shortname = column.res_model.replace('carpentry.', '').replace('.', '_')
 
     @api.depends('identifier_res_model_id', 'identifier_res_id')
     def _compute_identifier_ref(self):
@@ -220,8 +220,8 @@ class CarpentryPlanningColumn(models.Model):
                 'budgets': []
             } | (
                 # specific custom other headers data per columns
-                self.env[column.res_model_id.model]._get_planning_subheaders(self, launch_id)
-                if '_get_planning_subheaders' in self.env[column.res_model_id.model] else {}
+                self.env[column.res_model]._get_planning_subheaders(self, launch_id)
+                if '_get_planning_subheaders' in self.env[column.res_model] else {}
             )
             for column in self
         }

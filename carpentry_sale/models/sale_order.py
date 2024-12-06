@@ -66,6 +66,8 @@ class SaleOrder(models.Model):
                 order.lines_validated = 'all_validated'
             else:
                 order.lines_validated = 'not_validated'
+    
+    @api.model
     def _search_lines_validated(self, operator, value):
         if value == 'none':
             return [('order_line', '=', False)]

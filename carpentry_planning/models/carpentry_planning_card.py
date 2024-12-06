@@ -147,7 +147,7 @@ class CarpentryPlanningCard(models.Model):
         """
     
     def _from(self, column):
-        model = column.res_model_id.model.replace('.', '_')
+        model = column.res_model.replace('.', '_')
         return f'FROM {model} AS card'
     
     def _join(self, column):

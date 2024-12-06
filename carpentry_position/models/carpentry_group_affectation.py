@@ -51,6 +51,7 @@ class CarpentryGroupAffectation(models.Model):
                 and self.env[model.model]._carpentry_affectation
             )
         ]
+
     def _selection_record_res_model(self):
         return [
             ('carpentry.position', 'Position'),
@@ -59,7 +60,7 @@ class CarpentryGroupAffectation(models.Model):
     
     # Base
     project_id = fields.Many2one(
-        'project.project',
+        comodel_name='project.project',
         string='Project',
         readonly=True,
         required=True,
@@ -75,7 +76,7 @@ class CarpentryGroupAffectation(models.Model):
         index='btree_not_null'
     )
     group_model_id = fields.Many2one(
-        'ir.model',
+        comodel_name='ir.model',
         string='Group Model ID',
         ondelete='cascade'
     )
@@ -85,7 +86,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     group_ref = fields.Reference(
         selection='_selection_group_res_model',
-        compute='_compute_fields_ref'
+        compute='_compute_fields_ref',
     )
     seq_group = fields.Integer()
 
@@ -98,7 +99,7 @@ class CarpentryGroupAffectation(models.Model):
         index='btree_not_null',
     )
     record_model_id = fields.Many2one(
-        'ir.model',
+        comodel_name='ir.model',
         string='Record Model ID',
         ondelete='cascade'
     )
@@ -108,7 +109,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     record_ref = fields.Reference(
         selection='_selection_record_res_model',
-        compute='_compute_fields_ref'
+        compute='_compute_fields_ref',
     )
     sequence = fields.Integer()
 
@@ -120,24 +121,24 @@ class CarpentryGroupAffectation(models.Model):
         index='btree_not_null',
     )
     section_model_id = fields.Many2one(
-        'ir.model',
+        comodel_name='ir.model',
         string='Section Model ID',
         ondelete='cascade'
     )
     section_res_model = fields.Char(
         string='Section Model',
-        related='section_model_id.model'
+        related='section_model_id.model',
     )
     section_ref = fields.Reference(
         selection='_selection_group_res_model',
-        compute='_compute_fields_ref'
+        compute='_compute_fields_ref',
     )
     seq_section = fields.Integer()
 
     # Nested/children affectations: when the affectation's parent is another affectation
     affectation_ids = fields.One2many(
-        'carpentry.group.affectation',
-        'record_id',
+        comodel_name='carpentry.group.affectation',
+        inverse_name='record_id',
         string='Children Affectations',
         domain=[('record_res_model', '=', 'carpentry.group.affectation')]
     )
@@ -160,7 +161,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     quantity_affected_parent = fields.Integer(
         compute='_compute_quantity_affected_parent',
-        string='Quantity affected to parent group'
+        string='Quantity affected to parent group',
     )
     quantity_position = fields.Integer(
         string="Position quantity",
@@ -293,7 +294,7 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             if not affectation.group_ref._carpentry_affectation_quantity:
                 continue
-            # 2024-11 - ALY: qty == 0 should be allowed
+            # 2024-11 - ALY: disabled to allow `qty == 0` via affectation shortcut
             # if affectation.quantity_affected <= 0:
             #     raise exceptions.ValidationError(
             #         _("Quantity affected must be strictly greater than 0, delete it instead.")

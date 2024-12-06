@@ -2,8 +2,8 @@
 
 from odoo import fields, models, exceptions, _
 
-class IrDefault(models.Model):
-    _inherit = 'ir.default'
+class ProjectChoiceWizard(models.TransientModel):
+    _inherit = ['project.choice.wizard']
 
     def open_project_list_or_form(self):
         """ This (ugly) proxy-method is needed because:
