@@ -42,13 +42,11 @@ class ProjectType(models.Model):
              arg `column_id`
         """
         # Unset previous
-        self.search([]).column_id = False
+        self.sudo().search([('column_id', '=', column_id.id)]).column_id = False
         
         # Set new
-        domain = [('identifier_res_model', '=', self._name)]
-        parent_type_ids = self.env['carpentry.planning.column'].search(domain).identifier_res_id
-        if parent_type_ids:
-            parent_type_ids.column_id = column_id
+        if column_id.identifier_ref:
+            column_id.identifier_ref.column_id = column_id
 
         
     identifier_res_id = fields.Many2oneReference(
