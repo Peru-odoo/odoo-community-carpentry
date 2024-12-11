@@ -67,7 +67,7 @@ class Task(models.Model):
 
         if self.effective_hours and not self.planned_hours:
             return -100
-        elif self.stage_id.fold or self.overtime:
+        elif self.planned_hours and (self.stage_id.fold or self.overtime):
             return 100 * (self.planned_hours - self.effective_hours) / self.planned_hours
 
-        return 0
+        return False
