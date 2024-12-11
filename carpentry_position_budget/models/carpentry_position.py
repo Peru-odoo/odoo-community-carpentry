@@ -25,8 +25,6 @@ class CarpentryPosition(models.Model):
         currency_field='currency_id',
     )
 
-    _sql_constraints = [("name_per_project", "CHECK (1=1)", "")]
-
     #===== Compute (display_name) =====#
     def _compute_display_name(self):
         """ Full display_name mode for merge wizard """
