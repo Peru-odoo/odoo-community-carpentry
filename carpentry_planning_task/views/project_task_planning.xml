@@ -75,12 +75,37 @@
                 <field name="card_res_model_id" invisible="1" />
             </tree>
 
-            <!-- `date_deadline` and `date_end` -->
+            <!-- Quick-button "Toggle done" -->
+            <field name="priority" position="before">
+                <field name="is_closed" invisible="1" />
+
+                <button name="button_toggle_done"
+                    type="object"
+                    icon="fa-check"
+                    class="btn btn-success p-0 rounded-circle"
+                    title="Task is closed, click to re-open it"
+                    attrs="{'invisible': [('is_closed', '!=', True)]}"
+                />
+                <button name="button_toggle_done"
+                    type="object"
+                    icon="fa-check"
+                    class="p-0"
+                    title="Click to close the task"
+                    attrs="{'invisible': [('is_closed', '=', True)]}"
+                />
+            </field>
+
+            <!-- `create_date`, `date_deadline` and `date_end` -->
+            <field name="date_deadline" position="before">
+                <!-- Create Date: shown by default -->
+                <field name="create_date_week" optional="show" />
+            </field>
             <field name="date_deadline" position="attributes">
                 <attribute name="optional">show</attribute>
             </field>
             <field name="date_deadline" position="after">
-                <field name="date_end" optional="show" widget="date" />
+                <!-- Date End: added by hidden by default -->
+                <field name="date_end" optional="hide" widget="date" />
             </field>
 
             <!-- Always display `date_deadline` (normally hidden if closed) -->

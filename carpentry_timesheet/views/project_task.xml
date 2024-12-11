@@ -19,6 +19,7 @@
                 'context': {
                     'default_allow_timesheets': True,
                     'default_planned_hours_required': 1,
+                    'display_short_name': True # not to display analytic code
                 }
             })
         </field>
@@ -54,10 +55,9 @@
                     <t t-set="badge" t-value="'border-warning'" t-if="record.progress.raw_value &gt; 0"/>
                     <t t-set="badge" t-value="'border-danger'" t-if="record.remaining_hours.raw_value &lt; 0"/>
                     
-                    <t t-set="title" t-value="'Remaining days'" t-if="record.encode_uom_in_days.raw_value"/>
-                    <t t-set="title" t-value="'Remaining hours'" t-else=""/>
-
-                    <div t-attf-class="oe_kanban_align badge {{ badge }}" t-att-title="title">
+                    <div t-attf-class="oe_kanban_align badge {{ badge }}"
+                        t-att-title="record.encode_uom_in_days.raw_value ? 'Remaining days' : 'Remaining hours'"
+                    >
                         <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h <!-- widget="timesheet_uom" ??? -->
                     </div>
                     
@@ -151,18 +151,39 @@
                 <field name="priority" invisible="1" />
 
                 <group>
-                    <field name="project_id" placeholder="Task" nolabel="1"
+                    <label for="project_id" colspan="2" invisible="context.get('default_project_id', False)" />
+                    <field name="project_id"
+                        nolabel="1"
+                        colspan="2"
                         invisible="context.get('default_project_id', False)"
                     />
-                    <field name="name" string="Task" required="True" placeholder="Name" />
 
+                    <label for="name" colspan="2" />
+                    <field name="name"
+                        string="Task"
+                        nolabel="1"
+                        colspan="2"
+                        required="True"
+                        placeholder="Name"
+                    />
+
+                    <label for="planned_hours" colspan="2" />
                     <field name="planned_hours"
+                        nolabel="1"
+                        colspan="2"
                         placeholder="Planned hours"
                         attrs="{'required': [('planned_hours_required', '=', True)]}"
                     />
 
-                    <div>
-                        (available: <field name="available_budget" nolabel="1" class="oe_inline" />h)
+                    <div colspan="2">
+                        (available: 
+                        <field name="available_budget"
+                            nolabel="1"
+                            class="oe_inline"
+                            decoration-bf="available_budget &lt; 0"
+                            decoration-danger="available_budget &lt; 0"
+                        />
+                        h)
                     </div>
                 </group>
             </form>

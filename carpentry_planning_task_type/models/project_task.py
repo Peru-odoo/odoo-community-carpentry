@@ -145,6 +145,9 @@ class Task(models.Model):
         default=False,
         compute='_compute_can_create_linked_tasks'
     )
+    attachment_count = fields.Integer(
+        compute='_compute_attachment_count'
+    )
 
     #===== Constrain =====#
     @api.constrains('root_type_id', 'parent_type_id', 'type_id')
@@ -189,6 +192,17 @@ class Task(models.Model):
             self.env.ref(XML_ID_MEETING).id,
             self.env.ref(XML_ID_MILESTONE).id
         ]
+    
+    def _compute_attachment_count(self):
+        """ Count both `task.attachment_ids` and chatter's attachments """
+        rg_result = self.env['ir.attachment'].sudo().read_group(
+            domain=[('res_id', 'in', self.ids), ('res_model', '=', self._name)],
+            fields=['res_id'],
+            groupby=['res_id']
+        )
+        mapped_data = {x['res_id']: x['res_id_count'] for x in rg_result}
+        for task in self:
+            task.attachment_count = mapped_data.get(task.id)
 
     #===== Compute: display_name =====#
     @api.depends('name', 'type_id', 'root_type_id')
@@ -202,7 +216,7 @@ class Task(models.Model):
         """
         self.ensure_one()
         should_prefix = bool(
-            self._context.get('display_with_prefix', True)
+            self._context.get('display_with_prefix', True) # context may forced it to False
             and self._should_display_name_prefix()
         )
         dash = ' - ' if self.type_id.name and self.name else ''
@@ -214,8 +228,8 @@ class Task(models.Model):
     
     def _should_display_name_prefix(self):
         """ Classic and Instruction: never prefix the `display_name` """
-        no_prefix = [False, self.env.ref(XML_ID_INSTRUCTION)]
-        return self.root_type_id not in no_prefix
+        no_prefix = [self.env.ref(XML_ID_INSTRUCTION)]
+        return self.root_type_id and self.root_type_id not in no_prefix
     
     #===== Onchange: type =====#
     @api.onchange('root_type_id', 'parent_type_id')

@@ -12,7 +12,7 @@
             <tree position="inside">
                 <field name="name_required" invisible="1" />
                 <field name="color" invisible="1" />
-                <field name="attachment_ids" invisible="1" />
+                <field name="attachment_count" invisible="1" />
 
                 <header>
                     <button name="%(action_send_mail_task_carpentry)d" type="action" string="Send" icon="fa-envelope" class="mx-2" />
@@ -24,13 +24,19 @@
                 <attribute name="expand">True</attribute>
                 <attribute name="editable">top</attribute>
             </tree>
-            <!-- Burger-menu button to task detailed form -->
+            <!-- Burger-menu button to task detailed form
+                 Transform to paperclip icon if the task have attachments
+            -->
             <field name="priority" position="before">
-                <button name="action_open_planning_form" type="object" icon="fa-bars" title="Details" />
+                <button name="action_open_planning_form"
+                    type="object"
+                    icon="fa-bars"
+                    title="Details"
+                    attrs="{'invisible': [('attachment_count', '!=', 0)]}" />
                 <button name="action_open_planning_form"
                     type="object"
                     icon="fa-paperclip"
-                    attrs="{'invisible': [('attachment_ids', '=', [])]}"
+                    attrs="{'invisible': [('attachment_count', '=', 0)]}"
                     title="Has attachments"
                 />
             </field>

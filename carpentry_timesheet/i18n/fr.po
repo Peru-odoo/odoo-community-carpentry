@@ -6,16 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-11 14:30+0000\n"
-"PO-Revision-Date: 2024-12-11 15:33+0100\n"
+"POT-Creation-Date: 2024-12-11 17:46+0000\n"
+"PO-Revision-Date: 2024-12-11 17:46+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
@@ -28,9 +26,10 @@ msgid "Allow timesheets"
 msgstr "Autoriser les feuilles de temps"
 
 #. module: carpentry_timesheet
+#: model:ir.model,name:carpentry_timesheet.model_account_analytic_account
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_type__analytic_account_id
 msgid "Analytic Account"
-msgstr "Compte Analytique"
+msgstr "Compte analytique"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__user_ids
@@ -92,8 +91,8 @@ msgstr ""
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours_required
-msgid "Planned Hours Required"
-msgstr "\"Heures prévues\" obligatoire"
+msgid "Planned Hours mandatory"
+msgstr "Heures prévues nécessaires"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
@@ -129,7 +128,7 @@ msgstr ""
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__progress_reviewed
 msgid "Reviewed Progress"
-msgstr "Avancement"
+msgstr "Progrès révisé"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_project_id
@@ -145,27 +144,27 @@ msgstr "Tâche"
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_overtime
 msgid "Task Overtime"
-msgstr "Dépassement"
+msgstr "Tâche Heures supplémentaires"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_performance
 msgid "Task Performance"
-msgstr "Performance"
+msgstr "Exécution des tâches"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_planned_hours
 msgid "Task Planned Hours"
-msgstr "Heures prévues"
+msgstr "Tâche Heures prévues"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_progress_reviewed
 msgid "Task Progress Reviewed"
-msgstr "Avancement"
+msgstr "Examen de l'état d'avancement des tâches"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_remaining_hours
 msgid "Task Remaining Hours"
-msgstr "Heures restantes"
+msgstr "Tâche Heures restantes"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
