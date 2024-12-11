@@ -10,6 +10,7 @@ class CarpentryPosition(models.Model):
     # import
     external_db_id = fields.Integer(string='External DB ID')
     warning_name = fields.Boolean(
+        string='Warning Name',
         compute='_compute_warning_name',
     )
     # budget

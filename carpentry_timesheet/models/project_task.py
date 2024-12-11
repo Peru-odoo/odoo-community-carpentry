@@ -37,6 +37,7 @@ class Task(models.Model):
         group_operator='sum'
     )
     planned_hours_required = fields.Boolean(
+        string='Planned Hours mandatory',
         default=False
     )
 

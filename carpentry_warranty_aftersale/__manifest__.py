@@ -12,6 +12,7 @@
     'version': '16.0.1.0.1',
 
     'depends': [
+        'carpentry_base',
         'project_children_sequence', # carpentry
     ],
     'data': [
