@@ -75,19 +75,11 @@
                             <field name="project_id" />
                             <field name="position_id" />
                             <field name="analytic_account_id" />
-                            <field name="product_tmpl_id" />
                         </group>
                         <group name="right">
-                            <label for="amount" />
-                            <div name="amount">
-                                <field name="amount" class="oe_inline" />
-                                <span>per
-                                    <field name="uom_id" class="oe_inline"/>
-                                </span>
-                            </div>
-
+                            <field name="amount" />
                             <field name="value" />
-                            <field name="detailed_type" />
+                            <field name="budget_type" />
                         </group>
                     </group>
                 </sheet>
@@ -110,7 +102,7 @@
 
                 <searchpanel view_type="tree">
                     <field name="project_id" select="multi" invisible="context.get('_default_project_id')" />
-                    <field name="detailed_type" />
+                    <field name="budget_type" />
                 </searchpanel>
             </search>
         </field>

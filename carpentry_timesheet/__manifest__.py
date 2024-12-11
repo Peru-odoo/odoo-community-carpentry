@@ -23,7 +23,6 @@
         'views/carpentry_planning.xml',
         'views/hr_views.xml',
         'views/project_task.xml',
-        'views/account_analytic_account.xml',
         # report
         'report/hr_timesheet_report_view.xml',
     ],

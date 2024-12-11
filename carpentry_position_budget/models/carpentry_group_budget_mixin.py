@@ -50,34 +50,34 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
         return self.env['carpentry.position.budget'].sudo().sum(
             quantities=self._get_quantities(),
             groupby_group=['group_id'],
-            groupby_budget='detailed_type',
+            groupby_budget='budget_type',
             domain_budget=self._get_domain_budget_ids()
         )
     
     def _get_domain_budget_ids(self):
-        """ [For overwriting] Optional. Example: return [('product_id', 'in', ...)] """
+        """ [For overwriting] Optional """
         return []
     
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
-        self.budget_prod = self.sudo()._get_budget_one(brut, 'service_prod')
-        self.budget_install = self.sudo()._get_budget_one(brut, 'service_install')
-        self.budget_goods = self.sudo()._get_budget_one(valued, ['consu', 'storable'])
-        self.budget_total = self.sudo()._get_budget_one(valued, ['service_prod', 'service_install', 'consu', 'storable'])
+        self.budget_prod = self.sudo()._get_budget_one(brut, 'production')
+        self.budget_install = self.sudo()._get_budget_one(brut, 'installation')
+        self.budget_goods = self.sudo()._get_budget_one(valued, ['goods'])
+        self.budget_total = self.sudo()._get_budget_one(valued, ['production', 'installation', 'goods'])
     
-    def _get_budget_one(self, budget, detailed_types):
-        detailed_types = [detailed_types] if isinstance(detailed_types, str) else detailed_types
+    def _get_budget_one(self, budget, budget_types):
+        budget_types = [budget_types] if isinstance(budget_types, str) else budget_types
         return sum([
             budget.get(self.id, {}).get(x, 0.0)
-            for x in detailed_types
+            for x in budget_types
         ])
 
     @api.depends(
         # 1a. products template/variants price & dates
-        'project_id.position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids',
-        'project_id.position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.standard_price',
-        'project_id.position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.date_from',
+        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids',
+        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
         # 1b. valuations of qties -> budget's dates
         'project_id.budget_ids', 'project_id.budget_ids.date_from', 'project_id.budget_ids.date_to',
         # 2. positions' budgets

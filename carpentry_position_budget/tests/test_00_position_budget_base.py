@@ -19,42 +19,45 @@ class TestCarpentryPositionBudget_Base(TestCarpentryPosition_Base):
         cls.phase = fields.first(cls.project.phase_ids)
         cls.launch = fields.first(cls.project.launch_ids)
 
-        # product
-        cls.product_aluminium = cls.env['product.template'].create({
-            'name': 'Aluminium Test 01',
-            'detailed_type': 'consu',
-            'budget_ok': True
-        })
-        cls.product_prod = cls.env['product.template'].create({
-            'name': 'Production Test 01',
-            'detailed_type': 'service_prod',
-            'uom_id': cls.env.ref('uom.product_uom_hour').id,
-            'uom_po_id': cls.env.ref('uom.product_uom_hour').id,
-            'budget_ok': True,
-        })
-        cls.product_install = cls.product_prod.copy({
-            'name': 'Install Test 01',
-            'detailed_type': 'service_install',
-        })
-
         # analytic
         cls.analytic_plan = cls.env['account.analytic.plan'].create({
             'name': 'Project Budgets Test 01'
         })
         cls.aac_aluminium = cls.env['account.analytic.account'].create({
+            # aluminium tests global costs
             'name': 'AAC Aluminium Test 01',
             'plan_id': cls.analytic_plan.id,
-            'product_tmpl_id': cls.product_aluminium.id
+            'budget_type': 'project_global_cost'
         })
         cls.aac_prod = cls.env['account.analytic.account'].create({
             'name': 'AAC Production Test 01',
             'plan_id': cls.analytic_plan.id,
-            'product_tmpl_id': cls.product_prod.id
+            'budget_type': 'production'
         })
         cls.aac_install = cls.aac_prod.copy({
             'name': 'AAC Install Test 01',
-            'product_tmpl_id': cls.product_install.id
+            'budget_type': 'installation'
         })
+
+        # budget & template line
+        cls.account = cls.env["account.account"].create({
+            "code": "accounttest01",
+            "name": "Test Account 01",
+            "account_type": "asset_fixed",
+        })
+        cls.project.date_start = '2022-01-01' # like timesheet_cost_history_ids
+        cls.budget = fields.first(cls.project.budget_ids)
+        cls.TemplateLine = cls.env['account.move.budget.line.template']
+        cls.TemplateLine.create([{
+            'analytic_account_id': cls.aac_aluminium.id,
+            'account_id': cls.account.id,
+        }, {
+            'analytic_account_id': cls.aac_prod.id,
+            'account_id': cls.account.id,
+        }, {
+            'analytic_account_id': cls.aac_install.id,
+            'account_id': cls.account.id,
+        }])
 
         # interface
         cls.Interface = cls.env['carpentry.position.budget.interface']
@@ -81,27 +84,25 @@ class TestCarpentryPositionBudget_Base(TestCarpentryPosition_Base):
             'analytic_account_id': cls.aac_install.id,
         }])
 
-
         # hour valuation
-        cls.budget = fields.first(cls.project.budget_ids)
-        # Attribute
-        ProductAttribute = cls.env['product.attribute']
-        cls.attribute = ProductAttribute.create({
-            'name': 'Year test',
-            'values_date_ranged': True,
-            'value_ids': [Command.create({'name': y, 'date_from': y + '-01-01'}) for y in ['2022', '2023']]
+        # production
+        cls.dpt_prod = cls.env['hr.department'].create({
+            'name': 'Test Production Department 01',
+            "analytic_account_id": cls.aac_prod.id,
+            "hourly_cost": cls.HOUR_COST
         })
-        # Product Template: variant creation
-        create_attribute_line_ids = [Command.create({
-            'attribute_id': cls.attribute.id,
-            'value_ids': [Command.set(cls.attribute.value_ids.ids)],
-        })]
-        cls.product_prod.attribute_line_ids = create_attribute_line_ids
-        cls.product_install.attribute_line_ids = create_attribute_line_ids
-        # Variants
-        cls.product_prod_2022, cls.product_prod_2023 = cls.product_prod.product_variant_ids
-        cls.product_install_2022, cls.product_install_2023 = cls.product_install.product_variant_ids
-        cls.product_prod_2022.standard_price = cls.HOUR_COST
-        cls.product_prod_2023.standard_price = cls.HOUR_COST
-        cls.product_install_2022.standard_price = cls.HOUR_COST
-        cls.product_install_2023.standard_price = cls.HOUR_COST
+        vals = {
+            "hourly_cost": cls.HOUR_COST,
+            "currency_id": cls.env.user.company_id.currency_id.id,
+        }
+        cls.dpt_prod.timesheet_cost_history_ids = [
+            Command.create(vals | {"starting_date": '2022-01-01'}),
+            Command.create(vals | {"starting_date": '2023-01-01'}),
+        ]
+        # installation
+        cls.dpt_install = cls.dpt_prod.copy({
+            'name': 'Test Installation Department 01',
+            'analytic_account_id': cls.aac_install.id
+        })
+        for history in cls.dpt_prod.timesheet_cost_history_ids:
+            history.copy({'department_id': cls.dpt_install.id})

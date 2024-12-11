@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-05 18:53+0000\n"
-"PO-Revision-Date: 2024-12-05 20:00+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2024-12-10 13:03+0000\n"
+"PO-Revision-Date: 2024-12-11 15:38+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: \n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_position
@@ -54,29 +54,29 @@ msgstr "Actif ?"
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_position_tree
 msgid "Affectation"
-msgstr ""
+msgstr "Affectation"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_temp_launch
 msgid "Affectation Ids Temp Launch"
-msgstr ""
+msgstr "Affectation Ids Temp Launch"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_temp_phase
 msgid "Affectation Ids Temp Phase"
-msgstr ""
+msgstr "Affectation Ids Temp Phase"
 
 #. module: carpentry_position
 #: model:ir.model,name:carpentry_position.model_carpentry_group_affectation_mixin
 msgid "Affectation Mixin"
-msgstr ""
+msgstr "Affectation Mixin"
 
 #. module: carpentry_position
 #. odoo-javascript
 #: code:addons/carpentry_position/static/src/group/group_tree_button.xml:0
 #, python-format
 msgid "Affectation matrix"
-msgstr ""
+msgstr "Matrice d'affectation"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__state
@@ -87,7 +87,7 @@ msgstr "Statut d'affectation"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids
 msgid "Affectations"
-msgstr ""
+msgstr "Affectations"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_position_form
@@ -164,7 +164,7 @@ msgstr "Créé le"
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__description
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__display_name
@@ -229,7 +229,7 @@ msgstr "Groupe de repères"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: carpentry_position
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_position__state
@@ -321,15 +321,6 @@ msgstr "Lots"
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
 msgid "Name"
 msgstr "Nom"
-
-#. module: carpentry_position
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__next_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__next_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__next_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__next_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__next_id
-msgid "Next ID"
-msgstr "Prochain ID"
 
 #. module: carpentry_position
 #: model:ir.model.fields.selection,name:carpentry_position.selection__carpentry_position__state__none

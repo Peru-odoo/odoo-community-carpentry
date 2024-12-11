@@ -5,26 +5,15 @@ from odoo import models, fields, api, _
 class AccountMoveBudgetLine(models.Model):
     _inherit = ["account.move.budget.line"]
 
-    def _domain_analytic_account_id(self):
-        """ Restrict some analytic account selection in budget only to accountants """
-        return (
-            [] if self.env.user.has_group('account.group_account_manager')
-            else [('budget_only_accountant', '=', False)]
-        )
-
-    analytic_account_id = fields.Many2one(
-        domain=_domain_analytic_account_id
-    )
-
     is_computed_carpentry = fields.Boolean(
         default=False,
         # A project's line of `account.move.budget.line` is either:
-        # - a computed line of budget (`service_prod`, `service_install`, `goods`):
+        # - a computed line of budget (`production`, `installation`, `goods`):
         #   > existance managed in `project_project._compute_position_budget_ids()`
         #   > groupping project's budget by `analytic_account_id`
         #   => all fields are `readonly`
         # - a manual line:
-        #   > added by default from budget's template (`service_office`, `consu_project_global`) 
+        #   > added by default from budget's template (`service`, `consu_project_global`) 
         #   > added by user (only for `consu_project_global`')
         #   => fields are writable (especially `qty_debit`)
     )
@@ -47,12 +36,14 @@ class AccountMoveBudgetLine(models.Model):
         'project_id.position_ids',
         'project_id.position_ids.quantity',
         # standard `@api.depends` for `debit`
-        'qty_debit',
+        'qty_debit', 'standard_price',
         # 1b. valuations of qties -> budget's dates
         'budget_id', 'budget_id.date_from', 'budget_id.date_to',
-        # 1a. products template/variants price & dates
-        'product_tmpl_id', 'product_tmpl_id.standard_price',
-        'product_variant_ids', 'product_variant_ids.standard_price',  'product_variant_ids.date_from',
+        # 1a. price per dates table
+        'analytic_account_id',
+        'timesheet_cost_history_ids',
+        'timesheet_cost_history_ids.hourly_cost',
+        'timesheet_cost_history_ids.starting_date'
     )
     def _compute_debit_carpentry(self):
         """ When position's budgets are updated (import or manually),
@@ -78,5 +69,5 @@ class AccountMoveBudgetLine(models.Model):
         # Write in budget lines
         for line in line_ids_computed:
             amount = budget_brut.get(line.project_id.id, {}).get(line.analytic_account_id.id, 0.0)
-            field = 'debit' if line.type == 'standard' else 'qty_debit'
+            field = 'debit' if line.type == 'amount' else 'qty_debit'
             line[field] = amount

@@ -33,27 +33,15 @@ class CarpentryPositionBudget(models.Model):
         related='position_id.lot_id'
     )
 
-    # amount
-    product_tmpl_id = fields.Many2one(
-        comodel_name='product.template',
-        string='Product',
-        related='analytic_account_id.product_tmpl_id', # analytic's default product
-    )
-    uom_id = fields.Many2one(
-        related='product_tmpl_id.uom_id'
-    )
-    type = fields.Selection(
+    # budget amount/value
+    budget_type = fields.Selection(
         # needed to discrepency `goods` vs `service`
-        related='product_tmpl_id.type'
-    )
-    detailed_type = fields.Selection(
-        # needed for groupby
-        related='product_tmpl_id.detailed_type',
-        store=True
+        related='analytic_account_id.budget_type',
+        store=True # for groupby
     )
     amount = fields.Float(
-        # either a currency amount (goods `type`) or a quantity in uom (workforce, service `type`)
-        string='Amount',
+        # depending `budget_type`, either a currency amount, or a quantity
+        string='Unitary Amount',
         default=0.0,
         required=True,
     )
@@ -78,18 +66,30 @@ class CarpentryPositionBudget(models.Model):
 
 
     #===== Compute =====#
-    @api.depends('amount', 'analytic_account_id.product_tmpl_id')
+    @api.depends(
+        'amount',
+        'analytic_account_id',
+        'analytic_account_id.timesheet_cost_history_ids',
+        'analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+        'analytic_account_id.timesheet_cost_history_ids.starting_date',
+    )
     def _compute_value(self):
         """ - Services (work-force) are valued as per company's value table (on project's lifetime)
             - Goods value is directly in `amount` 
         """
         for budget in self:
-            budget.value = budget._value_qty(budget.amount) if budget.type == 'service' else budget.amount
+            budget.value = budget._value_amount(budget.amount)
     
-    def _value_qty(self, qty):
+    def _value_amount(self, amount):
         self.ensure_one()
-        budget_id = fields.first(self.project_id.budget_ids)
-        return self.product_tmpl_id._value_qty(qty, budget_id)
+
+        line_type = self.analytic_account_id._get_default_line_type() or 'amount'
+
+        if line_type == 'workforce':
+            budget_id = fields.first(self.project_id.budget_ids)
+            return self.analytic_account_id._value_workforce(amount, budget_id)
+        else:
+            return amount
 
 
     #===== Helpers: add or erase budget of a position =====#
@@ -131,7 +131,6 @@ class CarpentryPositionBudget(models.Model):
             primary_key = (vals.get('position_id'), vals.get('analytic_account_id'))
             budget = mapped_existing_ids.get(primary_key)
 
-            # note: no need to convert uom here, since `product_tmpl_id` is the same for all `analytic_account_id` (related field)
             if budget:
                 budget.amount = vals.get('amount') if erase_mode else budget.amount + vals.get('amount')
                 to_delete -= budget # for `erase_force` if True
@@ -151,7 +150,7 @@ class CarpentryPositionBudget(models.Model):
         """ Gets unitary budget per position as per 'groupby_budget' details
             
             :option self: is a recordset of `carpentry.position.budget` that should be filtered before on only wanted `groupby_budget`
-            :option groupby_budget: any relevant field for this model to be groupped on, like: `analytic_account_id`, `detailed_type`
+            :option groupby_budget: any relevant field for this model to be groupped on, like: `analytic_account_id`, `budget_type`
 
             :return: 2 dicts of unitary budget per `position_id`
              - 1st dict: brut, ie. `amount` fields (currency for *goods* and a quantity for *service*)
@@ -169,14 +168,15 @@ class CarpentryPositionBudget(models.Model):
         else:
             # get possible values of `groupby_budget` in self
             # this is why `self` should be filtered on only wanted `groupby_budget` field
-            # /!\ values can be int (ids_) or str (like for `detailed_type`, which is a selection field)
+            # /!\ values can be int (ids_) or str (like for `budget_type`, which is a selection field)
             key_ids = self.mapped(groupby_budget)
             try:
                 default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
             except:
-                raise exceptions.ValidationError(
-                    _('Error when computing unitary position budget: analytic account or default product is missing.')
-                )
+                raise exceptions.ValidationError(_(
+                    'Missing the configuration of %s to compute the budget.',
+                    groupby_budget
+                ))
         
         # 2. Sum-group unitary budgets by position, by `groupby_budget`
         unitary_budgets_brut, unitary_budgets_valued = {}, {}
@@ -189,7 +189,7 @@ class CarpentryPositionBudget(models.Model):
                 brut += budget.value
                 valued += budget.value
             else:
-                # manage M2n field (e.g. `analytic_account_id` (.id) vs `detailed_type` (str))
+                # manage M2n field (e.g. `analytic_account_id` (.id) vs `budget_type` (str))
                 field_value = budget[groupby_budget]
                 key = field_value.id if hasattr(field_value, '_name') else field_value
 

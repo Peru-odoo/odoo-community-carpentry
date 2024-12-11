@@ -9,21 +9,13 @@ from collections import defaultdict
 class Task(models.Model):
     _inherit = ['project.task']
 
-    #===== Fields method =====#
-    @api.model
-    def _read_group_analytic(self, analytics, domain, order):
-        """ Show all timesheetable in column, in task's kanban view """
-        domain = ['|', ('id', 'in', analytics.ids), ('timesheetable', '=', True)]
-        return analytics.sudo().search(domain, order=order)
-
     #===== Fields =====#
-    analytic_account_id = fields.Many2one(
-        domain="""[
-            ('timesheetable', '=', True),
-            ('budget_line_ids.project_id', 'in', project_id),
-            '|', ('company_id', '=', False), ('company_id', '=', company_id),
-        ]""",
-        group_expand='_read_group_analytic' # for kanban columns
+    allow_timesheets = fields.Boolean(
+        # make it user choice per-task instead of per-project
+        # False by default, True in specific `Timesheet's budget` task view
+        default=False,
+        store=True,
+        readonly=False
     )
 
     # -- Planning --
@@ -48,15 +40,13 @@ class Task(models.Model):
         default=False
     )
 
-
     #===== Compute =====#
-    @api.depends('project_id.allow_timesheets', 'analytic_account_id')
+    @api.depends('project_id.allow_timesheets')
     def _compute_allow_timesheets(self):
-        """ Task with no analytic **on the task** (not project) cannot be timesheeted """
-        for task in self:
-            task.allow_timesheets = task.project_id.allow_timesheets and task.analytic_account_id.id
+        """ If project does not allow timesheets, water-falls it to its tasks """
+        self.filtered(lambda x: not x.project_id.allow_timesheets).allow_timesheets = False
     
-    
+
     @api.depends('stage_id', 'progress', 'overtime')
     def _compute_progress_reviewed_performance(self):
         """ * Fakely make `progress_reviewed` to 100% when task is done

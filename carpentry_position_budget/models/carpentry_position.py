@@ -64,13 +64,13 @@ class CarpentryPosition(models.Model):
     #===== Compute (budgets) =====#
     def _get_budgets_brut_valued(self):
         """ Override from `carpentry.group.budget.mixin` """
-        return self.position_budget_ids._get_position_unitary_budget(groupby_budget='detailed_type')
+        return self.position_budget_ids._get_position_unitary_budget(groupby_budget='budget_type')
 
     @api.depends(
         # 1a. products template/variants price & dates
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids',
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.standard_price',
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.date_from',
+        'position_budget_ids.analytic_account_id.timesheet_cost_history_ids',
+        'position_budget_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+        'position_budget_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
         # 1b. valuations of qties -> project's budget's dates
         'project_id.budget_ids', 'project_id.budget_ids.date_from', 'project_id.budget_ids.date_to',
         # 2. position' budgets

@@ -3,16 +3,14 @@
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.tools import float_is_zero, float_compare
 
+from odoo.addons.carpentry_position_budget.models.carpentry_position_budget_interface import EXTERNAL_DB_TYPE
+
 from collections import defaultdict
 
 class CarpentryPositionBudgetImportWizard(models.TransientModel):
     _name = "carpentry.position.budget.import.wizard"
     _description = "Carpentry Position Budget Import Wizard"
     _inherit = ['utilities.file.mixin', 'utilities.database.mixin']
-
-    #===== Fields' methods =====#
-    def _selection_external_db_type(self):
-        return self.env['carpentry.position.budget.interface']._selection_external_db_type()
 
     #===== Fields =====#
     project_id = fields.Many2one(
@@ -29,9 +27,9 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
     )
 
     external_db_type = fields.Selection(
-        selection=_selection_external_db_type,
+        selection=EXTERNAL_DB_TYPE,
         string='Type of external database',
-        default=lambda self: self._selection_external_db_type()[0][0],
+        default=EXTERNAL_DB_TYPE[0][0],
         required=True,
     )
     encoding = fields.Selection(

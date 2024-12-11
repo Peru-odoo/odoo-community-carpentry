@@ -161,10 +161,6 @@ class CarpentryPlanningCard(models.Model):
         project_id_ = self.env['project.default.mixin']._get_project_id(self._context, self)
         launch_id_ = self._context.get('launch_id')
 
-        print('=== action_open_tasks ===')
-        print('project_id_', project_id_)
-        print('launch_id_', launch_id_)
-
         if not launch_id_ or not project_id_:
             raise exceptions.UserError(_(
                 'Cannot open a planning card\'s tasks if Project or Launch is missing. Context: %s',

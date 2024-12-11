@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-05 18:53+0000\n"
-"PO-Revision-Date: 2024-12-05 20:03+0100\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2024-12-10 13:03+0000\n"
+"PO-Revision-Date: 2024-12-11 15:36+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: \n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_position_budget
@@ -48,24 +48,6 @@ msgid "A position cannot receive twice a budget from the same analytic account."
 msgstr "Un repère ne peut pas recevoir deux fois un budget du même compte analytique."
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__detailed_type
-#: model:ir.model.fields,help:carpentry_position_budget.field_product_product__detailed_type
-#: model:ir.model.fields,help:carpentry_position_budget.field_product_template__detailed_type
-msgid ""
-"A storable product is a product for which you manage stock. The Inventory app has to be installed.\n"
-"A consumable product is a product for which stock is not managed.\n"
-"A service is a non-material product you provide."
-msgstr ""
-"Un produit stockable est un produit dont on gère le stock. L'application \"Inventaire\" doit être installée. \n"
-"Un produit consommable est un produit pour lequel le stock n'est pas géré.\n"
-"Un service est un produit immatériel que vous fournissez."
-
-#. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_account_move_budget_line
-msgid "Account Move Budget Line"
-msgstr "Ligne de budget comptable"
-
-#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_import_interface_search
 msgid "Active"
 msgstr "Actif"
@@ -81,12 +63,6 @@ msgid "All columns, but some listed"
 msgstr "Toutes les colonnes, sauf celles listées"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
-msgid "Amount"
-msgstr "Montant"
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_move_budget_line__analytic_account_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid "Analytic Account"
 msgstr "Compte analytique"
@@ -137,16 +113,16 @@ msgid "Budget interface with external database"
 msgstr "Interface base de données externe (budget)"
 
 #. module: carpentry_position_budget
-#. odoo-python
-#: code:addons/carpentry_position_budget/models/project_project.py:0
-#, python-format
-msgid "Budget lines"
-msgstr "Lignes de budget"
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__budget_type
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
+msgid "Budget type"
+msgstr "Type de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_budget_mixin
 msgid "Carpentry Group Budget Mixin"
-msgstr ""
+msgstr "Carpentry Group Budget Mixin"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position_budget_import_wizard
@@ -169,11 +145,6 @@ msgid ""
 msgstr ""
 "Compression : optionnelle, sont supportés bzip (.zip) et gzip (.tar.gz).\n"
 "Si utilisé, le fichier doit être seul dans l'archive."
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__product_template__detailed_type__consu_project_global
-msgid "Consumable (project global fees)"
-msgstr "Consommables (frais globaux d'affaire)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__create_uid
@@ -217,11 +188,6 @@ msgid "Debit (qty)"
 msgstr "Débit (qté)"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__uom_id
-msgid "Default unit of measure used for all stock operations."
-msgstr "Unité de mesure par défaut utilisée pour toutes les opérations de stock."
-
-#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_position_merge_wizard
 msgid "Discard"
@@ -260,7 +226,7 @@ msgstr "Encodage"
 #: code:addons/carpentry_position_budget/models/carpentry_position_budget.py:0
 #, python-format
 msgid "Error when computing unitary position budget: analytic account or default product is missing."
-msgstr "Erreur lors du calcul du budget unitaire d'une position: une configuration de compte analytique ou de produit par défaut est manquante."
+msgstr "Configuration manquante pour calculer le budget."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__external_db_id
@@ -293,20 +259,9 @@ msgid "Filename"
 msgstr "Nom du fichier"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__product_tmpl_id
-msgid ""
-"For budget, this product will be pre-selected in budget lines linked to this analytic account, which itself allows:\n"
-" 1. pre-selection of Account from product's expense account (or product's category's in budget lines;\n"
-" 2. date-ranged valuation of budget lines, as per product variant cost per date range."
-msgstr ""
-"Pour le budget, cet article sera présélectionné dans les lignes budgétaires liées à ce compte analytique, ce qui permet par conséquence :\n"
-" 1. la présélection du compte de charges de l'article (ou de la catégorie d'article) dans les lignes budgétaires ;\n"
-" 2. la valorisation des lignes budgétaires suivant le prix datés par variants de produit."
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_global_fees
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_global_cost
 msgid "Global fees"
-msgstr "Frais globaux"
+msgstr "Coûts globaux"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_goods
@@ -323,26 +278,17 @@ msgstr "Fournitures"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_merge_wizard__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__iso-8859-1
 msgid "ISO-8859-1"
-msgstr ""
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__detailed_type
-msgid ""
-"Identifies the type of budget amount from remote database, i.e. work-force quantities or currency amount. Corresponds to the type of the default product "
-"on analytic account's."
-msgstr ""
-"Identifie le type de montant du budget provenant de la base de données externe, c'est-à-dire s'il s'agit de quantité (ex. main-d'œuvre) ou d'un montant en "
-"devise (ex. €). Correspond au type d'article par défaut sur les comptes analytiques."
+msgstr "ISO-8859-1"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__active
 msgid "If archived, any budget from external source of this column will be ignored at during import."
-msgstr "S'il est archivé, tout budget provenant d'une source externe sur cette colonne sera ignoré lors de l'import."
+msgstr "Si archivé, tout budget provenant d'une base de donnée externe de cette colonne sera ignoré lors de l'import."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -352,7 +298,7 @@ msgstr "Impact des changements dans la configuration de l'interface"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Import"
-msgstr ""
+msgstr "Import"
 
 #. module: carpentry_position_budget
 #. odoo-javascript
@@ -383,6 +329,11 @@ msgstr "Données importées d'Orgadata"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_install
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_install
 msgid "Install"
+msgstr "Pose"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__installation
+msgid "Installation"
 msgstr "Pose"
 
 #. module: carpentry_position_budget
@@ -432,12 +383,12 @@ msgstr "Lancement"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__lot_id
 msgid "Lot"
-msgstr ""
+msgstr "Lot"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_lot
 msgid "Lots"
-msgstr ""
+msgstr "Lots"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -446,7 +397,8 @@ msgstr "Lots (appelés \"phases\" dans Orgadata)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
-msgid "Make the link between budget, income and charges. Must have a \"Default Product\" in order to distinguish budget types (service or consummable)."
+msgid ""
+"Make the link between budget, income and charges. Must have a \"Budget Type\" (for Type of Budget Line) and \"Template Lines\" rules (for General Account)."
 msgstr "Fait le lien entre le budget, les revenus et les charges."
 
 #. module: carpentry_position_budget
@@ -483,16 +435,15 @@ msgid "Only listed columns, ignore all others"
 msgstr "Seulement les colonnes listées, ignorer les autres"
 
 #. module: carpentry_position_budget
-#. odoo-python
-#: code:addons/carpentry_position_budget/models/carpentry_position_budget_interface.py:0
-#, python-format
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__external_db_type__orgadata
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_interface__external_db_type__orgadata
 msgid "Orgadata"
-msgstr ""
+msgstr "Orgadonnées"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_phase
 msgid "Phase"
-msgstr ""
+msgstr "Phase"
 
 #. module: carpentry_position_budget
 #. odoo-python
@@ -559,23 +510,15 @@ msgstr "Budgets des repères"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_prod
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_prod
 msgid "Prod"
-msgstr "Fab"
+msgstr "Fabrication"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_product_template
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__product_tmpl_id
-msgid "Product"
-msgstr "Produit"
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__production
+msgid "Production"
+msgstr "Fabrication"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__detailed_type
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__detailed_type
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_product_product__detailed_type
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_product_template__detailed_type
-msgid "Product Type"
-msgstr "Type de produit"
-
-#. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__project_id
@@ -586,6 +529,11 @@ msgstr "Type de produit"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__project_id
 msgid "Project"
 msgstr "Projet"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__project_global_cost
+msgid "Project global fees"
+msgstr "Coûts globaux du projet"
 
 #. module: carpentry_position_budget
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_project_budget_lines
@@ -599,24 +547,14 @@ msgid "Quantity"
 msgstr "Quantité"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
+msgid "Required to identify "
+msgstr "Requis pour identifier "
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__sequence
 msgid "Sequence"
 msgstr "Séquence"
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__product_template__detailed_type__service_office
-msgid "Service (office)"
-msgstr "Service (bureau)"
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__product_template__detailed_type__service_install
-msgid "Service (on-site installation)"
-msgstr "Service (pose)"
-
-#. module: carpentry_position_budget
-#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__product_template__detailed_type__service_prod
-msgid "Service (production)"
-msgstr "Service (fabrication)"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -647,6 +585,11 @@ msgstr "Sous-total"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Supported formats"
 msgstr "Formats pris en charge"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__template_line_ids
+msgid "Template Line"
+msgstr "Gabarit de ligne"
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_interface_unique_col
@@ -690,11 +633,6 @@ msgid "Truncate budget"
 msgstr "Vider le budget"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__type
-msgid "Type"
-msgstr "Type"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__external_db_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__external_db_type
 msgid "Type of external database"
@@ -703,17 +641,17 @@ msgstr "Type de base de données externe"
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__utf-16
 msgid "UTF-16"
-msgstr ""
+msgstr "UTF-16"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__utf-8
 msgid "UTF-8"
-msgstr ""
+msgstr "UTF-8"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__uom_id
-msgid "Unit of Measure"
-msgstr "Unité de mesure"
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
+msgid "Unitary Amount"
+msgstr "Montant"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id
@@ -746,11 +684,6 @@ msgstr "Avertissement sur le nom"
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_merge_wizard__project_id
 msgid "Within your favorite projects"
 msgstr "Parmis vos projets favoris"
-
-#. module: carpentry_position_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_form
-msgid "per"
-msgstr "par"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_search

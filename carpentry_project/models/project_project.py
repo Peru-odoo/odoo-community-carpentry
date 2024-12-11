@@ -22,7 +22,6 @@ class ProjectProject(models.Model):
 
     #===== Button / Action =====#
     def open_project_list_or_form(self):
-        print("== open_project_list_or_form ==")
         project_id_ = self.env['project.default.mixin']._get_project_id()
 
         if not project_id_:

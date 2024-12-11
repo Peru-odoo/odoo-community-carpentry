@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <!-- Action is in `carpentry_position_budget_import_wizard.xml` -->
-    <!-- Menu in Accounting/Accounting/Budget and Project/Configuration -->
+    <!-- Menu in Project/Configuration and Accounting/Analytic Accounting -->
     <menuitem
         id="menu_carpentry_position_budget_interface_accounting"
         action="open_carpentry_position_budget_interface"
-        parent="project_budget.account_move_budget_section"
+        parent="account.menu_analytic_accounting"
     />
     <menuitem
         id="menu_carpentry_position_budget_interface_project"
@@ -22,10 +22,11 @@
             <tree editable="bottom" multi_edit="1">
                 <field name="sequence" widget="handle" />
                 <field name="active" widget="boolean_toggle" />
-                <field name="external_db_type" optional="show" />
+                
+                <field name="external_db_type" optional="hide" />
                 <field name="external_db_col" />
                 <field name="analytic_account_id" attrs="{'required': [('active', '=', True)]}" />
-                <field name="detailed_type" />
+                <field name="budget_type" />
             </tree>
         </field>
     </record>
@@ -44,7 +45,7 @@
                     </group>
                     <group name="right">
                         <field name="external_db_type" optional="show" />
-                        <field name="detailed_type" />
+                        <field name="budget_type" />
                         <field name="active" widget="boolean_toggle" />
                     </group>
                 </group>

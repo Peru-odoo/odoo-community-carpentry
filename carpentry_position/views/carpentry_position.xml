@@ -90,6 +90,8 @@
                 <field name="lot_id" />
                 <field name="range" />
                 <field name="state" />
+                <field name="description" />
+                <field name="surface" />
                 <field name="project_id" />
 
                 <filter string="★ Projects"

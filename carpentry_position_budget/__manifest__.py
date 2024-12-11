@@ -17,7 +17,7 @@
         'sales_team', # for security access
         'web_notify', # OCA
         'project_role_visibility', # other (for security access)
-        'project_favorite_switch', 'project_budget', 'utilities_file_management', # other
+        'project_favorite_switch', 'project_budget_workforce', 'utilities_file_management', # other
         'carpentry_base', 'carpentry_project', 'carpentry_position', 'carpentry_planning', # carpentry
     ],
     'data': [

@@ -40,16 +40,16 @@
             <group name="budget_total" position="attributes">
                 <attribute name="colspan">2</attribute>
             </group>
-            <field name="budget_line_sum" position="before">
-                <h3 colspan="2">Budget totals</h3>
-            </field>
             
             <!-- Add "Fees & Margins" group to the right -->
             <group name="budget_total" position="replace">
                 <group name="group_container" col="12">
 
                     <!-- Existing "Budget totals": keep it, on the left -->
-                    <group colspan="6">$0</group>
+                    <group name="budget_total" colspan="6">
+                        <h3 colspan="2">Budget totals</h3>
+                        <div colspan="2">$0</div>
+                    </group>
 
                     <!-- New "Fees & margins" right column -->
                     <group name="fees_and_margins" colspan="6">

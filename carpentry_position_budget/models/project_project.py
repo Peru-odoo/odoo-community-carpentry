@@ -19,8 +19,8 @@ class Project(models.Model):
         compute='_compute_budgets',
         store=True,
     )
-    budget_global_fees = fields.Monetary(
-        string='Global fees',
+    budget_global_cost = fields.Monetary(
+        string='Global costs',
         compute='_compute_budgets',
         store=True,
         currency_field='currency_id',
@@ -56,18 +56,22 @@ class Project(models.Model):
         return quantities
 
     def _compute_budgets_one(self, brut, valued):
-        """ Add fields `budget_office` and `budget_global_fees` """
+        """ Add fields `budget_office` and `budget_global_cost` """
         super()._compute_budgets_one(brut, valued)
-        self.budget_office = self._get_budget_one(brut, 'service_office')
-        self.budget_global_fees = self._get_budget_one(valued, ['consu_project_global'])
-        self.budget_total = self.budget_line_sum # from module `project_budget`
+
+        self.budget_office = self._get_budget_one(brut, 'service')
+        self.budget_global_cost = self._get_budget_one(valued, 'project_global_cost')
+
+        # from module `project_budget`
+        self.budget_total = self.budget_line_sum
 
 
     @api.depends(
-        # 1a. products template/variants price & dates
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids',
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.standard_price',
-        'position_budget_ids.analytic_account_id.product_tmpl_id.product_variant_ids.date_from',
+        # 1a. hour valuation per dates
+        'budget_line_ids.analytic_account_id',
+        'budget_line_ids.analytic_account_id.timesheet_cost_history_ids',
+        'budget_line_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+        'budget_line_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
         # 1b. valuations of qties -> budget's dates
         'budget_ids', 'budget_ids.date_from', 'budget_ids.date_to',
         # 2. positions' budgets
@@ -76,7 +80,7 @@ class Project(models.Model):
         # 3. positions quantity
         'position_ids',
         'position_ids.quantity',
-        # 4. new or update on fix lines of project's budget (project global fees), in `account.move.budget.line`
+        # 4. new or update on fix lines of project's budget (project global costs), in `account.move.budget.line`
         'budget_line_ids',
         'budget_line_ids.qty_balance',
         'budget_line_ids.standard_price',
@@ -88,7 +92,7 @@ class Project(models.Model):
         self.sudo().budget_line_ids._compute_debit_credit()
 
         # Update project's totals
-        return super()._compute_budgets()
+        super()._compute_budgets()
 
     #===== Compute/Populate: account_move_budget_line =====#
     def _populate_account_move_budget_line(self):
@@ -115,31 +119,12 @@ class Project(models.Model):
         # Add new lines, if new budget
         budget_id = fields.first(self.budget_ids)
         vals_list = [{
-            'name': aac_id.product_tmpl_id.name or aac_id.name,
+            'name': analytic.name,
             'date': self._get_default_project_budget_line_date(budget_id),
             'budget_id': fields.first(self.budget_ids).id,
-            'account_id': aac_id.product_tmpl_id._get_product_accounts().get('expense').id,
-            'analytic_account_id': aac_id.id,
-            'product_tmpl_id': aac_id.product_tmpl_id.id,
-            'type': 'date_range' if aac_id.product_tmpl_id.type == 'service' else 'standard',
+            'analytic_account_id': analytic.id,
             'is_computed_carpentry': True,
             'debit': 0, # computed in `account.move.budget.line`
             'qty_debit': 0, # same
-        } for aac_id in to_add]
+        } for analytic in to_add]
         existing_line_ids.create(vals_list)
-
-    #===== Button =====#
-    def button_open_budget_lines(self):
-        """ When opening a budget from project menu, only allows to add `Global Project Fees` budget """
-        budget_id = fields.first(self.budget_ids)
-        view_id_ = self.env.ref('project_budget.view_account_move_budget_line_tree_simplified').id
-
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move.budget.line',
-            'view_mode': 'tree',
-            'view_id': view_id_, # simplified budget lines view for projects 
-            'name': _('Budget lines'),
-            'context': self._get_default_vals_budget_line(budget_id, default=True),
-            'domain': [('project_id', '=', self.id)]
-        }

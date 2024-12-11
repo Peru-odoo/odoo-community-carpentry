@@ -23,7 +23,7 @@
                         <t t-set="color" t-value="'danger'" t-elif="record.task_remaining_hours.raw_value &lt; 0"/>
                         <t t-set="color" t-value="'success'" t-elif="record.task_performance.raw_value &gt; 0"/>
                         <div t-attf-class="oe_kanban_align fw-normal fs-6 border badge text-{{ color }}"
-                            t-attf-title="Remaining hours and performance \nInitialy planned: {{ record.task_planned_hours.raw_value }}h \nLegend: (Black) not started; (Normal) started; (Red) Overrun; (Green) Finished before planned hours">
+                            title="Remaining hours and performance. Legend: (Black) not started; (Normal) started; (Red) Overrun; (Green) Finished before planned hours">
                             <t t-esc="record.task_remaining_hours.raw_value" digits="[10,0]" />h 
 
                             <span t-if="record.task_performance.raw_value"
@@ -38,9 +38,9 @@
                 </t>
             </templates>
 
-            <t t-call="planning_tasks" position="after">
+            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
                 <t t-call="planning_tasks_timesheet" />
-            </t>
+            </xpath>
         </field>
     </record>
 </odoo>

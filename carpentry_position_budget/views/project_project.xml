@@ -28,7 +28,6 @@
             <page name="settings" position="before">
                 <page name="budget" string="Budget">
                     <group name="budget_total">
-                        <field name="budget_line_sum" />
                         <field name="budget_goods" />
 
                         <label for="budget_prod" />
@@ -44,7 +43,7 @@
                             <field name="budget_office" class="oe_inline" /> <span>h</span>
                         </div>
 
-                        <field name="budget_global_fees" />
+                        <field name="budget_global_cost" />
                     </group>
                 </page>
             </page>

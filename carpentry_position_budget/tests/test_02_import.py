@@ -59,7 +59,7 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
         # project totals
         self.assertTrue(self.project_import.budget_install)
         self.assertTrue(self.project_import.budget_prod)
-        self.assertTrue(self.project_import.budget_goods)
+        self.assertTrue(self.project_import.budget_global_cost)
 
     def test_04_budget_coef(self):
         """ Test coefficient: new import with 40% coef """

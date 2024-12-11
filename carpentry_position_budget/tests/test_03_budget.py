@@ -8,7 +8,7 @@ import base64
 
 from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 
-class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
+class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
 
     BUDGET_ALUMINIUM = 100.0 # euros
     BUDGET_PROD = 20.0 # hours
@@ -18,7 +18,7 @@ class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
     def setUpClass(cls):
         super().setUpClass()
 
-        # Each project's position: add Prod and Install budgets (keep Aluminium for fix line)
+        # Each project's position: add Prod and Install budgets (keep Aluminium for unit line)
         for position in cls.project.position_ids:
             cls._add_budget(position, cls.aac_install, cls.BUDGET_INSTALL)
             cls._add_budget(position, cls.aac_prod, cls.BUDGET_PROD)
@@ -33,15 +33,15 @@ class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
     def test_01_position_unitary_budget(self):
         """ Test totals on position """
         brut, valued = self.position.position_budget_ids._get_position_unitary_budget(
-            groupby_budget='detailed_type'
+            groupby_budget='budget_type'
         )
         self.assertEqual(brut.get(self.position.id), {
-            'service_prod': self.BUDGET_PROD,
-            'service_install': self.BUDGET_INSTALL
+            'installation': self.BUDGET_INSTALL,
+            'production': self.BUDGET_PROD,
         })
         self.assertEqual(valued.get(self.position.id), {
-            'service_prod': self.BUDGET_PROD * self.HOUR_COST,
-            'service_install': self.BUDGET_INSTALL * self.HOUR_COST
+            'installation': self.BUDGET_INSTALL * self.HOUR_COST,
+            'production': self.BUDGET_PROD * self.HOUR_COST,
         })
 
     def test_02_position_subtotal(self):
@@ -52,32 +52,42 @@ class TestCarpentryPositionBudget_Security(TestCarpentryPositionBudget_Base):
         self.assertEqual(self.position.budget_subtotal, subtotal)
     
 
+    def test_03a_budget_line_type(self):
+        """ Tests `account_analytic_account._get_default_line_type()` """
+        self.assertEqual(self.aac_install._get_default_line_type(), 'workforce')
+        self.assertEqual(set(self.project.budget_line_ids.mapped('type')), {'workforce'})
 
-    def test_03_project_budget_change_product_cost(self):
+    def test_03b_project_budget_change_valuation(self):
         """ Test that project total changes on valuation changes"""
-        total = self.project.budget_total
-        self.product_prod_2023.standard_price = self.HOUR_COST + 1.0
-        self.assertTrue(self.project.budget_total != total)
+        position_budget_id = self.position.position_budget_ids.filtered(lambda x: x.analytic_account_id == self.aac_prod)
+
+        project_total = self.project.budget_total
+        position_prod = position_budget_id.value
+
+        history_entry = fields.first(self.dpt_prod.timesheet_cost_history_ids)
+        history_entry.hourly_cost = self.HOUR_COST + 1.0
+
+        self.assertNotEqual(position_budget_id.value, position_prod)
+        self.assertNotEqual(self.project.budget_total, project_total)
 
     def test_04_project_budget_change_position_qty(self):
         """ Test that project total changes on position qty changes"""
         total = self.project.budget_total
         self.position.quantity = 10
-        self.assertTrue(self.project.budget_total != total)
+        self.assertNotEqual(self.project.budget_total, total)
 
-    def test_05_project_budget_change_fix_line(self):
+    def test_05_project_budget_change_unit_line(self):
         """ Test that project total changes when adding manual
-            fix lines (global cost) to the budget
+            global cost to the budget
         """
         total = self.project.budget_total
         self.budget.line_ids = [Command.create({
-            'name': 'Fix Line test 01',
+            'name': 'Line test 01',
             'date': self.budget.date_from,
-            'type': 'fix',
             'standard_price': 10.0,
             'qty_debit': 10.0,
             'analytic_account_id': self.aac_aluminium.id,
-            'account_id': self.aac_aluminium.product_tmpl_id._get_product_accounts().get('expense').id,
+            'account_id': self.account.id,
         })]
         self.assertEqual(self.project.budget_total, total + 100.0)
 

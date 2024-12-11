@@ -1,6 +1,12 @@
 
 
 
+
+Population of account.move.buget.line from carpentry.position.budget:
+- requires configuration of account.move.buget.line.template to define
+   an account_id for each analytic_account_id
+
+
 Merge
 *****
 

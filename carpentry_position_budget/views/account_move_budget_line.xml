@@ -12,6 +12,15 @@
             </tree>
 
             <!-- Make all fields READONLY if computed line from Carpentry Budget -->
+            <field name="type" position="attributes">
+                <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
+            </field>
+            <field name="standard_price" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': [('type', '!=', 'unit')],
+                    'readonly': [('is_computed_carpentry', '=', True)]
+                }</attribute>
+            </field>
             <field name="account_id" position="attributes">
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
@@ -20,25 +29,25 @@
             </field>
             <field name="debit" position="attributes">
                 <attribute name="attrs">{'readonly': ['|',
-                    ('type', '!=', 'standard'),
+                    ('type', '!=', 'amount'),
                     ('is_computed_carpentry', '=', True)
                 ]}</attribute>
             </field>
             <field name="credit" position="attributes">
                 <attribute name="attrs">{'readonly': ['|',
-                    ('type', '!=', 'standard'),
+                    ('type', '!=', 'amount'),
                     ('is_computed_carpentry', '=', True)
                 ]}</attribute>
             </field>
             <field name="qty_debit" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
+                    'invisible': [('type', '=', 'amount')],
                     'readonly': [('is_computed_carpentry', '=', True)],
                 }</attribute>
             </field>
             <field name="qty_credit" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
+                    'invisible': [('type', '=', 'amount')],
                     'readonly': [('is_computed_carpentry', '=', True)],
                 }</attribute>
             </field>
@@ -51,35 +60,9 @@
             <field name="name" position="attributes">
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
-
-            <field name="product_tmpl_id" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
-                    'required': [('type', '=', 'date_range')],
-                    'readonly': [('is_computed_carpentry', '=', True)],
-                }</attribute>
-            </field>
         </field>
     </record>
 
-    <!-- Tree view: simplified (coming from project smart button) -->
-    <record id="view_account_move_budget_line_tree_simplified" model="ir.ui.view">
-        <field name="name">account.move.budget.line.tree.project.simplified.carpentry</field>
-        <field name="model">account.move.budget.line</field>
-        <field name="inherit_id" ref="project_budget.view_account_move_budget_line_tree_simplified" />
-
-        <field name="arch" type="xml">
-            <field name="type" position="attributes">
-                <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
-            </field>
-            <field name="standard_price" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': [('type', '!=', 'fix')],
-                    'readonly': [('is_computed_carpentry', '=', True)]
-                }</attribute>
-            </field>
-        </field>
-    </record>
     
     <!-- Account Budget Line (Form View) -->
     <record id="view_account_move_budget_line_form" model="ir.ui.view">
@@ -101,25 +84,25 @@
             </field>
             <field name="debit" position="attributes">
                 <attribute name="attrs">{'readonly': ['|',
-                    ('type', '!=', 'standard'),
+                    ('type', '!=', 'amount'),
                     ('is_computed_carpentry', '=', True)
                 ]}</attribute>
             </field>
             <field name="credit" position="attributes">
                 <attribute name="attrs">{'readonly': ['|',
-                    ('type', '!=', 'standard'),
+                    ('type', '!=', 'amount'),
                     ('is_computed_carpentry', '=', True)
                 ]}</attribute>
             </field>
             <field name="qty_debit" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
+                    'invisible': [('type', '=', 'amount')],
                     'readonly': [('is_computed_carpentry', '=', True)],
                 }</attribute>
             </field>
             <field name="qty_credit" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
+                    'invisible': [('type', '=', 'amount')],
                     'readonly': [('is_computed_carpentry', '=', True)],
                 }</attribute>
             </field>
@@ -131,14 +114,6 @@
             </field>
             <field name="name" position="attributes">
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
-            </field>
-
-            <field name="product_tmpl_id" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': [('type', '=', 'standard')],
-                    'required': [('type', '=', 'date_range')],
-                    'readonly': [('is_computed_carpentry', '=', True)],
-                }</attribute>
             </field>
         </field>
     </record>
