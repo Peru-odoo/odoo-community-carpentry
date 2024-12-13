@@ -69,6 +69,8 @@ class Position(models.Model):
         domain=[('record_res_model', '=', _name)]
     )
 
+    _sql_constraints = [('name_per_project', 'check(1=1)', ''),]
+
     #===== Constrain =====#
     @api.constrains('quantity')
     def _constrain_quantity(self):

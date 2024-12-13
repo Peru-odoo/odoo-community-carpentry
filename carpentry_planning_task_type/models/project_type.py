@@ -7,6 +7,7 @@ from random import randint
 class ProjectType(models.Model):
     _inherit = ['project.type']
     _rec_name = 'display_name'
+    _order = "sequence"
     
     #===== Fields methods =====#
     def _get_default_color(self):

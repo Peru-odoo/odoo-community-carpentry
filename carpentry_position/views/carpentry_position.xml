@@ -24,7 +24,7 @@
         <field name="model">carpentry.position</field>
 
         <field name="arch" type="xml">
-            <tree multi_edit="1" editable="bottom">
+            <tree multi_edit="1" editable="bottom" default_order="seq_group, sequence">
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" invisible="context.get('default_project_id')" />
 

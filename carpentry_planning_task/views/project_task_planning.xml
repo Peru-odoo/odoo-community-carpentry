@@ -55,7 +55,7 @@
                 <button name="button_toggle_done"
                     type="object"
                     icon="fa-check"
-                    class="btn btn-success"
+                    class="btn btn-success text-uppercase"
                     attrs="{'invisible': [('is_closed', '=', True)]}"
                     string="Close"
                     title="Click to mark as done"
