@@ -52,6 +52,7 @@
                 }</attribute>
             </field>
             <field name="analytic_account_id" position="attributes">
+                <attribute name="options">{'no_create_edit': 1}</attribute>
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
             <field name="partner_id" position="attributes">
@@ -107,6 +108,7 @@
                 }</attribute>
             </field>
             <field name="analytic_account_id" position="attributes">
+                <attribute name="options">{'no_create_edit': 1}</attribute>
                 <attribute name="attrs">{'readonly': [('is_computed_carpentry', '=', True)]}</attribute>
             </field>
             <field name="partner_id" position="attributes">

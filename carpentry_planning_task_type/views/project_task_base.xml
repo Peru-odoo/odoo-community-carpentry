@@ -278,8 +278,7 @@
                 <searchpanel>
                     <!-- Commun -->
                     <field name="project_id" invisible="context.get('default_project_id')"/>
-                    <field name="user_ids" select="multi"
-                        invisible="context.get('search_default_my_tasks', False) or context.get('carpentry_planning')"
+                    <field name="user_ids" select="multi" invisible="context.get('carpentry_planning')"
                     />
                     <field name="type_id" hierarchize="1"
                         invisible="context.get('carpentry_planning') or context.get('display_type_ids')"

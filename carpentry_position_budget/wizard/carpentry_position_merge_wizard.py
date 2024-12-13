@@ -78,7 +78,7 @@ class PositionMerge(models.TransientModel):
                 new unitary budget (of 1 type of budget) = SUM(position qty * position unitary budget) / SUM(position qties)
                 INCLUDING the target position in the AVG
 
-            `external_db_id` is cleaned on `position_id_target` so that the merge
+            `external_db_guid` is cleaned on `position_id_target` so that the merge
             operation is not erase in case of a new import
         """
         # Checks before merge
@@ -96,7 +96,7 @@ class PositionMerge(models.TransientModel):
         target.quantity = sum_qty
 
         # Clean: unlink with external DB and remove merged positions
-        target.external_db_id = False
+        target.external_db_guid = False
         (sources - target).unlink()
 
     def _calculate_weighted_average_budget(self, sources, target, sum_qty):

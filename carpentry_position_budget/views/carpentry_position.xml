@@ -49,7 +49,7 @@
                 <field name="budget_total" sum="1" optional="show" />
                 
                 <!-- Useful to track history of imports -->
-                <field name="external_db_id" optional="hide" />
+                <field name="external_db_guid" optional="hide" />
                 <field name="create_date" optional="hide" />
                 <field name="write_date" optional="hide" />
             </tree>

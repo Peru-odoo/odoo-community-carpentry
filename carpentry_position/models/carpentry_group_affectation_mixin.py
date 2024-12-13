@@ -344,16 +344,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         quantities = defaultdict(int)
         
         for affectation in self.affectation_ids:
-            # handle nested affectation to find related `position_id` of this affectation
-            position_id, nested = affectation.record_ref, False
-            while position_id._name != 'carpentry.position':
-                position_id = position_id.record_ref
-                nested = True
+            nested = affectation.record_id != affectation.position_id
             
             # sum position's affected qty to the group
             key = frozenset({
                 'group_id': affectation.group_id,
-                'position_id': position_id.id
+                'position_id': affectation.position_id.id
             }.items())
 
             field_qty = 'quantity_affected_parent' if nested else 'quantity_affected'
@@ -377,6 +373,6 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'view_mode': 'form',
             'view_id': self.env.ref('carpentry_position.carpentry_group_affectation_temp_matrix').id,
             'context': self._context | {
-                'res_model': self._name
+                'res_model': self._name,
             }
         }

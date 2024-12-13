@@ -61,6 +61,8 @@
 
         <field name="arch" type="xml">
             <tree editable="bottom">
+                <field name="project_id_domain" invisible="1" />
+
                 <field name="sequence" widget="handle" />
                 <field name="project_id" invisible="context.get('default_project_id')" />
                 <field name="name" />
@@ -74,6 +76,8 @@
 
         <field name="arch" type="xml">
             <form>
+                <field name="project_id_domain" invisible="1" />
+
                 <sheet>
                     <group>
                         <field name="project_id" attrs="{'readonly': [('id', '!=', False)]}" />
@@ -116,7 +120,7 @@
             <tree js_class="carpentry_position_group">
                 <field name="sequence" widget="handle" />
 
-                <field name="id" invisible="1" />
+                <field name="project_id_domain" invisible="1" />
                 <field name="project_id" invisible="1" />
 
                 <field name="name" />
@@ -136,6 +140,7 @@
 
         <field name="arch" type="xml">
             <form>
+                <field name="project_id_domain" invisible="1" />
                 <field name="active" invisible="1" />
 
                 <sheet>
@@ -191,7 +196,6 @@
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}"
                                 widget="one2many"
-                                context="{'display_with_suffix': False}"
                                 attrs="{'readonly': [('readonly_affectation', '=', True)]}"
                             />
                         </group>

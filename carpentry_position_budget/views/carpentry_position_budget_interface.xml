@@ -25,7 +25,10 @@
                 
                 <field name="external_db_type" optional="hide" />
                 <field name="external_db_col" />
-                <field name="analytic_account_id" attrs="{'required': [('active', '=', True)]}" />
+                <field name="analytic_account_id"
+                    attrs="{'required': [('active', '=', True)]}"
+                    options="{'no_create_edit': 1}"
+                />
                 <field name="budget_type" />
             </tree>
         </field>
@@ -41,7 +44,10 @@
                 <group name="container">
                     <group name="left">
                         <field name="external_db_col" />
-                        <field name="analytic_account_id" attrs="{'required': [('active', '=', True)]}" />
+                        <field name="analytic_account_id"
+                            options="{'no_create_edit': 1}"
+                            attrs="{'required': [('active', '=', True)]}"
+                        />
                     </group>
                     <group name="right">
                         <field name="external_db_type" optional="show" />

@@ -9,9 +9,9 @@
             <tree editable="bottom" limit="200">
                 <field name="project_id" invisible="1" />
 
-                <field name="group_ref"
+                <field name="section_ref"
                     options="{'no_create': 1}"
-                    string="Phase"
+                    string="Lot"
                     readonly="1"
                 />
                 <field name="position_id"
@@ -110,7 +110,7 @@
                 >
                     <tree limit="999999">
                         <field name="group_ref"/>
-                        <field name="record_ref"/>
+                        <field name="record_ref" context="{'display_with_suffix': True}" />
                         <field name="quantity_affected"/>
                     </tree>
                 </field>
@@ -125,7 +125,7 @@
                 >
                     <tree limit="999999">
                         <field name="group_ref"/>
-                        <field name="record_ref"/>
+                        <field name="record_ref" context="{'display_with_suffix': True}" />
                         <field name="affected" widget="boolean_toggle" />
                     </tree>
                 </field>

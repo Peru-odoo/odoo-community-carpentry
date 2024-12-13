@@ -95,7 +95,7 @@ class CarpentryPositionBudget(models.Model):
     #===== Helpers: add or erase budget of a position =====#
     def _add_budget(self, vals_list_budget):
         self._write_budget(vals_list_budget, erase_mode=False)
-    def _erase_budget(self, vals_list_budget, force=True):
+    def _erase_budget(self, vals_list_budget, force=False):
         self._write_budget(vals_list_budget, erase_mode=True, erase_force=force)
     
     def _to_vals(self, replace_keys={}):

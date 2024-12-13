@@ -5,8 +5,7 @@ from odoo import models, fields, api, _, exceptions, Command
 from datetime import timedelta
 
 class Task(models.Model):
-    _name = 'project.task'
-    _inherit = ["project.task", "project.default.mixin"]
+    _inherit = ["project.task"]
     _order = 'priority DESC, date_deadline ASC, create_date ASC'
 
     #===== Fields (planning) =====#

@@ -60,7 +60,6 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         required=True
     )
     column_ids = fields.Many2many(
-        # A TESTER : ne pas importer 2 fois la même colonne
         comodel_name='carpentry.position.budget.interface',
         relation='carpentry_position_budget_import_wizard_rel',
         string='External columns',
@@ -149,23 +148,27 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
     
     def _read_orgadata(self, db_resource):
         # 1. Get `carpentry.group.lot`
-        sql = "SELECT PhaseID, Name FROM Phases"
-        cols_mapping = {'PhaseID': 'external_db_id', 'Name': 'name'}
+        sql = "SELECT Name, xGUID FROM Phases"
+        cols_mapping = {'Name': 'name', 'xGUID': 'external_db_guid'}
         Phases = self._read_db(db_resource, sql, cols_mapping)
         
         # 2. Get `carpentry.position`
         # Orgadata has a M2M relation table `ElevationGroups` between lots and positions
         # Phases <-> Elevation x2x relation table
-        sql = "SELECT ElevationGroupID, PhaseId FROM ElevationGroups"
-        ElevationGroups_to_Phases = self._read_db(db_resource, sql, format_m2m=True)
+        sql = """
+            SELECT ElevationGroups.elevationGroupId, Phases.xGUID
+            FROM ElevationGroups
+                INNER JOIN Phases ON Phases.PhaseID = ElevationGroups.PhaseId
+        """
+        elevationGroupId_to_lotGUID = self._read_db(db_resource, sql, format_m2m=True)
 
         # ALY (2024-06-26) :
         # a. removed 'SystemName': 'range' which is in 'Elevations' but missing in 'a_elevations'
         # b. ElevationID and ElevationGroupId in 'Elevations' -> elevationId and elevationGroupId in 'a_elevations'
-        sql = "SELECT elevationId, Name, Amount, Area, AutoDescription, elevationGroupId FROM a_elevations"
+        sql = "SELECT Name, Amount, Area, SystemName, AutoDescription, xGUID, elevationGroupId FROM a_elevations"
         cols_mapping = {
-            'elevationId': 'external_db_id', 'Name': 'name',
-            'Amount': 'quantity', 'Area': 'surface', 'AutoDescription': 'description'
+            'Name': 'name', 'Amount': 'quantity', 'Area': 'surface', 'SystemName': 'range', 'AutoDescription': 'description',
+            'xGUID': 'external_db_guid'
         }
         Elevations = self._read_db(db_resource, sql, cols_mapping)
 
@@ -175,9 +178,9 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         Budgets = self._read_db(db_resource, "SELECT * FROM a_elevations")
         self._close_db(db_resource) # close connection with Orgadata mssql db
 
-        return Phases, ElevationGroups_to_Phases, Elevations,Budgets
+        return Phases, elevationGroupId_to_lotGUID, Elevations,Budgets
 
-    def _write_orgadata(self, Phases, ElevationGroups_to_Phases, Elevations, Budgets):
+    def _write_orgadata(self, Phases, elevationGroupId_to_lotGUID, Elevations, Budgets):
         # 1. Get Odoo's budget column, linked to external DB one
         cols_orgadata = [x for x in Budgets[0]] if Budgets else []
         mapped_interface = self._get_interface(cols_orgadata)
@@ -187,24 +190,24 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         existing_lot_ids = self.env['carpentry.group.lot'].search(domain)
         lot_ids = self._import_data(Phases, existing_lot_ids)
 
-        mapped_lot_ids = {x.external_db_id: x.id for x in lot_ids}
+        mapped_lot_ids = {x.external_db_guid: x.id for x in lot_ids}
         # and resolve position-lot relation from Orgadata's M2M 'Elevation <> ElevationGroup <> Phases'
         for elevation in Elevations:
-            phase_external_db_id_ = ElevationGroups_to_Phases.get(int(elevation.get('elevationGroupId')))
-            elevation['lot_id'] = mapped_lot_ids.get(phase_external_db_id_)
+            phase_external_db_guid_ = elevationGroupId_to_lotGUID.get(elevation.get('elevationGroupId'))
+            elevation['lot_id'] = mapped_lot_ids.get(phase_external_db_guid_)
             del elevation['elevationGroupId']
         
         # 3. Import carpentry.position
         existing_position_ids = self.env['carpentry.position'].search(domain)
         position_ids = self._import_data(Elevations, existing_position_ids)
-        mapped_position_ids = {x.external_db_id: x.id for x in position_ids}
+        mapped_position_ids = {x.external_db_guid: x.id for x in position_ids}
         
         # 4. Import carpentry.position.budget
         precision = self.env['decimal.precision'].precision_get('Product Price')
         # Sum-group budget of active columns, in the format for `carpentry_position_budget._erase_budget()`
         mapped_budget = defaultdict(float)
         for elevation in Budgets:
-            position_id_ = mapped_position_ids.get(int(elevation.get('elevationId')))
+            position_id_ = mapped_position_ids.get(elevation.get('xGUID'))
             for col, analytic_account_id_ in mapped_interface.items():
                 amount = elevation.get(col, 0.0)
                 if not float_is_zero(float(amount), precision_digits=precision):

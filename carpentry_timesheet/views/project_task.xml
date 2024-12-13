@@ -3,7 +3,7 @@
     <!-- Action & menu-item: 'Timesheet's Budget' -->
     <!-- Pre-select project before opening Instruction (tasks) -->
     <record id="action_open_task_budget_timesheet_srv" model="ir.actions.server">
-        <field name="name">Timesheet's budgets</field>
+        <field name="name">Tasks</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
@@ -19,7 +19,8 @@
                 'context': {
                     'default_allow_timesheets': True,
                     'default_planned_hours_required': 1,
-                    'display_short_name': True # not to display analytic code
+                    'display_short_name': True, # no code in analytic's display_name
+                    'display_analytic_budget': True, # show budget in analytic's display_name
                 }
             })
         </field>

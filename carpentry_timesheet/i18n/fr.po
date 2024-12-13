@@ -7,13 +7,15 @@ msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-11 17:46+0000\n"
-"PO-Revision-Date: 2024-12-11 17:46+0000\n"
+"PO-Revision-Date: 2024-12-12 12:12+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
@@ -56,13 +58,13 @@ msgid ""
 "If selected, the associated project is added to the timesheet sheet when "
 "clicked the button."
 msgstr ""
-"Si cette option est sélectionnée, le projet associé est ajouté à la feuille "
-"de temps lorsque l'on clique sur le bouton."
+"Si activé, le projet associé est ajouté à la feuille de temps lorsque l'on "
+"clique sur le bouton."
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours
 msgid "Initially Planned Hours"
-msgstr "Heures prévues initialement"
+msgstr "Heures prévues"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
@@ -92,7 +94,7 @@ msgstr ""
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours_required
 msgid "Planned Hours mandatory"
-msgstr "Heures prévues nécessaires"
+msgstr "Heures prévues obligatoire"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
@@ -128,7 +130,7 @@ msgstr ""
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__progress_reviewed
 msgid "Reviewed Progress"
-msgstr "Progrès révisé"
+msgstr "Avancement"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_project_id
@@ -144,27 +146,27 @@ msgstr "Tâche"
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_overtime
 msgid "Task Overtime"
-msgstr "Tâche Heures supplémentaires"
+msgstr "Dépassement"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_performance
 msgid "Task Performance"
-msgstr "Exécution des tâches"
+msgstr "Performance"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_planned_hours
 msgid "Task Planned Hours"
-msgstr "Tâche Heures prévues"
+msgstr "Heures prévues"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_progress_reviewed
 msgid "Task Progress Reviewed"
-msgstr "Examen de l'état d'avancement des tâches"
+msgstr "Avancement"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_remaining_hours
 msgid "Task Remaining Hours"
-msgstr "Tâche Heures restantes"
+msgstr "Heures restantes"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
@@ -180,7 +182,7 @@ msgstr "Feuille de temps"
 #: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
 #: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
 msgid "Timesheet's budgets"
-msgstr "Budgets de la feuille de temps"
+msgstr "Par tâches"
 
 #. module: carpentry_timesheet
 #. odoo-javascript

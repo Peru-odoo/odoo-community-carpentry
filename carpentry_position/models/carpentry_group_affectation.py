@@ -145,9 +145,7 @@ class CarpentryGroupAffectation(models.Model):
     position_id = fields.Many2one(
         comodel_name='carpentry.position',
         string='Position',
-        compute='_compute_position_id',
-        store=True,
-        ondelete='restrict'
+        compute='_compute_position_id'
     )
     
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
@@ -203,7 +201,7 @@ class CarpentryGroupAffectation(models.Model):
             prefix = "[%s] " % self.group_ref.display_name
             suffix = " (%s)" % self.quantity_affected
         
-        record_display = self.record_ref._get_display_name(display_with_suffix=False)
+        record_display = self.record_ref.with_context(display_with_suffix=False).display_name
         return prefix + record_display + suffix
     
     def _compute_fields_ref(self):
@@ -215,10 +213,12 @@ class CarpentryGroupAffectation(models.Model):
     def _compute_quantity_affected_parent(self):
         for affectation in self:
             affectation.quantity_affected_parent = (
+                affectation.record_ref and
                 'quantity_affected' in affectation.record_ref
                 and affectation.record_ref.quantity_affected
             )
     
+    @api.depends('record_id')
     def _compute_position_id(self):
         """ Recursively find `position_id` from `record_ref` """
         for affectation in self:

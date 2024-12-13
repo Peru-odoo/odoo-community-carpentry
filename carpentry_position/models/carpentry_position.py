@@ -102,7 +102,7 @@ class Position(models.Model):
     def _compute_display_name(self):
         for position in self:
             position.display_name = position._get_display_name()
-    def _get_display_name(self, display_with_suffix=True):
+    def _get_display_name(self, display_with_suffix=False):
         """ We need to tweak positions' `display_name` when called in a x2many_2d_matrix """
         self.ensure_one()
         display_with_suffix = self._context.get('display_with_suffix', display_with_suffix)
@@ -112,6 +112,11 @@ class Position(models.Model):
             prefix = "[%s] " % (self.lot_id.name or '')
             suffix = " (%s)" % (self.quantity)
         return prefix + self.name + suffix
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """ For import """
+        return [('name', operator, value)]
 
     @api.depends('quantity', 'project_id.affectation_ids.quantity_affected')
     def _compute_quantities_and_state(self):

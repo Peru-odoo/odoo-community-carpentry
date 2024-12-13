@@ -7,6 +7,8 @@
 
         <field name="arch" type="xml">
             <tree>
+                <field name="project_id_domain" invisible="1" />
+
                 <field name="project_id" invisible="context.get('default_project_id')" optional="show" />
                 <field name="name" />
                 <field name="parent_type_id" widget="badge" />
@@ -22,6 +24,8 @@
         <field name="model">carpentry.need.family</field>
         <field name="arch" type="xml">
             <form>
+                <field name="project_id_domain" invisible="1" />
+                
                 <!-- Form content -->
                 <sheet>
                     <field name="parent_type_id" widget="badge" attrs="{'invisible': [('need_ids', '=', [])]}" />

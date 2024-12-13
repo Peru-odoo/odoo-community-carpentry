@@ -50,6 +50,18 @@
                 <field name="card_res_model_id" invisible="1" />
             </form>
 
+            <!-- Button "Close" -->
+            <header position="inside">
+                <button name="button_toggle_done"
+                    type="object"
+                    icon="fa-check"
+                    class="btn btn-success"
+                    attrs="{'invisible': [('is_closed', '=', True)]}"
+                    string="Close"
+                    title="Click to mark as done"
+                />
+            </header>
+
             <!-- Date done (`date_end`) -->
             <field name="date_deadline" position="after">
                 <field name="date_end" />

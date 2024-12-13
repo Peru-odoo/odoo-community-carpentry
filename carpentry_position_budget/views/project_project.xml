@@ -28,22 +28,47 @@
             <page name="settings" position="before">
                 <page name="budget" string="Budget">
                     <group name="budget_total">
-                        <field name="budget_goods" />
+                        <group name="budget_divider" colspan="2">
+                            <!-- Goods & global cost at left -->
+                            <group name="budget_left">
+                                <field name="budget_goods" />
+                                <field name="budget_global_cost" />
+                            </group>
 
-                        <label for="budget_prod" />
-                        <div>
-                            <field name="budget_prod" class="oe_inline" /> <span>h</span>
-                        </div>
-                        <label for="budget_install" />
-                        <div>
-                            <field name="budget_install" class="oe_inline" /> <span>h</span>
-                        </div>
-                        <label for="budget_office" />
-                        <div>
-                            <field name="budget_office" class="oe_inline" /> <span>h</span>
-                        </div>
+                            <!-- Services at right -->
+                            <group name="budget_right">
+                                <label for="budget_office" />
+                                <div>
+                                    <field name="budget_office" class="oe_inline" /> <span>h</span>
+                                </div>
 
-                        <field name="budget_global_cost" />
+                                <label for="budget_prod" />
+                                <div>
+                                    <field name="budget_prod" class="oe_inline" /> <span>h</span>
+                                </div>
+                                
+                                <label for="budget_install" />
+                                <div>
+                                    <field name="budget_install" class="oe_inline" /> <span>h</span>
+                                </div>
+                            </group>
+                        </group>
+
+                        <field name="budget_line_ids"
+                            domain="[('is_computed_carpentry', '=', False)]"
+                            context="{'display_short_name': 1}"
+                            nolabel="1"
+                            colspan="2"
+                        >
+                            <tree editable="top">
+                                <field name="company_currency_id" invisible="1" />
+
+                                <field name="budget_type" string="Type" />
+                                <field name="analytic_account_id" string="Budget" options="{'no_create_edit': 1}" />
+                                <field name="qty_debit" string="Quantity" />
+                                <field name="balance" string="Total" />
+                            </tree>
+                        </field>
                     </group>
                 </page>
             </page>

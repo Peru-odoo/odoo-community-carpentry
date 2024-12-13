@@ -14,7 +14,6 @@ class ProjectType(models.Model):
         string='Planning Column',
         compute='_compute_column_id',
         store=True,
-        readonly=True,
         required=False,
         ondelete='set null',
         recursive=True

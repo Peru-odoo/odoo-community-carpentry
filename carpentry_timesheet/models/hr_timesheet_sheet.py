@@ -16,11 +16,17 @@ class HrTimesheetSheet(models.Model):
     add_line_project_id = fields.Many2one(
         group_expand='_group_expand_add_line_project_id'
     )
+    add_line_project_id = fields.Many2one(
+        default=lambda self: self._get_project_id(),
+    )
+    add_line_task_id = fields.Many2one(
+        domain="[('id', 'in', available_task_ids), ('allow_timesheets', '=', True)]",
+    )
 
-    #===== Project/Task consistency (UI) =====#
+    #===== Compute / onchange =====#
     @api.onchange('add_line_project_id', 'add_line_task_id')
     def _onchange_task_consistency(self):
-        """ Clean `add_line_task_id` if `add_line_project_id` is changed
+        """ [UI] Clean `add_line_task_id` if `add_line_project_id` is changed
             after a `add_line_task_id` was selected by user.
 
             This finishes to enforce timesheeted tasks belong to their project

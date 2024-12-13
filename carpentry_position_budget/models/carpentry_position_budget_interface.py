@@ -40,9 +40,7 @@ class CarpentryPositionBudgetInterface(models.Model):
     )
     budget_type = fields.Selection(
         # identifies goods (€) vs. services (h)
-        related='analytic_account_id.budget_type',
-        help='Required to identify ',
-        required=True
+        related='analytic_account_id.budget_type'
     )
 
     active = fields.Boolean(

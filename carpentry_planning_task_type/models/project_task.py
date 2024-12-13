@@ -146,7 +146,8 @@ class Task(models.Model):
         compute='_compute_can_create_linked_tasks'
     )
     attachment_count = fields.Integer(
-        compute='_compute_attachment_count'
+        string='Total Attachment Count',
+        compute='_compute_attachment_count',
     )
 
     #===== Constrain =====#
