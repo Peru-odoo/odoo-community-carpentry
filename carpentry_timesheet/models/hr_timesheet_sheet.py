@@ -17,7 +17,7 @@ class HrTimesheetSheet(models.Model):
         group_expand='_group_expand_add_line_project_id'
     )
     add_line_project_id = fields.Many2one(
-        default=lambda self: self._get_project_id(),
+        default=lambda self: self.env['project.default.mixin']._get_project_id(),
     )
     add_line_task_id = fields.Many2one(
         domain="[('id', 'in', available_task_ids), ('allow_timesheets', '=', True)]",
