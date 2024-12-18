@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.addons.carpentry_planning_task_type.models.project_task import (
     XML_ID_INSTRUCTION, XML_ID_MILESTONE, XML_ID_MEETING
 )
@@ -76,3 +76,50 @@ class Project(models.Model):
             'parent_types': parent_types_data, # 1st line (columns header)
             'milestones': mapped_milestone_data # rows
         }
+    
+
+    
+
+    #===== Action (task menu-items srv action) =====#
+    def _action_open_task_common(self, name, type_code, custom, switch, context={}):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.task',
+            'name': name,
+            'views': self.env['project.task']._get_task_views(type_code, custom, switch),
+            'context': {
+                'default_root_type_id': self.env.ref('carpentry_planning_task_type.task_type_' + type_code).id,
+            } | context,
+            'domain': [('root_type_id', '=', self.env.ref('carpentry_planning_task_type.task_type_' + type_code).id)]
+        }
+    
+    # Instruction
+    def action_open_task_instruction(self):
+        return self._action_open_task_common(
+            name=_('Instructions'),
+            type_code='instruction',
+            custom=['tree'],
+            switch=['tree', 'form'],
+            context={
+                'display_type_ids': True, # hide `parent_type_id` and `type_ids` ; display `type_ids`
+                'display_parent_type_id': False
+            }
+        )
+    
+    # Meeting
+    def action_open_task_meeting(self):
+        return self._action_open_task_common(
+            name=_('Meetings'),
+            type_code='meeting',
+            custom=['tree', 'form'],
+            switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
+        )
+    
+    # Milestone
+    def action_open_task_milestone(self):
+        return self._action_open_task_common(
+            name=_('Milestones'),
+            type_code='milestone',
+            custom=['tree'],
+            switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
+        )

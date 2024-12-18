@@ -6,3 +6,4 @@ from . import carpentry_need
 from . import carpentry_planning_column
 from . import project_type
 from . import project_task
+from . import project_project

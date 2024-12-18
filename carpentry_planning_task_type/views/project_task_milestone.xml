@@ -16,7 +16,11 @@
             
             <!-- Make `parent_type_id` editable -->
             <field name="parent_type_id" position="attributes">
+                <attribute name="string">Category</attribute>
                 <attribute name="readonly">False</attribute>
+            </field>
+            <field name="type_id" position="attributes">
+                <attribute name="string">Milestone</attribute>
             </field>
 
             <!-- Hide name -->
@@ -31,23 +35,7 @@
         <field name="name">Milestones</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'name': 'Milestones',
-                'views': env['project.task']._get_task_views(
-                    type_code='milestone',
-                    custom=['tree'],
-                    switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
-                ),
-                'context': {
-                    'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_milestone').id,
-                    # 'display_launch_ids': False,
-                },
-                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_milestone').id)]
-            })
-        </field>
+        <field name="code">action = model.action_choose_project_and_redirect('action_open_task_milestone')</field>
     </record>
 
     <menuitem

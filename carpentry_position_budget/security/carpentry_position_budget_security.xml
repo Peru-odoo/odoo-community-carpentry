@@ -6,9 +6,9 @@
             Project budget: show only budgets related to project
             *and* whose the user has a role in
         </field>
-        <field name="domain_force">[
-            ('project_id', '!=', False),
-            ('project_id.assignment_ids.user_id', '=', user.id)
+        <field name="domain_force">['|',
+            ('template', '=', True),
+            '&amp;', ('project_id.assignment_ids.user_id', '=', user.id), ('project_id', '!=', False)
         ]</field>
     </record>
     <!-- Rules: project users may only see project-related budgets -->

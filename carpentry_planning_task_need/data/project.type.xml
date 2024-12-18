@@ -23,12 +23,5 @@
             <field name="project_ok">False</field>
             <field name="task_ok">False</field>
         </record>
-        <record id="example_need_category" model="project.type">
-            <field name="name">Example of a Need Category</field>
-            <field name="code">need_category_example</field>
-            <field name="parent_id" ref="carpentry_planning_task_need.task_type_need_method" />
-            <field name="project_ok">False</field>
-            <field name="task_ok">True</field>
-        </record>
     </data>
 </odoo>

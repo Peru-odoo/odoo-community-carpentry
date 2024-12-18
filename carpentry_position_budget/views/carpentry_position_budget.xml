@@ -15,14 +15,17 @@
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'carpentry.position.budget',
-                'view_mode': 'pivot,tree,form',
-                'name': 'Positions budgets'
-            })
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_position_budget')
         </field>
     </record>
+    <!-- Real action -->
+    <record id="action_open_position_budget" model="ir.actions.act_window">
+        <field name="name">Positions budgets</field>
+        <field name="res_model">carpentry.position.budget</field>
+        <field name="view_mode">pivot,tree,form</field>
+    </record>
+
+
     <!-- Menu : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
     <menuitem id="menu_project_main_budget"
         parent="project.menu_main_pm"

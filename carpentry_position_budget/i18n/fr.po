@@ -501,7 +501,7 @@ msgstr "Budget des repères"
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_position_budget_srv
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_position_budget
 msgid "Positions budgets"
-msgstr "Par repères (détails)"
+msgstr "Des repères (détails)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_prod
@@ -539,7 +539,7 @@ msgstr "Coûts globaux du projet"
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_project_budget_lines
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_lines
 msgid "Projects budgets"
-msgstr "Par projet"
+msgstr "Du projet"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__quantity

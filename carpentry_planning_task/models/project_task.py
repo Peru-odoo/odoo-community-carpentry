@@ -6,7 +6,7 @@ from datetime import timedelta
 
 class Task(models.Model):
     _inherit = ["project.task"]
-    _order = 'priority DESC, date_deadline ASC, create_date ASC'
+    _order = 'priority DESC, sequence, date_deadline, create_date'
 
     #===== Fields (planning) =====#
     card_res_id = fields.Many2oneReference(

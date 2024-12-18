@@ -40,26 +40,8 @@
         <field name="name">Instructions</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'name': 'Instructions',
-                'views': env['project.task']._get_task_views(
-                    type_code='instruction',
-                    custom=['tree'],
-                    switch=['tree', 'form']
-                ),
-                'context': {
-                    'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_instruction').id,
-                    'display_type_ids': True, # hide `parent_type_id` and `type_ids` ; display `type_ids`
-                    'display_parent_type_id': False
-                },
-                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_instruction').id)]
-            })
-        </field>
+        <field name="code">action = model.action_choose_project_and_redirect('action_open_task_instruction')</field>
     </record>
-    
     <menuitem
         id="menu_project_instruction"
         parent="carpentry_planning.menu_project_followup"

@@ -84,20 +84,7 @@
         <field name="name">Meetings</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'name': 'Meetings',
-                'views': env['project.task']._get_task_views(
-                    type_code='meeting',
-                    custom=['tree', 'form'],
-                    switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity']
-                ),
-                'context': {'default_root_type_id': env.ref('carpentry_planning_task_type.task_type_meeting').id},
-                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_type.task_type_meeting').id)]
-            })
-        </field>
+        <field name="code">action = model.action_choose_project_and_redirect('action_open_task_meeting')</field>
     </record>
     
     <menuitem

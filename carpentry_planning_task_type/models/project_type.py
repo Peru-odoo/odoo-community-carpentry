@@ -62,8 +62,9 @@ class ProjectType(models.Model):
     @api.depends('name')
     def _compute_display_name(self):
         """ Overwritte native module showing full path like `A / B / C` """
+        complete = self._context.get('display_full_name')
         for type in self:
-            type.display_name = type._get_display_name_one()
+            type.display_name = type.complete_name if complete else type._get_display_name_one()
     
     def _get_display_name_one(self):
         return self.shortname if self._context.get('display_short_name') else self.name

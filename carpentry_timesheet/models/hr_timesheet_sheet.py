@@ -5,22 +5,9 @@ from odoo import models, fields, api, exceptions, _, Command, SUPERUSER_ID
 class HrTimesheetSheet(models.Model):
     _inherit = ['hr_timesheet.sheet']
 
-    #===== Fields methods =====#
-    @api.model
-    def _group_expand_add_line_project_id(self, projects, domain, order):
-        """ View all role in assignation kanban view """
-        project_ids_ = projects._search([], order=order, access_rights_uid=SUPERUSER_ID)
-        return projects.browse(project_ids_)
-
     #===== Fields =====#
     add_line_project_id = fields.Many2one(
-        group_expand='_group_expand_add_line_project_id'
-    )
-    add_line_project_id = fields.Many2one(
         default=lambda self: self.env['project.default.mixin']._get_project_id(),
-    )
-    add_line_task_id = fields.Many2one(
-        domain="[('id', 'in', available_task_ids), ('allow_timesheets', '=', True)]",
     )
 
     #===== Compute / onchange =====#
@@ -34,6 +21,20 @@ class HrTimesheetSheet(models.Model):
         for sheet in self:
             if sheet.add_line_task_id.id and sheet.add_line_task_id.id not in sheet.available_task_ids.ids:
                 sheet.add_line_task_id = False
+    
+    def _compute_available_task_ids(self):
+        """ Can only select tasks:
+            1. timesheetable
+            2. on which user is assigned (if user is not in  `hr_timesheet.group_hr_timesheet_approver`)
+        """
+        res = super()._compute_available_task_ids()
+
+        domain = [('allow_timesheets', '=', True)]
+        if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):
+            domain += [('user_ids', '=', self.env.uid)]
+        self.available_task_ids = self.available_task_ids.filtered_domain(domain)
+        
+        return res
 
     #===== Business methods =====#
     def add_line(self):

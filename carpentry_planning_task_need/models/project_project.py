@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, _
+
+class Project(models.Model):
+    _inherit = ["project.project"]
+
+    def action_open_task_need(self):
+        return self._action_open_task_common() | {
+            'name': _('View and adapt needs'),
+            'search_view_id': [self.env.ref('carpentry_planning_task_need.view_task_search_form').id, 'search'],
+            'views': self.env['project.task']._get_task_views(
+                type_code='need',
+                custom=['tree', 'form'],
+                switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity'],
+                module='carpentry_planning_task_need'
+            ),
+            'context': {
+                'default_root_type_id': self.env.ref('carpentry_planning_task_need.task_type_need').id,
+                'default_user_ids': [],
+                'default_type_deadline': 'manual',
+                'search_default_filter_my_role': 1,
+                'display_with_prefix': False,
+            },
+            'domain': [('root_type_id', '=', self.env.ref('carpentry_planning_task_need.task_type_need').id)]
+        }

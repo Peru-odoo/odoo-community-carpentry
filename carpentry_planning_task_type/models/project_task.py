@@ -208,8 +208,12 @@ class Task(models.Model):
     #===== Compute: display_name =====#
     @api.depends('name', 'type_id', 'root_type_id')
     def _compute_display_name(self):
+        """ `name` can be optional: set `display_name` to task or type `name` """
         for task in self:
             task.display_name = task.name or task.type_id.name
+    @api.model
+    def _search_display_name(self, operator, value):
+        return [('name', operator, value)]
     
     # def _get_prefix_display_name(self):
     #     """ Add `type_id.name` in front of name, separated by a dash "-",

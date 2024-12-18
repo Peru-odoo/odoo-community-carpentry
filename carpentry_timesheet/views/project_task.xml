@@ -6,24 +6,7 @@
         <field name="name">Tasks</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'name': "Timesheet's budgets",
-                'views': [
-                    (env.ref('carpentry_timesheet.view_task_kanban_timesheet').id, 'kanban'),
-                    (False, 'form'), # 'project.view_task_form2'
-                ],
-                'domain': [('allow_timesheets', '=', True)],
-                'context': {
-                    'default_allow_timesheets': True,
-                    'default_planned_hours_required': 1,
-                    'display_short_name': True, # no code in analytic's display_name
-                    'display_analytic_budget': True, # show budget in analytic's display_name
-                }
-            })
-        </field>
+        <field name="code">action = model.action_choose_project_and_redirect('action_open_task_timesheet')</field>
     </record>
     <menuitem
         id="menu_project_task_budget_timesheet"
@@ -120,6 +103,7 @@
                 <attribute name="group_create">False</attribute>
                 <attribute name="group_edit">False</attribute>
                 <attribute name="group_delete">False</attribute>
+                <attribute name="class">o_kanban_project_tasks</attribute>
             </kanban>
 
             <!-- Budget timesheet Tasks: print sum of hours in columns' totals -->
@@ -143,23 +127,27 @@
         <field name="arch" type="xml">
             <form class="o_form_project_tasks">
                 <field name="company_id" invisible="1"/>
-                <field name="parent_id" invisible="1" />
-                <field name="user_ids" invisible="1" />
-                <field name="description" invisible="1"/>
+                <field name="root_type_id" invisible="1" />
+                <field name="parent_type_id" invisible="1" />
+                <field name="type_id" invisible="1" />
                 <field name="analytic_account_id" invisible="1" />
+                <field name="parent_id" invisible="1" />
+                <field name="description" invisible="1"/>
                 <field name="allow_timesheets" invisible="1" />
                 <field name="planned_hours_required" invisible="1" />
                 <field name="priority" invisible="1" />
+                <field name="sequence" invisible="1" />
 
                 <group>
-                    <label for="project_id" colspan="2" invisible="context.get('default_project_id', False)" />
+                    <label for="project_id" colspan="2" class="my-0"
+                        invisible="context.get('default_project_id', False)" />
                     <field name="project_id"
                         nolabel="1"
                         colspan="2"
                         invisible="context.get('default_project_id', False)"
                     />
 
-                    <label for="name" colspan="2" />
+                    <label for="name" colspan="2" class="my-0" />
                     <field name="name"
                         string="Task"
                         nolabel="1"
@@ -168,24 +156,26 @@
                         placeholder="Name"
                     />
 
-                    <label for="planned_hours" colspan="2" />
+                    <label for="planned_hours" colspan="2" class="my-0" />
                     <field name="planned_hours"
                         nolabel="1"
                         colspan="2"
                         placeholder="Planned hours"
                         attrs="{'required': [('planned_hours_required', '=', True)]}"
                     />
-
                     <div colspan="2">
-                        (available: 
+                        Remaining budget: 
                         <field name="available_budget"
                             nolabel="1"
                             class="oe_inline"
                             decoration-bf="available_budget &lt; 0"
                             decoration-danger="available_budget &lt; 0"
                         />
-                        h)
+                        h
                     </div>
+
+                    <label for="user_ids" colspan="2" class="my-0" />
+                    <field name="user_ids" widget="many2many_tags" nolabel="1" colspan="2" />
                 </group>
             </form>
         </field>

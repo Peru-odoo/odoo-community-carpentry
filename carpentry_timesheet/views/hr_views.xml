@@ -24,4 +24,23 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Timesheet sheet search -->
+    <record id="view_hr_timesheet_sheet_filter" model="ir.ui.view">
+        <field name="name">hr_timesheet.sheet.filter</field>
+        <field name="model">hr_timesheet.sheet</field>
+        <field name="inherit_id" ref="hr_timesheet_sheet.view_hr_timesheet_sheet_filter"/>
+
+        <field name="arch" type="xml">
+            <search position="inside">
+                <separator groups="hr_timesheet.group_hr_timesheet_approver" />
+                <filter
+                    string="My Department"
+                    name="my_department"
+                    domain="[('employee_id.department_id.member_ids.user_id', '=', uid)]"
+                    groups="hr_timesheet.group_hr_timesheet_approver"
+                />
+            </search>
+        </field>
+    </record>
 </odoo>

@@ -182,7 +182,7 @@ msgstr "Feuille de temps"
 #: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
 #: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
 msgid "Timesheet's budgets"
-msgstr "Par tâches"
+msgstr "Des avancements"
 
 #. module: carpentry_timesheet
 #. odoo-javascript

@@ -19,7 +19,6 @@
         'carpentry_base', 'carpentry_planning_task', # carpentry
     ],
     'data': [
-        # data
         'data/project.type.xml',
         # report
         'report/task_report.xml',

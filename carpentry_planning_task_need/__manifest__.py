@@ -18,7 +18,6 @@
     ],
     'data': [
         # data
-        'data/project.role.xml',
         'data/project.type.xml',
         'data/carpentry.planning.column.xml',
         'data/carpentry.planning.milestone.type.xml',

@@ -30,7 +30,7 @@
                     />
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="align-top">
                 <tr>
                     <td t-foreach="data.parent_types" t-as="parent_type" t-key="parent_type.id">
                         <t t-foreach="data.milestones[parent_type.id] ?? []" t-as="milestone" t-key="milestone.id">

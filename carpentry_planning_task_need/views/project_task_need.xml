@@ -106,28 +106,7 @@
         <field name="name">View and adapt needs</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'name': 'View and adapt needs',
-                'search_view_id': [env.ref('carpentry_planning_task_need.view_task_search_form').id, 'search'],
-                'views': env['project.task']._get_task_views(
-                    type_code='need',
-                    custom=['tree', 'form'],
-                    switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity'],
-                    module='carpentry_planning_task_need'
-                ),
-                'context': {
-                    'default_root_type_id': env.ref('carpentry_planning_task_need.task_type_need').id,
-                    'default_user_ids': [],
-                    'default_type_deadline': 'manual',
-                    'search_default_filter_my_role': 1,
-                    'display_with_prefix': False,
-                },
-                'domain': [('root_type_id', '=', env.ref('carpentry_planning_task_need.task_type_need').id)]
-            })
-        </field>
+        <field name="code">action = model.action_choose_project_and_redirect('action_open_task_need')</field>
     </record>
 
     <menuitem

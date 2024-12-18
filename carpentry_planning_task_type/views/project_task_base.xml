@@ -238,7 +238,8 @@
                 />
             </field>
             <field name="type_id" position="attributes">
-                <attribute name="options">{'no_create': 1, 'color_field': 'color'}</attribute>
+                <attribute name="context">{'display_full_name': 1}</attribute>
+                <attribute name="options">{'always_reload': 1, 'no_create': 1, 'color_field': 'color'}</attribute>
                 <attribute name="invisible">context.get('display_type_ids')</attribute>
             </field>
 
