@@ -128,7 +128,7 @@ msgstr "Date Visa"
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
 msgid "Defect"
-msgstr "Défaut"
+msgstr "Observations"
 
 #. module: carpentry_design
 #: model:ir.module.category,name:carpentry_design.module_category_services_carpentry_design
