@@ -367,8 +367,8 @@ msgstr "Jeux de plans"
 #. module: carpentry_design
 #: model:ir.actions.server,name:carpentry_design.action_open_plan_set_srv
 #: model:ir.ui.menu,name:carpentry_design.menu_project_plan
-msgid "Plan sets releases"
-msgstr "Publications de jeux de plans"
+msgid "Plan sets"
+msgstr "Jeux de plans"
 
 #. module: carpentry_design
 #: model:ir.model,name:carpentry_design.model_carpentry_planning_card

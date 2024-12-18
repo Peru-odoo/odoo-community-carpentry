@@ -344,7 +344,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         quantities = defaultdict(int)
         
         for affectation in self.affectation_ids:
-            nested = affectation.record_id != affectation.position_id
+            nested = affectation.record_id != affectation.position_id.id
             
             # sum position's affected qty to the group
             key = frozenset({

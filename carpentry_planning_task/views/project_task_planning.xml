@@ -1,42 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menu-item: make "Planning" a dropdown with:
-      - "Planning"
-      - "Tasks of the project"
-    -->
-    <!-- Pre-select project before opening tasks -->
-    <record id="action_srv_open_planning_task" model="ir.actions.server">
-        <field name="name">Tasks of the project</field>
-        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
-        <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect({
-                'type': 'ir.actions.act_window',
-                'res_model': 'project.task',
-                'view_mode': 'tree,kanban,form,calendar,timeline,pivot,graph,activity',
-                'name': 'Tasks',
-                'context': {
-                    'search_default_my_favorite_project': True,
-                    'search_default_open_tasks': True,
-                    'display_with_week': True
-                }
-            }
-        )</field>
-    </record>
-    <menuitem
-        id="menu_project_planning_planning"
-        name="Planning"
-        parent="carpentry_planning.menu_project_planning"
-        action="carpentry_planning.action_srv_open_planning"
-        sequence="10"
-    />
-    <menuitem
-        id="menu_project_planning_tasks"
-        parent="carpentry_planning.menu_project_planning"
-        action="action_srv_open_planning_task"
-        sequence="20"
-    />
-
     <!-- Form tasks -->
     <record id="view_task_form2" model="ir.ui.view">
         <field name="name">project.task.form.carpentry.planning_task</field>

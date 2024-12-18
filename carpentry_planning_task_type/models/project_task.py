@@ -209,28 +209,28 @@ class Task(models.Model):
     @api.depends('name', 'type_id', 'root_type_id')
     def _compute_display_name(self):
         for task in self:
-            task.display_name = task._get_prefix_display_name() + (task.name or '')
+            task.display_name = task.name or task.type
     
-    def _get_prefix_display_name(self):
-        """ Add `type_id.name` in front of name, separated by a dash "-",
-            only when needed/relevant
-        """
-        self.ensure_one()
-        should_prefix = bool(
-            self._context.get('display_with_prefix', True) # context may forced it to False
-            and self._should_display_name_prefix()
-        )
-        dash = ' - ' if self.type_id.name and self.name else ''
+    # def _get_prefix_display_name(self):
+    #     """ Add `type_id.name` in front of name, separated by a dash "-",
+    #         only when needed/relevant
+    #     """
+    #     self.ensure_one()
+    #     should_prefix = bool(
+    #         self._context.get('display_with_prefix', True) # context may forced it to False
+    #         and self._should_display_name_prefix()
+    #     )
+    #     dash = ' - ' if self.type_id.name and self.name else ''
 
-        return (
-            '' if not should_prefix or not self.type_id.name
-            else self.type_id.name + dash
-        )
+    #     return (
+    #         '' if not should_prefix or not self.type_id.name
+    #         else self.type_id.name + dash
+    #     )
     
-    def _should_display_name_prefix(self):
-        """ Classic and Instruction: never prefix the `display_name` """
-        no_prefix = [self.env.ref(XML_ID_INSTRUCTION)]
-        return self.root_type_id and self.root_type_id not in no_prefix
+    # def _should_display_name_prefix(self):
+    #     """ Classic and Instruction: never prefix the `display_name` """
+    #     no_prefix = [self.env.ref(XML_ID_INSTRUCTION)]
+    #     return self.root_type_id and self.root_type_id not in no_prefix
     
     #===== Onchange: type =====#
     @api.onchange('root_type_id', 'parent_type_id')

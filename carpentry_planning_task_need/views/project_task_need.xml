@@ -129,6 +129,7 @@
             })
         </field>
     </record>
+
     <menuitem
         id="menu_project_need_view"
         sequence="20"

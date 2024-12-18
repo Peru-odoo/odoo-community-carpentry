@@ -15,24 +15,21 @@
             })
         </field>
     </record>
-    <!-- 2 new main menus:
-        - `Planning`, transformed in section in `carpentry_planning_task[_type/_need]` for Planning, Project tasks, and then Needs, Milestones, ...
-        - `Follow-up`: a section, only relevant for other modules because used by Instructions and Plan sets Releases
-      -->
+
+    <!-- New main entry menu in Project menus -->
     <menuitem
-        id="menu_project_planning"
-        name="Planning"
+        id="menu_project_followup"
+        name="Follow-up"
         parent="project.menu_main_pm"
         sequence="40"
         groups="project.group_project_user"
-        action="action_srv_open_planning"
-    />
-    <menuitem id="menu_project_followup"
-        name="Follow-up"
-        parent="project.menu_main_pm"
-        sequence="50"
-        groups="project.group_project_user"
-    />
+    >
+        <menuitem id="menu_project_planning"
+            name="Planning"
+            sequence="10"
+            action="action_srv_open_planning"
+        />
+    </menuitem>
 
     <!-- Planning card -->
     <record model="ir.ui.view" id="carpentry_planning_kanban">
