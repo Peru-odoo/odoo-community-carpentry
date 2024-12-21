@@ -79,7 +79,7 @@
                             <div class="oe_kanban_content" t-att-data-tooltip="tooltip">
                                 <div class="o_kanban_record_top mb-0">
                                     <div class="o_kanban_record_headings">
-                                        <t t-esc="record.shortname ? record.shortname.raw_value : record.display_name.raw_value" />
+                                        <t t-esc="record.shortname.raw_value ? record.shortname.raw_value : record.display_name.raw_value" />
                                     </div>
                                     <div>
                                         <t t-call="card_body" />

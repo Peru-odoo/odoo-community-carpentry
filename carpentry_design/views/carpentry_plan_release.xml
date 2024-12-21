@@ -9,8 +9,6 @@
             <tree editable="bottom">
                 <field name="state_color" invisible="1" />
 
-                <field name="project_id" optional="hide" invisible="context.get('default_project_id')" />
-                <field name="plan_set_id" readonly="True" optional="hide" />
                 <field name="state"
                     decoration-bf="True"
                     decoration-warning="state == 'warning'"

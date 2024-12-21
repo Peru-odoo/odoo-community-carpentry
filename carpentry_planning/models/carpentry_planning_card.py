@@ -51,7 +51,7 @@ class CarpentryPlanningCard(models.Model):
     
     # column related
     res_model = fields.Char(related='column_id.res_model_id.model')
-    model_shortname = fields.Char(related='column_id.res_model_shortname')
+    res_model_shortname = fields.Char(related='column_id.res_model_shortname')
     can_open = fields.Boolean(related='column_id.can_open')
 
     # real record infos
@@ -246,14 +246,23 @@ class CarpentryPlanningCard(models.Model):
 
     @api.model
     def _search_launch_ids(self, operator, value):
-        """ Search for `launch_ids` in all possible related field (except for *Needs*, which ignores project & launch filters) """
-        domain = [('project_id', '=', False)] # domain sticky, for *Needs*
-        models = set(self.column_id.mapped('res_model_shortname'))
-        for model in models:
+        """ Replace `launch_ids` by `[related_field]_id.launch_ids` (see `_select()` method)
+            example: `plan_set_id.launch_ids`
+            (except for *Needs*, which ignores project & launch filters)
+        """
+        # Calculate list of the related fields, from active columns `res_model_shortname`
+        models_shortname = self.search([('column_id.fold', '=', False)]).mapped('res_model_shortname')
+        fields = [] # e.g. `plan_set_id`, ...
+        for model in set(models_shortname):
             rel_field = model + '_id'
             if rel_field in self:
-                launch_ids_field = rel_field + '.launch_ids'
-                domain = expression.OR([domain, [(launch_ids_field, '=', value)]])
+                fields.append(rel_field + '.launch_ids')
+        
+        domain = expression.OR([
+            [('project_id', '=', False)], # sticky, for Needs (independant of filtered launch)
+            [(field, '=', value) for field in fields]
+        ])
+        print('domain', domain)
         return domain
 
     #===== Planning Features =====#

@@ -84,7 +84,10 @@ class CarpentryPlanningCard(models.Model):
             fields=['ids:array_agg(id)'],
             lazy=False
         )
-        mapped_task_ids = {(x['card_res_model_id'][0], x['card_res_id']): x['ids'] for x in rg_result}
+        mapped_task_ids = {
+            (x['card_res_model_id'] and x['card_res_model_id'][0], x['card_res_id']):
+            x['ids'] for x in rg_result
+        }
         for card in self:
             key = (card.column_id.res_model_id.id, card.res_id)
             task_ids_ = mapped_task_ids.get(key, [])

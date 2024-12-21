@@ -102,7 +102,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="analytic_account_id" />
-                <field name="lot_id" />
+                <field name="position_id" />
                 <field name="budget_type" />
                 <field name="write_date" />
 

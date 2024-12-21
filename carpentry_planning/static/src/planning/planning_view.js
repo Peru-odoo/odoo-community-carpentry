@@ -52,7 +52,7 @@ export class PlanningController extends KanbanController {
     async openRecord (record) {
         // Open card's form if specified
         if (!record._values.can_open) {
-            return
+            return false
         }
         const actionReload = async () => await this.model.load(this.model.root);
 

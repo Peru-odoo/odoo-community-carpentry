@@ -38,6 +38,7 @@
                 <!-- descr -->
                 <div class="flex-grow-1 mx-1">
                     <t t-if="header.description" t-esc="header.description" />
+                    <t t-else=""><br /></t>
                 </div>
 
                 <!-- budget -->

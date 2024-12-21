@@ -23,15 +23,21 @@ class HrTimesheetSheet(models.Model):
                 sheet.add_line_task_id = False
     
     def _compute_available_task_ids(self):
-        """ Can only select tasks:
+        """ Restrict selectable tasks to:
             1. timesheetable
-            2. on which user is assigned (if user is not in  `hr_timesheet.group_hr_timesheet_approver`)
+            2. *and*, if user is not a timesheet approver:
+                - on which user is assigned,
+                - or tasks of Internal project or project visible by all users
         """
         res = super()._compute_available_task_ids()
 
         domain = [('allow_timesheets', '=', True)]
         if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):
-            domain += [('user_ids', '=', self.env.uid)]
+            domain += ['|', '|',
+                ('user_ids', '=', self.env.uid),
+                ('project_id.is_project_internal', '=', True),
+                ('project_id.privacy_visibility', 'in', ['employees', 'portal']
+            )]
         self.available_task_ids = self.available_task_ids.filtered_domain(domain)
         
         return res
