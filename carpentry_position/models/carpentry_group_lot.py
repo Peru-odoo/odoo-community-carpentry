@@ -6,12 +6,13 @@ class Lot(models.Model):
     _name = "carpentry.group.lot"
     _description = "Lots"
     _inherit = ['carpentry.group.mixin', 'carpentry.group.affectation.mixin']
+    _order = 'sequence, id'
     
     #===== Fields (from `affectation.mixin`) =====#
     # `affectation_ids` should be named `position_ids`, but it's a cheat for `_inverse_section_ids`
     affectation_ids = fields.One2many(
-        'carpentry.position',
-        'lot_id',
+        comodel_name='carpentry.position',
+        inverse_name='lot_id',
         string='Positions',
         domain=[]
     )

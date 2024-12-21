@@ -17,7 +17,7 @@
                 </attribute>
             </tree>
 
-            <!-- `launch_ids` -->
+            <!-- `launch_id` -->
             <field name="project_id" position="after">
                 <field name="launch_id" attrs="{'readonly': [('id', '!=', False)]}" options="{'no_open': 1}" />
                 <field name="parent_type_id" string="Type of Need" optional="hide" options="{'no_open': 1}" />

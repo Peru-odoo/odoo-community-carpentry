@@ -7,7 +7,7 @@ class Position(models.Model):
     _name = "carpentry.position"
     _description = "Position"
     _inherit = ['carpentry.group.mixin']
-    _order = "seq_group, sequence"
+    _order = "seq_group, lot_id, sequence"
     _rec_name = "display_name"
 
     #===== Fields =====#
@@ -98,6 +98,23 @@ class Position(models.Model):
             affectation_ids = mapped_affectation_ids.get(position.id)
             if affectation_ids:
                 affectation_ids.sequence = position.sequence
+
+
+    # Clean lots with no positions
+    def _clean_lots(self):
+        """ Remove lots not linked to any positions """
+        domain = [('id', 'in', self.lot_id.ids), ('affectation_ids', '=', False)]
+        orphan_lots = self.env['carpentry.group.lot'].sudo().search(domain)
+        orphan_lots.unlink()
+    
+    def unlink(self):
+        self._clean_lots()
+        return super().unlink()
+    
+    def write(self, vals):
+        if 'lot_id' in vals:
+            self._clean_lots()
+        return super().write(vals)
 
     #===== Compute =====#
     @api.depends('name')

@@ -260,8 +260,9 @@ class Task(models.Model):
             task.count_message_ids = mapped_data.get(task.id, {}).get('count')
 
     #===== Action =====#
-    def _get_task_views(self, type_code, custom, switch=[], module='carpentry_planning_task_type'):
+    def _get_task_views(self, type_code, custom, switch=[], module=''):
         switch = switch or custom
+        module = module or 'carpentry_planning_task_type'
 
         standard_views = {
             'tree': self.env.ref('project.view_task_tree2').id,

@@ -86,9 +86,10 @@ class CarpentryNeedFamily(models.Model):
         return result
 
     def unlink(self):
-        need_ids, project_ids = self.need_ids, self.project_id.ids
+        project_ids = self.project_id.ids
         result = super().unlink()
-        self._reconcile_with_tasks(project_ids) # reconcile
+        self._reconcile_with_tasks(project_ids) # after unlink()
+        return result
     
     def write(self, vals):
         result = super().write(vals)
@@ -126,7 +127,7 @@ class CarpentryNeedFamily(models.Model):
 
         # target
         domain_family = [('project_id', 'in', project_ids_)]
-        family_ids = self.env['carpentry.need.family'].search(domain_family)
+        family_ids = self.search(domain_family)
         target_tuples = set([
             (launch, need)
             for family in family_ids

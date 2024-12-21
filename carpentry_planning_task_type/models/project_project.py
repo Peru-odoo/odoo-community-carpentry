@@ -81,16 +81,18 @@ class Project(models.Model):
     
 
     #===== Action (task menu-items srv action) =====#
-    def _action_open_task_common(self, name, type_code, custom, switch, context={}):
+    def _action_open_task_common(self, name, type_code, custom, switch, module='', context={}):
+        module = module or 'carpentry_planning_task_type'
+
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
             'name': name,
-            'views': self.env['project.task']._get_task_views(type_code, custom, switch),
+            'views': self.env['project.task']._get_task_views(type_code, custom, switch, module),
             'context': {
-                'default_root_type_id': self.env.ref('carpentry_planning_task_type.task_type_' + type_code).id,
+                'default_root_type_id': self.env.ref(module + '.task_type_' + type_code).id,
             } | context,
-            'domain': [('root_type_id', '=', self.env.ref('carpentry_planning_task_type.task_type_' + type_code).id)]
+            'domain': [('root_type_id', '=', self.env.ref(module + '.task_type_' + type_code).id)]
         }
     
     # Instruction

@@ -51,7 +51,10 @@
 
                         <!-- Right: launches -->
                         <group name="group_right">
-                            <field name="launch_ids" widget="many2many_checkboxes" />
+                            <!-- Should not be affected before Need Family creation,
+                                else Need-to-Tasks reconciliation will not happen
+                            -->
+                            <field name="launch_ids" widget="many2many_checkboxes" attrs="{'readonly': [('id', '=', False)]}" />
                         </group>
                     </group>
                 </sheet>

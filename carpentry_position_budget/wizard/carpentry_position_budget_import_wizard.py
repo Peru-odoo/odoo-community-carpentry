@@ -147,6 +147,9 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         self._write_orgadata(*read_result)
     
     def _read_orgadata(self, db_resource):
+        """ (!) xGUID changes on each Orgadata export
+            It is not unique per Phase or Position, but per export file
+        """
         # 1. Get `carpentry.group.lot`
         sql = "SELECT Name, xGUID FROM Phases"
         cols_mapping = {'Name': 'name', 'xGUID': 'external_db_guid'}
@@ -188,7 +191,8 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         # 2. Write `carpentry.group.lot`
         domain = [('project_id', '=', self.project_id.id)]
         existing_lot_ids = self.env['carpentry.group.lot'].search(domain)
-        lot_ids = self._import_data(Phases, existing_lot_ids)
+        primary_keys = ['name']
+        lot_ids = self._import_data(Phases, existing_lot_ids, primary_keys)
 
         mapped_lot_ids = {x.external_db_guid: x.id for x in lot_ids}
         # and resolve position-lot relation from Orgadata's M2M 'Elevation <> ElevationGroup <> Phases'
@@ -199,7 +203,7 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         
         # 3. Import carpentry.position
         existing_position_ids = self.env['carpentry.position'].search(domain)
-        position_ids = self._import_data(Elevations, existing_position_ids)
+        position_ids = self._import_data(Elevations, existing_position_ids, primary_keys)
         mapped_position_ids = {x.external_db_guid: x.id for x in position_ids}
         
         # 4. Import carpentry.position.budget
