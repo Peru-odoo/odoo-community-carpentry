@@ -11,7 +11,7 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
 
     BUDGET_INSTALL = 10.0
-    ORGADATA_FILENAME = 'vannes_ca_verrieres.zip'
+    ORGADATA_FILENAME = 'REPORT_MEXT.zip'
 
     @classmethod
     def setUpClass(cls):
@@ -33,6 +33,7 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
             'import_file': base64.b64encode(mdb_file),
             'filename': self.ORGADATA_FILENAME
         } | vals])
+        self.wizard.button_truncate_budget()
         file_res.close()
 
 

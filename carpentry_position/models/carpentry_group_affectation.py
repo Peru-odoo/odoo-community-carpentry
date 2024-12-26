@@ -12,12 +12,14 @@ class CarpentryGroupAffectation(models.Model):
             * allow shared inverse methods of `carpentry.group.affectation.mixin` to inverse **temp** to **real** affectations 
 
         ==== Reminder table ====
-            model (Carp. Doc.)       `group`            `record`                      `product_id`  Value field
-             carpentry.group.phase    phase_id            position_id (M2M)              -            quantity_affected
-             carpentry.group.launch   launch_id           affectation_id of phase (O2m)  -            -
-             sale.order               sale_order_id       launch_id (M2M)                yes          amount
-             mrp.workorder            mrp_workorder_id    affectation_id of launch       yes          amount
-             mrp.workcenter           mrp_workcenter_id   -                              yes          amount
+            model (Carp. Doc.)       `group`            `record`                       `section_id`
+             carpentry.group.phase    phase_id            position_id (M2M)              lot_id
+             carpentry.group.launch   launch_id           affectation_id of phase (O2m)  phase_id
+             purchase.order           analytic_id         launch_id (M2M)                po_id
+             (
+             mrp.workorder            mrp_workorder_id    affectation_id of launch       wo_id
+             mrp.workcenter           mrp_workcenter_id   -                              wo_id
+             )
 
         ==== Affectations patterns ====
             - [VERY SIMPLE] Standard O2m (like `launch_ids`) from the model to `carpentry.group.launch`
@@ -151,13 +153,12 @@ class CarpentryGroupAffectation(models.Model):
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
     # /!\ `quantity_position` is needed *here* for real-time correct value
     # `quantity_affected_parent` is needed for nested/children affectations (i.e. launch)
-    quantity_affected = fields.Integer(
+    quantity_affected = fields.Float(
         string="Affected quantity",
         default=False,
-        group_operator='sum',
-        help="Quantity of the position affected to the record",
+        group_operator='sum'
     )
-    quantity_affected_parent = fields.Integer(
+    quantity_affected_parent = fields.Float(
         compute='_compute_quantity_affected_parent',
         string='Quantity affected to parent group',
     )
@@ -167,11 +168,11 @@ class CarpentryGroupAffectation(models.Model):
         group_operator='sum',
         help="Total available quantity of this position in the project",
     )
-    quantity_remaining_to_affect = fields.Integer(
+    quantity_remaining_to_affect = fields.Float(
         string='Remaining to affect',
         compute='_compute_quantity_remaining_to_affect',
         group_operator='sum',
-        help="[Quantity of position] - [Sum position's quantity already affected in the project]",
+        help="[Available quantity in the project] - [Sum of quantities already affected]",
     )
     
     _sql_constraints = [(
@@ -199,7 +200,7 @@ class CarpentryGroupAffectation(models.Model):
         prefix, suffix = '', ''
         if display_with_suffix:
             prefix = "[%s] " % self.group_ref.display_name
-            suffix = " (%s)" % self.quantity_affected
+            suffix = " (%s)" % int(self.quantity_affected) # int for position qty
         
         record_display = self.record_ref.with_context(display_with_suffix=False).display_name
         return prefix + record_display + suffix

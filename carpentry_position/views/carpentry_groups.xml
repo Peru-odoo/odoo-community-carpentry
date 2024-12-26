@@ -129,7 +129,7 @@
                     string="Related Lots"
                     readonly="1"
                 />
-                <field name="sum_position_quantity_affected" readonly="True" sum="1" />
+                <field name="sum_quantity_affected" readonly="True" sum="1" />
             </tree>
         </field>
     </record>

@@ -16,8 +16,3 @@ class Lot(models.Model):
         string='Positions',
         domain=[]
     )
-    sum_position_quantity_affected = fields.Integer(
-        # cancel this field from mixin, which is not needed for lots
-        compute=False,
-        store=False
-    )

@@ -76,13 +76,13 @@
                 <attribute name="attrs">{'required': [('planned_hours_required', '=', True)]}</attribute>
             </field>
 
-            <!-- Correct visibility of "remaining hours" -->
-            <!-- <field name="remaining_hours" position="attributes">
-                <attribute name="attrs">{'invisible': [('planned_hours', '=', 0.0), ('remaining_hours', '=', 0.0)]}</attribute>
+            <!-- Replace 'Progress' by 'Reviewed Progress' -->
+            <field name="progress" position="after">
+                <field name="progress_reviewed" widget="progressbar" />
             </field>
-            <xpath expr="//label[@for='remaining_hours']/.." position="attributes">
-                <attribute name="attrs">{'invisible': [('planned_hours', '=', 0.0), ('remaining_hours', '=', 0.0)]}</attribute>
-            </xpath> -->
+            <field name="progress" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
         </field>
     </record>
 

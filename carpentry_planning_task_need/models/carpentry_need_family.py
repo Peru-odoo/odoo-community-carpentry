@@ -121,7 +121,7 @@ class CarpentryNeedFamily(models.Model):
         ]
         task_ids = self.env['project.task'].search(domain_task)
         existing_tuples = set([
-            (fields.first(task.launch_ids), task.need_id) # [0] because tasks of type need have only 1 launch
+            (fields.first(task.launch_ids), task.need_id) # fields.first() because tasks of type need have only 1 launch
             for task in task_ids
         ])
 

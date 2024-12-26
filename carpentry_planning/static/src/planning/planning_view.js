@@ -19,8 +19,8 @@ export class PlanningKanbanRenderer extends KanbanRenderer {
     openMilestone(milestone) {
         this.actionService.doAction({
             'type': 'ir.actions.act_window',
-            'res_model': 'carpentry.planning.milestone',
-            'res_id': milestone.id,
+            'res_model': 'carpentry.planning.milestone.wizard',
+            'context': {default_milestone_id: milestone.id, default_offset: 1},
             'name': milestone.name,
             'views': [[false, 'form']],
             'target': 'new',

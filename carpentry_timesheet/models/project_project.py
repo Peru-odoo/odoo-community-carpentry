@@ -13,6 +13,7 @@ class Project(models.Model):
             'name': _("Timesheet's budgets"),
             'views': [
                 (self.env.ref('carpentry_timesheet.view_task_kanban_timesheet').id, 'kanban'),
+                (False, 'tree'), # native tree view
                 (False, 'form'), # 'project.view_task_form2'
             ],
             'domain': [('allow_timesheets', '=', True)],

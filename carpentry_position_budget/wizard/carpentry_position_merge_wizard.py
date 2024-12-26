@@ -100,7 +100,7 @@ class PositionMerge(models.TransientModel):
         (sources - target).unlink()
 
     def _calculate_weighted_average_budget(self, sources, target, sum_qty):
-        """ Calculate weighted average SUM(budget*qty)/total_qty
+        """ Calculate weighted average SUM(budget*qty)/sum_qty
             :return: same `vals_list_budget` format
                      than carpentry_position_budget._write_budget()
         """

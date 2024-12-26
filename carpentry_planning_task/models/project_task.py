@@ -36,10 +36,13 @@ class Task(models.Model):
     )
 
     is_late = fields.Boolean(compute='_compute_is_late')
+    kanban_state = fields.Selection(compute=False)
     create_date_week = fields.Char(
         string='Create Week',
         compute='_compute_create_date_week'
     )
+    date_deadline = fields.Datetime(string='Deadline')
+    date_end = fields.Datetime(string='Finish Date')
 
     #===== Compute `stage_id` depending `date_end` =====#
     @api.depends('date_end')
@@ -66,9 +69,11 @@ class Task(models.Model):
             if is_closed:
                 self.stage_id = stage_done.id
                 self.kanban_state = 'done'
+                self.date_end = fields.Datetime.now()
             else:
                 self.stage_id = stage_open.id
                 self.kanban_state = 'normal'
+                self.date_end = False
         return has_changed and is_closed
     
     #===== Compute dates: is_late =====#
@@ -77,7 +82,7 @@ class Task(models.Model):
         for task in self:
             # (i) `date_end` is `datetime` while `date_deadline` is `date`
             date_end_or_today = bool(task.date_end) and task.date_end.date() or fields.Date.today()
-            task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline         
+            task.is_late = bool(task.date_deadline) and date_end_or_today.date() > task.date_deadline         
 
     @api.depends('create_date')
     def _compute_create_date_week(self):

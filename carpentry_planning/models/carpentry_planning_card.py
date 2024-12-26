@@ -186,6 +186,7 @@ class CarpentryPlanningCard(models.Model):
         
         domain_sticky = [('project_id', '=', False)]
         domain = expression.OR([domain, domain_sticky])
+        print('read_group:domain', domain)
         return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
     
     def _get_domain_part(self, domain, field):
@@ -260,9 +261,9 @@ class CarpentryPlanningCard(models.Model):
         
         domain = expression.OR([
             [('project_id', '=', False)], # sticky, for Needs (independant of filtered launch)
-            [(field, '=', value) for field in fields]
+            [(field, operator, value) for field in fields]
         ])
-        print('domain', domain)
+        print('_search_launch_ids:domain', domain)
         return domain
 
     #===== Planning Features =====#

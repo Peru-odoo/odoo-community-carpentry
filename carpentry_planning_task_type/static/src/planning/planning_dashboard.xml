@@ -39,7 +39,9 @@
                                 t-on-click="() => this.openDashboardRecord('project.task', milestone.id)"
                                 t-att-data-tooltip="milestone.display_name"
                             >
-                                <t t-if="milestone.week_deadline">W<t t-esc="milestone.week_deadline" /></t>
+                                <t t-set="week_display" t-value="milestone.week_deadline or milestone.week_done" />
+                                
+                                <t t-if="week_display">W<t t-esc="week_display" /></t>
                                 <t t-else="">?</t>
                             </button>
                             <br />

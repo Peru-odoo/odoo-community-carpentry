@@ -12,10 +12,13 @@
     'version': '16.0.1.0.1',
 
     'depends': [
+        'web_widget_numeric_step', # OCA
         'project_favorite_switch', # others
         'carpentry_base', 'carpentry_position' # carpentry
     ],
     'data': [
+        # wizard
+        'wizard/carpentry_planning_milestone_wizard.xml',
         # views
         'views/carpentry_planning_column.xml',
         'views/carpentry_planning_milestone.xml',

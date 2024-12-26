@@ -17,7 +17,8 @@ class TestCarpentrySale(common.SingleTransactionCase):
             'expected_revenue': 1234,
         })
         # Create project from opportunity
-        cls.project = cls.lead.action_create_project()
+        cls.lead.action_create_project()
+        cls.project = cls.lead.project_id
 
         # Partner
         ResPartner = cls.env['res.partner']

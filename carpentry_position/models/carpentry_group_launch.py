@@ -19,7 +19,12 @@ class Launch(models.Model):
     )
 
     #====== Affectation matrix ======#
-    def _get_compute_record_refs(self):
+    def _get_record_refs(self):
         """ Lines of Launches affectation matrix are Phases' affectations """
         return self.project_id.phase_ids.affectation_ids
     
+    def _default_quantity(self, record_ref, group_ref):
+        """ Copy `quantity_affected` of phase affectation
+            (for `_compute_sum_quantity_affected`)
+        """
+        return record_ref.quantity_affected

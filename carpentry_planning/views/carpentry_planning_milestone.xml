@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Milestone (very small form) - fill-in by user, accessed from planning -->
+    <!-- Milestone (backup form) -->
     <record model="ir.ui.view" id="carpentry_planning_milestone_form">
         <field name="name">carpentry.planning.milestone.form</field>
         <field name="model">carpentry.planning.milestone</field>

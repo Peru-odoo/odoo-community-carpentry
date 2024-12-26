@@ -53,17 +53,15 @@ export class PlanningDashboard extends Component {
     }
     // data : {date_deadline, date_end, kanban_state}
     btnColor(record) {
-        if (!record.date_deadline) {
-            return 'btn-secondary';
+        const today = new Date()
+        const dateDeadline = record.date_deadline && new Date(record.date_deadline)
+        const dateDone = record.date_end && new Date(record.date_end);
+        const overdue = record.date_end ? dateDone > dateDeadline : today > dateDeadline;
+        const done = record.kanban_state == 'done';
+        if (done) {
+            return (dateDeadline && overdue) ? 'btn-warning' : 'btn-success';
         } else {
-            const today = new Date(), dateDeadline = new Date(record.date_deadline), dateDone = new Date(record.date_end);
-            const done = record.kanban_state == 'done';
-            const overdue = record.date_end ? dateDone > dateDeadline : today > dateDeadline;
-            if (done) {
-                return overdue ? 'btn-warning' : 'btn-success';
-            } else {
-                return overdue ? 'btn-danger' : 'btn-secondary';
-            }
+            return (dateDeadline && overdue) ? 'btn-danger' : 'btn-secondary';
         }
     }
 

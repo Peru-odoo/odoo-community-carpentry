@@ -18,6 +18,6 @@ class CarpentryGroupPhase(models.Model):
     )
 
     #====== Affectation matrix ======#
-    def _get_compute_record_refs(self):
+    def _get_record_refs(self):
         """ Lines of Phases affectation matrix are Project' Positions """
         return self.project_id.position_ids

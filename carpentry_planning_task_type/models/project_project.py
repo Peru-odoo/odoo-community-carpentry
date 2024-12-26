@@ -64,12 +64,14 @@ class Project(models.Model):
         ]
         milestones_data = self.env['project.task'].search_read(domain, fields, order='type_sequence')
 
+        __week = lambda date: bool(date) and date.isocalendar()[1]
         mapped_milestone_data = defaultdict(list)
         for x in milestones_data:
             parent_type_id = x['parent_type_id'][0]
             del(x['parent_type_id'])
 
-            x['week_deadline'] = bool(x['date_deadline']) and x['date_deadline'].isocalendar()[1]
+            x['week_deadline'] = __week(x['date_deadline'])
+            x['week_done'] = __week(x['date_end'])
             mapped_milestone_data[parent_type_id].append(x)
         
         return {

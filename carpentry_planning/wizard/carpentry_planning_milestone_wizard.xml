@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Milestone Wizard Form - accessed from planning -->
+    <record model="ir.ui.view" id="carpentry_planning_milestone_wizard_form">
+        <field name="name">carpentry.planning.milestone.form.wizard</field>
+        <field name="model">carpentry.planning.milestone.wizard</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="milestone_id" invisible="1" />
+                <field name="launch_id" invisible="1" />
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date_origin" attrs="{'invisible': [('date_origin', '=', False)]}" />
+                            <field name="offset" widget="numeric_step" attrs="{'invisible': [('date_origin', '=', False)]}" />
+                            <field name="date_new" />
+                            <field name="shift" widget="boolean_toggle" attrs="{'invisible': [('date_origin', '=', False)]}" />
+                        </group>
+                    </group>
+                </sheet>
+                
+                <footer>
+                    <button type="object" name="button_set_date" string="Set new date" class="btn btn-primary" />
+                    <button special="cancel" string="Discard" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

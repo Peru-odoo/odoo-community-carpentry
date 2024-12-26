@@ -1,38 +1,34 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-from odoo.osv import expression
-
-from collections import defaultdict
-import datetime
 
 class Project(models.Model):
-    _inherit = "project.project"
+    _inherit = ["project.project"]
 
     #====== Fields ======#
     # adresses
-    partner_delivery_id = fields.Many2one(
+    delivery_address_id = fields.Many2one(
         comodel_name='res.partner',
         string='Delivery address',
-        context={'show_address_only': 1},
-        help="Default delivery address for orders to be delivered on the construction site."
-             " Can be the main address of client or any 'delivery' address(es) of the client."
-    )
-    partner_invoice_id = fields.Many2one(
-        comodel_name='res.partner',
-        string='Invoicing address',
-        context={'show_address_only': 1},
-        help="Default invoicing address for project's invoicing."
-             " Can be the main address of client or any 'invoicing' address(es) of the client."
+        context="""{
+            'default_parent_id': partner_id,
+            'default_type': 'delivery',
+            'show_address_only': 1,
+            'address_inline': 1
+        }""",
+        domain="""['|',
+            ('id', '=', partner_id),
+            '&', ('type', '=', 'delivery'), ('id', 'child_of', partner_id)
+        ]""",
+        help="Delivery address of the construction site, within the customer's"
+             " addresses of type 'Delivery'."
     )
     
     #====== Compute ======#
     # adresses
     @api.onchange('partner_id')
-    def _prefill_project_addresses(self):
-        """ Suggest delivery & invoicing addresses depending partner_id """
+    def _prefill_delivery_address(self):
+        """ Suggest delivery addresses depending partner_id """
         for project in self:
-            addresses = project.partner_id.address_get(['contact', 'delivery', 'invoice'])
-            
-            project.partner_delivery_id = addresses['delivery']
-            project.partner_invoice_id = addresses['invoice']
+            addresses = project.partner_id.address_get(['contact', 'delivery'])
+            project.delivery_address_id = addresses['delivery']

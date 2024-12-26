@@ -99,7 +99,6 @@ class Position(models.Model):
             if affectation_ids:
                 affectation_ids.sequence = position.sequence
 
-
     # Clean lots with no positions
     def _clean_lots(self):
         """ Remove lots not linked to any positions """

@@ -27,9 +27,10 @@ class TestCarpentryDesign(TestCarpentryPosition):
     
     #===== carpentry.plan.release =====#
     def test_02_plan_release_week(self):
-        self.release2.date_visa_feedback = fields.Date.today() + timedelta(days=7)
+        date_ref = datetime(2024, 1, 1)
+        self.release2.date_visa_feedback = date_ref + timedelta(days=7)
         self.assertEqual(
             self.release2.week_visa_feedback,
-            datetime.now().isocalendar().week + 1
+            date_ref.isocalendar().week + 1
         )
     

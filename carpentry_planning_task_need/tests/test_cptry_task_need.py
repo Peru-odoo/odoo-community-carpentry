@@ -106,7 +106,7 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
 
     #===== carpentry.planning =====#
     def test_05_card_action_open_need(self):
-        domain = [('launch_ids', '=', True), ('column_id', '=', self.column_need.id)]
+        domain = [('launch_ids', '=', self.project.launch_ids.ids), ('column_id', '=', self.column_need.id)]
         card_ids = self.Card.search(domain)
         card = fields.first(card_ids).with_context({
             'project_id': self.project.id,

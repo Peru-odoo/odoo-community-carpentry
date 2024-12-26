@@ -84,8 +84,7 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
         self.budget.line_ids = [Command.create({
             'name': 'Line test 01',
             'date': self.budget.date_from,
-            'standard_price': 10.0,
-            'qty_debit': 10.0,
+            'debit': 100.0,
             'analytic_account_id': self.aac_aluminium.id,
             'account_id': self.account.id,
         })]

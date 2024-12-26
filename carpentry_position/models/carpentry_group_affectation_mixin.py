@@ -25,7 +25,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     affectation_ids = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='group_id',
-        string='Positions Affectations',
+        string='Affectations',
         domain=[('group_res_model', '=', _name)], # this line must be overriten/copied with `_name` of heriting models
     )
     section_ids = fields.One2many(
@@ -36,11 +36,10 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         inverse='_inverse_section_ids',
         help='With at least 1 position in commun',
     )
-    sum_position_quantity_affected = fields.Integer(
-        string='Positions Count',
-        compute='_compute_sum_position_quantity_affected',
+    sum_quantity_affected = fields.Integer(
+        string='Positions Count', # `Positions Count` or `Budget sum` depending the use-case
+        compute='_compute_sum_quantity_affected',
         help='Sum of affected quantities',
-        store=True
     )
     readonly_affectation = fields.Boolean(
         # technical UI field to `readonly` either `section_ids` or `affectation_ids`,
@@ -85,52 +84,58 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     #====== Affectation Temp ======#
     # -- Generic methods to be / that can be overritten, for compute and/or inverse of `affectation.temp` --
-    def _get_compute_record_refs(self):
+    def _get_record_refs(self):
         """ [*Must* be overritten]
             :return: recordset of matrix' lines (`record_id`), e.g.:
             - for Phases: project's positions
             - for Launches: phases' affectations
+            - for Purchase Order: analytic account of PO lines' analytic distributions
         """
         self.ensure_one()
-    
-    def _get_affect_vals(self, mapped_model_ids, record_ref, affectation=False):
+
+    def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ Generates 1 cell's vals of `affectation` or `affectation.temp`
             Used in both way (compute `temp` and inverse to *real*)
             Args:
-            - `self` (grouping_id, column): 1 record of a Carpentry Group (Phase, Launch)
-            - `record_ref` (line): 1 record of Position or Affectation
+            - `record_ref` (line): 1 record of Position, Affectation or Analytic
+            - `group_ref` (column): 1 record of a Carpentry Group (Phase, Launch, Purchase, ...)
             - `affectation`:
                 * if inverse (temp->real): record of `temp`
                 * if compute (real->team): **False** or record of *real*
                 * if new affectation (shortcut): False
         """
-        self.ensure_one()
-        group_ref = affectation.group_ref if affectation else self
         record_ref = affectation.record_ref if affectation else record_ref
-        section = self._carpentry_affectation_section
+        group_ref = affectation.group_ref if affectation else group_ref
+        section_ref = record_ref.group_ref if self._carpentry_affectation_section else False
+
+        # Quantity
+        # qty = False
+        # if group_ref._carpentry_affectation_quantity:
+        qty = affectation.quantity_affected if affectation else self._default_quantity(record_ref, group_ref)
 
         vals = {
             'project_id': group_ref.project_id.id,
             # M2o models
-            'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(self._name),
             'record_model_id': mapped_model_ids.get(record_ref._name),
-            'section_model_id': mapped_model_ids.get(record_ref.group_ref._name) if section else False,
+            'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(group_ref._name),
+            'section_model_id': section_ref and mapped_model_ids.get(section_ref._name),
             # M2o ids
             'group_id': group_ref.id,
             'record_id': record_ref.id,
-            'section_id': record_ref.group_ref.id if section else False,
+            'section_id': section_ref and section_ref.id,
             # sequence
             'sequence': record_ref.sequence, # sec_record
-            'seq_group': group_ref.sequence,
-            'seq_section': record_ref.seq_group if section else 0,
+            'seq_group': 'sequence' in group_ref and group_ref.sequence, # no sequence for PO
+            'seq_section': section_ref and section_ref.sequence,
             # vals
-            'quantity_affected': (
-                int(bool(affectation) and affectation.quantity_affected)
-                if group_ref._carpentry_affectation_quantity else False
-            ),
+            'quantity_affected': qty,
         }
         return vals
     
+    def _default_quantity(self, record_ref, group_ref):
+        # other possibility for phase: `affectation.quantity_remaining_to_affect`
+        return 0.0
+
     def _get_mapped_model_ids(self):
         """ Needed outside of `_get_affect_vals()` for performance """
         model_ids = self.env['ir.model'].sudo().search([])
@@ -168,14 +173,21 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         mapped_model_ids = self._get_mapped_model_ids()
 
         # Generate new x2m_2d_matrix of `temp_ids`
-        record_refs = self._get_compute_record_refs()
+        record_refs = self._get_record_refs()
+        group_refs = self._get_group_refs()
         vals_list = []
-        for group_ref in self:
+        for group_ref in group_refs:
             for record_ref in record_refs:
                 affectation = mapped_real_ids.get((group_ref.id, record_ref.id))
-                vals = group_ref._get_affect_vals(mapped_model_ids, record_ref, affectation)
+                vals = self._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation)
                 vals_list.append(vals | {'affected': bool(affectation)})
         return vals_list
+
+    def _get_group_refs(self):
+        """ `group` is either the Carpentry Group (Phase, Launch)
+            or Analytic (for PO, MO, ...)
+        """
+        return self
     
     def _write_or_create_temp(self, vals_list):
         """ Returns the affectation_temp_ids that can be used in Command.set() for a O2m on a `form`,
@@ -242,7 +254,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 else:
                     # Only user input is in `vals`. To create a valid *real* affectation
                     # `vals` must be completed with values from database
-                    real_vals = temp.group_ref._get_affect_vals(mapped_model_ids, temp.record_ref, temp)
+                    real_vals = self._get_affect_vals(mapped_model_ids, temp.record_ref, temp.group_ref, temp)
                     vals_list_create.append(real_vals | user_vals)
 
         # apply to changes in `carpentry.group.affectation` (real)
@@ -262,12 +274,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         if not self._carpentry_affectation_section:
             return
         for group in self:
-            section_ids_ = [x.record_ref.group_ref.id for x in group.affectation_ids]
+            section_ids_ = [x.record_ref.group_ref.id for x in group._origin.affectation_ids]
             group.section_ids = [Command.set(set(section_ids_))]
 
     def _inverse_section_ids(self):
         """ Pre-fill 'affectation_ids' according to sections, e.g.:
-            - prefill Paunches' affectations copying Lot's ones
+            - prefill Phases'   affectations copying Lot's   ones
             - prefill Launches' affectations copying Phases' ones
         """
         if not self._carpentry_affectation_section:
@@ -301,10 +313,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
             # prepare vals & write
             vals_list = [
-                (
-                    group._get_affect_vals(mapped_model_ids, record_ref=affectation)
-                    | {'quantity_affected': 0} # other possibility: `affectation.quantity_remaining_to_affect`
-                ) for affectation in new_affectation_ids
+                group._get_affect_vals(mapped_model_ids, record_ref=affectation, group_ref=group)
+                for affectation in new_affectation_ids
             ]
             group.affectation_ids = [Command.create(vals) for vals in vals_list]
 
@@ -314,9 +324,9 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             from its section (e.g. lots or phases)
         """
         project_id_ = self._get_project_id(raise_if_not_found=True)
-        section_field = self._carpentry_affectation_section
+        project = self.env['project.project'].browse(project_id_)
+        section_ids = project[self._carpentry_affectation_section + '_ids']
 
-        section_ids = self.env['project.project'].browse(project_id_)[section_field + '_ids']
         self.create([{
             'name': section.name,
             'project_id': project_id_,
@@ -326,18 +336,17 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     #====== Affectations counters ======#
     @api.depends('affectation_ids')
-    def _compute_sum_position_quantity_affected(self):
-        """ Sums of 'quantity_affected' in 'carpentry.group.affectation',
-            eg. for a phase or a launch
-        """
-        # Get and group mapped data by `group_id`
-        mapped_data = defaultdict(int)
-        for key, qty in self._get_quantities().items():
-            mapped_data[dict(key)['group_id']] += qty
-        
-        # Set sum or 0
+    def _compute_sum_quantity_affected(self, groupby='group_id'):
+        """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
+        rg_result = self.env['carpentry.group.affectation'].read_group(
+            domain=self._get_domain_affect(),
+            groupby=[groupby],
+            fields=['quantity_affected:sum']
+        )
+        mapped_data = {x[groupby]: x['quantity_affected'] for x in rg_result}
         for record in self:
-            record.sum_position_quantity_affected = mapped_data.get(record.id, 0)
+            record.sum_quantity_affected = mapped_data.get(record.id, 0)
+
 
     def _get_quantities(self):
         """ :return: param of `carpentry_position_budget.sum()` """

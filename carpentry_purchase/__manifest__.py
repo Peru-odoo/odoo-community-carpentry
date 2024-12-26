@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Carpentry Purchase",
-    'summary': "Purchase budget management and side features of purchasing, for Carpentry Vertical",
+    'summary': "Delivery to construction site",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',
     'license': 'AGPL-3',
@@ -20,6 +20,7 @@
         # data
         'views/project_project.xml',
         'views/project_purchase_link.xml',
+        'views/purchase_order.xml',
     ]
 }
 

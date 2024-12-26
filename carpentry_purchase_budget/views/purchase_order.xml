@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- PO Form -->
+    <record id="purchase_order_form" model="ir.ui.view">
+        <field name="name">purchase.order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        
+        <field name="arch" type="xml">
+        
+            <!-- Warning banner -->
+            <sheet position="before">
+                <field name="sum_quantity_affected" invisible="1" />
+
+                <div name="warning_banner"
+                    role="alert"
+                    class="alert alert-warning"
+                    attrs="{'invisible': [('sum_quantity_affected', '=', amount_untaxed)]}"
+                >
+                    The budget reservation (<field name="sum_quantity_affected" />)
+                    differs from Purchase Order total (<field name="amount_untaxed" /> untaxed).
+                </div>
+            </sheet>
+
+            <!-- Add `Description` -->
+            <h1 position="inside">
+                <field name="description" required="1" class="o_text_overflow flex-shrink-0" style="width: 90%" />
+            </h1>
+            <field name="name" position="attributes">
+                <attribute name="class">flex-grow-1</attribute>
+            </field>
+
+            <!-- Add `Project` -->
+            <field name="partner_id" position="before">
+                <field name="project_id" />
+            </field>
+
+            <!-- Add `Budget` notebook tab -->
+            <page name="products" position="after">
+                <page name="budget" string="Budget">
+
+                    <!-- Left: launches -->
+                    <group name="left" colspan="3">
+                        <label for="launch_ids" />
+                        <field name="launch_ids"
+                            colspan="2"
+                            nolabel="1"
+                            widget="many2many_checkboxes"
+                            attrs="{'readonly': [('readonly_affectation', '=', False)]}"
+                        />
+                    </group>
+                    
+                    <!-- Button to toggle which field is readonly -->
+                    <group name="middle" colspan="2">
+                        <field name="readonly_affectation" invisible="1" />
+                        <button name="toggle_readonly_affectation"
+                            type="object"
+                            class="btn btn-primary btn-lg"
+                            icon="fa-backward"
+                            string="Edit Launches"
+                            attrs="{'invisible': [('readonly_affectation', '=', True)]}"
+                            colspan="2"
+                        />
+                        <button name="toggle_readonly_affectation"
+                            type="object"
+                            class="btn btn-primary btn-lg"
+                            icon="fa-forward"
+                            string="Edit Budget"
+                            attrs="{'invisible': [('readonly_affectation', '=', False)]}"
+                            colspan="2"
+                        />
+                    </group>
+                    
+                    <!-- Right: real affectations (budget reservation) -->
+                    <group name="right" colspan="7">
+                        <label for="affectation_ids" colspan="2" />
+                        <field
+                            name="affectation_ids"
+                            nolabel="1" colspan="2"
+                            options="{'create': 0}"
+                            widget="one2many"
+                            attrs="{'readonly': [('readonly_affectation', '=', True)]}"
+                        />
+                    </group>
+
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>

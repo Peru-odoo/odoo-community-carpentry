@@ -4,6 +4,8 @@ from odoo import exceptions, fields, _, Command, tools
 from odoo.tests import common, Form
 from odoo.addons.carpentry_position.tests.test_carpentry_position import TestCarpentryPosition
 
+import datetime
+
 class TestCarpentryPlanning(TestCarpentryPosition):
 
     @classmethod
@@ -23,6 +25,7 @@ class TestCarpentryPlanning(TestCarpentryPosition):
 
         cls.Card = cls.env['carpentry.planning.card']
 
+        # Milestone Type
         MilestoneType = cls.env['carpentry.planning.milestone.type']
         cls.milestone_type = MilestoneType.create([{
             'name': 'Milestone Type Test - Date start 1',
@@ -33,6 +36,15 @@ class TestCarpentryPlanning(TestCarpentryPosition):
             'column_id': cls.column.id,
             'type': 'end'
         }])
+
+        # Milestones
+        cls.milestones = cls.project.launch_ids[0].milestone_ids
+        cls.milestone_start = fields.first(
+            cls.milestones.filtered(lambda x: x.type == 'start')
+        )
+        cls.milestone_end = cls.milestones.filtered(
+            lambda x: x.type == 'end' and x.column_id == cls.milestone_start.column_id
+        )
 
 
     #===== carpentry.planning.column =====#
@@ -73,7 +85,7 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         self.assertFalse(self.Card.read_group(**kwargs))
 
         # `launch_ids`: should result something (since our column is `sticky`)
-        kwargs['domain'] = [('launch_ids', '=', True)]
+        kwargs['domain'] = [('launch_ids', 'in', self.project.launch_ids.ids)]
         self.assertTrue(self.Card.read_group(**kwargs))
 
     def test_05_card_real_record(self):
@@ -94,11 +106,40 @@ class TestCarpentryPlanning(TestCarpentryPosition):
     
     def test_07_milestone_date_constrain(self):
         """ Test date `start` < date `end` constrain """
-        milestones = self.project.launch_ids[0].milestone_ids
-        milestone_start = fields.first(milestones.filtered(lambda x: x.type == 'start'))
-        milestone_end = milestones.filtered(lambda x: x.type == 'end' and x.column_id == milestone_start.column_id)
-
-        milestone_start.date = '2024-01-15'
+        self.milestone_start.date = '2024-01-15'
         with self.assertRaises(exceptions.ValidationError):
-            with Form(milestone_end) as f:
+            with Form(self.milestone_end) as f:
                 f.date = '2024-01-10'
+
+    def test_08_milestone_wizard(self):
+        """ Test changing a date from the planning's wizard """
+        # setup
+        start, end = datetime.date(2024, 1, 1), datetime.date(2024, 1, 22) # mondays
+        self.milestone_start.date, self.milestone_end.date = start, end
+        # wizard to change `milestone_end`
+        wizard = (
+            self.env['carpentry.planning.milestone.wizard']
+            .create([{'milestone_id': self.milestone_end.id}])
+        )
+
+        # Test with offset (-2 weeks)
+        with Form(wizard) as f:
+            f.offset = -2
+        wizard.button_set_date()
+        self.assertEqual(self.milestone_end.date,   end -   datetime.timedelta(weeks=2))
+        self.assertEqual(self.milestone_start.date, start - datetime.timedelta(weeks=2))
+
+        # Test by setting date (+3 weeks)
+        with Form(wizard) as f:
+            f.date_new = '2024-01-29'
+        wizard.button_set_date()
+        self.assertEqual(self.milestone_end.date,   datetime.date(2024, 1, 29))
+        self.assertEqual(self.milestone_start.date, datetime.date(2024, 1, 8))
+
+        # Test with no shift
+        with Form(wizard) as f:
+            f.shift = False
+            f.date_new = '2024-02-15'
+        wizard.button_set_date()
+        # no change
+        self.assertEqual(self.milestone_start.date, datetime.date(2024, 1, 8))
