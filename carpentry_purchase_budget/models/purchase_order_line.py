@@ -62,23 +62,28 @@ class PurchaseOrderLine(models.Model):
             and update budget matrix
         """
         for line in self:
-            line.analytic_ids = line.analytic_distribution.keys()
+            distrib = line.analytic_distribution
+            line.analytic_ids = distrib and [Command.set([int(x) for x in distrib.keys()])]
         # refresh budget matrix
-        self.order_id._compute_affectation_ids_temp()
+        self.order_id.affectation_ids = self.order_id._get_affectation_ids()
 
     #===== Business logics =====#
-    def _replace_line_analytic(self, should_replace, new):
+    def _replace_analytic(self, should_filter, new):
         """ Called from Purchase Order
             Remove all analytic selection matching `should_replace`
             and set 1 analytic at 100% on `new`
             
-            :arg self:           Recordset of PO lines
-            :arg should_replace: Method accepting `analytic_id` as single arg
-                                  and returning a boolean 
-            :arg new:            New analytic to set
+            :arg self:          Recordset of PO lines
+            :arg should_filter: Method accepting `analytic_id` as single arg
+                                 and returning a boolean saying if analytic should be
+                                 filtered from the new distribution
+            :arg new:           New analytic to set
         """
         for line in self:
-            line.analytic_distribution = {
-                k: v for k, v in line.analytic_distribution.items()
-                if not should_replace(k)
-            } | {new: 100}
+            filtered = {}
+            if line.analytic_distribution:
+                filtered = {
+                    k: v for k, v in line.analytic_distribution.items()
+                    if not should_filter(int(k))
+                }
+            line.analytic_distribution = filtered | {new: 100}

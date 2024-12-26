@@ -1,90 +1,158 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- PO Form -->
-    <record id="purchase_order_form" model="ir.ui.view">
-        <field name="name">purchase.order.form</field>
+    <!-- Quotation Tree -->
+    <record id="purchase_order_kpis_tree" model="ir.ui.view">
+        <field name="name">purchase.order.inherit.purchase.order.tree.carpentry.budget</field>
         <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_kpis_tree" />
         
         <field name="arch" type="xml">
+            <!-- Add `Description` & `Project` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" optional="hide" />
+            </field>
+        </field>
+    </record>
+    <!-- PO Tree -->
+    <record id="purchase_order_view_tree" model="ir.ui.view">
+        <field name="name">purchase.order.view.tree.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_tree" />
         
+        <field name="arch" type="xml">
+            <!-- Add `Description` & `Project` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" optional="hide" />
+            </field>
+        </field>
+    </record>
+
+    <!-- PO Form -->
+    <record id="purchase_order_form" model="ir.ui.view">
+        <field name="name">purchase.order.form.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_form" />
+        
+        <field name="arch" type="xml">
+
             <!-- Warning banner -->
             <sheet position="before">
-                <field name="sum_quantity_affected" invisible="1" />
+                <field name="warning_budget" invisible="1" />
 
                 <div name="warning_banner"
                     role="alert"
                     class="alert alert-warning"
-                    attrs="{'invisible': [('sum_quantity_affected', '=', amount_untaxed)]}"
+                    attrs="{'invisible': [('warning_budget', '=', False)]}"
                 >
-                    The budget reservation (<field name="sum_quantity_affected" />)
-                    differs from Purchase Order total (<field name="amount_untaxed" /> untaxed).
+                    The budget reservation (<field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" />)
+                    differs from total untaxed (<field name="amount_untaxed" />).
                 </div>
             </sheet>
 
-            <!-- Add `Description` -->
-            <h1 position="inside">
-                <field name="description" required="1" class="o_text_overflow flex-shrink-0" style="width: 90%" />
-            </h1>
-            <field name="name" position="attributes">
-                <attribute name="class">flex-grow-1</attribute>
-            </field>
-
-            <!-- Add `Project` -->
-            <field name="partner_id" position="before">
-                <field name="project_id" />
-            </field>
-
             <!-- Add `Budget` notebook tab -->
             <page name="products" position="after">
-                <page name="budget" string="Budget">
+                <page name="budget" string="Budget reservation">
+                <field name="readonly_affectation" invisible="1" />
 
-                    <!-- Left: launches -->
-                    <group name="left" colspan="3">
-                        <label for="launch_ids" />
-                        <field name="launch_ids"
-                            colspan="2"
-                            nolabel="1"
-                            widget="many2many_checkboxes"
-                            attrs="{'readonly': [('readonly_affectation', '=', False)]}"
-                        />
-                    </group>
-                    
-                    <!-- Button to toggle which field is readonly -->
-                    <group name="middle" colspan="2">
-                        <field name="readonly_affectation" invisible="1" />
-                        <button name="toggle_readonly_affectation"
-                            type="object"
-                            class="btn btn-primary btn-lg"
-                            icon="fa-backward"
-                            string="Edit Launches"
-                            attrs="{'invisible': [('readonly_affectation', '=', True)]}"
-                            colspan="2"
-                        />
-                        <button name="toggle_readonly_affectation"
-                            type="object"
-                            class="btn btn-primary btn-lg"
-                            icon="fa-forward"
-                            string="Edit Budget"
-                            attrs="{'invisible': [('readonly_affectation', '=', False)]}"
-                            colspan="2"
-                        />
-                    </group>
-                    
-                    <!-- Right: real affectations (budget reservation) -->
-                    <group name="right" colspan="7">
-                        <label for="affectation_ids" colspan="2" />
-                        <field
-                            name="affectation_ids"
-                            nolabel="1" colspan="2"
-                            options="{'create': 0}"
-                            widget="one2many"
-                            attrs="{'readonly': [('readonly_affectation', '=', True)]}"
-                        />
+                    <group col="12">
+                        <!-- Left: choice of budget (col) & launches (row) -->
+                        <group name="left" colspan="3">
+                            <field name="analytic_id" />
+
+                            <label for="launch_ids" />
+                            <field name="launch_ids"
+                                colspan="2"
+                                nolabel="1"
+                                widget="many2many_checkboxes"
+                                attrs="{'readonly': [('readonly_affectation', '=', False)]}"
+                            />
+                        </group>
+                        
+                        <!-- Button to toggle which field is readonly -->
+                        <group name="middle" colspan="2">
+                            <button name="toggle_readonly_affectation"
+                                type="object"
+                                class="btn btn-primary btn-lg"
+                                icon="fa-backward"
+                                string="Edit Launches"
+                                attrs="{'invisible': [('readonly_affectation', '=', True)]}"
+                                colspan="2"
+                            />
+                            <button name="toggle_readonly_affectation"
+                                type="object"
+                                class="btn btn-primary btn-lg"
+                                icon="fa-forward"
+                                string="Edit Budget"
+                                attrs="{'invisible': [('readonly_affectation', '=', False)]}"
+                                colspan="2"
+                            />
+                        </group>
+                        
+                        <!-- Right: real affectations (budget reservation) -->
+                        <group name="right" colspan="7">
+                            <field
+                                name="affectation_ids_temp"
+                                nolabel="1" colspan="2"
+                                options="{'create': 0}"
+                                widget="one2many"
+                                attrs="{'readonly': [('readonly_affectation', '=', True)]}"
+                            >
+                                <tree editable="bottom" limit="200">
+                                    <field name="record_ref"
+                                        options="{'no_create': 1, 'no_open': 1}"
+                                        string="Launch"
+                                        readonly="1"
+                                    />
+                                    <field name="group_ref"
+                                        options="{'no_create': 1, 'no_open': 1}"
+                                        string="Budget"
+                                        readonly="1"
+                                    />
+                                    <field name="quantity_remaining_to_affect"
+                                        digits="[10,0]"
+                                        string="Available" 
+                                    />
+                                    <field name="quantity_affected"
+                                        required="True"
+                                        digits="[10,0]"
+                                        string="Reservation"
+                                        sum="1"
+                                    />
+                                </tree>
+                            </field>
+                        </group>
                     </group>
 
                 </page>
             </page>
+        </field>
+    </record>
+
+    
+    <!-- PO Search (2 views: 1 for quotation, 1 for confirmed po) -->
+    <record id="view_purchase_order_filter" model="ir.ui.view">
+        <field name="name">request.quotation.select.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.view_purchase_order_filter" />
+
+        <field name="arch" type="xml">
+            <!-- Add `launch_ids` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" />
+            </field>
+        </field>
+    </record>
+    
+    <record id="purchase_order_view_search" model="ir.ui.view">
+        <field name="name">purchase.order.select.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_search" />
+
+        <field name="arch" type="xml">
+            <!-- Add `launch_ids` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" />
+            </field>
         </field>
     </record>
 </odoo>

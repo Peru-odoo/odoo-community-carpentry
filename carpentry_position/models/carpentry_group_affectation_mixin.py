@@ -97,8 +97,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ Generates 1 cell's vals of `affectation` or `affectation.temp`
             Used in both way (compute `temp` and inverse to *real*)
             Args:
-            - `record_ref` (line): 1 record of Position, Affectation or Analytic
-            - `group_ref` (column): 1 record of a Carpentry Group (Phase, Launch, Purchase, ...)
+            - `record_ref` (line): 1 record of:
+                > Position or Affectation (for position affectation)
+                > Launch (for budget reservation)
+            - `group_ref` (column): 1 record of:
+                > a Carpentry Group like Phase or Launch (for position affectation)
+                > or Analytic (for budget reservation)
             - `affectation`:
                 * if inverse (temp->real): record of `temp`
                 * if compute (real->team): **False** or record of *real*
@@ -114,7 +118,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         qty = affectation.quantity_affected if affectation else self._default_quantity(record_ref, group_ref)
 
         vals = {
-            'project_id': group_ref.project_id.id,
+            'project_id': record_ref.project_id.id,
             # M2o models
             'record_model_id': mapped_model_ids.get(record_ref._name),
             'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(group_ref._name),
@@ -152,19 +156,30 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         )
 
 
+    # -- Refresh *real* `affectation` (for PO and WO) --
+    def _get_affectation_ids(self, vals_list=None):
+        """ Called from a PO or WO, to refresh *real* affectation with
+            a (un)selected `launch` or `analytic`
+        """
+        return self._get_affectation_ids_temp(temp=False)
+    
     # -- Compute of `affectation.temp` from `real` --
     @api.depends('affectation_ids')
-    def _compute_affectation_ids_temp(self, vals_list=None):
+    def _get_affectation_ids_temp(self, temp=True, vals_list=None):
         """ Called from a Carpentry Form (e.g. Project for Phases and Launch)
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
             `self` is a recordset of a Carpentry Group (Phases, Launches, ...)
         """
-        vals_list = vals_list or self._get_affectation_ids_temp_vals_list()
-        matrix = self._write_or_create_temp(vals_list)
+        vals_list = vals_list or self._get_affectation_ids_vals_list()
+        matrix = self._write_or_create_affectations(vals_list, temp)
         return [Command.set(matrix.ids)]
     
-    def _get_affectation_ids_temp_vals_list(self):
-        # Get real values to put in new `temp_ids`
+    def _get_affectation_ids_vals_list(self):
+        """ Useful to either:
+            - fully compute `temp` affectation from real + fill in cells gaps (e.g. phase & launch)
+            - refresh *real* affectations and add a new column or row (e.g. purchase)
+        """
+        # Get existing real values
         mapped_real_ids = {
             (affectation.group_id, affectation.record_id): affectation
             for affectation in self.affectation_ids
@@ -172,7 +187,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
         mapped_model_ids = self._get_mapped_model_ids()
 
-        # Generate new x2m_2d_matrix of `temp_ids`
+        # Generate new x2m_2d_matrix
         record_refs = self._get_record_refs()
         group_refs = self._get_group_refs()
         vals_list = []
@@ -189,23 +204,27 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """
         return self
     
-    def _write_or_create_temp(self, vals_list):
-        """ Returns the affectation_temp_ids that can be used in Command.set() for a O2m on a `form`,
+    def _write_or_create_affectations(self, vals_list, temp):
+        """ Returns the affectation_ids that can be used in Command.set() for a O2m on a `form`,
             by searching any existing records in database (and updating them with val_list) or creating them
         """
-        temp_ids = self.env['carpentry.group.affectation.temp'].search(self._get_domain_affect())
-        vals_list_create_temp = []
+        model = 'carpentry.group.affectation'
+        if temp:
+            model += '.temp'
+        affectation_ids = self.env[model].search(self._get_domain_affect())
+        
+        vals_list_create = []
         for vals in vals_list:
             domain_cell = [
                 ('record_id', '=', vals.get('record_id')),
                 ('group_id', '=', vals.get('group_id'))
             ]
-            existing_id = temp_ids.filtered_domain(domain_cell)
+            existing_id = affectation_ids.filtered_domain(domain_cell)
             if existing_id.ids:
                 existing_id.write(vals)
             else:
-                vals_list_create_temp.append(vals)
-        return temp_ids | temp_ids.create(vals_list_create_temp)
+                vals_list_create.append(vals)
+        return affectation_ids | affectation_ids.create(vals_list_create)
     
     # -- Inverse of `affectation.temp` to `real` --
     @api.model

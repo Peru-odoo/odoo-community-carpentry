@@ -14,9 +14,6 @@
 
     'depends': ['carpentry_purchase', 'carpentry_position_budget'],
     'data': [
-        # data
-        'views/project_purchase.xml',
+        'views/purchase_order.xml',
     ]
 }
-
-

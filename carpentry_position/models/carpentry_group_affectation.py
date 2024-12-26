@@ -56,9 +56,16 @@ class CarpentryGroupAffectation(models.Model):
 
     def _selection_record_res_model(self):
         return [
+            # position affectation to phase & launch
             ('carpentry.position', 'Position'),
             ('carpentry.group.affectation', 'Affectation'),
+
+            # buget reservation (po and wo)
+            ('carpentry.group.launch', 'Launch'),
         ]
+    
+    def _selection_section_res_model(self):
+        return self._selection_group_res_model()
     
     # Base
     project_id = fields.Many2one(
@@ -132,7 +139,7 @@ class CarpentryGroupAffectation(models.Model):
         related='section_model_id.model',
     )
     section_ref = fields.Reference(
-        selection='_selection_group_res_model',
+        selection='_selection_section_res_model',
         compute='_compute_fields_ref',
     )
     seq_section = fields.Integer()
@@ -177,7 +184,7 @@ class CarpentryGroupAffectation(models.Model):
     
     _sql_constraints = [(
         "group_record",
-        "UNIQUE (group_id, group_model_id, record_id, record_model_id)",
+        "UNIQUE (group_id, group_model_id, record_id, record_model_id, section_id, section_model_id)",
         "Integrity error (unicity of 1 group and 1 record per cell)."
     )]
 

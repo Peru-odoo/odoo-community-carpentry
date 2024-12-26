@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from collections import defaultdict
+from odoo.tools import float_compare
 
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
@@ -14,47 +15,60 @@ class PurchaseOrder(models.Model):
     #====== Fields ======#
     analytic_id = fields.Many2one(
         # Update lines' analytic distribution at once (budgets)
-        string='Budget',
+        comodel_name='account.analytic.account',
+        string='Modify Budget',
         compute='_compute_analytic_id',
         inverse='_inverse_analytic_id',
-        help="If modified, all the purchase order will consume this single budget."
-             " To consume different budgets, modify the 'analytic distribution' per line."
+        help="Change this field to reserve budget on this single one."
+             " To consume different budgets, modify the 'analytic distribution'"
+             " per line in 'Products' page."
+    )
+    warning_budget = fields.Boolean(
+        compute='_compute_warning_budget'
     )
 
     # -- affectation matrix --
-    affectation_ids_temp = fields.One2many(
-        comodel_name='carpentry.group.affectation.temp',
-        readonly=False,
-        compute='_compute_affectation_ids_temp'
-    )
     affectation_ids = fields.One2many(
         readonly=False,
         inverse_name='section_id',
-        # compute='_compute_affectation_ids',
-        # store=True,
-        # readonly=False,
         domain=[('section_res_model', '=', _name)]
     )
     launch_ids = fields.One2many(
         comodel_name='carpentry.group.launch',
+        string='Launches',
         compute='_compute_launch_ids',
         domain="[('project_id', '=', project_id)]"
     )
     
-    #====== Affectation matrix ======#
+    #====== Affectation refresh ======#
+    @api.depends('affectation_ids')
+    def _compute_launch_ids(self):
+        """ List `launch_ids` from existing affectations (many2many_checkboxes) """
+        for purchase in self:
+            purchase.launch_ids = purchase.affectation_ids.record_id or False
+    
+    @api.onchange('launch_ids')
+    def _onchange_launch_ids(self):
+        """ Refresh budget reservation/affectation matrix (tree) when (un)selecting launches """
+        self.affectation_ids = self._get_affectation_ids()
+
+    # (i) see also purchase_order_line.py > @api.onchange('analytic_distribution')
+    # which refreshes purchase_order.affectation_ids
+    
+    #====== Affectation mixin methods ======#
     def _get_record_refs(self):
-        """ [Real>Temp] 'Lines' are launches (of real affectation) """
-        return self.launch_ids
+        """ [Affectation Refresh] 'Lines' are launches (of real affectation) """
+        return self.launch_ids._origin
     
     def _get_group_refs(self):
-        """ [Real>Temp] 'Columns' of Purchase Order affectation matrix are analytic account """
-        return self.order_line.analytic_ids
+        """ [Affectation Refresh] 'Columns' of Purchase Order affectation matrix are analytic account """
+        return self.order_line.analytic_ids._origin
     
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
-        """ [Real>Temp] Store PO id in `section_ref` """
+        """ [Affectation Refresh] Store PO id in `section_ref` """
         return super()._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation) | {
             'section_model_id': mapped_model_ids.get(self._name),
-            'section_id': self.id,
+            'section_id': self._origin.id,
         }
 
     def _get_domain_affect(self):
@@ -62,70 +76,50 @@ class PurchaseOrder(models.Model):
             ('section_res_model', '=', 'purchase.order'),
             ('section_id', 'in', self.ids)
         ]
-        
-    def write(self, vals):
-        """ Affectations (temp -> real): retrieve *only* modified `affectation_ids_temp`
-             vals and call _inverse temp-to-real matrix
-        """
-        if 'affectation_ids_temp' in vals:
-            # filter on only modified values
-            vals_list = vals.get('affectation_ids_temp')
-            vals_list = {v[1]: v[2] for v in vals_list if v[0] == 1 and v[2]} # [{temp_id: new_vals}]
-            self._inverse_affectation_ids_temp(vals_list)
-        return super().write(vals)
-
-    # @api.depends('affectation_ids')
-    # def _compute_affectation_ids_temp(self):
-    #     """ Called when updated PO's analytics and launches
-    #         => auto-update budget distribution
-    #     """
-    #     super()._compute_affectation_ids_temp()
-    #     self._auto_update_budget_distribution()
 
     #====== Compute ======#
-    # --- launch_ids (for affectation) ---
-    @api.depends('affectation_ids')
-    def _compute_launch_ids(self):
-        """ List `launch_ids` from existing affectations (many2many_checkboxes) """
+    @api.depends('amount_untaxed', 'affectation_ids')
+    def _compute_warning_budget(self):
+        prec = self.env['decimal.precision'].precision_get('Product Price')
+        states = ['to approve', 'approved', 'purchase', 'done']
         for purchase in self:
-            purchase.launch_ids = purchase.affectation_ids.record_id
-        
-    def _inverse_launch_ids(self):
-        """ Refresh budget matrix (temp affectation) when (un)selecting launches """
-        self._compute_affectation_ids_temp()
+            compare = float_compare(purchase.amount_untaxed, purchase.sum_quantity_affected, precision_digits=prec)
+            purchase.warning_budget = purchase.state in states and compare != 0
     
     # --- project_id (shortcut to set line analytic at once on the project) ---
     @api.onchange('project_id')
     def _onchange_project_id(self):
         """ Modify all lines analytic at once """
-        project_analytics = self.env.company.analytic_plan_id.children_ids.ids
+        project_analytics = self.env.company.analytic_plan_id.account_ids.ids
         for purchase in self:
             purchase.order_line._replace_analytic(
-                should_replace=lambda x: x in project_analytics,
+                should_filter=lambda x: x in project_analytics,
                 new=purchase.project_id.analytic_account_id.id
             )
 
     # --- analytic_id (shortcut to set line analytic at once on the budget) ---
+    @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_analytic_id(self):
         """ Pre-set the field to the single-used analytic in lines, if any """
         for purchase in self:
             analytic_ids = purchase.order_line.analytic_ids.filtered('is_project_budget')
-            purchase.analytic_id = len(analytic_ids) == 1 and analytic_ids
+            purchase.analytic_id = len(analytic_ids) == 1 and analytic_ids.id
     
+    @api.onchange('analytic_id')
     def _inverse_analytic_id(self):
         """ Modify all lines analytic at once """
         self.readonly_affectation = True # forces to refresh the matrix by user
         budget_analytics = self.order_line.analytic_ids.filtered('is_project_budget').ids
         for purchase in self:
             purchase.order_line._replace_analytic(
-                should_replace=lambda x: x in budget_analytics,
+                should_filter=lambda x: x in budget_analytics,
                 new=purchase.analytic_id.id
             )
 
     def commented():
         pass
         # @api.depends('order_line', 'order_line.analytic_distribution')
-        # def _compute_affectation_ids(self):
+        # def _get_affectation_ids(self):
         #     """ 1. Add a row to the `x2m_2d_matrix`:
         #          When choosing 1 launch in `launch_ids` One2many
                 
@@ -179,9 +173,9 @@ class PurchaseOrder(models.Model):
              according to remaining budget
         """
         budget_distribution = self._get_budget_distribution()
-        for temp in self.affectation_ids_temp:
-            key = (temp.record_id, temp.group_id) # launch_id, analytic_id
-            temp.quantity_affected = budget_distribution.get(key)
+        for affectation in self.affectation_ids:
+            key = (affectation.record_id, affectation.group_id) # launch_id, analytic_id
+            affectation.quantity_affected = budget_distribution.get(key)
     
     def _get_budget_distribution(self):
         """ Calculate suggestion for budget reservation of an order, considering:

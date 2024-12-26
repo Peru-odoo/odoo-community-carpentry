@@ -10,7 +10,7 @@
             <!-- Add shipping adress to `Description` tab -->
             <field name="description" position="after">
                 <group colspan="2" string="Address">
-                    <field name="partner_delivery_id" options="{'always_reload': True}" />
+                    <field name="delivery_address_id" options="{'always_reload': True}" />
                 </group>
             </field>
         </field>

@@ -189,7 +189,7 @@ class CarpentryPlanningColumn(models.Model):
             mapped_count[column.res_model_id.id] += 1
             mapped_count[column._origin_.res_model_id.id] -= 1
         
-        for column in all_column_ids:
+        for column in all_column_ids | self:
             column.identifier_required = mapped_count.get(column.res_model_id.id, 0) > 1
         
         return all_column_ids # quick optim, see coresponding constrain

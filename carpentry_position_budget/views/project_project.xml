@@ -61,6 +61,7 @@
                             colspan="2"
                         >
                             <tree editable="top">
+                                <field name="analytic_account_id_domain" invisible="1" />
                                 <field name="company_currency_id" invisible="1" />
 
                                 <field name="budget_type" string="Type" />

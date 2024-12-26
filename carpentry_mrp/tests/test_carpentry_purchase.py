@@ -2,10 +2,11 @@
 
 from odoo import exceptions, fields, Command
 from odoo.tests import common, Form
+import base64
 
-class TestCarpentrySale(common.SingleTransactionCase):
+from odoo.addons.base.tests.test_ir_attachment import TestIrAttachment
 
-    PRODUCT_PRICE = 10.0
+class TestCarpentryPurchase(TestIrAttachment):
 
     @classmethod
     def setUpClass(cls):
@@ -24,6 +25,13 @@ class TestCarpentrySale(common.SingleTransactionCase):
         cls.project = cls.env['project.project'].create({
             'name': 'Project Test 01'
         })
+
+        cls.order = cls.env['purchase.order'].create({
+            'partner_id': cls.partner.id,
+            'project_id': cls.project.id,
+            'description': 'Purchase Order Test 01'
+        })
+    
 
     def test_01_project_partner(self):
         with Form(self.project) as f:

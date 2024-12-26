@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- PO Form -->
+    <record id="purchase_order_form" model="ir.ui.view">
+        <field name="name">purchase.order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Description` -->
+            <h1 position="inside">
+                <field name="description"
+                    placeholder="Title of Order, like 'Screws for north frontage'"
+                    class="o_text_overflow flex-shrink-0"
+                    style="width: 90%"
+                />
+            </h1>
+            <field name="name" position="attributes">
+                <attribute name="class">flex-grow-1 me-3</attribute>
+            </field>
+
+            <!-- Add `Project` -->
+            <field name="partner_id" position="before">
+                <field name="project_id_domain" invisible="1" />
+                <field name="project_id" />
+            </field>
+
+            <!-- Add `Attachments`, on the Left (same as chatter's) -->
+            <xpath expr="//group//group" position="inside">
+                <field name="attachment_ids" widget="many2many_binary" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

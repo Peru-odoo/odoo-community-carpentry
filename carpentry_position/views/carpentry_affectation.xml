@@ -67,8 +67,12 @@
 
         <field name="arch" type="xml">
             <search>
-                <field name="record_ref" />
-                <field name="group_ref" />
+                <field name="record_ref" string="Affectation"
+                    filter_domain="['|', '|',
+                        ('record_ref', 'ilike', self),
+                        ('group_ref', 'ilike', self),
+                        ('seection_ref', 'ilike', self)]"
+                    />
                 <field name="project_id" />
 
                 <filter string="★ Projects"

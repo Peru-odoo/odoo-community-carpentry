@@ -1,8 +1,37 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Quotation Tree -->
+    <record id="purchase_order_kpis_tree" model="ir.ui.view">
+        <field name="name">purchase.order.inherit.purchase.order.tree.carpentry</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Description` & `Project` -->
+            <field name="name" position="after">
+                <field name="description" />
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+    <!-- PO Tree -->
+    <record id="purchase_order_view_tree" model="ir.ui.view">
+        <field name="name">purchase.order.view.tree.carpentry</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_kpis_tree" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Description` & `Project` -->
+            <field name="name" position="after">
+                <field name="description" />
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+
     <!-- PO Form -->
     <record id="purchase_order_form" model="ir.ui.view">
-        <field name="name">purchase.order.form</field>
+        <field name="name">purchase.order.form.carpentry</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase.purchase_order_form" />
         
@@ -10,7 +39,7 @@
             <!-- Add `Description` -->
             <h1 position="inside">
                 <field name="description"
-                    placeholder="Title of Order, like 'Screws for north frontage'"
+                    placeholder="Title of Order"
                     class="o_text_overflow flex-shrink-0"
                     style="width: 90%"
                 />
@@ -22,13 +51,60 @@
             <!-- Add `Project` -->
             <field name="partner_id" position="before">
                 <field name="project_id_domain" invisible="1" />
-                <field name="project_id" />
+                <field name="project_id" attrs="{'readonly': [('id', '!=', False)]}" />
             </field>
 
             <!-- Add `Attachments`, on the Left (same as chatter's) -->
             <xpath expr="//group//group" position="inside">
                 <field name="attachment_ids" widget="many2many_binary" />
             </xpath>
+        </field>
+    </record>
+
+    <!-- PO Search (2 views: 1 for quotation, 1 for confirmed po) -->
+    <record id="view_purchase_order_filter" model="ir.ui.view">
+        <field name="name">request.quotation.select.carpentry</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Description` in 1st search by name -->
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|',
+                    ('name', 'ilike', self),
+                    ('description', 'ilike', self),
+                    ('partner_ref', 'ilike', self),
+                    ('partner_id', 'child_of', self)
+                ]</attribute>
+            </field>
+
+            <!-- Add `project_id` -->
+            <field name="name" position="after">
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+    
+    <record id="purchase_order_view_search" model="ir.ui.view">
+        <field name="name">purchase.order.select.carpentry</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Description` in 1st search by name -->
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|',
+                    ('name', 'ilike', self),
+                    ('description', 'ilike', self),
+                    ('partner_ref', 'ilike', self),
+                    ('partner_id', 'child_of', self)
+                ]</attribute>
+            </field>
+
+            <!-- Add `project_id` -->
+            <field name="name" position="after">
+                <field name="project_id" />
+            </field>
         </field>
     </record>
 </odoo>
