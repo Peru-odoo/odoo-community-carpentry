@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Product Template Base Form -->
+    <record id="product_template_form_view" model="ir.ui.view">
+        <field name="name">product.template.common.form.carpentry_mrp</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Subtitution product` above notebook -->
+            <notebook position="before">
+                <field name="product_substitution_id"
+                    attrs="{'invisible': [('can_be_purchased', '=', True)]}"
+                    placeholder="Substitution product"
+                />
+            </notebook>
+        </field>
+    </record>
+</odoo>

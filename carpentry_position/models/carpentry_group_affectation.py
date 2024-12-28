@@ -158,7 +158,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
-    # /!\ `quantity_position` is needed *here* for real-time correct value
+    # /!\ `quantity_available` is needed *here* for real-time correct value
     # `quantity_affected_parent` is needed for nested/children affectations (i.e. launch)
     quantity_affected = fields.Float(
         string="Affected quantity",
@@ -169,11 +169,11 @@ class CarpentryGroupAffectation(models.Model):
         compute='_compute_quantity_affected_parent',
         string='Quantity affected to parent group',
     )
-    quantity_position = fields.Integer(
-        string="Position quantity",
-        compute='_compute_quantity_position',
-        group_operator='sum',
-        help="Total available quantity of this position in the project",
+    quantity_available = fields.Integer(
+        # Position Quantity (for Phase) or Available budget (for PO, MO)
+        string="Available",
+        compute='_compute_quantity_available',
+        group_operator='sum'
     )
     quantity_remaining_to_affect = fields.Float(
         string='Remaining to affect',
@@ -231,9 +231,9 @@ class CarpentryGroupAffectation(models.Model):
         """ Recursively find `position_id` from `record_ref` """
         for affectation in self:
             position_id = affectation.record_ref
-            while position_id and position_id._name != 'carpentry.position':
+            while position_id and position_id._name != 'carpentry.position' and 'record_ref' in position_id:
                 position_id = position_id.record_ref
-            affectation.position_id = position_id
+            affectation.position_id = position_id if position_id._name == 'carpentry.position' else False
 
     #===== Constrain: can't delete if children =====#
     @api.ondelete(at_uninstall=False)
@@ -299,31 +299,40 @@ class CarpentryGroupAffectation(models.Model):
         # only for groups using qties for affectation
         if self._context.get('constrain_quantity_affected_silent'):
             return
+        
         for affectation in self:
             if not affectation.group_ref._carpentry_affectation_quantity:
                 continue
+
             # 2024-11 - ALY: disabled to allow `qty == 0` via affectation shortcut
             # if affectation.quantity_affected <= 0:
             #     raise exceptions.ValidationError(
             #         _("Quantity affected must be strictly greater than 0, delete it instead.")
             #     )
             elif affectation.quantity_remaining_to_affect < 0:
-                raise exceptions.ValidationError(
-                    _("The position cannot be affected to a phase more than "
-                     "its quantity on the project (%s, %s).",
-                     affectation.record_ref.name, affectation.group_ref.name)
-                )
+                raise exceptions.ValidationError(_(
+                    "The affected quantity is higher than the one available in the project (%s, %s).",
+                    affectation.record_ref.name, affectation.group_ref.name
+                ))
 
-    def _compute_quantity_position(self):
+    @api.depends('record_id', 'group_id', 'section_id')
+    def _compute_quantity_available(self):
+        # Technically check if computation is relevant/possible
+        affectation = fields.first(self)
+        if not affectation.group_ref or not hasattr(affectation.group_ref, '_get_quantities_available'):
+            self.quantity_available = False
+            return
+        
+        mapped_quantities = affectation.group_ref._get_quantities_available(self._origin)
         for affectation in self:
-            _should_compute = bool(affectation.record_ref) and 'quantity' in affectation.record_ref
-            affectation.quantity_position = affectation.record_ref.quantity if _should_compute else 0
+            key = (affectation.record_id, affectation.group_id)
+            affectation.quantity_available = mapped_quantities.get(key)
     
     @api.depends('record_id', 'quantity_affected')
     def _compute_quantity_remaining_to_affect(self):
-        """ Compute remaining qty to affect of a position on *primary* affectations,
-            i.e. where `record_id` is a `carpentry.position`. This is needed for
-            constrain on remaining_qty>0 and good real-time display of remaining_qty
+        """ Compute remaining qty to affect for phases affectation, i.e. where
+            `record_id` is a `carpentry.position`. This is needed for constrain
+            on remaining_qty>0 and good real-time display of remaining_qty
         """
         for affectation in self:
             sum_affected_siblings = 0
@@ -333,7 +342,7 @@ class CarpentryGroupAffectation(models.Model):
             
             # exclude current affectation from the sum
             affectation.quantity_remaining_to_affect = (
-                affectation.quantity_position
+                affectation.quantity_available
                 - sum_affected_siblings
                 - affectation.quantity_affected
             )

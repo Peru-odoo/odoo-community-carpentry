@@ -10,7 +10,8 @@ class PurchaseOrder(models.Model):
 
     #====== Fields ======#
     project_id = fields.Many2one(
-        # can be significated as mandatory to users by settings project's analytic plan as mandatory
+        # can be significated as mandatory to users
+        # by settings project's analytic plan as mandatory
         required=False
     )
     description = fields.Char(
@@ -23,11 +24,3 @@ class PurchaseOrder(models.Model):
         domain=[('res_model', '=', _name)],
     )
     
-    #====== Compute ======#
-    # adresses
-    @api.onchange('partner_id')
-    def _prefill_delivery_address(self):
-        """ Suggest delivery addresses depending partner_id """
-        for project in self:
-            addresses = project.partner_id.address_get(['contact', 'invoice'])
-            project.delivery_address_id = addresses['delivery']

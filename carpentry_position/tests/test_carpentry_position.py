@@ -15,12 +15,12 @@ class TestCarpentryPosition_Base(common.SingleTransactionCase):
 
         (
             cls.project, cls.lot, cls.phase, cls.launch, cls.position
-        ) = cls._create_project_with_test_data(cls, 'Project Test 1')
+        ) = cls._create_project_with_test_data('Project Test 1')
         
         cls.Affectation = cls.env['carpentry.group.affectation']
         cls.AffectationTemp = cls.env['carpentry.group.affectation.temp']
     
-
+    @classmethod
     def _create_project_with_test_data(self, project_name):
         Project = self.env['project.project']
         project = Project.create({'name': project_name})
@@ -55,18 +55,23 @@ class TestCarpentryPosition_Base(common.SingleTransactionCase):
 
 
     # A few helper methods to play with real and temp affectations
+    @classmethod
     def _write_affect(self, group_id, record_id, vals=None):
         """ Shortcut to simulate user write in `carpentry.group.affectation` """
         mapped_model_ids = group_id._get_mapped_model_ids()
         vals = group_id._get_affect_vals(mapped_model_ids, record_id, group_id) | (vals or {})
         return self.Affectation.create(vals)
+    
+    @classmethod
     def _clean_affectations(self, quick_affect=False):
         self.project.launch_ids.affectation_ids.unlink()
         self.project.affectation_ids.unlink()
         if quick_affect:
             self._quick_affect_all()
+    
+    @classmethod
     def _quick_affect_all(self):
-        """ Quick-affect all position's to 1st phase & launche """
+        """ Quick-affect all position's to 1st phase & launch """
         self.phase.section_ids = [Command.set(self.project.lot_ids.ids)]
         self.launch.section_ids = [Command.set(self.project.phase_ids.ids)]
 

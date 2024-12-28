@@ -61,7 +61,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     @api.onchange('sequence')
     def _onchange_sequence(self):
-        """ Manually update affectation's sequences, because @api.depense('record_ref.sequence')
+        """ Manually update affectation's sequences, because @api.depends('record_ref.sequence')
             on Reference field is not supported (see `carpentry.group.affectation`)
 
             Two types of affectation's sequence must be updated:
@@ -122,15 +122,15 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             # M2o models
             'record_model_id': mapped_model_ids.get(record_ref._name),
             'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(group_ref._name),
-            'section_model_id': section_ref and mapped_model_ids.get(section_ref._name),
+            'section_model_id': bool(section_ref) and mapped_model_ids.get(section_ref._name),
             # M2o ids
             'group_id': group_ref.id,
             'record_id': record_ref.id,
-            'section_id': section_ref and section_ref.id,
+            'section_id': bool(section_ref) and section_ref.id,
             # sequence
             'sequence': record_ref.sequence, # sec_record
             'seq_group': 'sequence' in group_ref and group_ref.sequence, # no sequence for PO
-            'seq_section': section_ref and section_ref.sequence,
+            'seq_section': bool(section_ref) and section_ref.sequence,
             # vals
             'quantity_affected': qty,
         }
@@ -158,44 +158,81 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     # -- Refresh *real* `affectation` (for PO and WO) --
     def _get_affectation_ids(self, vals_list=None):
-        """ Called from a PO or WO, to refresh *real* affectation with
-            a (un)selected `launch` or `analytic`
+        """ Called from PO or MO to refresh *real* affectations """
+        return self._get_affectation_ids_temp(temp=False, vals_list=vals_list)
+    
+    def _has_real_affectation_matrix_changed(self, vals_list):
+        """ When refreshing *real* affectations of PO or MO, tells if budget matrix'
+            rows and cols are actually changing or if it's just an 'idle' refresh
         """
-        return self._get_affectation_ids_temp(temp=False)
+        # Get new cols & rows, as per budget matrix vals
+        record_ids, group_ids = set(), set()
+        for vals in vals_list:
+            record_ids.add(vals['record_id'])
+            group_ids.add(vals['group_id'])
+        
+        # Compare to existing
+        return (
+            record_ids != set(self.affectation_ids.mapped('record_id')) or
+            group_ids != set(self.affectation_ids.mapped('group_id'))
+        )
+    
+    def _clean_real_affectations(self, group_refs, record_refs):
+        """ When unselecting `analytics` or `launches`, real affectation
+            still exists but are not wished in target matrix => unlink() them
+        """
+        groups_ids = set(self.affectation_ids.mapped('group_id')) - set(group_refs.ids)
+        record_ids = set(self.affectation_ids.mapped('record_id')) - set(record_refs.ids)
+        
+        affectations = self.affectation_ids.filtered(lambda x:
+            # of the document (e.g. purchase order)
+            x.section_res_model == self._name and x.section_id == self._origin.id and
+            # from a record or group that has been unselected (launch or analytic)
+            (x.group_id in groups_ids or x.record_id in record_ids)
+        )
+        affectations.unlink()
     
     # -- Compute of `affectation.temp` from `real` --
-    @api.depends('affectation_ids')
     def _get_affectation_ids_temp(self, temp=True, vals_list=None):
         """ Called from a Carpentry Form (e.g. Project for Phases and Launch)
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
             `self` is a recordset of a Carpentry Group (Phases, Launches, ...)
         """
-        vals_list = vals_list or self._get_affectation_ids_vals_list()
+        vals_list = vals_list or self._get_affectation_ids_vals_list(temp)
         matrix = self._write_or_create_affectations(vals_list, temp)
         return [Command.set(matrix.ids)]
-    
-    def _get_affectation_ids_vals_list(self):
+
+    #===== Affectation method =====#
+    def _get_affectation_ids_vals_list(self, temp):
         """ Useful to either:
             - fully compute `temp` affectation from real + fill in cells gaps (e.g. phase & launch)
             - refresh *real* affectations and add a new column or row (e.g. purchase)
         """
+        # Get target values
+        mapped_model_ids = self._get_mapped_model_ids()
+        record_refs = self._get_record_refs()
+        group_refs = self._get_group_refs()
+        if not temp:
+            # Remove affectations of unselected rows or cols
+            self._clean_real_affectations(group_refs, record_refs)
+
         # Get existing real values
         mapped_real_ids = {
             (affectation.group_id, affectation.record_id): affectation
             for affectation in self.affectation_ids
         }
 
-        mapped_model_ids = self._get_mapped_model_ids()
-
         # Generate new x2m_2d_matrix
-        record_refs = self._get_record_refs()
-        group_refs = self._get_group_refs()
         vals_list = []
         for group_ref in group_refs:
             for record_ref in record_refs:
                 affectation = mapped_real_ids.get((group_ref.id, record_ref.id))
+
                 vals = self._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation)
-                vals_list.append(vals | {'affected': bool(affectation)})
+                if temp:
+                    vals |= {'affected': bool(affectation)}
+                
+                vals_list.append(vals)
         return vals_list
 
     def _get_group_refs(self):
@@ -390,8 +427,20 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     def button_group_quick_create(self):
         self._populate_group_from_section()
     
+
     def toggle_readonly_affectation(self):
+        """ If there is no affectation: stick to preparation of affectations (left)
+            Else, toggle between the 2 state
+        """
+        if not self.affectation_ids:
+            self._raise_if_no_affectations()
         self.readonly_affectation = not self.readonly_affectation
+    
+    def _raise_if_no_affectations(self):
+        raise exceptions.UserError(_(
+            'There is no position to affect from these lots or these phases.'
+        ))
+
 
     def button_open_affectation_matrix(self):
         return {

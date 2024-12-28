@@ -174,7 +174,7 @@ class CarpentryPositionBudget(models.Model):
                 default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
             except:
                 raise exceptions.ValidationError(_(
-                    'Missing the configuration of %s to compute the budget.',
+                    "Missing the configuration of %s to compute the position's budget.",
                     groupby_budget
                 ))
         

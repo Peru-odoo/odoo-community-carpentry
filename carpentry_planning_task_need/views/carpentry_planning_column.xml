@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Planning Columns' config (editable tree) -->
+    <record id="carpentry_planning_column_tree" model="ir.ui.view">
+        <field name="name">carpentry.planning.column.tree</field>
+        <field name="model">carpentry.planning.column</field>
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_column_tree" />
+
+        <field name="arch" type="xml">
+            <tree position="inside">
+                <field name="column_id_need_date" optional="show" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Planning Columns' form -->
+    <record id="carpentry_planning_column_form" model="ir.ui.view">
+        <field name="name">carpentry.planning.column.form</field>
+        <field name="model">carpentry.planning.column</field>
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_column_form" />
+
+        <field name="arch" type="xml">
+            <group position="inside">
+                <field name="column_id_need_date" />
+            </group>
+        </field>
+    </record>
+    
+</odoo>

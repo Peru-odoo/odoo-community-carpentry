@@ -75,11 +75,11 @@ class Position(models.Model):
     @api.constrains('quantity')
     def _constrain_quantity(self):
         """ Cannot lower quantity under affected qty in phases """
-        # because `carpentry_group_affectation.quantity_position` is computed not store,
+        # because `carpentry_group_affectation.quantity_available` is computed not store,
         # affectation's constrain is not called when changing parent position's quantity
         # => just call the existing constrain explicitely when changing position's qty
         self.affectation_ids._constrain_quantity()
-
+    
     #===== CRUD =====#
     @api.onchange('sequence')
     def _onchange_sequence(self):

@@ -21,3 +21,11 @@ class CarpentryGroupPhase(models.Model):
     def _get_record_refs(self):
         """ Lines of Phases affectation matrix are Project' Positions """
         return self.project_id.position_ids
+
+    @api.model
+    def _get_quantities_available(self, affectations):
+        """ `Available quantity` in phase affectation is position's quantity in the project """
+        return {
+            (x.record_id, x.group_id): x.record_ref.quantity
+            for x in affectations
+        }

@@ -7,27 +7,31 @@ class PurchaseOrderLine(models.Model):
     _inherit = ['purchase.order.line']
 
     project_id = fields.Many2one(
-        related='order_id.project_id'
+        related='order_id.project_id',
+        store=True
     )
-    analytic_ids = fields.One2many(
+    analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
-        compute='_compute_analytic_ids'
+        compute='_compute_analytic_ids',
+        string='Analytic Accounts'
     )
 
     #====== Constrain ======#
-    @api.depends('analytic_distribution')
+    @api.constrains('analytic_distribution')
     def _constrain_analytic_to_project(self):
         """ Prevent setting different project analytic than PO's project """
-        project_analytics = self.env.company.analytic_plan_id.children_ids.ids
+        project_plan = self.env.company.analytic_plan_id
         for line in self:
-            allowed = line.project_id.analytic_account_id.id
-            if any(x in project_analytics and x != allowed):
+            to_verify = line.analytic_ids.filtered(lambda x: x.plan_id == project_plan)
+            allowed = line.order_id.project_id.analytic_account_id
+
+            if to_verify and allowed and to_verify != allowed:
                 raise exceptions.ValidationError(_(
                     "The only allowed project in Analytic Distribution is the"
-                    " one defined on this purchase order."
+                    " purchase order's one."
                 ))
 
-    @api.depends('analytic_distribution')
+    @api.constrains('analytic_distribution')
     def _constrain_analytic_to_project_budget(self):
         """ Prevent choosing an analytic account on a PO line only to the ones existing
             in the budget of the PO's project
@@ -44,46 +48,49 @@ class PurchaseOrderLine(models.Model):
 
         for line in self:
             to_verify = line.analytic_ids.filtered('is_project_budget')
-            allowed = project_analytics.get(line.project_id.id)
+            allowed = project_analytics.get(line.project_id.id, [])
             
             # let's verify if the budget of the PO's project actually foresee budget for those accounts
-            if any(x not in allowed for x in to_verify.ids):
+            if (
+                to_verify and line.project_id and
+                (not allowed or any([x not in allowed for x in to_verify.ids]))
+            ):
                 raise exceptions.ValidationError(_(
-                    'There is not budget on the project %(project)s for this'
+                    'There is no budget on the project %(project)s for this'
                     ' (or one of these) analytic account(s): \n%(analytics)s',
                     project=line.project_id.display_name,
                     analytics=to_verify.mapped('name')
                 ))
 
+    #====== CRUD ======#
+    @api.model_create_multi
+    def create(self, vals_list):
+        """ Apply Project analytic by default to new line """
+        lines = super().create(vals_list)
+        lines.order_id._onchange_project_id()
+        return lines
+
     #====== Compute ======#
     @api.depends('analytic_distribution')
     def _compute_analytic_ids(self):
-        """ Gather analytic account selected in the line's analytic distribution
-            and update budget matrix
-        """
+        """ Gather analytic account selected in the line's analytic distribution """
         for line in self:
-            distrib = line.analytic_distribution
-            line.analytic_ids = distrib and [Command.set([int(x) for x in distrib.keys()])]
-        # refresh budget matrix
-        self.order_id.affectation_ids = self.order_id._get_affectation_ids()
+            new_distrib = line.analytic_distribution
+            if self._context.get('debug'):
+                print('new_distrib', new_distrib)
+            line.analytic_ids = new_distrib and [Command.set([int(x) for x in new_distrib.keys()])]
 
     #===== Business logics =====#
-    def _replace_analytic(self, should_filter, new):
+    def _replace_analytic(self, replaced_ids, added_id):
         """ Called from Purchase Order
-            Remove all analytic selection matching `should_replace`
-            and set 1 analytic at 100% on `new`
-            
-            :arg self:          Recordset of PO lines
-            :arg should_filter: Method accepting `analytic_id` as single arg
-                                 and returning a boolean saying if analytic should be
-                                 filtered from the new distribution
-            :arg new:           New analytic to set
+            :arg replaced_ids: `analytic_ids` to be replaced (to delete) in line analytic distribution
+            :arg added_id:     single replacement `analytic_id` in place of `replaced_ids`
         """
+        vals_added = {added_id: 100} if added_id else {}
+
         for line in self:
-            filtered = {}
-            if line.analytic_distribution:
-                filtered = {
-                    k: v for k, v in line.analytic_distribution.items()
-                    if not should_filter(int(k))
-                }
-            line.analytic_distribution = filtered | {new: 100}
+            kept = {} if not line.analytic_distribution else {
+                k: v for k, v in line.analytic_distribution.items()
+                if int(k) not in replaced_ids
+            }
+            line.analytic_distribution = kept | vals_added
