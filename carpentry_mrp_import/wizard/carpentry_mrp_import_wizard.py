@@ -194,6 +194,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         # >>>> regarder si:
         # - ajouter à stock.warehouse.orderpoint (tricher: normalement que pour les storable)
         # - ré-utiliser les logiques/méthodes de stock.warehouse.orderpoint (en raccourci)
+        # stock / models / stock_orderpoint.py / def _procure_orderpoint_confirm()
         pass
 
     def _set_unknown_products_xlsx(self, products, mapped_products):
@@ -206,11 +207,26 @@ class CarpentryMrpImportWizard(models.TransientModel):
         sheet = workbook.active
 
         # Write custom name to cell B2
-        sheet["B2"] = self.production_id.display_name
+        titles = {
+            'A1': _('Unknown products of Manufacturing Components import'),
+            'A2': _('Project'),
+            'A3': _('Manufacturing Order'),
+            'A4': _('Date'),
+            'B2': self.production_id.project_id.display_name,
+            'B3': self.production_id.display_name,
+            'B4': fields.Date.context_today(self),
+            'A6': _('Reference'),
+            'B6': _('Name'),
+            'C6': _('Quantity'),
+            'D6': _('Unit of Measure'),
+            'E6': _('Unit Price'),
+        }
+        for cell, text in titles.items():
+            sheet[cell] = text
 
         # Fill the sheet with data starting from row 5
-        start_row = 5
-        cols = ['default_code', 'product_uom_qty', 'uom_name', 'name', 'price']
+        start_row = 7
+        cols = ['default_code', 'name', 'product_uom_qty', 'uom_name', 'price']
         for row, vals in enumerate(mapped_products.values(), start=start_row):
             for col, key in enumerate(cols, start=1):
                 sheet.cell(row=row, column=col).value = vals.get(key)
