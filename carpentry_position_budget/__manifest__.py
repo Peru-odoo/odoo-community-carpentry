@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Position Budget",
+    'name': "Position Budget",
     'summary': "Import budget on positions and manage goods and worktime budgets per project (core module)",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

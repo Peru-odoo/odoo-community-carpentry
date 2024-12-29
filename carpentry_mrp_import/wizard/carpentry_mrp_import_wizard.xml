@@ -11,34 +11,101 @@
 
     <record id="view_budget_import_wizard" model="ir.ui.view">
         <field name="name">Budget import</field>
-        <field name="model">carpentry.position.budget.import.wizard</field>
+        <field name="model">carpentry.mrp.import.wizard</field>
 
         <field name="arch" type="xml">
             <form>
-                <field name="state" />
+                <field name="state" invisible="1" />
 
-                <sheet>
-                    <group attrs="{'invisible': [('state', '=', 'draft')]}">
-                        <group>
-                            <field name="production_id" />
-                            <field name="filename" invisible="1" />
-                            <field name="import_file" widget="binary" filename="filename" />
-                            <field name="external_db_type" />
-                            <field name="encoding" />
-                        </group>
-                        <group>
-                            <button name="button_truncate"
-                                type="object"
-                                colspan="2"
-                                class="btn btn-danger oe_right text-uppercase"
-                                icon="fa-trash"
-                                string="Truncate component"
-                                confirm="Are you sure?"
-                            />
+                <h1 name="production">
+                    <field name="production_id" nolabel="1" />
+                </h1>
 
-                        </group>
+                <group name="import" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                    <group>
+                        <field name="filename" invisible="1" />
+                        <field name="import_file" widget="binary" filename="filename" />
+                        <field name="external_db_type" />
+                        <field name="encoding" />
                     </group>
-                </sheet>
+                    <group>
+                        <button name="button_truncate"
+                            type="object"
+                            colspan="2"
+                            class="btn btn-danger oe_right text-uppercase"
+                            icon="fa-trash"
+                            string="Truncate existing components"
+                            confirm="Are you sure?"
+                        />
+                    </group>
+                </group>
+
+                <!-- === State `done` === -->
+
+                <!-- Report of unknown products -->
+                <group name="ignored" attrs="{'invisible': [('unknown_product_xlsx', '=', False)]}" string="Component import reprot">
+                    <field name="unknown_product_filename" invisible="1" />
+                    <field name="unknown_product_xlsx" filename="unknown_product_filename" nolabel="1" colspan="2" />
+                </group>
+
+                <notebook attrs="{'invisible': [('state', '!=', 'done')]}">
+                    <!-- Imported components -->
+                    <page name="imported_product" string="✅ Imported">
+                        <field name="imported_product_ids">
+                            <tree>
+                                <field name="default_code" />
+                                <field name="name" />
+                                <field name="uom_id" />
+                            </tree>
+                        </field>
+                    </page>
+
+                    <!-- Non-Stored (& POs) -->
+                    <page name="purchase" string="🛒 Non-stored">
+                        <field name="purchaseorder_ids">
+                            <tree>
+                                <field name="name" />
+                                <field name="description" />
+                                <field name="order_line" widget="many2many_tags" />
+                            </tree>
+                        </field>
+
+                        <field name="non_stored_product_ids">
+                            <tree>
+                                <field name="default_code" />
+                                <field name="name" />
+                                <field name="uom_id" />
+                            </tree>
+                        </field>
+                    </page>
+
+                    <!-- Purchase Order & Products -->
+                    <page name="supplierinfo" string="💶 Prices">
+                        <field name="supplierinfo_ids" />
+                    </page>
+
+                    <!-- Substituted products -->
+                    <page name="substituted_product" string="🔃 Substituted">
+                        <field name="substituted_product_ids">
+                            <tree>
+                                <field name="default_code" />
+                                <field name="name" />
+                                <field name="uom_id" />
+                            </tree>
+                        </field>
+                    </page>
+
+                    <!-- Ignored products -->
+                    <page name="ignored_product" string="🚫 Ignored">
+                        <field name="ignored_product_ids">
+                            <tree>
+                                <field name="default_code" />
+                                <field name="name" />
+                                <field name="uom_id" />
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
                 
                 <footer>
                     <button type="object" name="button_import" string="Import" class="btn btn-primary" />

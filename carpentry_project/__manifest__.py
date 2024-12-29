@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Project",
+    'name': "Project",
     'summary': "Slightly adapts Project styling for Carpentry (light core module)",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

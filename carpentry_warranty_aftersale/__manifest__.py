@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Warranty Aftersale",
+    'name': "Warranty Aftersale",
     'summary': "Identify warranty expenses and manage after-sale sub-projects (optional).",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

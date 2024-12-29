@@ -7,6 +7,7 @@ from collections import defaultdict
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
     _inherit = ['purchase.order', 'project.default.mixin']
+    _rec_name = 'display_name'
 
     #====== Fields ======#
     project_id = fields.Many2one(
@@ -24,3 +25,6 @@ class PurchaseOrder(models.Model):
         domain=[('res_model', '=', _name)],
     )
     
+    def _compute_display_name(self):
+        for mo in self:
+            mo.display_name = '[{}] {}' . format(self.name, self.description) 

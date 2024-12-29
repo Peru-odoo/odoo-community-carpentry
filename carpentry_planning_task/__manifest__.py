@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Planning Tasks",
+    'name': "Planning Tasks",
     'summary': "Link projects Tasks to plannings cards and the others as Global Tasks (optional).",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

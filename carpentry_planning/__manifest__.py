@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Planning",
+    'name': "Planning",
     'summary': "Steer project's tasks, milestones and budget per launch in a customized dashboard (core module).",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

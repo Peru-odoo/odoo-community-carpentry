@@ -10,7 +10,7 @@
             <!-- Add `Subtitution product` above notebook -->
             <notebook position="before">
                 <field name="product_substitution_id"
-                    attrs="{'invisible': [('can_be_purchased', '=', True)]}"
+                    attrs="{'invisible': [('purchase_ok', '=', True)]}"
                     placeholder="Substitution product"
                 />
             </notebook>

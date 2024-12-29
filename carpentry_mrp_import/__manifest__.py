@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry MRP Orgadata Import",
+    'name': "MRP Orgadata Import",
     'summary': "Import components to Manufacturing Orders (from Orgadata)",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',
@@ -15,9 +15,11 @@
     'depends': [
         'mrp', # Odoo CE
         'purchase_discount', # OCA
-        'carpentry_base', # carpentry
+        'carpentry_base', 'carpentry_purchase', # carpentry
     ],
     'data': [
+        # security
+        'security/ir.model.access.csv',
         # wizard
         'wizard/carpentry_mrp_import_wizard.xml',
         # views

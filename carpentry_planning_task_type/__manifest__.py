@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Milestones, Meetings and Instructions",
+    'name': "Milestones, Meetings and Instructions",
     'summary': "Manage specific tasks' types with customized feature per type, and follow their progress in Planning.",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

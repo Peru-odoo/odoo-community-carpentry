@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry Needs",
+    'name': "Needs",
     'summary': "Manage templates of recurrent tasks, whose deadlines follow Launches production start (optional)",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

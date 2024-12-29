@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Carpentry MRP Planning",
+    'name': "MRP Planning",
     'summary': "Manufacturing Orders in Carpentry Planning",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',

@@ -10,3 +10,16 @@ class ProductTemplate(models.Model):
         help='Product that will serve as component in Work Order'
              ' in replacement of this one.'
     )
+    preferred_supplier_id = fields.Many2one(
+        comodel_name='res.partner',
+        compute='_compute_preferred_supplier'
+    )
+
+    @api.depends('seller_ids')
+    def _compute_preferred_supplier(self):
+        """ Last supplier in supplierinfo, or company's (we need a default one) """
+        for product in self:
+            product.preferred_supplier_id = (
+                fields.first(product.seller_ids).partner_id
+                or self.env.company.partner_id
+            )
