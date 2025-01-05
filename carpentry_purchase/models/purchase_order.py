@@ -23,7 +23,7 @@ class PurchaseOrder(models.Model):
         comodel_name='ir.attachment',
         inverse_name='res_id',
         string='Attachments',
-        domain=[('res_model', '=', _name), ('message_ids', '=', [])],
+        domain=[('res_model', '=', _name)], # , ('message_ids', '=', [])
     )
     
     def _compute_display_name(self):
