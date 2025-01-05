@@ -10,7 +10,7 @@ class IrAttachment(models.Model):
     # Reverse M2M, to filter attachment not related to a message
     message_ids = fields.Many2many(
         comodel_name='mail.message',
-        inverse_name='message_attachment_rel',
+        relation='message_attachment_rel',
         column1='attachment_id',
         column2='message_id',
         string='Attachments'
