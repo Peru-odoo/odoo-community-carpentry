@@ -7,7 +7,7 @@ from collections import defaultdict
 class IrAttachment(models.Model):
     _inherit = ['ir.attachment']
 
-    Reverse M2M, to filter attachment not related to a message
+    # Reverse M2M, to filter attachment not related to a message
     message_ids = fields.Many2many(
         comodel_name='mail.message',
         inverse_name='message_attachment_rel',
