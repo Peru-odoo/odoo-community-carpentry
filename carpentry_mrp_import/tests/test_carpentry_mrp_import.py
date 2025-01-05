@@ -38,10 +38,11 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
             'default_code': '269510',
             'type': 'consu',
         }])
-        cls.substituted = cls.replacement.copy({
+        print('_name', cls.final_product._name)
+        cls.substituted = cls.replacement.product_variant_id.copy({
             'name': 'Substituted',
             'default_code': '218157',
-            'product_substitution_id': cls.replacement.id
+            'product_substitution_id': cls.replacement.product_variant_id.id
         })
 
         # Manufacturing Order
@@ -69,18 +70,20 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
     def test_01_load_file(self):
         # Load external database
         self.wizard.button_import()
-        self.assertTrue(self.wizard.imported_product_ids)
+        self.assertTrue(self.wizard.product_ids)
     
     def test_02_filter(self):
-        self.assertTrue(self.storable in self.wizard.imported_product_ids)
-        self.assertTrue(self.replacement in self.wizard.imported_product_ids)
+        self.assertTrue(self.storable in self.wizard.product_ids)
+        self.assertTrue(self.replacement in self.wizard.product_ids)
         self.assertEqual(self.substituted, self.wizard.substituted_product_ids)
         self.assertEqual(self.ignored, self.wizard.ignored_product_ids)
         self.assertEqual(self.consu, self.wizard.non_stored_product_ids)
 
-    def test_03_unknown_xlsx(self):
-        self.assertTrue(self.wizard.unknown_product_xlsx)
-    
-    def test_04_import_component(self):
+    def test_03_import_component(self):
+        self.assertTrue(self.wizard.supplierinfo_ids)
         self.assertTrue(self.storable in self.mo.move_raw_ids.product_id)
+    
+    def test_04_report_chatter(self):
+        self.assertTrue(self.mo.message_ids)
+        self.assertEqual(self.mo.message_attachment_count, 1)
     

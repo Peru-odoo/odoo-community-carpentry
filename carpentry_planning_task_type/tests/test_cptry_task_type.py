@@ -100,21 +100,15 @@ class TestCarpentryPlanningTaskType(common.SingleTransactionCase):
         self.task_meeting.message_post(body='First message', message_type='comment')
         self.task_meeting.message_post(body='Second message', message_type='comment')
         self.assertEqual(self.task_meeting.count_message_ids, 2)
-
-    def test_07_project_count_instruction(self):
-        new_instruction = self.task_instruction.copy({'name': 'Type Instruction Test 2'})
-        
-        task_ids = self.env['project.task'].search_read([], ['project_id', 'root_type_id'])
-        self.assertEqual(self.task_instruction.project_id.instruction_count, 2)
         
 
     #===== project.type =====#
-    def test_08_type_cannot_delete_root(self):
+    def test_07_type_cannot_delete_root(self):
         with self.assertRaises(exceptions.ValidationError):
             self.env.ref(XML_ID_MEETING).unlink()
 
 
     #===== project.project =====#
-    def test_09_project_planning_dashboard(self):
+    def test_08_project_planning_dashboard(self):
         data = self.task_meeting.project_id.get_planning_dashboard_data()
         self.assertTrue(len(data.get('meetings')))

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Product Product Base Form -->
+    <record id="product_variant_easy_edit_view" model="ir.ui.view">
+        <field name="name">product.product.view.form.easy.carpentry_mrp</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Subtitution product` after reference -->
+            <field name="default_code" position="after">
+                <field name="product_substitution_id" placeholder="Substitution product" />
+            </field>
+
+            <!-- If set, show it on top of the form -->
+            <field name="product_template_attribute_value_ids" position="after">
+                <group>
+                    <field name="product_substitution_id" attrs="{'invisible': [('product_substitution_id', '=', False)]}" class="text-danger fw-bold" />
+                </group>
+            </field>
+
+        </field>
+    </record>
+</odoo>

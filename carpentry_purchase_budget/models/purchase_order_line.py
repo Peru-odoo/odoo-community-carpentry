@@ -31,36 +31,36 @@ class PurchaseOrderLine(models.Model):
                     " purchase order's one."
                 ))
 
-    @api.constrains('analytic_distribution')
-    def _constrain_analytic_to_project_budget(self):
-        """ Prevent choosing an analytic account on a PO line only to the ones existing
-            in the budget of the PO's project
-            Indeed the Analytic popover makes all analytic accounts selectable
-            but we wished having selectable only the ones in the project budget
-        """
-        # Get analytic account used in project's budget
-        rg_result = self.env['account.move.budget.line'].sudo().read_group(
-            domain=[('project_id', 'in', self.project_id.ids)],
-            groupby=['project_id'],
-            fields=['analytic_account_id:array_agg']
-        )
-        project_analytics = {x['project_id'][0]: x['analytic_account_id'] for x in rg_result}
+    # @api.constrains('analytic_distribution')
+    # def _constrain_analytic_to_project_budget(self):
+    #     """ Prevent choosing an analytic account on a PO line only to the ones existing
+    #         in the budget of the PO's project
+    #         Indeed the Analytic popover makes all analytic accounts selectable
+    #         but we wished having selectable only the ones in the project budget
+    #     """
+    #     # Get analytic account used in project's budget
+    #     rg_result = self.env['account.move.budget.line'].sudo().read_group(
+    #         domain=[('project_id', 'in', self.project_id.ids)],
+    #         groupby=['project_id'],
+    #         fields=['analytic_account_id:array_agg']
+    #     )
+    #     project_analytics = {x['project_id'][0]: x['analytic_account_id'] for x in rg_result}
 
-        for line in self:
-            to_verify = line.analytic_ids.filtered('is_project_budget')
-            allowed = project_analytics.get(line.project_id.id, [])
+    #     for line in self:
+    #         to_verify = line.analytic_ids.filtered('is_project_budget')
+    #         allowed = project_analytics.get(line.project_id.id, [])
             
-            # let's verify if the budget of the PO's project actually foresee budget for those accounts
-            if (
-                to_verify and line.project_id and
-                (not allowed or any([x not in allowed for x in to_verify.ids]))
-            ):
-                raise exceptions.ValidationError(_(
-                    'There is no budget on the project %(project)s for this'
-                    ' (or one of these) analytic account(s): \n%(analytics)s',
-                    project=line.project_id.display_name,
-                    analytics=to_verify.mapped('name')
-                ))
+    #         # let's verify if the budget of the PO's project actually foresee budget for those accounts
+    #         if (
+    #             to_verify and line.project_id and
+    #             (not allowed or any([x not in allowed for x in to_verify.ids]))
+    #         ):
+    #             raise exceptions.ValidationError(_(
+    #                 'There is no budget on the project %(project)s for this'
+    #                 ' (or one of these) analytic account(s): \n%(analytics)s',
+    #                 project=line.project_id.display_name,
+    #                 analytics=to_verify.mapped('name')
+    #             ))
 
     #====== CRUD ======#
     @api.model_create_multi

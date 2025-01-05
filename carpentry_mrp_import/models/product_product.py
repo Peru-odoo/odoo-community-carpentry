@@ -2,10 +2,11 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 
-class ProductTemplate(models.Model):
-    _inherit = ['product.template']
+class ProductProduct(models.Model):
+    _inherit = ['product.product']
 
-    product_substitution_id = fields.Char(
+    product_substitution_id = fields.Many2one(
+        comodel_name='product.product',
         string='Substitution Product',
         help='Product that will serve as component in Work Order'
              ' in replacement of this one.'

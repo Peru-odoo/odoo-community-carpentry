@@ -124,18 +124,18 @@ class TestCarpentryPurchaseBudget(TestCarpentryPurchaseBudget_Base):
             for line in self.purchase.order_line
         ))
 
-    def test_04_raise_analytic_budget(self):
-        """ Should raise: cannot set budget analytic on PO lines
-            of an analytic account not in project's budget lines
-        """
-        self.purchase.project_id = self.project
+    # def test_04_raise_analytic_budget(self):
+    #     """ Should raise: cannot set budget analytic on PO lines
+    #         of an analytic account not in project's budget lines
+    #     """
+    #     self.purchase.project_id = self.project
 
-        # Remove budget on `analytic2`
-        fields.first(self.position.position_budget_ids).unlink()
+    #     # Remove budget on `analytic2`
+    #     fields.first(self.position.position_budget_ids).unlink()
 
-        # `analytic2` is not in the budget of `self.project` => should raise
-        with self.assertRaises(exceptions.ValidationError):
-            self.line.analytic_distribution = {self.analytic2.id: 100}
+    #     # `analytic2` is not in the budget of `self.project` => should raise
+    #     with self.assertRaises(exceptions.ValidationError):
+    #         self.line.analytic_distribution = {self.analytic2.id: 100}
 
     #----- affectation matrix -----
     def _set_full_affectation(self):

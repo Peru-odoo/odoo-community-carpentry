@@ -22,7 +22,6 @@
     ],
     'data': [
         # security
-        'security/carpentry_position_budget_security.xml',
         'security/ir.model.access.csv',
         # wizard
         'wizard/carpentry_position_merge_wizard.xml',

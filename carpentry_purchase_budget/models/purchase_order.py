@@ -92,8 +92,10 @@ class PurchaseOrder(models.Model):
         return self.launch_ids._origin
     
     def _get_group_refs(self):
-        """ [Affectation Refresh] 'Columns' of Purchase Order affectation matrix are analytic account """
-        return self.budget_analytic_ids._origin
+        """ [Affectation Refresh] 'Columns' of Purchase Order affectation matrix are analytic account
+            present in the project's budgets
+        """
+        return self.budget_analytic_ids._origin.filtered(lambda x: x.budget_project_ids in self.project_id)
     
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ [Affectation Refresh] Store PO id in `section_ref` """
