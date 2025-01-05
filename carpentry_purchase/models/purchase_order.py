@@ -35,3 +35,4 @@ class PurchaseOrder(models.Model):
         action['context'] |= {
             'default_attachment_ids': action['context'].get('default_attachment_ids', []) + [Command.set(self.attachment_ids.ids)]
         }
+        return action
