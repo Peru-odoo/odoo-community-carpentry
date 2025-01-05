@@ -79,6 +79,7 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         """ When a user validates a quotation, validate all lines """
         self.order_line.validated = True
+        return super().action_confirm
 
     #====== Compute: totals (validated / not validated) =====#
     @api.depends('amount_total', 'order_line', 'order_line.validated')
