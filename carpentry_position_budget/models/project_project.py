@@ -7,6 +7,10 @@ class Project(models.Model):
     _name = 'project.project'
     _inherit = ['project.project', 'carpentry.group.budget.mixin']
 
+    budget_id = fields.Many2one(
+        comodel_name='account.move.budget',
+        compute='_compute_budget_id'
+    )
     position_budget_ids = fields.One2many(
         # required for @depends
         comodel_name='carpentry.position.budget',
@@ -41,6 +45,12 @@ class Project(models.Model):
         """ Show alert banner in project's form in case of a warning on positions' names """
         return super()._get_warning_banner() | self.position_warning_name
     
+    #===== Compute =====#
+    @api.depends('budget_ids')
+    def _compute_budget_id(self):
+        for project in self:
+            project.budget_id = fields.first(project.budget_ids)
+
     #===== Compute: budget sums =====#
     def _get_quantities(self):
         """ Called from `_get_budgets_brut_valued()` of mixin `carpentry.group.budget.mixin` """
@@ -117,11 +127,10 @@ class Project(models.Model):
         self.budget_line_ids.filtered_domain(domain_unlink).sudo().unlink()
 
         # Add new lines, if new budget
-        budget_id = fields.first(self.budget_ids)
         vals_list = [{
             'name': analytic.name,
-            'date': self._get_default_project_budget_line_date(budget_id),
-            'budget_id': fields.first(self.budget_ids).id,
+            'date': self._get_default_project_budget_line_date(self.budget_id),
+            'budget_id': self.budget_id.id,
             'analytic_account_id': analytic.id,
             'is_computed_carpentry': True,
             'debit': 0, # computed in `account.move.budget.line`
