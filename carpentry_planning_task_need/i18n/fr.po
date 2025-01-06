@@ -6,16 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-05 18:53+0000\n"
-"PO-Revision-Date: 2024-12-05 19:56+0100\n"
+"POT-Creation-Date: 2025-01-06 17:13+0000\n"
+"PO-Revision-Date: 2025-01-06 17:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
@@ -64,7 +62,7 @@ msgstr "Êtes-vous sûr ?"
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields.selection,name:carpentry_planning_task_need.selection__project_task__type_deadline__computed
 msgid "Auto"
-msgstr "Auto"
+msgstr ""
 
 #. module: carpentry_planning_task_need
 #. odoo-python
@@ -124,7 +122,7 @@ msgstr "Créé le"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__date_deadline
-msgid "Deadline"
+msgid "Date Deadline"
 msgstr "Date limite"
 
 #. module: carpentry_planning_task_need
@@ -297,8 +295,8 @@ msgid ""
 "Number of week before a given milestone of the launch (e.g. start of "
 "Production or Installation)"
 msgstr ""
-"Nombre de semaine avant un jalon du lancement (ex: début de la production "
-"ou de la pose)"
+"Nombre de semaine avant un jalon du lancement (ex: début de la production ou"
+" de la pose)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__planning_card_color
@@ -337,24 +335,19 @@ msgid "Project"
 msgstr "Projet"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__project_id_domain
+msgid "Project Id Domain"
+msgstr ""
+
+#. module: carpentry_planning_task_need
 #: model:project.role,name:carpentry_planning_task_need.project_role_project
 msgid "Project Manager"
 msgstr "Chef de projet"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_project_type
-msgid "Project Type"
-msgstr "Type de projet"
-
-#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__role_id
 msgid "Role"
 msgstr "Rôle"
-
-#. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_project_task
-msgid "Task"
-msgstr "Tâche"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__task_ids
@@ -408,8 +401,11 @@ msgid "Type of Need"
 msgstr "Type de besoin"
 
 #. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_project.py:0
 #: model:ir.actions.server,name:carpentry_planning_task_need.action_open_task_need_srv
 #: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_view
+#, python-format
 msgid "View and adapt needs"
 msgstr "Voir et ajuster les besoins"
 

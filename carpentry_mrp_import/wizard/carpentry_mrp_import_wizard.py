@@ -6,6 +6,7 @@ import base64, io, openpyxl, os
 EXTERNAL_DB_TYPE = [
     ('orgadata', 'Orgadata')
 ]
+SEPARATOR_COLOR = '-RAL' # example: "174170-RAL7016 Sat 30"
 
 class CarpentryMrpImportWizard(models.TransientModel):
     _name = "carpentry.mrp.import.wizard"
@@ -124,10 +125,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
         if self.external_db_type == 'orgadata':
             # If `ColorInfoInternal` is given, suffix it to the `default_code`
-            fields = """
+            fields = f"""
                 IIF(
                     ColorInfoInternal IS NOT NULL,
-                    ArticleCode_OrderCode || ' ' || ColorInfoInternal,
+                    ArticleCode_OrderCode || '{SEPARATOR_COLOR}' || ColorInfoInternal,
                     ArticleCode_OrderCode
                 ) AS default_code,
                 Units_Output AS product_uom_qty,

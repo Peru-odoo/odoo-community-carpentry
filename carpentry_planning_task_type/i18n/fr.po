@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-29 13:28+0000\n"
-"PO-Revision-Date: 2024-11-29 23:32+0100\n"
+"POT-Creation-Date: 2025-01-06 17:13+0000\n"
+"PO-Revision-Date: 2025-01-06 18:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -86,12 +86,18 @@ msgid "Author:"
 msgstr "Auteur :"
 
 #. module: carpentry_planning_task_type
+#: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__can_create_linked_tasks
+msgid "Can Create Linked Tasks"
+msgstr "Peut créer des tâches liées"
+
+#. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__type_ids
 msgid "Categories"
 msgstr "Catégories"
 
 #. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__type_id
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_tree_milestone
 msgid "Category"
 msgstr "Type"
 
@@ -116,6 +122,21 @@ msgstr ""
 "                        (nom complet)<br/>\n"
 "                       <strong>(cachet et signature obligatoires)</strong>\n"
 "                   </em>"
+
+#. module: carpentry_planning_task_type
+#: model:project.type,name:carpentry_planning_task_type.task_type_instruction
+msgid "Consigne"
+msgstr "Consigne"
+
+#. module: carpentry_planning_task_type
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_form2
+msgid "Create Tasks"
+msgstr "Créer des tâches"
+
+#. module: carpentry_planning_task_type
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_form2
+msgid "Create tasks shown in Planning top-list, linked to this document"
+msgstr "Créer des tâches affichées dans la top-list du planning, en lien avec ce document"
 
 #. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__partner_id
@@ -150,16 +171,18 @@ msgid "Has attachments"
 msgstr "A des pièces-jointes"
 
 #. module: carpentry_planning_task_type
-#: model:project.type,name:carpentry_planning_task_type.task_type_instruction
-msgid "Instruction"
-msgstr "Consigne"
-
-#. module: carpentry_planning_task_type
+#. odoo-python
+#: code:addons/carpentry_planning_task_type/models/project_project.py:0
 #: model:ir.actions.server,name:carpentry_planning_task_type.action_open_task_instruction_srv
-#: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_project__instruction_count
 #: model:ir.ui.menu,name:carpentry_planning_task_type.menu_project_instruction
+#, python-format
 msgid "Instructions"
 msgstr "Consignes"
+
+#. module: carpentry_planning_task_type
+#: model:project.type,name:carpentry_planning_task_type.task_type_milestone
+msgid "Jalon"
+msgstr "Jalon"
 
 #. module: carpentry_planning_task_type
 #. odoo-javascript
@@ -174,12 +197,14 @@ msgid "Last Message"
 msgstr "Date de la dernière réunion"
 
 #. module: carpentry_planning_task_type
-#: model:project.type,name:carpentry_planning_task_type.task_type_meeting
-msgid "Meeting"
-msgstr "Réunion"
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_form_meeting
+msgid "Meeting sub-topic"
+msgstr "Sous-sujet de la réunion"
 
 #. module: carpentry_planning_task_type
 #. odoo-javascript
+#. odoo-python
+#: code:addons/carpentry_planning_task_type/models/project_project.py:0
 #: code:addons/carpentry_planning_task_type/static/src/planning/planning_dashboard.js:0
 #: model:ir.actions.server,name:carpentry_planning_task_type.action_open_task_meeting_srv
 #: model:ir.ui.menu,name:carpentry_planning_task_type.menu_project_meeting
@@ -193,12 +218,14 @@ msgid "Message Count"
 msgstr "Nombre de réunions"
 
 #. module: carpentry_planning_task_type
-#: model:project.type,name:carpentry_planning_task_type.task_type_milestone
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_tree_milestone
 msgid "Milestone"
 msgstr "Jalon"
 
 #. module: carpentry_planning_task_type
 #. odoo-javascript
+#. odoo-python
+#: code:addons/carpentry_planning_task_type/models/project_project.py:0
 #: code:addons/carpentry_planning_task_type/static/src/planning/planning_dashboard.js:0
 #: model:ir.actions.server,name:carpentry_planning_task_type.action_open_task_milestone_srv
 #: model:ir.ui.menu,name:carpentry_planning_task_type.menu_project_milestone
@@ -210,18 +237,6 @@ msgstr "Jalons"
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__name_required
 msgid "Name Required"
 msgstr "Nom requis"
-
-#. module: carpentry_planning_task_type
-#: model:ir.model.fields,help:carpentry_planning_task_type.field_project_type__code
-msgid "Name on planning cards"
-msgstr "Nom sur les cartes de planification"
-
-#. module: carpentry_planning_task_type
-#. odoo-javascript
-#: code:addons/carpentry_planning_task_type/static/src/planning/planning_dashboard.xml:0
-#, python-format
-msgid "Number of meetings"
-msgstr "Nombre de réunions"
 
 #. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_single
@@ -240,16 +255,6 @@ msgid "Project Assignments"
 msgstr "Assignations du projet"
 
 #. module: carpentry_planning_task_type
-#: model:ir.model,name:carpentry_planning_task_type.model_project_role
-msgid "Project Role"
-msgstr "Rôle du projet"
-
-#. module: carpentry_planning_task_type
-#: model:ir.model,name:carpentry_planning_task_type.model_project_type
-msgid "Project Type"
-msgstr "Type de projet"
-
-#. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_project_summary
 msgid "Project:"
@@ -259,11 +264,6 @@ msgstr "Projet :"
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_receipt_stamp
 msgid "Receive on ____ / ____ / ________"
 msgstr "Reçu le ____ / ____ / ________"
-
-#. module: carpentry_planning_task_type
-#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_tree2
-msgid "Report"
-msgstr "Rapport"
 
 #. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_front_page
@@ -281,6 +281,11 @@ msgstr "Type racine"
 #, python-format
 msgid "Root types cannot be removed."
 msgstr "Les types de tâche racine ne peuvent pas être supprimés."
+
+#. module: carpentry_planning_task_type
+#: model:project.type,name:carpentry_planning_task_type.task_type_meeting
+msgid "Réunion"
+msgstr "Réunion"
 
 #. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.view_task_tree2
@@ -317,23 +322,13 @@ msgstr "Séquence"
 
 #. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_type__shortname
-msgid "Short Name"
+msgid "Shortname (planning)"
 msgstr "Nom court (planning)"
-
-#. module: carpentry_planning_task_type
-#: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_type__code
-msgid "Shortname"
-msgstr "Nom court"
 
 #. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_single
 msgid "Tag(s):"
 msgstr "Tag(s) :"
-
-#. module: carpentry_planning_task_type
-#: model:ir.model,name:carpentry_planning_task_type.model_project_task
-msgid "Task"
-msgstr "Tâche"
 
 #. module: carpentry_planning_task_type
 #. odoo-python
@@ -373,17 +368,14 @@ msgid "Template mail of task sharing, with report in attachment"
 msgstr "Modèle de mail de partage des tâches, avec rapport en pièce jointe"
 
 #. module: carpentry_planning_task_type
-#. odoo-javascript
-#: code:addons/carpentry_planning_task_type/static/src/planning/planning_dashboard.xml:0
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__name
-#, python-format
 msgid "Title"
 msgstr "Titre"
 
 #. module: carpentry_planning_task_type
-#: model:ir.model.fields,help:carpentry_planning_task_type.field_project_type__shortname
-msgid "Title of planning cards"
-msgstr "Titre des cartes du planning"
+#: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__attachment_count
+msgid "Total Attachment Count"
+msgstr "Nombre de pièces jointes"
 
 #. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_task__type_sequence

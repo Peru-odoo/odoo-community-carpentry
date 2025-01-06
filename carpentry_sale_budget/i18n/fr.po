@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-29 13:28+0000\n"
-"PO-Revision-Date: 2024-12-01 14:35+0100\n"
+"POT-Creation-Date: 2025-01-06 17:13+0000\n"
+"PO-Revision-Date: 2025-01-06 18:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -33,7 +33,7 @@ msgid "Budget state"
 msgstr "État du budget"
 
 #. module: carpentry_sale_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_carpentry_budget
 msgid "Budget totals"
 msgstr "Totaux du budget"
 
@@ -58,9 +58,9 @@ msgid "Contributive margin (%)"
 msgstr "Marge contributive (%)"
 
 #. module: carpentry_sale_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_carpentry_budget
 msgid "Fees &amp; Margins"
-msgstr "Frais &amp; Marges"
+msgstr "Marges &amp; Frais"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields,help:carpentry_sale_budget.field_sale_order_line__budget_updated
@@ -93,11 +93,6 @@ msgid "Partial"
 msgstr "Partiel"
 
 #. module: carpentry_sale_budget
-#: model:ir.model,name:carpentry_sale_budget.model_project_project
-msgid "Project"
-msgstr "Projet"
-
-#. module: carpentry_sale_budget
 #: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__fees_prorata
 msgid "Prorata"
 msgstr "Prorata"
@@ -110,12 +105,12 @@ msgstr "Prorata (%)"
 #. module: carpentry_sale_budget
 #: model:ir.model,name:carpentry_sale_budget.model_sale_order
 msgid "Sales Order"
-msgstr "Commande client"
+msgstr "Bon de commande"
 
 #. module: carpentry_sale_budget
 #: model:ir.model,name:carpentry_sale_budget.model_sale_order_line
 msgid "Sales Order Line"
-msgstr "Ligne de commande client"
+msgstr "Ligne de commande"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__fees_structure
@@ -131,8 +126,8 @@ msgstr "Structure (%)"
 #: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_sale
 msgid "The project budget is not fully up-to-date as per project Sales Order"
 msgstr ""
-"Le budget n'est pas complètement à jour compte tenu des lignes de "
-"commandes clients enregistrées"
+"Le budget n'est pas complètement à jour compte tenu des lignes de commandes "
+"clients enregistrées"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields,help:carpentry_sale_budget.field_project_project__margin_costs

@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-01 18:40+0000\n"
-"PO-Revision-Date: 2024-12-01 20:01+0100\n"
-"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"POT-Creation-Date: 2025-01-06 17:13+0000\n"
+"PO-Revision-Date: 2025-01-06 18:51+0100\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_design
@@ -247,11 +247,6 @@ msgid "Last Visa"
 msgstr "Dernier visa"
 
 #. module: carpentry_design
-#: model:ir.model,name:carpentry_design.model_carpentry_group_launch
-msgid "Launch"
-msgstr "Lancement"
-
-#. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__launch_ids
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__launch_ids
 msgid "Launches"
@@ -305,11 +300,6 @@ msgid "Next Activity Type"
 msgstr "Type de l'activité suivante"
 
 #. module: carpentry_design
-#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__next_id
-msgid "Next ID"
-msgstr "Prochaine carte d'identité"
-
-#. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Nombre d'actions"
@@ -339,7 +329,7 @@ msgstr "Publication de jeux de plans"
 #. module: carpentry_design
 #: model:carpentry.planning.column,name:carpentry_design.planning_column_need_method
 msgid "Plan Releases"
-msgstr "Publications de jeux de plans"
+msgstr "Jeux de plans (publications)"
 
 #. module: carpentry_design
 #: model:ir.model,name:carpentry_design.model_carpentry_plan_set
@@ -361,19 +351,10 @@ msgstr "Jeu de plan"
 
 #. module: carpentry_design
 #: model:ir.actions.act_window,name:carpentry_design.action_open_plan_set
-msgid "Plan sets"
-msgstr "Jeux de plans"
-
-#. module: carpentry_design
 #: model:ir.actions.server,name:carpentry_design.action_open_plan_set_srv
 #: model:ir.ui.menu,name:carpentry_design.menu_project_plan
 msgid "Plan sets"
 msgstr "Jeux de plans"
-
-#. module: carpentry_design
-#: model:ir.model,name:carpentry_design.model_carpentry_planning_card
-msgid "Planning Card"
-msgstr "Cartes du planning"
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_body_color
@@ -396,11 +377,15 @@ msgid "Plans Sets"
 msgstr "Jeux de plans"
 
 #. module: carpentry_design
-#: model:ir.model,name:carpentry_design.model_project_project
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__project_id
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__project_id
 msgid "Project"
 msgstr "Projet"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__project_id_domain
+msgid "Project Id Domain"
+msgstr "Project Id Domain"
 
 #. module: carpentry_design
 #: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__danger
@@ -461,8 +446,7 @@ msgstr ""
 #. module: carpentry_design
 #: model:ir.model.constraint,message:carpentry_design.constraint_carpentry_plan_release_unique_name_release_planset
 msgid "This plan Index is already used in this Plan Set."
-msgstr ""
-"Cet indice de publication est déjà utilisé dans ce jeu de plans."
+msgstr "Cet indice de publication est déjà utilisé dans ce jeu de plans."
 
 #. module: carpentry_design
 #: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_exception_decoration

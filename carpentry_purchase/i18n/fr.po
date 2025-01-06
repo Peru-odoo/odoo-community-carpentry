@@ -6,14 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-29 13:28+0000\n"
-"PO-Revision-Date: 2024-11-29 13:28+0000\n"
+"POT-Creation-Date: 2025-01-06 17:13+0000\n"
+"PO-Revision-Date: 2025-01-06 18:54+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
@@ -27,8 +29,13 @@ msgstr "<span class=\"o_stat_text\">Achats</span>"
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_project_form
-msgid "Addresses"
-msgstr "Adresses"
+msgid "Address"
+msgstr "Addresse"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__attachment_ids
+msgid "Attachments"
+msgstr "Pièces jointes"
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
@@ -42,32 +49,25 @@ msgstr ""
 "Basé sur la distribution analytique des lignes de commandes fournisseurs"
 
 #. module: carpentry_purchase
-#: model:ir.model.fields,help:carpentry_purchase.field_project_project__partner_delivery_id
-msgid ""
-"Default delivery address for orders to be delivered on the construction "
-"site. Can be the main address of client or any 'delivery' address(es) of the"
-" client."
-msgstr ""
-"Adresse de livraison par défaut pour les commandes à livrer sur le chantier."
-" Il peut s'agir de l'adresse principale du client ou de toute(s) adresse(s) "
-"de livraison du client."
-
-#. module: carpentry_purchase
-#: model:ir.model.fields,help:carpentry_purchase.field_project_project__partner_invoice_id
-msgid ""
-"Default invoicing address for project's invoicing. Can be the main address "
-"of client or any 'invoicing' address(es) of the client."
-msgstr ""
-"Adresse de facturation par défaut pour la facturation client du projet. Il "
-"peut s'agir de l'adresse principale du client ou de toute(s) adresse(s) de "
-"facturation du client."
-
-#. module: carpentry_purchase
-#: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__partner_delivery_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__delivery_address_id
 msgid "Delivery address"
 msgstr "Adresse de livraison"
 
 #. module: carpentry_purchase
-#: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__partner_invoice_id
-msgid "Invoicing address"
-msgstr "Adresse de facturation"
+#: model:ir.model.fields,help:carpentry_purchase.field_project_project__delivery_address_id
+msgid ""
+"Delivery address of the construction site, within the customer's addresses "
+"of type 'Delivery'."
+msgstr ""
+"Adresse de livraison du chantier, parmi les adresses de type \"Livraison\" "
+"du client."
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__description
+msgid "Description"
+msgstr "Description"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
+msgid "Title of Order"
+msgstr "Nom de la commande"
