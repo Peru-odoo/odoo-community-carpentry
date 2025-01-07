@@ -23,6 +23,7 @@ class ManufacturingOrder(models.Model):
         default=True
     )
 
+
     #===== Compute =====#
     # @api.depends('move_finished_ids')
     # def _compute_product_qty(self):

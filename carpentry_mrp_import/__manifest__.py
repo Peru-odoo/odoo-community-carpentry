@@ -13,9 +13,8 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'mrp', # Odoo CE
         'purchase_discount', # OCA
-        'carpentry_base', 'carpentry_purchase', # carpentry
+        'carpentry_mrp', # carpentry
     ],
     'data': [
         # security

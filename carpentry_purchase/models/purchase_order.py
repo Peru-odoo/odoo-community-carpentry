@@ -10,11 +10,6 @@ class PurchaseOrder(models.Model):
     _rec_name = 'display_name'
 
     #====== Fields ======#
-    project_id = fields.Many2one(
-        # can be significated as mandatory to users
-        # by settings project's analytic plan as mandatory
-        required=False
-    )
     description = fields.Char(
         string='Description'
     )
@@ -36,3 +31,9 @@ class PurchaseOrder(models.Model):
             'default_attachment_ids': action['context'].get('default_attachment_ids', []) + [Command.set(self.attachment_ids.ids)]
         }
         return action
+
+    def _prepare_picking(self):
+        """ Write project from PO to picking """
+        return super()._prepare_picking() | {
+            'project_id': self.project_id.id
+        }

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "MRP Position",
+    'name': "MRP Positions",
     'summary': "Manufacture positions as final products",
     'author': 'Arnaud LAYEC',
     'website': 'https://github.com/arnaudlayec/odoo-community-carpentry',
@@ -12,12 +12,14 @@
     'category': 'Carpentry/Carpentry',
     'version': '16.0.1.0.1',
 
-    'depends': ['carpentry_mrp_import'],
+    'depends': [
+        'mrp', # Odoo CE
+        'mrp_project_link', # other
+        'carpentry_purchase', # carpentry
+    ],
     'data': [
         # data
         'views/mrp_production.xml',
         'views/product_template.xml',
     ]
 }
-
-
