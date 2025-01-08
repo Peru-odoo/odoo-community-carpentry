@@ -22,9 +22,13 @@ class ManufacturingOrder(models.Model):
             '|', ('company_id', '=', False), ('company_id', '=', company_id)
         ]"""
     )
+    # -- for planning --
     active = fields.Boolean(
-        # for planning
-        default=True
+        default=True,
+        string='Actif'
+    )
+    sequence = fields.Integer(
+        string='Sequence'
     )
 
 

@@ -51,7 +51,7 @@
 
             <!-- Add `Launch` field -->
             <field name="project_id" position="after">
-                <field name="launch_ids" widget="many2many_tags" attrs="{'invisible': [('project_id', '=', False)]}" />
+                <field name="launch_ids" widget="many2many_tags" />
             </field>
 
             <!-- Add `Budget` notebook tab -->

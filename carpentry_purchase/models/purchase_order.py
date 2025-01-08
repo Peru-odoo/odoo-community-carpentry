@@ -13,24 +13,10 @@ class PurchaseOrder(models.Model):
     description = fields.Char(
         string='Description'
     )
-    attachment_ids = fields.One2many(
-        # Attachments not within a message
-        comodel_name='ir.attachment',
-        inverse_name='res_id',
-        string='Attachments',
-        domain=[('res_model', '=', _name), ('message_ids', '=', False)],
-    )
     
     def _compute_display_name(self):
         for mo in self:
             mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
-
-    def action_rfq_send(self):
-        action = super().action_rfq_send()
-        action['context'] |= {
-            'default_attachment_ids': action['context'].get('default_attachment_ids', []) + [Command.set(self.attachment_ids.ids)]
-        }
-        return action
 
     def _prepare_picking(self):
         """ Write project from PO to picking """
