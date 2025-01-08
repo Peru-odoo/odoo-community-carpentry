@@ -73,9 +73,9 @@ class Project(models.Model):
         self.margin_contributive_rate = bool(self.market_reviewed) and self.margin_contributive / self.market_reviewed * 100
 
     #===== Compute : sale order line budget updated status =====#
-    @api.depends('sale_order_ids.order_line', 'sale_order_ids.order_line.budget_updated')
+    @api.depends('sale_order_ids.order_line', 'sale_order_ids.order_line.budget_updated', 'sale_order_ids.order_id.state')
     def _compute_budget_up_to_date(self):
-        domain = [('project_id', 'in', self.ids), ('budget_updated', '=', False)]
+        domain = [('project_id', 'in', self.ids), ('budget_updated', '=', False), ('order_id.state', '!=', 'cancel')]
         not_updated_project_ids_ = self.env['sale.order.line'].sudo().search(domain).project_id.ids
         
         for project in self:

@@ -63,7 +63,7 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
         self.ensure_one()
         self.budget_prod = self.sudo()._get_budget_one(brut, 'production')
         self.budget_install = self.sudo()._get_budget_one(brut, 'installation')
-        self.budget_goods = self.sudo()._get_budget_one(valued, ['goods'])
+        self.budget_goods = self.sudo()._get_budget_one(valued, 'goods')
         self.budget_total = self.sudo()._get_budget_one(valued, ['production', 'installation', 'goods'])
     
     def _get_budget_one(self, budget, budget_types):

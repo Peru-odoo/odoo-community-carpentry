@@ -6,4 +6,4 @@ class AccountAnalyticAccount(models.Model):
     _inherit = ['account.analytic.account']
 
     def _get_timesheetable_types(self):
-        return ['service', 'installation'] # , 'production'
+        return ['service', 'installation']

@@ -7,10 +7,6 @@ class Project(models.Model):
     _name = 'project.project'
     _inherit = ['project.project', 'carpentry.group.budget.mixin']
 
-    budget_id = fields.Many2one(
-        comodel_name='account.move.budget',
-        compute='_compute_budget_id'
-    )
     position_budget_ids = fields.One2many(
         # required for @depends
         comodel_name='carpentry.position.budget',
@@ -44,12 +40,6 @@ class Project(models.Model):
     def _get_warning_banner(self):
         """ Show alert banner in project's form in case of a warning on positions' names """
         return super()._get_warning_banner() | self.position_warning_name
-    
-    #===== Compute =====#
-    @api.depends('budget_ids')
-    def _compute_budget_id(self):
-        for project in self:
-            project.budget_id = fields.first(project.budget_ids)
 
     #===== Compute: budget sums =====#
     def _get_quantities(self):
@@ -69,8 +59,8 @@ class Project(models.Model):
         """ Add fields `budget_office` and `budget_global_cost` """
         super()._compute_budgets_one(brut, valued)
 
-        self.budget_office = self._get_budget_one(brut, 'service')
-        self.budget_global_cost = self._get_budget_one(valued, 'project_global_cost')
+        self.budget_office = self.sudo()._get_budget_one(brut, 'service')
+        self.budget_global_cost = self.sudo()._get_budget_one(valued, 'project_global_cost')
 
         # from module `project_budget`
         self.budget_total = self.budget_line_sum
@@ -116,8 +106,8 @@ class Project(models.Model):
         self._inverse_budget_template_ids()
         
         # Get existing computed lines & list of just-updated 'account_analytic_ids' in position's budgets
-        existing_line_ids = self.budget_line_ids.filtered('is_computed_carpentry')
-        analytic_account_ids = self.position_budget_ids.mapped('analytic_account_id')
+        existing_line_ids = self._origin.budget_line_ids.filtered('is_computed_carpentry')
+        analytic_account_ids = self._origin.position_budget_ids.mapped('analytic_account_id')
 
         to_add = analytic_account_ids - existing_line_ids.analytic_account_id
         to_remove = existing_line_ids.analytic_account_id - analytic_account_ids

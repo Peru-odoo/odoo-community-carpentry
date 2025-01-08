@@ -53,27 +53,23 @@
                                 </div>
                             </group>
                         </group>
-
-                        <field name="budget_id" invisible="1" />
-                        <field name="budget_line_ids"
-                            domain="[('is_computed_carpentry', '=', False)]"
-                            context="{'display_short_name': 1, 'default_budget_id': budget_id, 'default_budget_id': id}"
-                            nolabel="1"
-                            colspan="2"
-                        >
-                            <tree editable="top">
-                                <field name="project_id" invisible="1" />
-                                <field name="budget_id" invisible="1" />
-                                <field name="analytic_account_id_domain" invisible="1" />
-                                <field name="company_currency_id" invisible="1" />
-
-                                <field name="budget_type" string="Type" />
-                                <field name="analytic_account_id" string="Budget" options="{'no_create_edit': 1}" />
-                                <field name="qty_debit" string="Quantity" />
-                                <field name="balance" string="Total" />
-                            </tree>
-                        </field>
                     </group>
+
+                    <field name="budget_id" invisible="1" />
+                    <field name="budget_line_ids"
+                        domain="[('is_computed_carpentry', '=', False)]"
+                        context="{'display_short_name': 1}"
+                    >
+                        <tree editable="top">
+                            <field name="analytic_account_id_domain" invisible="1" />
+                            <field name="company_currency_id" invisible="1" />
+
+                            <field name="budget_type" string="Type" />
+                            <field name="analytic_account_id" string="Budget" options="{'no_create_edit': 1}" />
+                            <field name="qty_debit" string="Quantity" />
+                            <field name="balance" string="Total" />
+                        </tree>
+                    </field>
                 </page>
             </page>
         </field>
