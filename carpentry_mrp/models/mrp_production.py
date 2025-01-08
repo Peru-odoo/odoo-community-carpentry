@@ -25,7 +25,7 @@ class ManufacturingOrder(models.Model):
     # -- for planning --
     active = fields.Boolean(
         default=True,
-        string='Actif'
+        string='Active?'
     )
     sequence = fields.Integer(
         string='Sequence'
@@ -33,11 +33,11 @@ class ManufacturingOrder(models.Model):
 
 
     #===== Logics methods =====#
-    def _prepare_procurement_group_vals(self, values):
-        """ And `production_id` on picking via the procurement group """
-        return super()._prepare_procurement_group_vals(values) | {
-            'production_id': self.id
-        }
+    # def _prepare_procurement_group_vals(self, values):
+    #     """ And `production_id` on picking via the procurement group """
+    #     return super()._prepare_procurement_group_vals(values) | {
+    #         'production_id': self.id
+    #     }
 
 
     
