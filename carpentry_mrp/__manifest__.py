@@ -21,5 +21,6 @@
         # data
         'views/mrp_production.xml',
         'views/product_template.xml',
+        'views/stock_picking.xml',
     ]
 }

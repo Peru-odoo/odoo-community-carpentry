@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- WO Form -->
+    <!-- MO tree -->
+    <record id="mrp_production_tree_view" model="ir.ui.view">
+        <field name="name">mrp.production.tree.carpentry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Description` -->
+            <field name="project_id" position="before">
+                <field name="description" />
+            </field>
+        </field>
+    </record>
+
+    <!-- MO Form -->
     <record id="mrp_production_form_view" model="ir.ui.view">
         <field name="name">mrp.production.form.carpentry</field>
         <field name="model">mrp.production</field>
         <field name="inherit_id" ref="mrp.mrp_production_form_view" />
         
         <field name="arch" type="xml">
+            <!-- Add `Description` -->
+            <h1 position="inside">
+                <field name="description"
+                    placeholder="Title of Manufacturing Order"
+                    class="o_text_overflow flex-shrink-0"
+                    style="width: 80%"
+                />
+            </h1>
+            <field name="name" position="attributes">
+                <attribute name="class">flex-grow-1 me-3</attribute>
+            </field>
+
+            <!-- Product -->
             <field name="product_id" position="attributes">
                 <attribute name="options">{'no_create_edit': True}</attribute>
             </field>
@@ -18,6 +45,25 @@
             <!-- <xpath expr="//field[@name='move_byproduct_ids']//field[@name='product_id']" position="after">
                 <field name="description_picking" />
             </xpath> -->
+        </field>
+    </record>
+
+
+    <!-- MO Search -->
+    <record id="view_mrp_production_filter" model="ir.ui.view">
+        <field name="name">mrp.production.select.carpentry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Description` in 1st search by name -->
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|',
+                    ('name', 'ilike', self),
+                    ('description', 'ilike', self),
+                    ('origin', 'ilike', self)
+                ]</attribute>
+            </field>
         </field>
     </record>
 </odoo>

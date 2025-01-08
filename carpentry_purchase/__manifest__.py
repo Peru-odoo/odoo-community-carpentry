@@ -23,6 +23,5 @@
         'views/project_project.xml',
         'views/project_purchase_link.xml',
         'views/purchase_order.xml',
-        'views/stock_picking.xml',
     ]
 }
