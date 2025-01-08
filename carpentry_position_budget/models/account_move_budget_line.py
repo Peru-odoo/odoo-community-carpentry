@@ -53,7 +53,7 @@ class AccountMoveBudgetLine(models.Model):
         line_ids_computed = self.filtered('is_computed_carpentry')
 
         # compute `debit` standardly, since we overriden the field's `compute` arg
-        (self - line_ids_computed)._compute_debit_credit()
+        super(AccountMoveBudgetLine, self - line_ids_computed)._compute_debit_credit()
 
         # perf early quit
         if not line_ids_computed.ids:
