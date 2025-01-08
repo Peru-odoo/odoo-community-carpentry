@@ -23,7 +23,7 @@ class PurchaseOrder(models.Model):
     
     def _compute_display_name(self):
         for mo in self:
-            mo.display_name = '[{}] {}' . format(mo.name, mo.description) 
+            mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
 
     def action_rfq_send(self):
         action = super().action_rfq_send()
