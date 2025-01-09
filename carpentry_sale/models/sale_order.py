@@ -11,12 +11,6 @@ class SaleOrder(models.Model):
         string='Name'
     )
     comment = fields.Text(string='Internal Note')
-    attachment_ids = fields.One2many(
-        comodel_name='ir.attachment',
-        inverse_name='res_id',
-        string='Attachments',
-        domain=lambda self: [('res_model', '=', self._name)],
-    )
     lines_validated = fields.Selection(
         selection=[
             ('none', 'None'),

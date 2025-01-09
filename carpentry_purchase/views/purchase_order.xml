@@ -53,11 +53,6 @@
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
             </field>
-
-            <!-- Add `Attachments`, on the Left (same as chatter's) -->
-            <xpath expr="//group//group" position="inside">
-                <field name="attachment_ids" widget="many2many_binary" />
-            </xpath>
         </field>
     </record>
 

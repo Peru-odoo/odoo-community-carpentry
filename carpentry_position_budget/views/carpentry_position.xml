@@ -47,6 +47,10 @@
                 <field name="budget_goods" optional="show" />
                 <field name="budget_subtotal" optional="show" />
                 <field name="budget_total" sum="1" optional="show" />
+                <button name="%(action_open_position_budget_add)d"
+                    type="action"
+                    string="Add budget"
+                />
                 
                 <!-- Useful to track history of imports -->
                 <field name="external_db_guid" optional="hide" />

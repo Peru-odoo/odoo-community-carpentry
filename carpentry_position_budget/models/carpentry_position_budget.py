@@ -18,7 +18,8 @@ class CarpentryPositionBudget(models.Model):
         string='Position',
         required=True,
         index='btree_not_null',
-        ondelete='cascade'
+        ondelete='cascade',
+        domain="[('project_id', '=', project_id)]"
     )
     analytic_account_id = fields.Many2one(
         comodel_name='account.analytic.account',
@@ -26,7 +27,8 @@ class CarpentryPositionBudget(models.Model):
         required=True,
         ondelete='restrict',
         index='btree_not_null',
-        help='Used to rapproach incomes, charges and budget in accounting reports.'
+        help='Used to rapproach incomes, charges and budget in accounting reports.',
+        domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]"
     )
     # for search view
     lot_id = fields.Many2one(
@@ -53,8 +55,12 @@ class CarpentryPositionBudget(models.Model):
         currency_field='currency_id',
         compute='_compute_value'
     )
+
+    company_id = fields.Many2one(
+        related='project_id.company_id'
+    )
     currency_id = fields.Many2one(
-        related='project_id.company_id.currency_id'
+        related='company_id.currency_id'
     )
 
     #===== Constrain =====#

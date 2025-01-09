@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _, Command
+from odoo import models, fields, api, _, Command, exceptions
 from collections import defaultdict
 
 class CarpentryAffectation_Mixin(models.AbstractModel):

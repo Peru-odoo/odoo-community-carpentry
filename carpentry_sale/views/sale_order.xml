@@ -65,10 +65,9 @@
                 </h1>
             </h1>
 
-            <!-- Attachment -->
+            <!-- Comment -->
             <group name="partner_details" position="inside">
                 <field name="comment" widget="html" />
-                <field name="attachment_ids" widget="many2many_binary" options="{'accepted_file_extensions': '.pdf'}" />
             </group>
 
             <!-- `Validated` field on sale.order.line -->

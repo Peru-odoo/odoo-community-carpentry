@@ -59,9 +59,6 @@ class Project(models.Model):
         """ Add fields `budget_office` and `budget_global_cost` """
         super()._compute_budgets_one(brut, valued)
 
-        self.budget_office = self.sudo()._get_budget_one(brut, 'service')
-        self.budget_global_cost = self.sudo()._get_budget_one(valued, 'project_global_cost')
-
         # from module `project_budget`
         self.budget_total = self.budget_line_sum
 
@@ -93,6 +90,15 @@ class Project(models.Model):
 
         # Update project's totals
         super()._compute_budgets()
+
+        # Compute project-level budgets
+        fix_budget_types = {
+            'budget_office': 'service',
+            'budget_global_cost': 'project_global_cost'
+        }
+        for project in self:
+            for field, budget_type in fix_budget_types.items():
+                project[field] = sum(project.budget_line_ids.filtered(lambda x: x.budget_type == budget_type))
 
     #===== Compute/Populate: account_move_budget_line =====#
     def _populate_account_move_budget_line(self):

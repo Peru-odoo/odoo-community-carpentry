@@ -58,9 +58,12 @@
                     <field name="budget_id" invisible="1" />
                     <field name="budget_line_ids"
                         domain="[('is_computed_carpentry', '=', False)]"
-                        context="{'display_short_name': 1}"
+                        context="{'display_short_name': 1, 'default_project_id': id}"
                     >
                         <tree editable="top">
+                            <field name="project_id" invisible="1" />
+                            <field name="budget_id" invisible="1" />
+                            <field name="date" invisible="1" />
                             <field name="analytic_account_id_domain" invisible="1" />
                             <field name="company_currency_id" invisible="1" />
 

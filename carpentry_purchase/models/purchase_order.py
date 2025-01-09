@@ -19,7 +19,8 @@ class PurchaseOrder(models.Model):
             mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
 
     def _prepare_picking(self):
-        """ Write project from PO to picking """
-        return super()._prepare_picking() | {
-            'project_id': self.project_id.id
-        }
+        """ Write project from PO to procurement group and picking """
+        vals = super()._prepare_picking()
+
+        self.group_id.project_id = self.project_id # procurement group
+        return vals | {'project_id': self.project_id.id} # picking

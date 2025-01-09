@@ -76,8 +76,6 @@ class PurchaseOrderLine(models.Model):
         """ Gather analytic account selected in the line's analytic distribution """
         for line in self:
             new_distrib = line.analytic_distribution
-            if self._context.get('debug'):
-                print('new_distrib', new_distrib)
             line.analytic_ids = new_distrib and [Command.set([int(x) for x in new_distrib.keys()])]
 
     #===== Business logics =====#

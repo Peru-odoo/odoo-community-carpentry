@@ -133,8 +133,8 @@ class PurchaseOrder(models.Model):
         project_analytics = self.env.company.analytic_plan_id.account_ids
         for purchase in self:
             purchase.order_line._replace_analytic(
-                replaced_ids=project_analytics.ids,
-                added_id=purchase.project_id.analytic_account_id.id
+                replaced_ids=project_analytics._origin.ids,
+                added_id=purchase.project_id.analytic_account_id._origin.id
             )
 
     # --- budget_unique_analytic_id (shortcut to set line analytic at once on the budget) ---
