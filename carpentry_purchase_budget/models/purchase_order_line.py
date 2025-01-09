@@ -5,7 +5,7 @@ from collections import defaultdict
 
 class PurchaseOrderLine(models.Model):
     _inherit = ['purchase.order.line']
-
+    
     project_id = fields.Many2one(
         related='order_id.project_id',
         store=True
@@ -62,14 +62,6 @@ class PurchaseOrderLine(models.Model):
     #                 analytics=to_verify.mapped('name')
     #             ))
 
-    #====== CRUD ======#
-    @api.model_create_multi
-    def create(self, vals_list):
-        """ Apply Project analytic by default to new line """
-        lines = super().create(vals_list)
-        lines.order_id._onchange_project_id()
-        return lines
-
     #====== Compute ======#
     @api.depends('analytic_distribution')
     def _compute_analytic_ids(self):
@@ -78,6 +70,12 @@ class PurchaseOrderLine(models.Model):
             new_distrib = line.analytic_distribution
             line.analytic_ids = new_distrib and [Command.set([int(x) for x in new_distrib.keys()])]
 
+    @api.depends('order_id.project_id')
+    def _compute_analytic_distribution(self):
+        """ Apply to line's analytic the purchase order's project analytic """
+        self.order_id._onchange_project_id()
+        return super()._compute_analytic_distribution()
+    
     #===== Business logics =====#
     def _replace_analytic(self, replaced_ids, added_id):
         """ Called from Purchase Order
@@ -87,8 +85,9 @@ class PurchaseOrderLine(models.Model):
         vals_added = {added_id: 100} if added_id else {}
 
         for line in self:
-            kept = {} if not line.analytic_distribution else {
-                k: v for k, v in line.analytic_distribution.items()
-                if int(k) not in replaced_ids
-            }
-            line.analytic_distribution = kept | vals_added
+            if not line.display_type:
+                kept = {} if not line.analytic_distribution else {
+                    k: v for k, v in line.analytic_distribution.items()
+                    if int(k) not in replaced_ids
+                }
+                line.analytic_distribution = kept | vals_added

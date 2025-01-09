@@ -7,6 +7,12 @@
         <field name="inherit_id" ref="hr_timesheet_sheet.hr_timesheet_sheet_form"/>
 
         <field name="arch" type="xml">
+            <!-- Add `Analytic` filter between Project & Task -->
+            <field name="add_line_project_id" position="after">
+                <field name="add_line_analytic_id" />
+            </field>
+
+            <!-- *** 'Details' tab *** -->
             <!-- Order `timesheet_ids` by date (like in Task view) -->
             <xpath expr="//field[@name='timesheet_ids']/tree" position="attributes">
                 <attribute name="default_order">date</attribute>

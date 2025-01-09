@@ -16,6 +16,11 @@
         groups="hr_timesheet.group_hr_timesheet_user"
     />
 
+    <!-- Base `My Tasks` action: don't show timesheetable tasks -->
+    <record id="project.action_view_all_task" model="ir.actions.act_window">
+        <field name="domain">[('allow_timesheets', '=', False)]</field>
+    </record>
+
 
     <!-- BASE TASK VIEWS (modified) -->
     <!-- Task Kanban (view) -> **all** tasks, alter `planned_hours` widget and add `performance` widget -->

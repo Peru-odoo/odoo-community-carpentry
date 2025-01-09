@@ -31,7 +31,7 @@
         <field name="res_model">carpentry.position.budget</field>
         <field name="view_mode">tree,pivot,form</field>
         <field name="domain">[('position_id', '=', active_id)]</field>
-        <field name="domain">[('default_position_id', '=', active_id)]</field>
+        <field name="context">[('default_position_id', '=', active_id)]</field>
     </record>
 
     <!-- Menu : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
