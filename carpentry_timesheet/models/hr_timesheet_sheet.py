@@ -10,6 +10,8 @@ class HrTimesheetSheet(models.Model):
         default=lambda self: self.env['project.default.mixin']._get_project_id(),
     )
     add_line_analytic_id = fields.Many2one(
+        comodel_name='account.analytic.account',
+        string='Budget',
         default=lambda self: self.env.user.employee_id and self.env.user.employee_id._get_analytic_account_id()
     )
 
@@ -25,10 +27,7 @@ class HrTimesheetSheet(models.Model):
             if sheet.add_line_task_id.id and sheet.add_line_task_id.id not in sheet.available_task_ids.ids:
                 sheet.add_line_task_id = False
     
-    @api.depends(
-        'add_line_project_id', 'add_line_analytic_id',
-        'company_id', 'timesheet_ids', 'timesheet_ids.task_id'
-    )
+    @api.depends('add_line_analytic_id')
     def _compute_available_task_ids(self):
         """ Restrict selectable tasks to:
             1. timesheetable

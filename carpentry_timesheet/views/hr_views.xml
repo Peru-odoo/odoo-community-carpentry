@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <!-- Add `Analytic` filter between Project & Task -->
             <field name="add_line_project_id" position="after">
-                <field name="add_line_analytic_id" />
+                <field name="add_line_analytic_id" domain="[('budget_project_ids', '=', add_line_project_id)]" />
             </field>
 
             <!-- *** 'Details' tab *** -->

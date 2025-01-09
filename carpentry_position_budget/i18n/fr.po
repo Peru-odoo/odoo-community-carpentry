@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-06 17:13+0000\n"
-"PO-Revision-Date: 2025-01-06 19:06+0100\n"
+"POT-Creation-Date: 2025-01-09 20:07+0000\n"
+"PO-Revision-Date: 2025-01-09 21:08+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -40,7 +40,7 @@ msgstr ""
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "<span>h</span>"
-msgstr "<span>h</span>"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_position_analytic
@@ -48,9 +48,24 @@ msgid "A position cannot receive twice a budget from the same analytic account."
 msgstr "Un repère ne peut pas recevoir deux fois un budget du même compte analytique."
 
 #. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_account_move_budget_line
+msgid "Account Move Budget Line"
+msgstr "Ligne de budget comptable"
+
+#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_import_interface_search
 msgid "Active"
 msgstr "Actif"
+
+#. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_position_tree
+msgid "Add budget"
+msgstr "Ajouter un budget"
+
+#. module: carpentry_position_budget
+#: model:ir.actions.act_window,name:carpentry_position_budget.action_open_position_budget_add
+msgid "Add budget to positions"
+msgstr "Budgets du repère"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__column_mode__all
@@ -63,6 +78,7 @@ msgid "All columns, but some listed"
 msgstr "Toutes les colonnes, sauf celles listées"
 
 #. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_account_analytic_account
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid "Analytic Account"
 msgstr "Compte analytique"
@@ -86,10 +102,9 @@ msgid "Are you sure? This will keep positions, but empty their budgets."
 msgstr "Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budgets seront vidés."
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_id
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_main_budget model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Budget"
-msgstr "Budget"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id
@@ -114,6 +129,7 @@ msgid "Budget interface with external database"
 msgstr "Interface base de données externe (budget)"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
 msgid "Budget type"
@@ -122,7 +138,7 @@ msgstr "Type de budget"
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_budget_mixin
 msgid "Carpentry Group Budget Mixin"
-msgstr "Carpentry Group Budget Mixin"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position_budget_import_wizard
@@ -135,6 +151,11 @@ msgstr "Assistant d'import de budget des repères"
 #, python-format
 msgid "Column %s was added to the import interface with External Database as ignored by default."
 msgstr "La colonne %s a été ajoutée à l'interface d'import en mode ignorée par défaut."
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__company_id
+msgid "Company"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -178,6 +199,16 @@ msgid "Database: .MDB or SQLite"
 msgstr "Base de données : MDB et SQLite"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_move_budget_line__debit
+msgid "Debit"
+msgstr "Débit"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_move_budget_line__qty_debit
+msgid "Debit (qty)"
+msgstr "Débit (qté)"
+
+#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_position_merge_wizard
 msgid "Discard"
@@ -194,7 +225,7 @@ msgstr "Nom affiché"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Documentation"
-msgstr "Documentation"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_position_tree
@@ -251,12 +282,12 @@ msgstr "Fournitures"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_merge_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__iso-8859-1
 msgid "ISO-8859-1"
-msgstr "ISO-8859-1"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__active
@@ -271,7 +302,7 @@ msgstr "Impact des changements dans la configuration de l'interface"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Import"
-msgstr "Import"
+msgstr ""
 
 #. module: carpentry_position_budget
 #. odoo-javascript
@@ -328,7 +359,7 @@ msgstr "Automatique"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_lot__external_db_guid
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__external_db_guid
 msgid "Last External DB ID"
-msgstr "Last External DB ID"
+msgstr "Dernier identifiant de la base"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget____last_update
@@ -362,12 +393,12 @@ msgstr "Lancement"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__lot_id
 msgid "Lot"
-msgstr "Lot"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_lot
 msgid "Lots"
-msgstr "Lots"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -429,7 +460,7 @@ msgstr "Orgadonnées"
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_phase
 msgid "Phase"
-msgstr "Phase"
+msgstr ""
 
 #. module: carpentry_position_budget
 #. odoo-python
@@ -509,6 +540,7 @@ msgid "Production"
 msgstr "Fabrication"
 
 #. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__project_id
@@ -523,7 +555,7 @@ msgstr "Projet"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_merge_wizard__project_id_domain
 msgid "Project Id Domain"
-msgstr "Project Id Domain"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__project_global_cost
@@ -617,7 +649,7 @@ msgstr "A utiliser ?"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_total
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Total"
-msgstr "Total"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -627,7 +659,7 @@ msgstr "Vider le budget"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Type"
-msgstr "Type"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__external_db_type
@@ -638,12 +670,12 @@ msgstr "Type de base de données externe"
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__utf-16
 msgid "UTF-16"
-msgstr "UTF-16"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__encoding__utf-8
 msgid "UTF-8"
-msgstr "UTF-8"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
