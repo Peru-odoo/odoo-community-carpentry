@@ -93,12 +93,14 @@ class Project(models.Model):
 
         # Compute project-level budgets
         fix_budget_types = {
-            'budget_office': 'service',
-            'budget_global_cost': 'project_global_cost'
+            # Office: budget in 'qty_debit' in (h) while Global Cost: budget in 'debit' (or 'balance') in €
+            'budget_office': ('service', 'qty_debit'),
+            'budget_global_cost': ('project_global_cost', 'balance')
         }
         for project in self:
-            for field, budget_type in fix_budget_types.items():
-                project[field] = sum(project.budget_line_ids.filtered(lambda x: x.budget_type == budget_type))
+            for field, (budget_type, budget_field) in fix_budget_types.items():
+                lines = project.budget_line_ids.filtered(lambda x: x.budget_type == budget_type)
+                project[field] = sum(lines.mapped(budget_field))
 
     #===== Compute/Populate: account_move_budget_line =====#
     def _populate_account_move_budget_line(self):
