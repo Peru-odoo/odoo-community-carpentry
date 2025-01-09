@@ -10,7 +10,7 @@ class HrTimesheetSheet(models.Model):
         default=lambda self: self.env['project.default.mixin']._get_project_id(),
     )
     add_line_analytic_id = fields.Many2one(
-        default=lambda self: self.env.user.employee_id._get_analytic_account_id()
+        default=lambda self: self.env.user.employee_id and self.env.user.employee_id._get_analytic_account_id()
     )
 
     #===== Compute / onchange =====#
@@ -26,7 +26,7 @@ class HrTimesheetSheet(models.Model):
                 sheet.add_line_task_id = False
     
     @api.depends(
-        'add_line_project_id', # , 'add_line_analytic_id'
+        'add_line_project_id', 'add_line_analytic_id',
         'company_id', 'timesheet_ids', 'timesheet_ids.task_id'
     )
     def _compute_available_task_ids(self):
@@ -42,7 +42,7 @@ class HrTimesheetSheet(models.Model):
         domain = [('allow_timesheets', '=', True)]
 
         if self.add_line_analytic_id:
-            domain += [('analytic_account_id', '=', self.add_line_analytic_id._origin.id)]
+            domain += [('analytic_account_id', 'in', self.add_line_analytic_id.ids)]
 
         if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):
             domain += ['|', '|',
