@@ -82,7 +82,7 @@ class Task(models.Model):
         for task in self:
             # (i) `date_end` is `datetime` while `date_deadline` is `date`
             date_end_or_today = bool(task.date_end) and task.date_end.date() or fields.Date.today()
-            task.is_late = bool(task.date_deadline) and date_end_or_today.date() > task.date_deadline         
+            task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline
 
     @api.depends('create_date')
     def _compute_create_date_week(self):
