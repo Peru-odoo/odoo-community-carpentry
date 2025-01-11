@@ -87,7 +87,8 @@ class Task(models.Model):
     @api.depends('create_date')
     def _compute_create_date_week(self):
         for task in self:
-            task.create_date_week = bool(task.create_date) and _('W') + str(task.create_date.isocalendar()[1])
+            date = task.create_date
+            task.create_date_week = bool(date) and _('W%s') % str(date.isocalendar()[1])
 
     #===== Buttons / action =====#
     def button_toggle_done(self):

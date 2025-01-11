@@ -10,6 +10,10 @@ class PurchaseOrder(models.Model):
     _rec_name = 'display_name'
 
     #====== Fields ======#
+    project_id = fields.Many2one(
+        # required on the view. Must not be in ORM because of replenishment (stock.warehouse.orderpoint)
+        required=False
+    )
     description = fields.Char(
         string='Description'
     )

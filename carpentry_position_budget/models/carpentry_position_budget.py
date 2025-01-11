@@ -28,7 +28,10 @@ class CarpentryPositionBudget(models.Model):
         ondelete='restrict',
         index='btree_not_null',
         help='Used to rapproach incomes, charges and budget in accounting reports.',
-        domain="['|', ('company_id', '=', company_id), ('company_id', '=', False)]"
+        domain="""[
+            ('is_project_budget', '=', True),
+            '|', ('company_id', '=', company_id), ('company_id', '=', False)
+        ]"""
     )
     # for search view
     lot_id = fields.Many2one(

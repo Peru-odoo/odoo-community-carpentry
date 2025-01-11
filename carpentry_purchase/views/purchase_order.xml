@@ -51,7 +51,7 @@
             <!-- Add `Project` -->
             <field name="partner_id" position="before">
                 <field name="project_id_domain" invisible="1" />
-                <field name="project_id" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
+                <field name="project_id" required="True" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
             </field>
         </field>
     </record>

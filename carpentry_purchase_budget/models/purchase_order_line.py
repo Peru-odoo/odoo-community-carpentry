@@ -73,8 +73,9 @@ class PurchaseOrderLine(models.Model):
     @api.depends('order_id.project_id')
     def _compute_analytic_distribution(self):
         """ Apply to line's analytic the purchase order's project analytic """
+        res = super()._compute_analytic_distribution()
         self.order_id._onchange_project_id()
-        return super()._compute_analytic_distribution()
+        return res
     
     #===== Business logics =====#
     def _replace_analytic(self, replaced_ids, added_id):

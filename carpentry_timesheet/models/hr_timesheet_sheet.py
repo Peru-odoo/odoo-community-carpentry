@@ -12,9 +12,10 @@ class HrTimesheetSheet(models.Model):
     add_line_analytic_id = fields.Many2one(
         comodel_name='account.analytic.account',
         string='Budget',
-        default=lambda self: self.env.user.employee_id and self.env.user.employee_id._get_analytic_account_id()
+        default=lambda self: self.env.user.employee_id and self.env.user.employee_id._get_analytic_account_id(),
+        domain="[('timesheetable', '=', True), ('budget_project_ids', '=', add_line_project_id)]"
     )
-
+    
     #===== Compute / onchange =====#
     @api.onchange('add_line_project_id', 'add_line_task_id')
     def _onchange_task_consistency(self):

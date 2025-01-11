@@ -11,7 +11,7 @@
             <field name="name">Needs (Method)</field>
             <field name="code">need_method</field>
             <field name="parent_id" ref="carpentry_planning_task_need.task_type_need" />
-            <field name="role_id" ref="carpentry_planning_task_need.project_role_project" />
+            <!-- <field name="role_id" ref="carpentry_planning_task_need.project_role_project" /> -->
             <field name="project_ok">False</field>
             <field name="task_ok">False</field>
         </record>
@@ -19,7 +19,7 @@
             <field name="name">Needs (Construction site)</field>
             <field name="code">need_construction</field>
             <field name="parent_id" ref="carpentry_planning_task_need.task_type_need" />
-            <field name="role_id" ref="carpentry_planning_task_need.project_role_construction_manager" />
+            <!-- <field name="role_id" ref="carpentry_planning_task_need.project_role_construction_manager" /> -->
             <field name="project_ok">False</field>
             <field name="task_ok">False</field>
         </record>

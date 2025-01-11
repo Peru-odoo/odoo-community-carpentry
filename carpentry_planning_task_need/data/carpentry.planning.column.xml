@@ -1,18 +1,6 @@
 <?xml version="1.0"?>
 <odoo>
     <data noupdate="1">
-        <record id="planning_column_production" model="carpentry.planning.column">
-            <field name="name">Production</field>
-            <!-- TODO: à remplacer par les OFs (fake data) -->
-            <field name="sticky">True</field>
-            <field name="res_model_id" ref="carpentry_position.model_carpentry_position" />
-            <!-- Suite ok -->
-            <field name="sequence">50</field>
-            <field name="fold">False</field>
-            <field name="icon">fa fa-industry</field>
-            <field name="can_open">True</field>
-        </record>
-
         <record id="planning_column_need_method" model="carpentry.planning.column">
             <field name="name">Needs (Method)</field>
             <field name="sticky">True</field>
@@ -23,7 +11,7 @@
             <field name="fold">False</field>
             <field name="icon">fa fa-eye</field>
             <field name="can_open">False</field>
-            <field name="column_id_need_date" ref="carpentry_planning_task_need.planning_column_production" />
+            <!-- <field name="column_id_need_date" ref="carpentry_planning_task_need.planning_column_production" /> -->
         </record>
 
         <record id="planning_column_need_construction" model="carpentry.planning.column">

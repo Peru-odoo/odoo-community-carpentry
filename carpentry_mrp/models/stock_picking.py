@@ -20,8 +20,9 @@ class StockPicking(models.Model):
     def _compute_production_id(self):
         for picking in self:
             moves = picking.move_ids
-            picking.production_id = (
+            production_id = (
                 moves.production_id or
                 moves.raw_material_production_id or
                 moves.created_production_id
             )
+            picking.production_id = len(production_id) == 1 and production_id

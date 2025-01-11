@@ -133,11 +133,12 @@ class Task(models.Model):
             ('type', '=', 'start')
         ]
         milestone_ids = self.env['carpentry.planning.milestone'].sudo().search(domain)
-        mapped_date_start = {
-            (x.launch_id.id, x.column_id.id):
-            x.column_id.column_id_need_date.date if x.column_id.column_id_need_date.id else x.date
-            for x in milestone_ids
-        }
+        mapped_date_start = {}
+        for x in milestone_ids:
+            key = (x.launch_id.id, x.column_id.id)
+            column_date = x.column_id.column_id_need_date
+            milestone = milestone_ids.filtered(lambda x: x.column_id == column_date) if column_date else x
+            mapped_date_start[key] = milestone.date
 
         # Compute `date_deadline`
         for task in self:

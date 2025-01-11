@@ -17,10 +17,11 @@
         'project_favorite_switch', # other
         'carpentry_base', 'carpentry_planning', 'carpentry_position', # carpentry
     ],
-
+    
+    'demo': [
+        'demo/carpentry.planning.column.xml',
+    ],
     'data': [
-        # data
-        'data/carpentry.planning.column.xml',
         # security
         'security/carpentry_design_security.xml',
         'security/ir.model.access.csv',

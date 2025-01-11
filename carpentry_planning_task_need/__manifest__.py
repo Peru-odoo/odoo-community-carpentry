@@ -17,7 +17,7 @@
         'carpentry_base', 'carpentry_planning_task_type' # carpentry
     ],
     'data': [
-        # data
+        # default conf (required XML-ID)
         'data/project.type.xml',
         'data/carpentry.planning.column.xml',
         'data/carpentry.planning.milestone.type.xml',

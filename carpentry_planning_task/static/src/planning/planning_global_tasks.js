@@ -21,7 +21,8 @@ export class PlanningGlobalTasks extends Component {
         const domain = [
             ['project_id', '=', this.projectId],
             ['launch_ids', '=', false],
-            ['root_type_id', '=', false]
+            ['root_type_id', '=', false],
+            ['allow_timesheets', '=', false]
         ]
         const context = {
             'default_project_id': this.projectId,
@@ -33,6 +34,7 @@ export class PlanningGlobalTasks extends Component {
                 'top-left': false, // title ||| TODO: customizer le titre plutôt que de l'effacer
                 'top-right': true, // SearchPanel
                 'bottom-left': true, // buttons
+                'bottom-left-buttons': true, // dropdown action button
                 'bottom-right': true, // searchMenuTypes
             }
         }
@@ -43,6 +45,7 @@ export class PlanningGlobalTasks extends Component {
             display,
             domain,
             context,
+            loadActionMenus: true,
             useSampleModel: false
         };
 

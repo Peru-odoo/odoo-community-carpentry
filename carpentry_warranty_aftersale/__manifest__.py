@@ -15,6 +15,10 @@
         'carpentry_base',
         'project_children_sequence', # carpentry
     ],
+    'demo': [
+        'demo/account.analytic.plan.csv',
+        'demo/account.analytic.account.csv',
+    ],
     'data': [
         # data
         # views
