@@ -18,10 +18,9 @@
         'project_task_analytic_hr', # for default type
         'carpentry_base', 'carpentry_planning_task', # carpentry
     ],
-    'demo': [
-        'demo/project.type.xml',
-    ],
     'data': [
+        # conf (mandatory data)
+        'data/project.type.xml',
         # report
         'report/task_report.xml',
         # views
