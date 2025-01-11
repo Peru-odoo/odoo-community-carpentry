@@ -15,6 +15,7 @@ class ProjectType(models.Model):
         compute='_compute_column_id',
         store=True,
         required=False,
+        readonly=False,
         ondelete='set null',
         recursive=True
     )
@@ -45,23 +46,8 @@ class ProjectType(models.Model):
         
         # Set new
         if column_id.identifier_ref:
-            column_id.identifier_ref.column_id = column_id
+            column_id.identifier_ref.child_ids.column_id = column_id
 
-        
-    identifier_res_id = fields.Many2oneReference(
-        model_field='identifier_res_model',
-        string='Identifier ID',
-    )
-    identifier_res_model_id = fields.Many2one(
-        comodel_name='ir.model',
-        string='Identifier Model ID',
-        ondelete='cascade'
-    )
-    identifier_res_model = fields.Char(
-        string='Identifier Model',
-        related='identifier_res_model_id.model',
-    )
-    
     @api.model
     def _get_planning_subheaders(self, column_id, launch_id):
         """ No deadlines nor budgets in Need columns headers """
