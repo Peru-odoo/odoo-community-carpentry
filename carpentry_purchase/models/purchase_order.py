@@ -67,7 +67,6 @@ class PurchaseOrder(models.Model):
     #===== Logics =====#
     def _prepare_picking(self):
         """ Write project from PO to procurement group and picking """
-        vals = super()._prepare_picking()
-
-        self.group_id.project_id = self.project_id # procurement group
-        return vals | {'project_id': self.project_id.id} # picking
+        return super()._prepare_picking() | {
+            'project_id': self.project_id.id
+        }
