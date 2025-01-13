@@ -7,9 +7,13 @@
         <field name="inherit_id" ref="project_budget.view_account_move_budget_line_tree" />
 
         <field name="arch" type="xml">
-            <tree position="inside">
+            <field name="account_id" position="before">
                 <field name="is_computed_carpentry" invisible="1" />
-            </tree>
+                <button icon="fa-lock"
+                    title="Readonly because computed from Positions"
+                    attrs="{'invisible': [('is_computed_carpentry', '=', False)]}"
+                />
+            </field>
 
             <!-- Make all fields READONLY if computed line from Carpentry Budget -->
             <field name="type" position="attributes">

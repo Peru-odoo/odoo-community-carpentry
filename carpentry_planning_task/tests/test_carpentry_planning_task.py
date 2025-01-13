@@ -40,10 +40,10 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
     #===== carpentry.planning.task =====#
     def test_05_planning_search_read_extended(self):
         """ Test trick of appending fake task fields to `carpentry_planning_column.read_group` result
-            Reminder: if `search_read` don't find a domain part with `launch_ids`, it returns []
+            Reminder: if `search_read` don't find a domain part with `launch_id`, it returns []
         """
         res = self.Card.search_read(
-            domain=[('launch_ids', '=', self.project.launch_ids.ids[0])],
+            domain=[('launch_id', '=', self.project.launch_id.ids[0])],
             fields=['res_id'],
         )
         self.assertTrue(len(res))
@@ -52,9 +52,9 @@ class TestCarpentryPlanningTask(TestCarpentryPlanning):
         self.assertTrue(all([field in res[0] for field in fields_list]))
 
     def test_06_planning_action_open_task(self):
-        cards = self.Card.search([('launch_ids', '=', self.project.launch_ids.ids[0])])
+        cards = self.Card.search([('launch_id', '=', self.project.launch_id.ids[0])])
         card = fields.first(cards).with_context({
             'project_id': self.project.id,
-            'launch_id': self.project.launch_ids[0].id,
+            'launch_id': self.project.launch_id.id,
         })
         self.assertEqual(card.action_open_tasks().get('name'), card.display_name)

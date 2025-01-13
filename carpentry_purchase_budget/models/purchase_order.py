@@ -21,12 +21,6 @@ class PurchaseOrder(models.Model):
         store=True,
         readonly=False
     )
-    launch_ids = fields.Many2many(
-        comodel_name='carpentry.group.launch',
-        relation='purchase_order_launch_rel',
-        string='Launches',
-        domain="[('project_id', '=', project_id)]",
-    )
     
     # -- ui/logic fields --
     budget_analytic_ids = fields.Many2many(
@@ -49,18 +43,6 @@ class PurchaseOrder(models.Model):
     warning_budget = fields.Boolean(
         compute='_compute_warning_budget'
     )
-
-    #===== Constrain =====#
-    @api.constrains('project_id', 'launch_ids')
-    def _constrain_launch_ids(self):
-        """ Launch_ids must belong to the project
-            (a discrepency could happen since `project_id` is writable)
-        """
-        for purchase in self:
-            if any(x.project_id != purchase.project_id for x in purchase.launch_ids):
-                raise exceptions.ValidationError(_(
-                    'The launches must belong to the project.'
-                ))
 
     #====== Affectation refresh ======#
     @api.depends('launch_ids', 'order_line', 'order_line.analytic_distribution')
@@ -125,17 +107,6 @@ class PurchaseOrder(models.Model):
         for purchase in self:
             compare = float_compare(purchase.amount_untaxed, purchase.sum_quantity_affected, precision_digits=prec)
             purchase.warning_budget = purchase.state in states and compare != 0
-    
-    # --- project_id (shortcut to set line analytic at once on the project) ---
-    @api.onchange('project_id')
-    def _onchange_project_id(self):
-        """ Modify all lines analytic at once """
-        project_analytics = self.env.company.analytic_plan_id.account_ids
-        for purchase in self:
-            purchase.order_line._replace_analytic(
-                replaced_ids=project_analytics._origin.ids,
-                added_id=purchase.project_id.analytic_account_id._origin.id
-            )
 
     # --- budget_unique_analytic_id (shortcut to set line analytic at once on the budget) ---
     def _inverse_budget_unique_analytic_id(self):

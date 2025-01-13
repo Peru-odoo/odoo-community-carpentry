@@ -26,12 +26,8 @@ class Task(models.Model):
         string='Planning Card Model Name',
         related='card_res_model_id.model',
     )
-    launch_ids = fields.Many2many(
+    launch_id = fields.Many2one(
         comodel_name='carpentry.group.launch',
-        relation='carpentry_task_rel_launch',
-        column1='task_id',
-        column2='launch_id',
-        string='Launches',
         domain="[('project_id', '=', project_id)]"
     )
 
@@ -158,5 +154,5 @@ class Task(models.Model):
 
     #===== Task copy =====#
     def _fields_to_copy(self):
-        return super()._fields_to_copy() | ['card_res_id', 'card_res_model', 'launch_ids']
+        return super()._fields_to_copy() | ['card_res_id', 'card_res_model']
     

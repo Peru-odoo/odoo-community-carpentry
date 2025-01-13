@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, exceptions
 
 class AccountMoveBudgetLine(models.Model):
     _inherit = ["account.move.budget.line"]
@@ -28,6 +28,19 @@ class AccountMoveBudgetLine(models.Model):
         readonly=False
     )
 
+    #===== Constrain =====#
+    @api.ondelete(at_uninstall=False)
+    def _unlink_except_not_computed_carpentry(self):
+        if self._context.get('unlink_line_no_raise'):
+            return
+        
+        if self.filtered(lambda x: x.is_computed_carpentry):
+            raise exceptions.ValidationError(
+                _('Budget lines computed from Positions cannot be removed (%s)')
+                % self.analytic_account_id.mapped('display_name')
+            )
+
+    #===== Compute =====#
     @api.depends(
         # 1. positions' budgets
         'project_id.position_budget_ids',

@@ -54,8 +54,8 @@
                 <field name="launch_ids" widget="many2many_tags" />
             </field>
 
-            <!-- Add `Budget` notebook tab -->
             <page name="products" position="after">
+                <!-- Add `Budget` notebook tab -->
                 <page name="budget" string="Budget reservation">
                     <field name="readonly_affectation" invisible="1" />
                     
@@ -143,6 +143,7 @@
 
                 </page>
             </page>
+
         </field>
     </record>
 

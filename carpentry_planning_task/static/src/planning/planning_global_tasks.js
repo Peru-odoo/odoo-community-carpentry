@@ -20,7 +20,7 @@ export class PlanningGlobalTasks extends Component {
     get globalTasksViewProps() {
         const domain = [
             ['project_id', '=', this.projectId],
-            ['launch_ids', '=', false],
+            ['launch_id', '=', false],
             ['root_type_id', '=', false],
             ['allow_timesheets', '=', false]
         ]

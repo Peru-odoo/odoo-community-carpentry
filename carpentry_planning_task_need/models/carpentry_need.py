@@ -80,5 +80,5 @@ class CarpentryNeed(models.Model):
             'need_id': self.id,
             'type_deadline': 'computed',
             'user_ids': [Command.clear()],
-            'launch_ids': [Command.set([launch.id])],
+            'launch_id': launch.id,
         }

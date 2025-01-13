@@ -150,6 +150,7 @@
                         <h1> <field name="name" placeholder="Name" /> </h1>
                     </div>
                     
+                    <!-- See `carpentry_purchase_budget` for 'carpentry_planning' ctx -->
                     <group name="affectation" col="12" invisible="context.get('carpentry_planning')">
                         <!-- Left: Affectation shortcut -->
                         <group name="left" colspan="3">
@@ -250,7 +251,7 @@
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
-            <!-- Butonn & section name -->
+            <!-- Button & section name -->
             <button name="toggle_readonly_affectation" position="attributes">
                 <attribute name="string">Edit Linked Phases</attribute>
             </button>

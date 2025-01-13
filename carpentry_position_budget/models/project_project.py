@@ -122,7 +122,12 @@ class Project(models.Model):
 
         # Delete lines without budget anymore from positions
         domain_unlink = [('analytic_account_id', 'in', to_remove.ids)]
-        self.budget_line_ids.filtered_domain(domain_unlink).sudo().unlink()
+        lines_unlink = self.budget_line_ids.filtered_domain(domain_unlink)
+        lines_unlink.sudo().with_context(unlink_line_no_raise=True).unlink()
+
+        # print('to_add', to_add)
+        # print('to_remove', to_remove)
+        # print('domain_unlink', domain_unlink)
 
         # Add new lines, if new budget
         vals_list = [{

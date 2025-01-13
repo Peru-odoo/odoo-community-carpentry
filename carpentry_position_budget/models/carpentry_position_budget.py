@@ -236,6 +236,8 @@ class CarpentryPositionBudget(models.Model):
         # Get unitary budget
         brut_unitary, valued_unitary = self._get_position_unitary_budget(groupby_budget)
 
+        # print('brut_unitary', brut_unitary)
+
         # Sumprod unitary_budget * quantities, per item of `quantities` (~affectation) and group the result per `groupby_group`
         brut_subtotal = self._compute_subtotal_and_group(brut_unitary, quantities, groupby_group)
         valued_subtotal = self._compute_subtotal_and_group(valued_unitary, quantities, groupby_group)

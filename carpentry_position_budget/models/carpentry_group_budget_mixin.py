@@ -61,6 +61,7 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
+        # print('brut', brut)
         self.budget_prod = self.sudo()._get_budget_one(brut, 'production')
         self.budget_install = self.sudo()._get_budget_one(brut, 'installation')
         self.budget_goods = self.sudo()._get_budget_one(valued, 'goods')

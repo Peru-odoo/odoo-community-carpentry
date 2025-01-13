@@ -52,13 +52,6 @@ class Task(models.Model):
         related='need_id.deadline_week_offset', 
         store=True
     )
-    launch_id = fields.Many2one(
-        comodel_name='carpentry.group.launch',
-        compute='_compute_launch_id',
-        inverse='_inverse_launch_id',
-        required=True,
-        domain="[('project_id', '=', project_id)]"
-    )
 
     #===== Constrains =====#
     @api.ondelete(at_uninstall=False)
@@ -82,15 +75,6 @@ class Task(models.Model):
                 _("Cannot change a Need Category of the Task once it is created.")
             )
 
-    @api.depends('type_id', 'launch_ids')
-    def _constrain_single_launch_ids(self):
-        """ Task of `type=need` are affected to a single launch only """
-        for task in self._filter_needs():
-            if len(task.launch_ids.ids) != 1:
-                raise exceptions.ValidationError(
-                    _("Tasks of type 'Need' can be affected to a single launch only.")
-                )
-
     #===== Compute `res_id` and `res_model_id` ======#
     @api.depends('type_id', 'need_id')
     def _compute_card_res_id(self):
@@ -103,13 +87,6 @@ class Task(models.Model):
     def _get_name_required_type_list(self):
         return super()._get_name_required_type_list() + [self.env.ref(XML_ID_NEED).id]
 
-    def _compute_launch_id(self):
-        for task in self:
-            task.launch_id = fields.first(task.launch_ids)
-    def _inverse_launch_id(self):
-        for task in self:
-            task.launch_ids = [Command.set(task.launch_id.ids)]
-
     #===== Compute & onchange: user_ids, deadline =====#
     @api.onchange('user_ids')
     def _onchange_user_ids(self):
@@ -119,17 +96,17 @@ class Task(models.Model):
     
     @api.depends(
         'type_id', 'deadline_week_offset',
-        'launch_ids', 'launch_ids.milestone_ids', 'launch_ids.milestone_ids.date'
+        'launch_id', 'launch_id.milestone_ids', 'launch_id.milestone_ids.date'
     )
     def _compute_date_deadline(self):
-        """ Compute `date_deadline = launch_ids."date_[prod/install]_start" - deadline_week_offset` """
+        """ Compute `date_deadline = launch_id."date_[prod/install]_start" - deadline_week_offset` """
         self = self._filter_needs()
         if not self.ids: # perf optim
             return
         
         # Get milestones date
         domain = [
-            ('launch_id', 'in', self.launch_ids.ids),
+            ('launch_id', 'in', self.launch_id.ids),
             ('type', '=', 'start')
         ]
         milestone_ids = self.env['carpentry.planning.milestone'].sudo().search(domain)

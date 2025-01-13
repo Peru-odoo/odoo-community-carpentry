@@ -16,11 +16,12 @@
         'project', 'purchase', # odoo
         'project_purchase_link', #OCA
         'project_favorite_switch', # other
-        'carpentry_base', # carpentry
+        'carpentry_base', 'carpentry_planning_task_need', # carpentry
     ],
     'data': [
         # data
         'views/project_project.xml',
+        'views/carpentry_group_launch.xml',
         'views/project_purchase_link.xml',
         'views/purchase_order.xml',
     ]

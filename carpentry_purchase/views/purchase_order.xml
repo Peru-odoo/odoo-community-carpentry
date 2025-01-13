@@ -53,6 +53,14 @@
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" required="1" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
             </field>
+
+            
+            <!-- Add `Tasks` (needs) notebook tab -->
+            <page name="purchase_delivery_invoice" position="before">
+                <page name="needs" string="Needs">
+                    <field name="task_ids" context="{'default_project_id': project_id}" />
+                </page>
+            </page>
         </field>
     </record>
 

@@ -121,7 +121,7 @@ class CarpentryNeedFamily(models.Model):
         ]
         task_ids = self.env['project.task'].search(domain_task)
         existing_tuples = set([
-            (fields.first(task.launch_ids), task.need_id) # fields.first() because tasks of type need have only 1 launch
+            (task.launch_id, task.need_id)
             for task in task_ids
         ])
 
@@ -137,7 +137,7 @@ class CarpentryNeedFamily(models.Model):
 
         # 2. Delete tasks if a need were removed (only non-converted need)
         to_delete = task_ids.filtered(lambda task: (
-            (fields.first(task.launch_ids), task.need_id) in (existing_tuples - target_tuples)
+            (task.launch_id, task.need_id) in (existing_tuples - target_tuples)
         ))
         to_delete.with_context(force_delete=True).unlink()
 

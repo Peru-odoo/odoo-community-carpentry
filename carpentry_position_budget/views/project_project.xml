@@ -61,15 +61,25 @@
                         context="{'display_short_name': 1, 'default_project_id': id}"
                     >
                         <tree editable="top">
+                            <field name="is_computed_carpentry" invisible="1" />
                             <field name="project_id" invisible="1" />
                             <field name="budget_id" invisible="1" />
                             <field name="date" invisible="1" />
                             <field name="analytic_account_id_domain" invisible="1" />
                             <field name="company_currency_id" invisible="1" />
 
+                            <button icon="fa-lock"
+                                title="Readonly because computed from Positions"
+                                attrs="{'invisible': [('is_computed_carpentry', '=', False)]}"
+                            />
                             <field name="budget_type" string="Type" />
-                            <field name="analytic_account_id" string="Budget" options="{'no_create_edit': 1}" />
-                            <field name="qty_debit" string="Quantity" />
+                            <field name="analytic_account_id" string="Budget"
+                                options="{'no_create_edit': 1}"
+                                attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
+                            />
+                            <field name="qty_debit" string="Quantity"
+                                attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
+                            />
                             <field name="balance" string="Total" />
                         </tree>
                     </field>

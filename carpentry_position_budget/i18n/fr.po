@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-09 20:07+0000\n"
-"PO-Revision-Date: 2025-01-09 21:08+0100\n"
+"POT-Creation-Date: 2025-01-11 23:33+0000\n"
+"PO-Revision-Date: 2025-01-12 00:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -129,6 +129,13 @@ msgid "Budget interface with external database"
 msgstr "Interface base de données externe (budget)"
 
 #. module: carpentry_position_budget
+#. odoo-python
+#: code:addons/carpentry_position_budget/models/account_move_budget_line.py:0
+#, python-format
+msgid "Budget lines computed from Positions cannot be removed (%s)"
+msgstr "Les lignes de budgets calculées depuis les Repères ne peuvent pas être supprimées (%s)"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
@@ -155,7 +162,7 @@ msgstr "La colonne %s a été ajoutée à l'interface d'import en mode ignorée 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__company_id
 msgid "Company"
-msgstr ""
+msgstr "Société"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -455,7 +462,7 @@ msgstr "Seulement les colonnes listées, ignorer les autres"
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__external_db_type__orgadata
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_interface__external_db_type__orgadata
 msgid "Orgadata"
-msgstr "Orgadonnées"
+msgstr "Orgadata"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_phase

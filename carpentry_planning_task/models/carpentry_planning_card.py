@@ -79,7 +79,7 @@ class CarpentryPlanningCard(models.Model):
             return
         
         rg_result = self.env['project.task'].sudo().read_group(
-            domain=[('launch_ids', '=', launch_id)],
+            domain=[('launch_id', '=', launch_id)],
             groupby=['card_res_model_id', 'card_res_id'],
             fields=['ids:array_agg(id)'],
             lazy=False
@@ -171,8 +171,8 @@ class CarpentryPlanningCard(models.Model):
             ))
         
         return self.env['project.task'].action_open_planning_tree(
-            domain=[('launch_ids', '=', launch_id_)],
-            context={'default_launch_ids': [launch_id_]},
+            domain=[('launch_id', '=', launch_id_)],
+            context={'default_launch_id': launch_id_},
             record_id=self,
             project_id_=project_id_
         )
