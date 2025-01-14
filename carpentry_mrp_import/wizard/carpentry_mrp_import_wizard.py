@@ -17,10 +17,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     #===== Fields =====#
     mode = fields.Selection(
-        selection=[(
+        selection=[
             ('component', 'Components'),
             ('final_product', 'Final products'),
-        )],
+        ],
         required=True,
         string='Import mode'
     )

@@ -64,12 +64,12 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
-        self.budget_office = self.sudo()._get_budget_one(brut, 'office')
-        self.budget_prod = self.sudo()._get_budget_one(brut, 'production')
-        self.budget_install = self.sudo()._get_budget_one(brut, 'installation')
-        self.budget_goods = self.sudo()._get_budget_one(valued, 'goods')
-        self.budget_global_cost = self.sudo()._get_budget_one(valued, 'project_global_cost')
-        self.budget_total = self.sudo()._get_budget_one(valued, ['office', 'production', 'installation', 'goods', 'project_global_cost'])
+        self.budget_office = self._get_budget_one(brut, 'office')
+        self.budget_prod = self._get_budget_one(brut, 'production')
+        self.budget_install = self._get_budget_one(brut, 'installation')
+        self.budget_goods = self._get_budget_one(valued, 'goods')
+        self.budget_global_cost = self._get_budget_one(valued, 'project_global_cost')
+        self.budget_total = self._get_budget_one(valued, ['office', 'production', 'installation', 'goods', 'project_global_cost'])
     
     def _get_budget_one(self, budget, budget_types):
         budget_types = [budget_types] if isinstance(budget_types, str) else budget_types
@@ -98,4 +98,4 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
         
         brut, valued = self._get_budgets_brut_valued()
         for group in self:
-            group._compute_budgets_one(brut, valued)
+            group.sudo()._compute_budgets_one(brut, valued)

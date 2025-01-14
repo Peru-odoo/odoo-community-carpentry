@@ -89,7 +89,7 @@ class CarpentryPositionBudget(models.Model):
             - Goods value is directly in `amount` 
         """
         for budget in self:
-            budget.value = budget._value_amount(budget.amount)
+            budget.value = budget.sudo()._value_amount(budget.amount)
     
     def _value_amount(self, amount):
         self.ensure_one()
