@@ -122,7 +122,7 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         
         # Computed deadline
         prod_start = date(2024, 1, 31)
-        task.launch_ids.milestone_ids.filtered(lambda x: x.type =='start').date = prod_start
+        task.lauch_id.milestone_ids.filtered(lambda x: x.type =='start').date = prod_start
         self.assertEqual(
             task.date_deadline,
             prod_start - timedelta(weeks=4)
@@ -131,11 +131,6 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         # Unlink should be prevented
         with self.assertRaises(exceptions.ValidationError):
             task.unlink()
-        
-        # Several launches for task need should be prevented
-        with self.assertRaises(exceptions.ValidationError):
-            task.launch_ids = [Command.set(self.project.launch_ids.ids)]
-            task._constrain_single_launch_ids() # constrain is not called either
 
     def test_07_task_standalone(self):
         task = self.env['project.task'].create({

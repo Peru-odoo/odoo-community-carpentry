@@ -59,7 +59,7 @@ class Project(models.Model):
     @api.depends('fees_prorata_rate', 'fees_structure_rate', 'market_reviewed', 'budget_line_sum')
     def _compute_budget_fees_and_margins(self):
         for project in self:
-            self._compute_budget_fees_and_margins_one()
+            project._compute_budget_fees_and_margins_one()
         
     def _compute_budget_fees_and_margins_one(self):
         # fees

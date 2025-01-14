@@ -147,7 +147,7 @@ class Task(models.Model):
             For need, add additional `default_xx` keys and context
         """
 
-        if record_id and record_id.id and record_id._name == 'project.type':
+        if record_id and record_id.res_model == 'project.type':
             context |= {
                 'default_parent_type_id': self.env.ref(XML_ID_NEED).id,
                 'default_type_id': record_id.res_id, # card is the need category

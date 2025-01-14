@@ -69,11 +69,6 @@ class Project(models.Model):
         'budget_line_ids.standard_price',
     )
     def _compute_budgets(self):
-        # Ensure budget lines are up-to-date before updating project's totals
-        self.sudo()._populate_account_move_budget_line()
-        self.sudo().budget_line_ids._compute_debit_carpentry() # <-- (!!!) issue comes from here
-        self.sudo().budget_line_ids._compute_debit_credit()
-
         # Compute project-level budgets from budget line
         budget_fields = {
             # field, (budget_type, budget_field)
@@ -84,6 +79,11 @@ class Project(models.Model):
             'budget_global_cost': ('project_global_cost', 'balance')
         }
         for project in self:
+            # Ensure budget lines are up-to-date before updating project's totals
+            project.sudo()._populate_account_move_budget_line()
+            project.sudo().budget_line_ids._compute_debit_carpentry()
+            project.sudo().budget_line_ids._compute_debit_credit()
+
             # from module `project_budget`
             project.budget_total = project.budget_line_sum
 
