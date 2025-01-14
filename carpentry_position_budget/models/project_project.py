@@ -74,9 +74,6 @@ class Project(models.Model):
         self.sudo().budget_line_ids._compute_debit_carpentry() # <-- (!!!) issue comes from here
         self.sudo().budget_line_ids._compute_debit_credit()
 
-        # from module `project_budget`
-        self.budget_total = self.budget_line_sum
-
         # Compute project-level budgets from budget line
         budget_fields = {
             # field, (budget_type, budget_field)
@@ -87,6 +84,9 @@ class Project(models.Model):
             'budget_global_cost': ('project_global_cost', 'balance')
         }
         for project in self:
+            # from module `project_budget`
+            project.budget_total = project.budget_line_sum
+
             for field, (budget_type, budget_field) in budget_fields.items():
                 lines = project.budget_line_ids.filtered(lambda x: x.budget_type == budget_type)
                 project[field] = sum(lines.mapped(budget_field))
