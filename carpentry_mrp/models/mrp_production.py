@@ -12,13 +12,6 @@ class ManufacturingOrder(models.Model):
             mo.display_name = '[{}] {}' . format(self.name, self.description) if self.description else self.name
     
     #===== Fields =====#
-    product_id = fields.Many2one(
-        domain="""[
-            ('type', 'in', ['product', 'consu']),
-            ('production_ok', '=', True),
-            '|', ('company_id', '=', False), ('company_id', '=', company_id)
-        ]"""
-    )
     description = fields.Char(
         string='Description'
     )

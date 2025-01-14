@@ -147,7 +147,10 @@
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
 
                     <div class="oe_title">
-                        <h1> <field name="name" placeholder="Name" /> </h1>
+                        <h1>
+                            <field name="name" invisible="context.get('carpentry_planning')" placeholder="Name" />
+                            <field name="name" invisible="not context.get('carpentry_planning')" readonly="1" />
+                        </h1>
                     </div>
                     
                     <!-- See `carpentry_purchase_budget` for 'carpentry_planning' ctx -->
