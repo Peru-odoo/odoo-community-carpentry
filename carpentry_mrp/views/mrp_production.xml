@@ -4,12 +4,16 @@
     <record id="mrp_production_tree_view" model="ir.ui.view">
         <field name="name">mrp.production.tree.carpentry</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+        <field name="inherit_id" ref="mrp_project_link.mrp_production_tree_view" />
 
         <field name="arch" type="xml">
             <!-- Add `Description` -->
-            <field name="project_id" position="before">
+            <field name="project_id" position="after">
                 <field name="description" />
+            </field>
+            <!-- Add `Launches` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" optional="hide" widget="many2many_tags" />
             </field>
         </field>
     </record>
@@ -18,7 +22,7 @@
     <record id="mrp_production_form_view" model="ir.ui.view">
         <field name="name">mrp.production.form.carpentry</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+        <field name="inherit_id" ref="mrp_project_link.mrp_production_form_view" />
         
         <field name="arch" type="xml">
             <!-- Add `Description` -->
@@ -36,6 +40,11 @@
             <!-- Product -->
             <field name="product_id" position="attributes">
                 <attribute name="options">{'no_create_edit': True}</attribute>
+            </field>
+
+            <!-- Launches -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" optional="hide" widget="many2many_tags" />
             </field>
 
             <!-- MAIN PRODUCT -> SEVERAL PRODUCTS -->
@@ -63,6 +72,11 @@
                     ('description', 'ilike', self),
                     ('origin', 'ilike', self)
                 ]</attribute>
+            </field>
+            
+            <!-- Search by Launches -->
+            <field name="project_id">
+                <field name="launch_ids" />
             </field>
         </field>
     </record>

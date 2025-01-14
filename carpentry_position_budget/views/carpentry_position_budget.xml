@@ -73,8 +73,8 @@
                 <field name="position_id" />
                 <field name="analytic_account_id" />
                 <field name="amount" />
-                <field name="quantity" optional="show" />
-                <field name="value" optional="show" />
+                <field name="quantity" optional="hide" />
+                <field name="value" optional="hide" />
             </tree>
         </field>
     </record>

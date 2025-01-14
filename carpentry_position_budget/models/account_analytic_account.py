@@ -9,7 +9,7 @@ class AccountAnalyticAccount(models.Model):
         selection_add=[
             ('production', 'Production'),
             ('installation', 'Installation'),
-            ('project_global_cost', 'Project global costs'),
+            ('project_global_cost', 'Other cost'),
         ],
         ondelete={
             'production': 'set service',

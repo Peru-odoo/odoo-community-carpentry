@@ -21,7 +21,6 @@ class CarpentryPosition(models.Model):
     budget_subtotal = fields.Monetary(
         string='Sub-total',
         compute='_compute_budgets',
-        store=True,
         currency_field='currency_id',
     )
 

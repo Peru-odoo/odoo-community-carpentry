@@ -17,7 +17,8 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
         cls.project = cls.env['project.project'].create({'name': 'Project Test 001'})
 
         # Products
-        cls.final_product, cls.storable, cls.replacement, cls.ignored, cls.consu = cls.env['product.product'].create([{
+        Product = cls.env['product.product']
+        cls.final_product, cls.storable, cls.replacement, cls.ignored, cls.consu = Product.create([{
             'name': 'Position Final Product Test 001',
             'default_code': False,
         }, {
@@ -32,17 +33,17 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
             'name': 'Ignored',
             'default_code': '236253',
             'type': 'product',
-            'purchase_ok': False,
+            'active': False,
         }, {
             'name': 'Consummable',
             'default_code': '269510',
             'type': 'consu',
         }])
-        print('_name', cls.final_product._name)
-        cls.substituted = cls.replacement.product_variant_id.copy({
+        cls.substituted = Product.create({
             'name': 'Substituted',
             'default_code': '218157',
-            'product_substitution_id': cls.replacement.product_variant_id.id
+            'type': 'product',
+            'product_substitution_id': cls.replacement.id
         })
 
         # Manufacturing Order
@@ -86,4 +87,3 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
     def test_04_report_chatter(self):
         self.assertTrue(self.mo.message_ids)
         self.assertEqual(self.mo.message_attachment_count, 1)
-    

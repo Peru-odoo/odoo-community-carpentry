@@ -11,6 +11,7 @@
             <field name="name" position="after">
                 <field name="description" />
                 <field name="project_id" />
+                <field name="launch_ids" optional="hide" widget="many2many_tags" />
             </field>
         </field>
     </record>
@@ -25,6 +26,7 @@
             <field name="name" position="after">
                 <field name="description" />
                 <field name="project_id" />
+                <field name="launch_ids" optional="hide" widget="many2many_tags" />
             </field>
         </field>
     </record>
@@ -52,9 +54,9 @@
             <field name="partner_id" position="before">
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" required="1" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
+                <field name="launch_ids" widget="many2many_tags" />
             </field>
 
-            
             <!-- Add `Tasks` (needs) notebook tab -->
             <page name="purchase_delivery_invoice" position="before">
                 <page name="needs" string="Needs">
@@ -84,6 +86,7 @@
             <!-- Add `project_id` -->
             <field name="name" position="after">
                 <field name="project_id" />
+                <field name="launch_ids" />
             </field>
         </field>
     </record>
@@ -107,6 +110,7 @@
             <!-- Add `project_id` -->
             <field name="name" position="after">
                 <field name="project_id" />
+                <field name="launch_ids" />
             </field>
         </field>
     </record>

@@ -69,18 +69,18 @@ class AccountMoveBudgetLine(models.Model):
         super(AccountMoveBudgetLine, self - line_ids_computed)._compute_debit_credit()
 
         # perf early quit
-        if not line_ids_computed.ids:
+        if not line_ids_computed:
             return
         
         # Get budget project's groupped by analytic account
-        budget_brut, _ = self.project_id.position_budget_ids.sum(
-            quantities=self.project_id._get_quantities(),
+        budget_brut, _ = self.project_id.position_budget_ids._origin.sum(
+            quantities=self.project_id._origin._get_quantities(),
             groupby_budget='analytic_account_id',
             groupby_group=['group_id']
         )
 
         # Write in budget lines
         for line in line_ids_computed:
-            amount = budget_brut.get(line.project_id.id, {}).get(line.analytic_account_id.id, 0.0)
+            amount = budget_brut.get(line.project_id._origin.id, {}).get(line.analytic_account_id._origin.id, 0.0)
             field = 'debit' if line.type == 'amount' else 'qty_debit'
             line[field] = amount

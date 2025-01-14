@@ -42,9 +42,11 @@
             <tree position="inside">
                 <field name="currency_id" invisible="1" />
                 
+                <field name="budget_office" optional="hide" />
                 <field name="budget_prod" optional="show" />
                 <field name="budget_install" optional="show" />
                 <field name="budget_goods" optional="show" />
+                <field name="budget_global_cost" optional="show" />
                 <field name="budget_subtotal" optional="show" />
                 <field name="budget_total" sum="1" optional="show" />
                 <button name="%(action_open_position_budget_add)d"

@@ -12,15 +12,21 @@ class ManufacturingOrder(models.Model):
             mo.display_name = '[{}] {}' . format(self.name, self.description) if self.description else self.name
     
     #===== Fields =====#
-    description = fields.Char(
-        string='Description'
-    )
     product_id = fields.Many2one(
         domain="""[
             ('type', 'in', ['product', 'consu']),
             ('production_ok', '=', True),
             '|', ('company_id', '=', False), ('company_id', '=', company_id)
         ]"""
+    )
+    description = fields.Char(
+        string='Description'
+    )
+    launch_ids = fields.Many2many(
+        comodel_name='carpentry.group.launch',
+        relation='mrp_production_launch_rel',
+        string='Launches',
+        domain="[('project_id', '=', project_id)]",
     )
     # -- for planning --
     active = fields.Boolean(
@@ -30,8 +36,7 @@ class ManufacturingOrder(models.Model):
     sequence = fields.Integer(
         string='Sequence'
     )
-
-
+    
     
     #===== Compute =====#
     # @api.depends('move_finished_ids')

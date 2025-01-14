@@ -3,9 +3,11 @@
 from odoo import models, fields, api, exceptions, _
 
 class CarpentryGroupBudgetMixin(models.AbstractModel):
+    """ Budget sums from Affectations
+        Relevant for Phases, Launches, Positions (and possibly Project)
+    """
     _name = 'carpentry.group.budget.mixin'
     _description = 'Carpentry Group Budget Mixin'
-    # _inherit = ['carpentry.group.mixin']
 
     project_id = fields.Many2one(
         comodel_name='project.project'
@@ -14,33 +16,34 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
         related='project_id.company_id.currency_id'
     )
 
-    # budget sums
-    # only the fields relevant for Carpentry Group (ie. budgets from affectation)
-    # but some other can be added here and in `_compute_budgets_one()`: see Project and Positions
+    # in (h)
+    budget_office = fields.Float(
+        string='Office',
+        compute='_compute_budgets',
+    )
     budget_prod = fields.Float(
-        # in (h)
         string='Prod',
         compute='_compute_budgets',
-        store=True,
     )
     budget_install = fields.Float(
-        # in (h)
         string='Install',
         compute='_compute_budgets',
-        store=True,
     )
-    # no 'office' because not in positions
+    # in (€)
     budget_goods = fields.Monetary(
-        # in (€)
         string='Goods',
         compute='_compute_budgets',
-        store=True,
         currency_field='currency_id',
     )
+    budget_global_cost = fields.Monetary(
+        string='Other',
+        compute='_compute_budgets',
+        currency_field='currency_id',
+    )
+    # total
     budget_total = fields.Monetary(
         string='Total',
         compute='_compute_budgets',
-        store=True,
         currency_field='currency_id',
     )
     
@@ -61,11 +64,12 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
-        # print('brut', brut)
+        self.budget_office = self.sudo()._get_budget_one(brut, 'office')
         self.budget_prod = self.sudo()._get_budget_one(brut, 'production')
         self.budget_install = self.sudo()._get_budget_one(brut, 'installation')
         self.budget_goods = self.sudo()._get_budget_one(valued, 'goods')
-        self.budget_total = self.sudo()._get_budget_one(valued, ['production', 'installation', 'goods'])
+        self.budget_global_cost = self.sudo()._get_budget_one(valued, 'project_global_cost')
+        self.budget_total = self.sudo()._get_budget_one(valued, ['office', 'production', 'installation', 'goods', 'project_global_cost'])
     
     def _get_budget_one(self, budget, budget_types):
         budget_types = [budget_types] if isinstance(budget_types, str) else budget_types

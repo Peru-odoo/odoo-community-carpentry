@@ -1,32 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Quotation Tree -->
-    <record id="purchase_order_kpis_tree" model="ir.ui.view">
-        <field name="name">purchase.order.inherit.purchase.order.tree.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.purchase_order_kpis_tree" />
-        
-        <field name="arch" type="xml">
-            <!-- Add `Description` & `Project` -->
-            <field name="project_id" position="after">
-                <field name="launch_ids" optional="hide" widget="many2many_tags" />
-            </field>
-        </field>
-    </record>
-    <!-- PO Tree -->
-    <record id="purchase_order_view_tree" model="ir.ui.view">
-        <field name="name">purchase.order.view.tree.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_tree" />
-        
-        <field name="arch" type="xml">
-            <!-- Add `Description` & `Project` -->
-            <field name="project_id" position="after">
-                <field name="launch_ids" optional="hide" widget="many2many_tags" />
-            </field>
-        </field>
-    </record>
-
     <!-- PO Form -->
     <record id="purchase_order_form" model="ir.ui.view">
         <field name="name">purchase.order.form.carpentry.budget</field>
@@ -48,11 +21,6 @@
                     differs from total untaxed (<field name="amount_untaxed" />).
                 </div>
             </sheet>
-
-            <!-- Add `Launch` field -->
-            <field name="project_id" position="after">
-                <field name="launch_ids" widget="many2many_tags" />
-            </field>
 
             <page name="products" position="after">
                 <!-- Add `Budget` notebook tab -->
@@ -144,34 +112,6 @@
                 </page>
             </page>
 
-        </field>
-    </record>
-
-    
-    <!-- PO Search (2 views: 1 for quotation, 1 for confirmed po) -->
-    <record id="view_purchase_order_filter" model="ir.ui.view">
-        <field name="name">request.quotation.select.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.view_purchase_order_filter" />
-
-        <field name="arch" type="xml">
-            <!-- Add `launch_ids` -->
-            <field name="project_id" position="after">
-                <field name="launch_ids" />
-            </field>
-        </field>
-    </record>
-    
-    <record id="purchase_order_view_search" model="ir.ui.view">
-        <field name="name">purchase.order.select.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_search" />
-
-        <field name="arch" type="xml">
-            <!-- Add `launch_ids` -->
-            <field name="project_id" position="after">
-                <field name="launch_ids" />
-            </field>
         </field>
     </record>
 </odoo>

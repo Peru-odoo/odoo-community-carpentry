@@ -55,28 +55,28 @@
                     <group name="fees_and_margins" colspan="6">
                         <h3 colspan="2">Fees &amp; Margins</h3>
                         
-                        <label for="fees_prorata_rate"/>
+                        <label for="fees_prorata"/>
                         <div name="fees_prorata" class="o_row">
-                            <field name="fees_prorata_rate" widget="progressbar" options="{'editable': True}" />
                             <field name="fees_prorata" />
+                            <field name="fees_prorata_rate" digits="[10,1]" /> %
                         </div>
                         
-                        <label for="fees_structure_rate"/>
+                        <label for="fees_structure"/>
                         <div name="fees_structure" class="o_row">
-                            <field name="fees_structure_rate" widget="progressbar" options="{'editable': True}" />
                             <field name="fees_structure" />
+                            <field name="fees_structure_rate" digits="[10,1]" /> %
                         </div>
                         
                         <label for="margin_contributive"/>
                         <div name="margin_contributive" class="o_row">
-                            <field name="margin_contributive_rate" widget="progressbar" options="{'editable': True}" />
                             <field name="margin_contributive" />
+                            <field name="margin_contributive_rate" widget="progressbar" options="{'editable': True}" />
                         </div>
                         
                         <label for="margin_costs"/>
                         <div name="margin_costs" class="o_row">
-                            <field name="margin_costs_rate" widget="progressbar" options="{'editable': True}" />
                             <field name="margin_costs" />
+                            <field name="margin_costs_rate" widget="progressbar" options="{'editable': True}" />
                         </div>
                     </group>
                 </group>

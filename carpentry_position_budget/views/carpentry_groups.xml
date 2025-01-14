@@ -11,9 +11,11 @@
             <tree position="inside">
                 <field name="currency_id" invisible="1" />
 
+                <field name="budget_office" sum="1" optional="hide" />
                 <field name="budget_prod" sum="1" optional="show" />
                 <field name="budget_install" sum="1" optional="show" />
                 <field name="budget_goods" sum="1" optional="show" />
+                <field name="budget_global_cost" sum="1" optional="show" />
                 <field name="budget_total" sum="1" optional="show" />
             </tree>
         </field>

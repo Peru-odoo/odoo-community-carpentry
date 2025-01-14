@@ -51,12 +51,14 @@ class CarpentryPositionBudget(models.Model):
         required=True,
     )
     quantity = fields.Integer(
-        related='position_id.quantity'
+        related='position_id.quantity',
+        string='Position quantity',
     )
     value = fields.Monetary(
-        string='Value',
+        string='Unit Value',
         currency_field='currency_id',
-        compute='_compute_value'
+        compute='_compute_value',
+        help='Only relevant for budget in hours'
     )
 
     company_id = fields.Many2one(
@@ -228,15 +230,13 @@ class CarpentryPositionBudget(models.Model):
         if self._context.get('import_budget_no_compute'):
             return
         
-        # Get `budget_ids` if `quantities` were given but `budget_ids` in self are empty
+        # Get `budget_ids` if `quantities` were given but `self` is empty
         if not self.ids:
             position_ids = [dict(key)['position_id'] for key in quantities.keys()]
             self = self.search([('position_id', 'in', position_ids)] + domain_budget)
 
         # Get unitary budget
         brut_unitary, valued_unitary = self._get_position_unitary_budget(groupby_budget)
-
-        # print('brut_unitary', brut_unitary)
 
         # Sumprod unitary_budget * quantities, per item of `quantities` (~affectation) and group the result per `groupby_group`
         brut_subtotal = self._compute_subtotal_and_group(brut_unitary, quantities, groupby_group)

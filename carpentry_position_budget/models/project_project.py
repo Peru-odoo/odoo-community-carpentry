@@ -13,18 +13,12 @@ class Project(models.Model):
         inverse_name='project_id'
     )
 
-    # project's budget totals: mixin + those 2 fields
-    budget_office = fields.Float(
-        string='Office',
-        compute='_compute_budgets',
-        store=True,
-    )
-    budget_global_cost = fields.Monetary(
-        string='Global costs',
-        compute='_compute_budgets',
-        store=True,
-        currency_field='currency_id',
-    )
+    # project's budget totals (from budget mixin) => store because project form is often displayed
+    budget_prod = fields.Float(store=True)
+    budget_install = fields.Float(store=True)
+    budget_office = fields.Float(store=True)
+    budget_goods = fields.Float(store=True, readonly=True)
+    budget_global_cost = fields.Float(store=True, readonly=True)
     budget_total = fields.Monetary(
         # duplicate with `budget_line_sum` from `project_budget` (already stored) => cancel storage of mixin field `budget_total`
         store=False,
@@ -40,7 +34,7 @@ class Project(models.Model):
     def _get_warning_banner(self):
         """ Show alert banner in project's form in case of a warning on positions' names """
         return super()._get_warning_banner() | self.position_warning_name
-
+    
     #===== Compute: budget sums =====#
     def _get_quantities(self):
         """ Called from `_get_budgets_brut_valued()` of mixin `carpentry.group.budget.mixin` """
@@ -54,14 +48,6 @@ class Project(models.Model):
             quantities[key] = position.quantity
         
         return quantities
-
-    def _compute_budgets_one(self, brut, valued):
-        """ Add fields `budget_office` and `budget_global_cost` """
-        super()._compute_budgets_one(brut, valued)
-
-        # from module `project_budget`
-        self.budget_total = self.budget_line_sum
-
 
     @api.depends(
         # 1a. hour valuation per dates
@@ -85,20 +71,23 @@ class Project(models.Model):
     def _compute_budgets(self):
         # Ensure budget lines are up-to-date before updating project's totals
         self.sudo()._populate_account_move_budget_line()
-        self.sudo().budget_line_ids._compute_debit_carpentry()
+        self.sudo().budget_line_ids._compute_debit_carpentry() # <-- (!!!) issue comes from here
         self.sudo().budget_line_ids._compute_debit_credit()
 
-        # Update project's totals
-        super()._compute_budgets()
+        # from module `project_budget`
+        self.budget_total = self.budget_line_sum
 
-        # Compute project-level budgets
-        fix_budget_types = {
-            # Office: budget in 'qty_debit' in (h) while Global Cost: budget in 'debit' (or 'balance') in €
+        # Compute project-level budgets from budget line
+        budget_fields = {
+            # field, (budget_type, budget_field)
             'budget_office': ('service', 'qty_debit'),
+            'budget_prod': ('production', 'qty_debit'),
+            'budget_install': ('installation', 'qty_debit'),
+            'budget_goods': ('goods', 'balance'),
             'budget_global_cost': ('project_global_cost', 'balance')
         }
         for project in self:
-            for field, (budget_type, budget_field) in fix_budget_types.items():
+            for field, (budget_type, budget_field) in budget_fields.items():
                 lines = project.budget_line_ids.filtered(lambda x: x.budget_type == budget_type)
                 project[field] = sum(lines.mapped(budget_field))
 
@@ -114,8 +103,8 @@ class Project(models.Model):
         self._inverse_budget_template_ids()
         
         # Get existing computed lines & list of just-updated 'account_analytic_ids' in position's budgets
-        existing_line_ids = self.budget_line_ids.filtered('is_computed_carpentry')
-        analytic_account_ids = self.position_budget_ids.mapped('analytic_account_id')
+        existing_line_ids = self.budget_line_ids.filtered('is_computed_carpentry')._origin
+        analytic_account_ids = self.position_budget_ids.mapped('analytic_account_id')._origin
 
         to_add = analytic_account_ids - existing_line_ids.analytic_account_id
         to_remove = existing_line_ids.analytic_account_id - analytic_account_ids
@@ -124,10 +113,6 @@ class Project(models.Model):
         domain_unlink = [('analytic_account_id', 'in', to_remove.ids)]
         lines_unlink = self.budget_line_ids.filtered_domain(domain_unlink)
         lines_unlink.sudo().with_context(unlink_line_no_raise=True).unlink()
-
-        # print('to_add', to_add)
-        # print('to_remove', to_remove)
-        # print('domain_unlink', domain_unlink)
 
         # Add new lines, if new budget
         vals_list = [{
