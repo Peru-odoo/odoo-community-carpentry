@@ -245,7 +245,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
             # Create need (reservation)
             component_vals_list.append(Command.create(
-                self.production_id._get_move_raw_values(
+                self.production_id._origin._get_move_raw_values(
                     product,
                     data.get('product_uom_qty'),
                     product.uom_id,
