@@ -88,7 +88,12 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     def _action_import_byproduct(self):
         """ Byproduct: file is Excel """
-        vals_list = self._excel_to_vals_list(self.import_file, b64decode=True) # from `utilities.file.mixin`
+        cols = {
+            'product_code_or_name',
+            'description_picking',
+            'product_uom_qty'
+        }
+        vals_list = self._excel_to_vals_list(self.import_file, cols, b64decode=True) # from `utilities.file.mixin`
         self._run_import_byproduct(vals_list)
 
     def _action_import_component(self):
@@ -133,7 +138,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         
         if not_found:
             raise exceptions.UserError(
-                _('Unknown products:\n %s') % not_found.merge('\n')
+                _('Unknown products:\n %s') % not_found.join('\n')
             )
         
         # Create mo's byproducts
@@ -172,7 +177,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             for x in self.move_raw_ids.filtered(lambda x: x.product_id.type == 'consu')
         ]
         report_binary = self._make_report(mapped_components, byproducts, unknown, consu)
-        self._submit_chatter_message(unknown, consu, report_binary)
+        self._submit_chatter_message(byproducts, unknown, consu, report_binary)
 
     def _read_external_db(self, db_resource):
         """ Can be overriden to add import logic for other external database """
@@ -269,6 +274,9 @@ class CarpentryMrpImportWizard(models.TransientModel):
             # Content
             row_cursor = start_row+2 # title + header
             for vals in vals_list:
+                if not vals:
+                    continue
+                
                 for col, key in enumerate(list(cols.values()), start=1):
                     sheet.cell(row=row_cursor, column=col).value = vals.get(key, '')
                 row_cursor += 1
@@ -302,6 +310,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         row_cursor = __write_section(row_cursor, _('Final products'), cols, byproducts) + 1
 
         # Components
+        self = self.with_context(active_test=False)
         sections = {
             _('Unknown'): unknown,
             _('Consumable'): consu,
@@ -327,22 +336,28 @@ class CarpentryMrpImportWizard(models.TransientModel):
         output_stream.seek(0)
         return output_stream.read() # binary, NOT base64 encoded for `message_post`
 
-    def _submit_chatter_message(self, unknown, consu, report_binary):
+    def _submit_chatter_message(self, byproducts, unknown, consu, report_binary):
         mail_values = {
             'message_type': 'notification',
             'subtype_xmlid': 'mail.mt_note',
             'is_internal': True,
             'partner_ids': [],
-            'body': _(f"""
-                Component import:
+            'body': _("""
                 <ul>
-                    <li><strong>{len(self.product_ids)}</strong> components added</li>
-                    <li><strong>{len(consu)}</strong> consumable (to order separatly)</li>
-                    <li><strong>{len(self.substituted_product_ids)}</strong> substituted references</li>
-                    <li><strong>{len(self.ignored_product_ids)}</strong> explicitely ignored</li>
-                    <li><strong>{len(unknown)}</strong> unknown products</li>
-                </ul>
-            """),
+                    <li><strong>%(byproducts)s</strong> final products</li>
+                    <li><strong>%(components)s</strong> components added</li>
+                    <li><strong>%(consu)s</strong> consumable (to order separatly)</li>
+                    <li><strong>%(substituted)s</strong> substituted references</li>
+                    <li><strong>%(ignored)s</strong> explicitely ignored</li>
+                    <li><strong>%(unknown)s</strong> unknown products</li>
+                </ul>""",
+                byproducts=len(byproducts),
+                components=len(self.product_ids),
+                consu=len(consu),
+                substituted=len(self.substituted_product_ids),
+                ignored=len(self.ignored_product_ids),
+                unknown=len(unknown),
+            ),
             'attachments': [] if not report_binary else [
                 (_('Component & products report'), report_binary)
             ]
