@@ -249,7 +249,12 @@ class CarpentryMrpImportWizard(models.TransientModel):
                     product,
                     data.get('product_uom_qty'),
                     product.uom_id,
-                ))
+                ) | {
+                    # (!) very important
+                    # needed so it's not guessed by [Create] operation
+                    # else these moves will be considered both as component and finished products
+                    'production_id': False
+                })
             )
         
         _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
