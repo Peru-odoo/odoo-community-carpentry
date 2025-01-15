@@ -134,8 +134,8 @@ msgstr "Importer des composants"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.mrp_production_form_view
-msgid "Import Components"
-msgstr "Importer des composants"
+msgid "Cmponents"
+msgstr "Composants"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -309,7 +309,7 @@ msgstr "Unité de mesure"
 #: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #, python-format
 msgid "Unknown"
-msgstr "Inconnu"
+msgstr "Inconnu(s)"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard

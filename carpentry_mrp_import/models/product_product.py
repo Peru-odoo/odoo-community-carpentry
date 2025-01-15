@@ -24,3 +24,4 @@ class ProductTemplate(models.Model):
                 fields.first(product.seller_ids).partner_id
                 or self.env.company.partner_id
             )
+    

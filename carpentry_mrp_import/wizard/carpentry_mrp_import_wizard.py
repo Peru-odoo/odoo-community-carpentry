@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-import base64, io, openpyxl, os
+import io, openpyxl, os
 
 EXTERNAL_DB_TYPE = [
     ('orgadata', 'Orgadata')
@@ -13,13 +13,13 @@ class CarpentryMrpImportWizard(models.TransientModel):
     _description = "Carpentry MRP Import Wizard"
     _inherit = ['utilities.file.mixin', 'utilities.database.mixin']
 
-    REPORT_FILENAME = 'report/report_mrp_component_unknown.xlsx'
+    REPORT_FILENAME = 'report/report_mrp_component.xlsx'
 
     #===== Fields =====#
     mode = fields.Selection(
         selection=[
             ('component', 'Components'),
-            ('final_product', 'Final products'),
+            ('byproduct', 'Final products'),
         ],
         required=True,
         string='Import mode'
@@ -63,13 +63,13 @@ class CarpentryMrpImportWizard(models.TransientModel):
     )
 
     # imported data
-    product_ids = fields.One2many(comodel_name='product.product', store=False)
-    supplierinfo_ids = fields.One2many(comodel_name='product.supplierinfo', store=False)
+    product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
+    supplierinfo_ids = fields.One2many(comodel_name='product.supplierinfo', store=False, readonly=True)
 
     # report
     move_raw_ids = fields.One2many(related='production_id.move_raw_ids')
-    substituted_product_ids = fields.One2many(comodel_name='product.product', store=False)
-    ignored_product_ids = fields.One2many(comodel_name='product.product', store=False)
+    substituted_product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
+    ignored_product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
 
     #===== Buttons =====#
     def button_truncate(self):
@@ -78,47 +78,87 @@ class CarpentryMrpImportWizard(models.TransientModel):
     def button_import(self):
         if not self.import_file:
             raise exceptions.UserError(_('Please upload a file.'))
-        
-        if self.mode == 'component':
-            self._action_import_component()
-        elif self.mode == 'final_product':
-            self._action_import_final_product()
 
-    def _action_import_final_product(self):
-        """ Final products: excel file to import Odoo records in the MO """
-        pass
+        if self.mode == 'component':
+            return self._action_import_component()
+        elif self.mode == 'byproduct':
+            return self._action_import_byproduct()
+        
+        return {'type': 'ir.actions.act_window_close'}
+
+    def _action_import_byproduct(self):
+        """ Byproduct: file is Excel """
+        vals_list = self._excel_to_vals_list(self.import_file, b64decode=True) # from `utilities.file.mixin`
+        self._run_import_byproduct(vals_list)
 
     def _action_import_component(self):
         """ Components: file is Orgadata database """
         filename, db_content, mimetype = self._uncompress(self.filename, self.import_file) # from `utilities.file.mixin`
+
         db_models = ['AllArticles', 'Elevations']
         db_resource = self._open_external_database(filename, db_content, mimetype, self.encoding, db_models=db_models) # from `utilities.file.database`
-        self._run_import(db_resource)
+        self._run_import_component(db_resource)
 
-        self.state = 'done'
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': self._name,
-            'res_id': self.id,
-            'context': self._context,
-            'view_mode': 'form',
-            'target': 'new',
-        }
+        # (!) not needed anymore because of full XLSX report
+        # move to wizard's next page
+        # self.state = 'done'
+        # return {
+        #     'type': 'ir.actions.act_window',
+        #     'res_model': self._name,
+        #     'res_id': self.id,
+        #     'context': self._context,
+        #     'view_mode': 'form',
+        #     'target': 'new',
+        # }
 
 
-    #===== Import logics =====#
-    def _run_import(self, db_resource):
-        components, final_products = self._read_external_db(db_resource)
+    #===== Import logics (Byproducts) =====#
+    def _run_import_byproduct(self, vals_list):
+        """ `vals_list` follows columns of excel file:
+            - product_code_or_name
+            - description_picking
+            - product_uom_qty
+        """
+        # Search the products from `product_code_or_name`
+        byproducts = self.env['product.product'].search([])
+        not_found = []
+        for row, vals in enumerate(vals_list, start=2):
+            product_data = vals.get('product_code_or_name')
+            product = self._find_product(byproducts, product_data)
+            if not product:
+                not_found.append(f'Row {row}: {product_data}')
+            else:
+                vals['product_id'] = product.id
+                vals.pop('product_code_or_name')
+        
+        if not_found:
+            raise exceptions.UserError(
+                _('Unknown products:\n %s') % not_found.merge('\n')
+            )
+        
+        # Create mo's byproducts
+        self.production_id.move_byproduct_ids = [Command.create(vals) for vals in vals_list]
+    
+    def _find_product(self, products, product_key):
+        """ Search product `products` by code, and then name if not found by code """
+        return (
+            products.filtered(lambda x: x.default_code == product_key) or
+            products.filtered(lambda x: x.name == product_key)
+        )
+    
+    #===== Import logics (Components/Orgadata) =====#
+    def _run_import_component(self, db_resource):
+        components, byproducts = self._read_external_db(db_resource)
         self._close_db(db_resource) # close connection with external db
 
         # Get products
         mapped_components = {x['default_code']: x for x in components}
-        Product = self.env['product.product'].with_context(active_test=False)
-        products = Product.search([('default_code', 'in', list(mapped_components.keys()))])
-        self.product_ids = products
+        domain = [('default_code', 'in', list(mapped_components.keys()))]
+        self = self.with_context(active_test=False) # for ignored products
+        self.product_ids = self.env['product.product'].search(domain)
 
         # Unknown products
-        default_code_list = products.mapped('default_code')
+        default_code_list = self.product_ids.mapped('default_code')
         unknown = [v for k, v in mapped_components.items() if k not in default_code_list]
 
         # Import logic : substitute -> import -> make report (consumable & unknown)
@@ -131,7 +171,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             mapped_components.get(x.product_id.default_code)
             for x in self.move_raw_ids.filtered(lambda x: x.product_id.type == 'consu')
         ]
-        report_binary = self._make_report(mapped_components, final_products, unknown, consu)
+        report_binary = self._make_report(mapped_components, byproducts, unknown, consu)
         self._submit_chatter_message(unknown, consu, report_binary)
 
     def _read_external_db(self, db_resource):
@@ -166,9 +206,9 @@ class CarpentryMrpImportWizard(models.TransientModel):
                     Amount AS product_uom_qty
                 FROM Elevations
             """
-            final_products = self._read_db(db_resource, sql)
+            byproducts = self._read_db(db_resource, sql)
 
-        return components, final_products
+        return components, byproducts
     
     def _substitute(self):
         substituted = self.product_ids.filtered('product_substitution_id')
@@ -177,8 +217,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
             self.substituted_product_ids = substituted
 
     def _ignore(self):
+        all_products = self.product_ids
         active = self.product_ids.filtered('active')
-        self.ignored_product_ids = self.product_ids - active
+
+        self.ignored_product_ids = all_products - active
         self.product_ids = active
 
     def _import_components(self, mapped_components):
@@ -210,29 +252,29 @@ class CarpentryMrpImportWizard(models.TransientModel):
         self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
         self.production_id.move_raw_ids = component_vals_list
 
-    def _make_report(self, mapped_components, final_products, unknown, consu):
+    def _make_report(self, mapped_components, byproducts, unknown, consu):
         def __write_section(start_row, title, cols, vals_list):
             # Title
             cell = 'A' + str(start_row)
             sheet[cell] = title
-            sheet[cell].font = Font(size=14, bold=True)
+            sheet[cell].font = openpyxl.styles.Font(size=14, bold=True)
             
             # Headers
-            line = str(start_row+1)
-            for i, header in enumerate(cols, start=1):
-                cell = 'A' + str(start_row+1)
-                sheet[cell] = header
-                sheet[cell].font = openpyxl.styles.Font(bold=True)
-                sheet[cell].fill = openpyxl.styles.PatternFill("solid", fgColor="B4C7DC")
+            for col, header in enumerate(cols, start=1):
+                cell = sheet.cell(row=start_row+1, column=col)
+                cell.value = header
+                cell.font = openpyxl.styles.Font(bold=True)
+                cell.fill = openpyxl.styles.PatternFill("solid", fgColor="B4C7DC")
             
             # Content
             row_cursor = start_row+2 # title + header
-            for row, vals in enumerate(vals_list, start=row_cursor):
+            for vals in vals_list:
                 for col, key in enumerate(list(cols.values()), start=1):
-                    sheet.cell(row=row, column=col).value = vals[key]
+                    sheet.cell(row=row_cursor, column=col).value = vals[key]
                     # sheet.insert_rows(row+1)
+                row_cursor += 1
             
-            return row_cursor + 2 # empty lines separation
+            return row_cursor
 
         # Load the Excel template
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../' + self.REPORT_FILENAME)
@@ -251,7 +293,6 @@ class CarpentryMrpImportWizard(models.TransientModel):
         }
         for cell, text in titles.items():
             sheet[cell] = text
-            sheet[cell].font = openpyxl.styles.Font(size=14, bold=True)
 
         # Final products
         row_cursor = 6
@@ -259,12 +300,12 @@ class CarpentryMrpImportWizard(models.TransientModel):
             _('Description'): 'description_picking',
             _('Quantity'): 'product_uom_qty',
         }
-        row_cursor = __write_section(row_cursor, _('Final products'), cols, final_products)
+        row_cursor = __write_section(row_cursor, _('Final products'), cols, byproducts) + 1
 
         # Components
         sections = {
-            _('Unknown'): unknown.values(),
-            _('Consumable'): consu.values(),
+            _('Unknown'): unknown,
+            _('Consumable'): consu,
             _('Imported components'): [mapped_components.get(x.default_code) for x in self.product_ids],
             _('Substituted components'): [mapped_components.get(x.default_code) for x in self.substituted_product_ids],
             _('Ignored components'): [mapped_components.get(x.default_code) for x in self.ignored_product_ids]
@@ -276,14 +317,13 @@ class CarpentryMrpImportWizard(models.TransientModel):
             _('Unit of Measure'): 'uom_name',
             _('Unit Price'): 'price',
         }
-        for section, vals_list in sections:
-            row_cursor = __write_section(row_cursor, section, cols, vals_list)
+        for section, vals_list in sections.items():
+            row_cursor = __write_section(row_cursor, section, cols, vals_list) + 1
 
         # Save the file to a BytesIO stream
         output_stream = io.BytesIO()
         workbook.save(output_stream)
-        # workbook.close()
-        print('output_stream', output_stream)
+        workbook.close()
 
         output_stream.seek(0)
         return output_stream.read() # binary, NOT base64 encoded for `message_post`
@@ -298,14 +338,14 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 Component import:
                 <ul>
                     <li><strong>{len(self.product_ids)}</strong> components added</li>
-                    <li><strong>{len(consu)}</strong> consumable maybe to order separatly</li>
+                    <li><strong>{len(consu)}</strong> consumable (to order separatly)</li>
                     <li><strong>{len(self.substituted_product_ids)}</strong> substituted references</li>
                     <li><strong>{len(self.ignored_product_ids)}</strong> explicitely ignored</li>
                     <li><strong>{len(unknown)}</strong> unknown products</li>
                 </ul>
             """),
             'attachments': [] if not report_binary else [
-                (_('Component report'), report_binary)
+                (_('Component & products report'), report_binary)
             ]
         }
         

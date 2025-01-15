@@ -10,7 +10,9 @@
             <!-- Add `Subtitution product` on top of the form -->
             <notebook position="before">
                 <group>
-                    <field name="product_substitution_id" attrs="{'invisible': [('sale_ok', '=', False), ('purchase_ok', '=', False)]}" />
+                    <field name="product_substitution_id"
+                        attrs="{'invisible': ['|', ('sale_ok', '!=', False), ('purchase_ok', '!=', False)]}"
+                    />
                 </group>
             </notebook>
         </field>

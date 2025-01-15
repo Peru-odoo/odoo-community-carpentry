@@ -11,7 +11,7 @@
             <header position="inside">
                 <button name="%(action_open_mrp_component_import_component_wizard)d"
                     type="action"
-                    string="Import components"
+                    string="Components"
                     attrs="{'invisible': [('state', '!=', 'draft')]}"
                     icon="fa-upload"
                     class="btn btn-primary"
@@ -19,7 +19,7 @@
 
                 <button name="%(action_open_mrp_component_import_final_product_wizard)d"
                     type="action"
-                    string="Import final products"
+                    string="Final products"
                     attrs="{'invisible': [('state', '!=', 'draft')]}"
                     icon="fa-upload"
                     class="btn btn-primary"

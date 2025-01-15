@@ -432,7 +432,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ If there is no affectation: stick to preparation of affectations (left)
             Else, toggle between the 2 state
         """
-        if not self.affectation_ids:
+        if not self.affectation_ids and self.readonly_affectation:
             self._raise_if_no_affectations()
         self.readonly_affectation = not self.readonly_affectation
     
