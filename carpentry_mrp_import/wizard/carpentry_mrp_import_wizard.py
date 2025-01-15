@@ -252,7 +252,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 ) | {
                     # (!) very important
                     # needed so it's not guessed by [Create] operation
-                    # else these moves will be considered both as component and finished products
+                    # else these moves will be considered both as components and finished products
                     'production_id': False
                 })
             )
