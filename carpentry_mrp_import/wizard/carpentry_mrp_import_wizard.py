@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-import io, openpyxl, os
+import io, openpyxl, os, logging
+_logger = logging.getLogger(__name__)
 
 EXTERNAL_DB_TYPE = [
     ('orgadata', 'Orgadata')
@@ -119,11 +120,6 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     #===== Import logics (Byproducts) =====#
     def _run_import_byproduct(self, vals_list):
-        """ `vals_list` follows columns of excel file:
-            - product_code_or_name
-            - description_picking
-            - product_uom_qty
-        """
         # Search the products from `product_code_or_name`
         byproducts = self.env['product.product'].search([])
         not_found = []
@@ -142,6 +138,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             )
         
         # Create mo's byproducts
+        _logger.info(f'[_run_import_byproduct] vals_list: {vals_list}')
         self.production_id.move_byproduct_ids = [Command.create(vals) for vals in vals_list]
     
     def _find_product(self, products, product_key):
@@ -254,7 +251,11 @@ class CarpentryMrpImportWizard(models.TransientModel):
                     product.uom_id,
                 ))
             )
+        
+        _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
         self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
+
+        _logger.info(f'[_import_components] component_vals_list: {component_vals_list}')
         self.production_id.move_raw_ids = component_vals_list
 
     def _make_report(self, mapped_components, byproducts, unknown, consu):
