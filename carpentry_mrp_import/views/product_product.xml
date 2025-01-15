@@ -11,7 +11,7 @@
             <notebook position="before">
                 <group>
                     <field name="product_substitution_id"
-                        attrs="{'invisible': ['|', ('sale_ok', '!=', False), ('purchase_ok', '!=', False)]}"
+                        attrs="{'invisible': ['|', ('sale_ok', '=', True), ('purchase_ok', '=', True)]}"
                     />
                 </group>
             </notebook>

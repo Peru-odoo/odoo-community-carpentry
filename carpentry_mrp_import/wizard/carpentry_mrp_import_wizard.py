@@ -182,7 +182,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             # if `ColorInfoInternal` is given, suffix it to the `default_code`
             fields = f"""
                 IIF(
-                    ColorInfoInternal IS NOT NULL,
+                    ColorInfoInternal IS NOT NULL AND ColorInfoInternal != '',
                     ArticleCode_OrderCode || '{SEPARATOR_COLOR}' || ColorInfoInternal,
                     ArticleCode_OrderCode
                 ) AS default_code,

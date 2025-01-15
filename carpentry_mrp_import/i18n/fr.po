@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-06 17:13+0000\n"
-"PO-Revision-Date: 2025-01-06 19:04+0100\n"
-"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"POT-Creation-Date: 2025-01-15 12:16+0000\n"
+"PO-Revision-Date: 2025-01-15 13:17+0100\n"
+"Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_mrp_import
@@ -28,15 +28,8 @@ msgid "Carpentry MRP Import Wizard"
 msgstr "Assistant d'import des composants pour la fabrication"
 
 #. module: carpentry_mrp_import
-#. odoo-python
-#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-#, python-format
-msgid "Component import report"
-msgstr "Rapport d'import des composants"
-
-#. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__move_raw_ids
+#: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__mode__component
 msgid "Components"
 msgstr "Composants"
 
@@ -62,7 +55,14 @@ msgstr "Créé le"
 #: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #, python-format
 msgid "Date"
-msgstr "Date"
+msgstr ""
+
+#. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
+#, python-format
+msgid "Description"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
@@ -95,6 +95,14 @@ msgid "Filename"
 msgstr "Nom du fichier"
 
 #. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
+#: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__mode__final_product
+#, python-format
+msgid "Final products"
+msgstr "Produits finis"
+
+#. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
 msgid "Finish"
 msgstr "Terminer"
@@ -102,12 +110,12 @@ msgstr "Terminer"
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__encoding__iso-8859-1
 msgid "ISO-8859-1"
-msgstr "ISO-8859-1"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__ignored_product_ids
@@ -125,17 +133,28 @@ msgstr "Composants ignorés"
 #: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__state__draft
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
 msgid "Import"
-msgstr "Import"
+msgstr "Importer"
 
 #. module: carpentry_mrp_import
-#: model:ir.actions.act_window,name:carpentry_mrp_import.action_open_mrp_component_import_wizard
-msgid "Import Component"
+#: model:ir.actions.act_window,name:carpentry_mrp_import.action_open_mrp_component_import_component_wizard
+msgid "Import component"
 msgstr "Importer des composants"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.mrp_production_form_view
-msgid "Cmponents"
-msgstr "Composants"
+msgid "Import components"
+msgstr "Importer des composants"
+
+#. module: carpentry_mrp_import
+#: model:ir.actions.act_window,name:carpentry_mrp_import.action_open_mrp_component_import_final_product_wizard
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.mrp_production_form_view
+msgid "Import final products"
+msgstr "Importer des produits finis"
+
+#. module: carpentry_mrp_import
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__mode
+msgid "Import mode"
+msgstr "Mode d'import"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -177,7 +196,7 @@ msgstr "Nom"
 #. module: carpentry_mrp_import
 #: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__external_db_type__orgadata
 msgid "Orgadata"
-msgstr "Orgadata"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -188,27 +207,30 @@ msgstr "Veuillez téléverser un fichier."
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__preferred_supplier_id
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__preferred_supplier_id
 msgid "Preferred Supplier"
 msgstr "Fournisseur privilégié"
 
 #. module: carpentry_mrp_import
+#: model:ir.model,name:carpentry_mrp_import.model_product_template
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__product_ids
 msgid "Product"
 msgstr "Produit"
 
 #. module: carpentry_mrp_import
-#: model:ir.model,name:carpentry_mrp_import.model_product_product
-msgid "Product Variant"
-msgstr "Variante de produit"
-
-#. module: carpentry_mrp_import
 #: model:ir.model.fields,help:carpentry_mrp_import.field_product_product__product_substitution_id
+#: model:ir.model.fields,help:carpentry_mrp_import.field_product_template__product_substitution_id
 msgid ""
 "Product that will serve as component in Work Order in replacement of this "
 "one."
 msgstr ""
-"Article qui servira de composant dans l'ordre de travail en remplacement "
-"de celui-ci."
+"Article qui servira de composant dans l'ordre de travail en remplacement de "
+"celui-ci."
+
+#. module: carpentry_mrp_import
+#: model:ir.model,name:carpentry_mrp_import.model_mrp_production
+msgid "Production Order"
+msgstr "Ordre de fabrication"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -216,6 +238,11 @@ msgstr ""
 #, python-format
 msgid "Project"
 msgstr "Projet"
+
+#. module: carpentry_mrp_import
+#: model:ir.model,name:carpentry_mrp_import.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Ligne de commande d'achat"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -257,12 +284,8 @@ msgstr "Composants substitués"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__product_substitution_id
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__product_substitution_id
 msgid "Substitution Product"
-msgstr "Produit de substitution"
-
-#. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.product_variant_easy_edit_view
-msgid "Substitution product"
 msgstr "Produit de substitution"
 
 #. module: carpentry_mrp_import
@@ -283,12 +306,12 @@ msgstr "Type de base de données externe"
 #. module: carpentry_mrp_import
 #: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__encoding__utf-16
 msgid "UTF-16"
-msgstr "UTF-16"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__encoding__utf-8
 msgid "UTF-8"
-msgstr "UTF-8"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -310,6 +333,17 @@ msgstr "Unité de mesure"
 #, python-format
 msgid "Unknown"
 msgstr "Inconnu(s)"
+
+#. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
+#, python-format
+msgid ""
+"Unknown products:\n"
+" %s"
+msgstr ""
+"Produits inconnus:\n"
+"%s"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
