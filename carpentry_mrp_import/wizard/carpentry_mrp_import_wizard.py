@@ -305,9 +305,9 @@ class CarpentryMrpImportWizard(models.TransientModel):
         sections = {
             _('Unknown'): unknown,
             _('Consumable'): consu,
-            _('Imported components'): [mapped_components.get(x.default_code) for x in self.product_ids],
-            _('Substituted components'): [mapped_components.get(x.default_code) for x in self.substituted_product_ids],
-            _('Ignored components'): [mapped_components.get(x.default_code) for x in self.ignored_product_ids]
+            _('Imported components'): [mapped_components.get(x.default_code, {}) for x in self.product_ids],
+            _('Substituted components'): [mapped_components.get(x.default_code, {}) for x in self.substituted_product_ids],
+            _('Ignored components'): [mapped_components.get(x.default_code, {}) for x in self.ignored_product_ids]
         }
         cols = {
             _('Reference'): 'default_code',
