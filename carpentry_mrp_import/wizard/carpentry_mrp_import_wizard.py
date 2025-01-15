@@ -270,8 +270,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             row_cursor = start_row+2 # title + header
             for vals in vals_list:
                 for col, key in enumerate(list(cols.values()), start=1):
-                    sheet.cell(row=row_cursor, column=col).value = vals[key]
-                    # sheet.insert_rows(row+1)
+                    sheet.cell(row=row_cursor, column=col).value = vals.get(key, '')
                 row_cursor += 1
             
             return row_cursor
