@@ -70,3 +70,10 @@ class PurchaseOrder(models.Model):
         return super()._prepare_picking() | {
             'project_id': self.project_id.id
         }
+
+    def _prepare_invoice(self):
+        """ Write project from PO to invoice """
+        return super()._prepare_invoice() | {
+            'project_id': self.project_id.id
+        }
+    
