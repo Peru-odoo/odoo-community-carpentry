@@ -57,6 +57,17 @@
                 <field name="launch_ids" widget="many2many_tags" />
             </field>
 
+            <!-- Date widget, instead of Datetime -->
+            <field name="date_order" position="attributes">
+                <attribute name="widget">date</attribute>
+            </field>
+            <field name="date_planned" position="attributes">
+                <attribute name="widget">date</attribute>
+            </field>
+            <xpath expr="//field[@name='order_line']//field[@name='date_planned']" position="attributes">
+                <attribute name="widget">date</attribute>
+            </xpath>
+
             <!-- Add `Tasks` (needs) notebook tab -->
             <page name="purchase_delivery_invoice" position="before">
                 <page name="needs" string="Needs">
