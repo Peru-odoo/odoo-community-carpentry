@@ -73,7 +73,7 @@
             </field>
             <!-- Description (after name) -->
             <field name="name" position="after">
-                <field name="description" optional="show" />
+                <field name="description" optional="show" widget="char" />
             </field>
             <!-- `project_id`: hides when possible -->
             <field name="project_id" position="attributes">
@@ -170,7 +170,7 @@
                 />
 
                 <!-- Description -->
-                <field name="description" />
+                <field name="description" widget="char" />
             </field>
         </field>
     </record>
