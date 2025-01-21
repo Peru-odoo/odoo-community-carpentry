@@ -6,14 +6,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-15 15:38+0000\n"
-"PO-Revision-Date: 2025-01-15 15:38+0000\n"
+"POT-Creation-Date: 2025-01-21 09:33+0000\n"
+"PO-Revision-Date: 2025-01-21 10:42+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
+#, python-format
+msgid ""
+"\n"
+"                <ul>\n"
+"                    <li><strong>%(byproducts)s</strong> final products</"
+"li>\n"
+"                    <li><strong>%(components)s</strong> components added</"
+"li>\n"
+"                    <li><strong>%(consu)s</strong> consumable (to order "
+"separatly)</li>\n"
+"                    <li><strong>%(substituted)s</strong> substituted "
+"references</li>\n"
+"                    <li><strong>%(ignored)s</strong> explicitely ignored</"
+"li>\n"
+"                    <li><strong>%(unknown)s</strong> unknown products</li>\n"
+"                </ul>"
+msgstr ""
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
@@ -24,6 +47,13 @@ msgstr "Êtes-vous sûr ?"
 #: model:ir.model,name:carpentry_mrp_import.model_carpentry_mrp_import_wizard
 msgid "Carpentry MRP Import Wizard"
 msgstr "Assistant d'import des composants pour la fabrication"
+
+#. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
+#, python-format
+msgid "Component & products report"
+msgstr "Rapport des composants & produits"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__move_raw_ids
@@ -222,11 +252,6 @@ msgstr ""
 "celui-ci."
 
 #. module: carpentry_mrp_import
-#: model:ir.model,name:carpentry_mrp_import.model_mrp_production
-msgid "Production Order"
-msgstr "Ordre de fabrication"
-
-#. module: carpentry_mrp_import
 #. odoo-python
 #: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #, python-format
@@ -240,7 +265,6 @@ msgstr "Ligne de commande d'achat"
 
 #. module: carpentry_mrp_import
 #. odoo-python
-#: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #, python-format
 msgid "Quantity"
