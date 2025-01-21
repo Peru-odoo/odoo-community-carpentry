@@ -78,12 +78,13 @@
         <field name="inherit_id" ref="mrp.view_mrp_production_filter" />
 
         <field name="arch" type="xml">
-            <!-- Add `Description` in 1st search by name -->
+            <!-- Add `Description` & project in 1st search by name -->
             <field name="name" position="attributes">
                 <attribute name="filter_domain">['|', '|',
                     ('name', 'ilike', self),
                     ('description', 'ilike', self),
-                    ('origin', 'ilike', self)
+                    ('origin', 'ilike', self),
+                    ('project_id', 'ilike', self),
                 ]</attribute>
             </field>
             
