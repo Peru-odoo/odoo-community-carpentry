@@ -90,7 +90,7 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         self._compare_need_task_count(2)
 
     def _compare_need_task_count(self, expected_count):
-        domain = [('type_deadline', '=', 'computed')]
+        domain = [('deadline_week_offset', '!=', False)]
         task_count = self.env['project.task'].search_count(domain)
 
         self.assertEqual(expected_count, task_count)
@@ -114,11 +114,11 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         })
 
         action = card.action_open_tasks()
-        self.assertEqual('computed', action.get('context').get('default_type_deadline'))
+        self.assertEqual(self.env.ref(XML_ID_NEED).id, action.get('context').get('default_parent_type_id'))
 
     #===== project.task =====#
     def test_06_task(self):
-        task = self.env['project.task'].search([('type_deadline', '=', 'computed')])[0]
+        task = self.env['project.task'].search([('deadline_week_offset', '!=', False)])[0]
         
         # Computed deadline
         prod_start = date(2024, 1, 31)

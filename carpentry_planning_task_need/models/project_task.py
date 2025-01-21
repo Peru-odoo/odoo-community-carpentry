@@ -22,16 +22,16 @@ class Task(models.Model):
         )
 
     #===== Fields =====#
-    card_res_id = fields.Many2oneReference(
-        compute='_compute_card_res_id',
-        store=True,
-        readonly=False
-    )
-    card_res_model_id = fields.Many2one(
-        compute='_compute_card_res_id',
-        store=True,
-        readonly=False
-    )
+    # card_res_id = fields.Many2oneReference(
+    #     compute='_compute_card_res_id',
+    #     store=True,
+    #     readonly=False
+    # )
+    # card_res_model_id = fields.Many2one(
+    #     compute='_compute_card_res_id',
+    #     store=True,
+    #     readonly=False
+    # )
     need_id = fields.Many2one(
         comodel_name='carpentry.need',
         string='Need template',
@@ -83,12 +83,12 @@ class Task(models.Model):
             )
 
     #===== Compute `res_id` and `res_model_id` ======#
-    @api.depends('type_id', 'need_id')
-    def _compute_card_res_id(self):
-        model_id_ = self.env['ir.model'].sudo()._get('project.type').id
-        for task in self._filter_needs():
-            task.card_res_id = task.type_id.id
-            task.card_res_model_id = model_id_
+    # @api.depends('type_id', 'need_id')
+    # def _compute_card_res_id(self):
+    #     model_id_ = self.env['ir.model'].sudo()._get('project.type').id
+    #     for task in self._filter_needs():
+    #         task.card_res_id = task.type_id.id
+    #         task.card_res_model_id = model_id_
 
     #===== Compute `name_required`, `task type` & `launch_id` ======#
     def _get_name_required_type_list(self):
@@ -148,7 +148,7 @@ class Task(models.Model):
             For need, add additional `default_xx` keys and context
         """
 
-        if record_id and record_id.res_model == 'project.type':
+        if record_id and record_id.res_model == 'project.task':
             context |= {
                 'default_parent_type_id': self.env.ref(XML_ID_NEED).id,
                 'default_type_id': record_id.res_id, # card is the need category

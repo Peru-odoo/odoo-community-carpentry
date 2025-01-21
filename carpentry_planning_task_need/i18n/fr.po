@@ -62,11 +62,6 @@ msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields.selection,name:carpentry_planning_task_need.selection__project_task__type_deadline__computed
-msgid "Auto"
-msgstr ""
-
-#. module: carpentry_planning_task_need
 #. odoo-python
 #: code:addons/carpentry_planning_task_need/models/project_task.py:0
 #, python-format
@@ -211,11 +206,6 @@ msgstr "Lancement"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
 msgid "Launches"
 msgstr "Lancements"
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields.selection,name:carpentry_planning_task_need.selection__project_task__type_deadline__manual
-msgid "Manual"
-msgstr "Manuel"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_search
@@ -389,11 +379,6 @@ msgid "This need cannot be deleted since used in a Need Family."
 msgstr ""
 "Ce besoin ne peut pas être supprimé puisqu'il est utilisé dans une famille "
 "de besoins."
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__type_deadline
-msgid "Type Deadline"
-msgstr "Type de date objectif"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__parent_type_id
