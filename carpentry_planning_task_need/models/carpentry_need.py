@@ -18,6 +18,11 @@ class CarpentryNeed(models.Model):
         string='Need',
         required=True
     )
+    user_ids = fields.Many2many(
+        comodel_name='res.users',
+        string='Users',
+        required=True
+    )
     deadline_week_offset = fields.Integer(
         string='Weeks offset',
         default=1,
@@ -78,7 +83,6 @@ class CarpentryNeed(models.Model):
             'name': self.name,
             'type_id': self.type_id.id, # need category
             'need_id': self.id,
-            'type_deadline': 'computed',
-            'user_ids': [Command.clear()],
+            'user_ids': self.user_ids.ids,
             'launch_id': launch.id,
         }

@@ -6,7 +6,8 @@ from odoo.tools import date_utils
 XML_ID_NEED = 'carpentry_planning_task_need.task_type_need'
 
 class Task(models.Model):
-    _inherit = ["project.task"]
+    _name = "project.task"
+    _inherit = ['project.task', 'carpentry.planning.mixin']
     _rec_name = "display_name"
 
     #===== Fields's methods =====#
@@ -41,17 +42,24 @@ class Task(models.Model):
         store=True,
         readonly=False
     )
-    type_deadline = fields.Selection(
-        selection=[
-            ('manual', 'Manual'),
-            ('computed', 'Auto'),
-        ],
-        default='manual'
-    )
     deadline_week_offset = fields.Integer(
         related='need_id.deadline_week_offset', 
-        store=True
     )
+    #--- planning ---
+    column_id = fields.Many2one(
+        # `column_id` must be stored here because used in SQL view
+        # of Carpentry Planning to route tasks between the right columns
+        # depending on their `project.type`
+        comodel_name='carpentry.planning.column',
+        string='Planning Column',
+        related='type_id.column_id',
+        store=True,
+        ondelete='set null',
+        recursive=True
+    )
+    planning_card_color_is_auto = fields.Boolean(default=True, store=False)
+    # don't set field `planning_card_color`, so that Planning Card's color follows `task_state_color`
+
 
     #===== Constrains =====#
     @api.ondelete(at_uninstall=False)
@@ -62,9 +70,8 @@ class Task(models.Model):
         
         if self._filter_needs(only_populated=True).ids:
             raise exceptions.ValidationError(
-                _("A Task of type 'Need' which computed deadline cannot be"
-                  " deleted. Archive it instead or unaffect the Need Family"
-                  " from the Launch.")
+                _("A Task of type 'Need' cannot be removed. To hide it, archive it."
+                  " To really delete it, remove it Needs menu.")
             )
 
     @api.depends('type_id')
@@ -87,20 +94,14 @@ class Task(models.Model):
     def _get_name_required_type_list(self):
         return super()._get_name_required_type_list() + [self.env.ref(XML_ID_NEED).id]
 
-    #===== Compute & onchange: user_ids, deadline =====#
-    @api.onchange('user_ids')
-    def _onchange_user_ids(self):
-        """ When a task of type `Need` is assigned to user, make the deadline writable """
-        for task in self._filter_needs():
-            task.type_deadline = 'manual' if task.user_ids.ids else 'computed'
-    
+    #===== Compute date_deadline =====#
     @api.depends(
         'type_id', 'deadline_week_offset',
         'launch_id', 'launch_id.milestone_ids', 'launch_id.milestone_ids.date'
     )
     def _compute_date_deadline(self):
         """ Compute `date_deadline = launch_id."date_[prod/install]_start" - deadline_week_offset` """
-        self = self._filter_needs()
+        self = self.filtered('deadline_week_offset')
         if not self.ids: # perf optim
             return
         
@@ -141,7 +142,7 @@ class Task(models.Model):
     def _fields_to_copy(self):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
-    #===== Actions & Buttons on Planning View =====#
+    #===== Planning =====#
     def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
         """ Called from planning cards
             For need, add additional `default_xx` keys and context
@@ -151,9 +152,13 @@ class Task(models.Model):
             context |= {
                 'default_parent_type_id': self.env.ref(XML_ID_NEED).id,
                 'default_type_id': record_id.res_id, # card is the need category
-                'default_user_ids': [],
-                'default_type_deadline': 'computed',
                 'display_with_prefix': 1,
                 'display_standard_form': False
             }
         return super().action_open_planning_tree(domain, context, record_id, project_id_)
+
+    @api.model
+    def _get_planning_subheaders(self, column_id, launch_id):
+        """ No deadlines nor budgets in Need columns headers """
+        return {}
+    

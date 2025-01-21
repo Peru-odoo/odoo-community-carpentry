@@ -4,7 +4,6 @@ from odoo import models, _
 
 class Project(models.Model):
     _inherit = ["project.project"]
-
     
     def action_open_task_need(self):
         return self._action_open_task_common(
@@ -14,8 +13,6 @@ class Project(models.Model):
             switch=['tree', 'form', 'kanban', 'calendar', 'timeline', 'activity'],
             module='carpentry_planning_task_need',
             context={
-                'default_user_ids': [],
-                'default_type_deadline': 'manual',
                 'search_default_filter_my_role': 1,
                 'display_with_prefix': False,
             }

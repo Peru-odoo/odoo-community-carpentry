@@ -14,7 +14,7 @@
 
     'depends': [
         'mrp', # Odoo CE
-        'mrp_project_link', # other
+        'mrp_project_link', 'mrp_attendance', 'mrp_productivity_qty', # other
         'carpentry_purchase', # carpentry
     ],
     'data': [

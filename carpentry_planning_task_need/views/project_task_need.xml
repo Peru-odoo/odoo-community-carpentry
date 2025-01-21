@@ -21,20 +21,13 @@
             <field name="project_id" position="after">
                 <field name="launch_id" attrs="{'readonly': [('id', '!=', False)]}" options="{'no_open': 1}" />
                 <field name="parent_type_id" string="Type of Need" optional="hide" options="{'no_open': 1}" />
+
+                <field name="deadline_week_offset" invisible="1" />
             </field>
 
-            <!-- `type_deadline` -->
+            <!-- `date_deadline` readonly for need -->
             <field name="date_deadline" position="attributes">
-                <attribute name="attrs">{'readonly': [('type_deadline', '=', 'computed')]}</attribute>
-            </field>
-            <field name="date_deadline" position="after">
-                <field name="type_deadline"
-                    nolabel="1"
-                    widget="badge"
-                    optional="show"
-                    decoration-info="type_deadline == 'manual'"
-                    decoration-primary="type_deadline == 'computed'"
-                />
+                <attribute name="attrs">{'readonly': [('deadline_week_offset', '!=', False)]}</attribute>
             </field>
         </field>
     </record>

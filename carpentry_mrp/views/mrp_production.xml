@@ -93,4 +93,54 @@
             </field>
         </field>
     </record>
+
+    <!-- Productivity: Search -->
+    <record id="oee_search_view" model="ir.ui.view">
+        <field name="name">mrp.workcenter.productivity.search.carpentry</field>
+        <field name="model">mrp.workcenter.productivity</field>
+        <field name="inherit_id" ref="mrp_attendance.oee_search_view" />
+
+        <field name="arch" type="xml">
+            <xpath expr="//searchpanel/field[@name='workcenter_id']" position="before">
+                <field name="project_id" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- MO Kanban (attendance) -->
+    <record id="mrp_production_kanban_view_attendance" model="ir.ui.view">
+        <field name="name">mrp.production.kanban.attendance.carpentry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp_attendance.mrp_production_kanban_view_attendance" />
+
+        <field name="arch" type="xml">
+            <!-- MO in top -->
+            <div class="o_kanban_record_top" position="replace">
+                <div class="o_kanban_record_top">
+                    <div class="o_kanban_record_headings ms-1">
+                        <div class="o_kanban_record_title fw-bold fs-3 mb-1"><field name="display_name" /></div>
+                        <field name="project_id" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hide bottom -->
+            <div class="o_kanban_record_bottom" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </div>
+        </field>
+    </record>
+
+    <!-- Dedicated MO search view for attendance -->
+    <record id="view_mrp_production_filter_attendance" model="ir.ui.view">
+        <field name="name">mrp.production.select.attendance.carpentry</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp_attendance.view_mrp_production_filter_attendance" />
+
+        <field name="arch" type="xml">
+            <field name="workcenter_ids" position="before">
+                <field name="project_id" select="multi" color="5" />
+            </field>
+        </field>
+    </record>
 </odoo>

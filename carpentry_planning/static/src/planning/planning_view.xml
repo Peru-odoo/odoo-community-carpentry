@@ -34,7 +34,7 @@
         </xpath>
         
         <xpath expr="//div[hasclass('o_kanban_header_title')]" position="after">
-            <div class="d-flex">
+            <div class="d-flex fs-3 fw-bold">
                 <!-- descr -->
                 <div class="flex-grow-1 mx-1">
                     <t t-if="header.description" t-esc="header.description" />

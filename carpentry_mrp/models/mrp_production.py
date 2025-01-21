@@ -5,11 +5,12 @@ from odoo import models, fields, api, exceptions, _, Command
 class ManufacturingOrder(models.Model):
     _inherit = ['mrp.production']
     _rec_name = 'display_name'
+    _rec_names_search = ['name', 'description']
 
     #===== Fields methods =====#
     def _compute_display_name(self):
         for mo in self:
-            mo.display_name = '[{}] {}' . format(self.name, self.description) if self.description else self.name
+            mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
     
     #===== Fields =====#
     description = fields.Char(
