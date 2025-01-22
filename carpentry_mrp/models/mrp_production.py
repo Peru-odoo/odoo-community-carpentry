@@ -31,7 +31,6 @@ class ManufacturingOrder(models.Model):
         string='Sequence'
     )
     
-    
     #===== Compute =====#
     # @api.depends('move_finished_ids')
     # def _compute_product_qty(self):

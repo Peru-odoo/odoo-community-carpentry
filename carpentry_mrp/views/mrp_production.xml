@@ -95,19 +95,6 @@
         </field>
     </record>
 
-    <!-- Productivity: Search -->
-    <record id="oee_search_view" model="ir.ui.view">
-        <field name="name">mrp.workcenter.productivity.search.carpentry</field>
-        <field name="model">mrp.workcenter.productivity</field>
-        <field name="inherit_id" ref="mrp_attendance.oee_search_view" />
-
-        <field name="arch" type="xml">
-            <xpath expr="//searchpanel/field[@name='workcenter_id']" position="before">
-                <field name="project_id" />
-            </xpath>
-        </field>
-    </record>
-
     <!-- MO Kanban (attendance) -->
     <record id="mrp_production_kanban_view_attendance" model="ir.ui.view">
         <field name="name">mrp.production.kanban.attendance.carpentry</field>
@@ -140,7 +127,7 @@
 
         <field name="arch" type="xml">
             <field name="workcenter_ids" position="before">
-                <field name="project_id" select="multi" color="5" />
+                <field name="project_id" select="multi" icon="fa-building" color="#605498" />
             </field>
         </field>
     </record>
