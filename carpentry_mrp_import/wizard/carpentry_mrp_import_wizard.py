@@ -348,15 +348,15 @@ class CarpentryMrpImportWizard(models.TransientModel):
             'subtype_xmlid': 'mail.mt_note',
             'is_internal': True,
             'partner_ids': [],
-            'body': _("""
-                <ul>
-                    <li><strong>%(byproducts)s</strong> final products</li>
-                    <li><strong>%(components)s</strong> components added</li>
-                    <li><strong>%(consu)s</strong> consumable (to order separatly)</li>
-                    <li><strong>%(substituted)s</strong> substituted references</li>
-                    <li><strong>%(ignored)s</strong> explicitely ignored</li>
-                    <li><strong>%(unknown)s</strong> unknown products</li>
-                </ul>""",
+            'body': _(
+                "<ul>"
+                    "<li><strong>%(byproducts)s</strong> final products</li>"
+                    "<li><strong>%(components)s</strong> components added</li>"
+                    "<li><strong>%(consu)s</strong> consumable (to order separatly)</li>"
+                    "<li><strong>%(substituted)s</strong> substituted references</li>"
+                    "<li><strong>%(ignored)s</strong> explicitely ignored</li>"
+                    "<li><strong>%(unknown)s</strong> unknown products</li>"
+                "</ul>",
                 byproducts=len(byproducts),
                 components=len(self.product_ids),
                 consu=len(consu),
