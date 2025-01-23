@@ -6,14 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-21 09:33+0000\n"
-"PO-Revision-Date: 2025-01-21 09:33+0000\n"
+"POT-Creation-Date: 2025-01-23 19:45+0000\n"
+"PO-Revision-Date: 2025-01-23 20:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__active
@@ -37,6 +39,26 @@ msgid "Launches"
 msgstr "Lancements"
 
 #. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_product_template
+msgid "Product"
+msgstr "Produit"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_production
+msgid "Production Order"
+msgstr "Ordre de fabrication"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__purchase_ids
+msgid "Related Purchase Orders"
+msgstr "Commandes liées"
+
+#. module: carpentry_mrp
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp.mrp_production_form_view
+msgid "Related Purchases Orders"
+msgstr "Commandes liées"
+
+#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__sequence
 msgid "Sequence"
 msgstr "Séquence"
@@ -45,3 +67,13 @@ msgstr "Séquence"
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.mrp_production_form_view
 msgid "Title of Manufacturing Order"
 msgstr "Nom de l'ordre de fabrication"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_workorder
+msgid "Work Order"
+msgstr "Ordre de travail"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_workcenter_productivity
+msgid "Workcenter Productivity Log"
+msgstr "Journal de productivité du poste de travail"

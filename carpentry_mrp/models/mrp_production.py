@@ -22,6 +22,10 @@ class ManufacturingOrder(models.Model):
         string='Launches',
         domain="[('project_id', '=', project_id)]",
     )
+    purchase_ids = fields.Many2many(
+        string='Related Purchase Orders',
+        related='launch_ids.purchase_ids'
+    )
     # -- for planning --
     active = fields.Boolean(
         default=True,

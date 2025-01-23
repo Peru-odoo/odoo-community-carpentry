@@ -60,6 +60,12 @@
                 <field name="launch_ids" optional="hide" widget="many2many_tags" />
             </field>
 
+            <page name="components" position="after">
+                <page name="purchases" string="Related Purchase Orders">
+                    <field name="purchase_ids" />
+                </page>
+            </page>
+
             <!-- MAIN PRODUCT -> SEVERAL PRODUCTS -->
             <!-- No main product manufacture: several product at same level -->
 

@@ -71,9 +71,9 @@
             <field name="name" position="attributes">
                 <attribute name="attrs">{'required': [('name_required', '=', True)]}</attribute>
             </field>
-            <!-- Description (after name) -->
+            <!-- Description (after name, in Text) -->
             <field name="name" position="after">
-                <field name="description" optional="show" widget="char" />
+                <field name="description_text" optional="show" />
             </field>
             <!-- `project_id`: hides when possible -->
             <field name="project_id" position="attributes">

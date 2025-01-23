@@ -3,6 +3,7 @@
 from odoo import models, fields, api, _, exceptions, Command
 
 from datetime import timedelta
+from odoo.tools import html2plaintext, plaintext2html
 
 class Task(models.Model):
     _inherit = ["project.task"]
@@ -39,6 +40,22 @@ class Task(models.Model):
     )
     date_deadline = fields.Datetime(string='Deadline')
     date_end = fields.Datetime(string='Finish Date')
+
+    # -- ui field --
+    description_text = fields.Text(
+        # allow displaying Description in Tree view though it's HTML field
+        compute='_compute_description_text',
+        inverse='_inverse_description_text'
+    )
+
+    #===== Compute (html's `description` to `description_text`) =====#
+    @api.depends('description')
+    def _compute_description_text(self):
+        for task in self:
+            task.description_text = html2plaintext(task.description)
+    def _inverse_description_text(self):
+        for task in self:
+            task.description = plaintext2html(task.description_text)
 
     #===== Compute `stage_id` depending `date_end` =====#
     @api.depends('date_end')
