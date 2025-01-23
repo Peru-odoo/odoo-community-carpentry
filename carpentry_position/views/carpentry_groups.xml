@@ -1,59 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <!-- Actions -->
-    <!-- Phases -->
-    <record id="action_open_phase" model="ir.actions.act_window">
-        <field name="name">Phases</field>
-        <field name="res_model">carpentry.group.phase</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create a first Phase.
-            </p>
-            <p>
-                Phases correspond to the contractual groupping of Positions on-site installation with the project's customer.
-                They match with the installation phases of Positions on the building (e.g. frontages).
-            </p>
-        </field>
-    </record>
-    <record id="action_open_phase_srv" model="ir.actions.server">
-        <!-- Preselect-action of project wizard before opening real action -->
-        <field name="name">Phases</field>
-        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
-        <field name="state">code</field>
-        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_phase')</field>
-    </record>
-    <!-- Launches -->
-    <record id="action_open_launch" model="ir.actions.act_window">
-        <field name="name">Launches</field>
-        <field name="res_model">carpentry.group.launch</field>
-        <field name="view_mode">tree,form</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create a first Launch.
-            </p>
-            <p>
-                Launches correspond to the launch in production of group of Positions. They are the
-                steering units of the project: every steps of the project can be linked to 1 or several
-                launch, like Purchase Orders or Production Work Order.
-                The Project Planning is organized by Launches.
-            </p>
-        </field>
-    </record>
-    <record id="action_open_launch_srv" model="ir.actions.server">
-        <!-- Preselect-action of project wizard before opening real action -->
-        <field name="name">Launches</field>
-        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
-        <field name="state">code</field>
-        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_launch')</field>
-    </record>
-
-    <!-- Menu-item: make `Projects` a drop-down -->
-    <menuitem id="menu_carpentry_phase" sequence="21" action="action_open_phase_srv" parent="carpentry_project.menu_projects_carpentry" />
-    <menuitem id="menu_carpentry_launch" sequence="22" action="action_open_launch_srv" parent="carpentry_project.menu_projects_carpentry" />
-
-
     <!-- Lot (tree) -->
     <record id="carpentry_group_lot_tree" model="ir.ui.view">
         <field name="name">carpentry.group.lot.tree</field>
@@ -148,8 +95,7 @@
 
                     <div class="oe_title">
                         <h1>
-                            <field name="name" invisible="context.get('carpentry_planning')" placeholder="Name" />
-                            <field name="name" invisible="not context.get('carpentry_planning')" readonly="1" />
+                            <field name="name" placeholder="Name" />
                         </h1>
                     </div>
                     
@@ -272,11 +218,62 @@
             </field>
         </field>
     </record>
-    <!-- Search -->
-    <record model="ir.ui.view" id="carpentry_group_launch_search">
-        <field name="name">carpentry.group.launch.search</field>
-        <field name="model">carpentry.group.launch</field>
-        <field name="inherit_id" ref="carpentry_group_phase_search" />
-        <field name="mode">primary</field>
+
+
+
+
+    
+
+    <!-- Actions -->
+    <!-- Phases -->
+    <record id="action_open_phase" model="ir.actions.act_window">
+        <field name="name">Phases</field>
+        <field name="res_model">carpentry.group.phase</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a first Phase.
+            </p>
+            <p>
+                Phases correspond to the contractual groupping of Positions on-site installation with the project's customer.
+                They match with the installation phases of Positions on the building (e.g. frontages).
+            </p>
+        </field>
     </record>
+    <record id="action_open_phase_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Phases</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_phase')</field>
+    </record>
+    <!-- Launches -->
+    <record id="action_open_launch" model="ir.actions.act_window">
+        <field name="name">Launches</field>
+        <field name="res_model">carpentry.group.launch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="carpentry_group_phase_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a first Launch.
+            </p>
+            <p>
+                Launches correspond to the launch in production of group of Positions. They are the
+                steering units of the project: every steps of the project can be linked to 1 or several
+                launch, like Purchase Orders or Production Work Order.
+                The Project Planning is organized by Launches.
+            </p>
+        </field>
+    </record>
+    <record id="action_open_launch_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Launches</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_launch')</field>
+    </record>
+
+    <!-- Menu-item: make `Projects` a drop-down -->
+    <menuitem id="menu_carpentry_phase" sequence="21" action="action_open_phase_srv" parent="carpentry_project.menu_projects_carpentry" />
+    <menuitem id="menu_carpentry_launch" sequence="22" action="action_open_launch_srv" parent="carpentry_project.menu_projects_carpentry" />
 </odoo>

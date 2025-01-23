@@ -12,7 +12,7 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'project_timeline', 'project_task_link', # OCA
+        'project_task_link', # OCA
         'project_favorite_switch', # other
         'carpentry_base', 'carpentry_planning',
     ],

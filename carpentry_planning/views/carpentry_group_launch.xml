@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Launch (form) -->
+    <record id="carpentry_group_launch_form" model="ir.ui.view">
+        <field name="name">carpentry.group.launch.form</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_position.carpentry_group_launch_form" />
+        
+        <field name="arch" type="xml">
+            <!-- Title in readonly in Launch form from carpentry planning -->
+            <form position="inside">
+                <field name="carpentry_planning" />
+            </form>
+            <field name="name" position="attributes">
+                <attribute name="attrs">{'readonly': [('carpentry_planning', '=', True)]}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
