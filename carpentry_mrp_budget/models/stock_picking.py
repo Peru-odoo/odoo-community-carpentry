@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
+from collections import defaultdict
 
 class StockPicking(models.Model):
     """ Budget Reservation on pickings """

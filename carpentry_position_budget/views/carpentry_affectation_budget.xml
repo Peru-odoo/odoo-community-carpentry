@@ -14,12 +14,12 @@
                 <field name="seq_group" invisible="1" />
                 <field name="record_res_model" invisible="1" />
 
+                <field name="group_ref" string="Budget" readonly="1"
+                    options="{'no_create': 1, 'no_open': 1}"
+                />
                 <field name="record_ref" string="Launch" readonly="1"
                     options="{'no_create': 1, 'no_open': 1}"
                     attrs="{'invisible': [('record_res_model', '=', 'project.project')]}"
-                />
-                <field name="group_ref" string="Budget" readonly="1"
-                    options="{'no_create': 1, 'no_open': 1}"
                 />
                 <field name="quantity_available" widget="monetary" string="Available" />
                 <field name="quantity_affected" widget="monetary" string="Reservation" required="1" sum="1" />
