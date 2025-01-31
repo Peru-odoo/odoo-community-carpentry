@@ -62,6 +62,7 @@ class CarpentryGroupAffectation(models.Model):
 
             # buget reservation (po and wo)
             ('carpentry.group.launch', 'Launch'),
+            ('project.project', 'Project'),
         ]
     
     def _selection_section_res_model(self):
@@ -74,6 +75,9 @@ class CarpentryGroupAffectation(models.Model):
         readonly=True,
         required=True,
         ondelete='cascade'
+    )
+    currency_id = fields.Many2one(
+        related='project_id.company_id.currency_id'
     )
 
     # group: the record holding the affecation (in column in x2m_2d_matrix)
@@ -309,7 +313,7 @@ class CarpentryGroupAffectation(models.Model):
             #     raise exceptions.ValidationError(
             #         _("Quantity affected must be strictly greater than 0, delete it instead.")
             #     )
-            elif affectation.quantity_remaining_to_affect < 0:
+            if affectation.quantity_remaining_to_affect < 0:
                 raise exceptions.ValidationError(_(
                     "The affected quantity is higher than the one available in the project (%s, %s).",
                     affectation.record_ref.name, affectation.group_ref.name
@@ -325,7 +329,7 @@ class CarpentryGroupAffectation(models.Model):
         
         mapped_quantities = affectation.group_ref._get_quantities_available(self._origin)
         for affectation in self:
-            key = (affectation.record_id, affectation.group_id)
+            key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
             affectation.quantity_available = mapped_quantities.get(key)
     
     @api.depends('record_id', 'quantity_affected')
@@ -337,7 +341,8 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             sum_affected_siblings = 0
             if affectation.record_ref:
-                sibling_ids = affectation._origin.record_ref.affectation_ids - affectation._origin
+                domain = [('record_res_model', '=', affectation.record_res_model)] # similar affectations (needed for project, not to confuse budget with positions)
+                sibling_ids = affectation._origin.record_ref.affectation_ids.filtered_domain(domain) - affectation._origin
                 sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
             
             # exclude current affectation from the sum

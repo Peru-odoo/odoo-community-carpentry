@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Picking Tree -->
+    <record id="vpicktree" model="ir.ui.view">
+        <field name="name">stock.picking.tree.carpentry_mrp</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="mrp_project_link.vpicktree" />
+
+        <field name="arch" type="xml">
+            <field name="project_id" position="after">
+                <field name="description" optional="show" />
+                <field name="launch_ids" widget="many2many_tags" optional="hide" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Picking Form -->
+    <record id="view_picking_form" model="ir.ui.view">
+        <field name="name">stock.picking.form.carpentry_mrp</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="mrp_project_link.view_picking_form" />
+
+        <field name="arch" type="xml">
+            <!-- Add `Description` -->
+            <h1 position="inside">
+                <field name="description"
+                    placeholder="Title of Picking"
+                    class="o_text_overflow flex-shrink-0"
+                    style="width: 80%"
+                />
+            </h1>
+            <field name="name" position="attributes">
+                <attribute name="class">flex-grow-1 me-3</attribute>
+            </field>
+
+            <!-- Add `Launches` & `MOs` -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" widget="many2many_tags"
+                    attrs="{'readonly': ['|', ('mrp_production_ids', '!=', []), ('purchase_id', '!=', False)]}"
+                />
+
+                <!-- Many2many tags: TO BE TESTED (because O2m) -->
+                <field name="mrp_production_ids" widget="many2many_tags" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Picking Search -->
+    <record id="view_picking_internal_search" model="ir.ui.view">
+        <field name="name">stock.picking.internal.search.carpentry_mrp</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="mrp_project_link.view_picking_internal_search" />
+
+        <field name="arch" type="xml">
+            <field name="project_id" position="after">
+                <field name="launch_ids" />
+                <field name="mrp_production_ids" />
+            </field>
+        </field>
+    </record>
+</odoo>

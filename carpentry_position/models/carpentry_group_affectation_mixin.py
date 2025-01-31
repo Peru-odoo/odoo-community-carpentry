@@ -49,6 +49,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         string='Readonly Affectation',
         default=True,
     )
+    sequence = fields.Integer() # to be defined on inheriting model
 
     #===== CRUD =====#
     def unlink(self):
@@ -99,7 +100,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             Args:
             - `record_ref` (line): 1 record of:
                 > Position or Affectation (for position affectation)
-                > Launch (for budget reservation)
+                > Launch or Project (for budget reservation)
             - `group_ref` (column): 1 record of:
                 > a Carpentry Group like Phase or Launch (for position affectation)
                 > or Analytic (for budget reservation)
@@ -118,7 +119,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         qty = affectation.quantity_affected if affectation else self._default_quantity(record_ref, group_ref)
 
         vals = {
-            'project_id': record_ref.project_id.id,
+            'project_id': record_ref.id if record_ref._name == 'project.project' else record_ref.project_id.id,
             # M2o models
             'record_model_id': mapped_model_ids.get(record_ref._name),
             'group_model_id': affectation.group_model_id.id if affectation else mapped_model_ids.get(group_ref._name),
@@ -203,37 +204,43 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         return [Command.set(matrix.ids)]
 
     #===== Affectation method =====#
-    def _get_affectation_ids_vals_list(self, temp):
+    def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
         """ Useful to either:
             - fully compute `temp` affectation from real + fill in cells gaps (e.g. phase & launch)
             - refresh *real* affectations and add a new column or row (e.g. purchase)
         """
+        self.ensure_one()
+
         # Get target values
         mapped_model_ids = self._get_mapped_model_ids()
-        record_refs = self._get_record_refs()
-        group_refs = self._get_group_refs()
+        record_refs = record_refs or self._get_record_refs()
+        group_refs = group_refs or self._get_group_refs()
         if not temp:
             # Remove affectations of unselected rows or cols
             self._clean_real_affectations(group_refs, record_refs)
 
-        # Get existing real values
-        mapped_real_ids = {
-            (affectation.group_id, affectation.record_id): affectation
-            for affectation in self.affectation_ids
-        }
-
         # Generate new x2m_2d_matrix
+        mapped_real_ids = self._get_mapped_real_ids()
         vals_list = []
         for group_ref in group_refs:
             for record_ref in record_refs:
-                affectation = mapped_real_ids.get((group_ref.id, record_ref.id))
-
-                vals = self._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation)
-                if temp:
-                    vals |= {'affected': bool(affectation)}
-                
+                vals = self._add_matrix_cell(group_ref, record_ref, mapped_real_ids, mapped_model_ids, temp)
                 vals_list.append(vals)
         return vals_list
+    
+    def _add_matrix_cell(self, group_ref, record_ref, mapped_real_ids, mapped_model_ids, temp):
+        key = (mapped_model_ids.get(group_ref._name), group_ref.id, record_ref.id)
+        affectation = mapped_real_ids.get(key)
+
+        vals = self._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation)
+        affected = {'affected': bool(affectation)} if temp else {}
+        return vals | affected
+
+    def _get_mapped_real_ids(self):
+        return {
+            (affectation.group_model_id.id, affectation.group_id, affectation.record_id): affectation
+            for affectation in self.affectation_ids
+        }
 
     def _get_group_refs(self):
         """ `group` is either the Carpentry Group (Phase, Launch)

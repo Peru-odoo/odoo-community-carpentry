@@ -15,6 +15,7 @@
             <!-- Add field "Line Status" next to "Status" -->
             <field name="state" position="before">
                 <field name="lines_validated"
+                    optional="show"
                     widget="badge"
                     decoration-success="lines_validated == 'all_validated'"
                     decoration-warning="lines_validated == 'not_validated'"

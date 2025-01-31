@@ -13,8 +13,8 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'project', 'purchase', # odoo
-        'project_purchase_link', #OCA
+        'project', 'purchase', 'stock', # odoo
+        'project_purchase_link', # OCA
         'project_favorite_switch', # other
         'carpentry_base', 'carpentry_planning_task_need', # carpentry
     ],

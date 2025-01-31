@@ -9,43 +9,17 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     _name = 'carpentry.group.budget.mixin'
     _description = 'Carpentry Group Budget Mixin'
 
-    project_id = fields.Many2one(
-        comodel_name='project.project'
-    )
-    currency_id = fields.Many2one(
-        related='project_id.company_id.currency_id'
-    )
-
+    project_id = fields.Many2one(comodel_name='project.project')
+    currency_id = fields.Many2one(related='project_id.company_id.currency_id')
     # in (h)
-    budget_office = fields.Float(
-        string='Office',
-        compute='_compute_budgets',
-    )
-    budget_prod = fields.Float(
-        string='Prod',
-        compute='_compute_budgets',
-    )
-    budget_install = fields.Float(
-        string='Install',
-        compute='_compute_budgets',
-    )
+    budget_office = fields.Float(string='Office', compute='_compute_budgets')
+    budget_prod = fields.Float(string='Prod', compute='_compute_budgets')
+    budget_install = fields.Float(string='Install', compute='_compute_budgets')
     # in (€)
-    budget_goods = fields.Monetary(
-        string='Goods',
-        compute='_compute_budgets',
-        currency_field='currency_id',
-    )
-    budget_global_cost = fields.Monetary(
-        string='Other',
-        compute='_compute_budgets',
-        currency_field='currency_id',
-    )
+    budget_goods = fields.Monetary(string='Goods', compute='_compute_budgets', currency_field='currency_id')
+    budget_global_cost = fields.Monetary(string='Other', compute='_compute_budgets', currency_field='currency_id')
     # total
-    budget_total = fields.Monetary(
-        string='Total',
-        compute='_compute_budgets',
-        currency_field='currency_id',
-    )
+    budget_total = fields.Monetary(string='Total', compute='_compute_budgets', currency_field='currency_id')
     
     
     #===== Compute (budgets) =====#

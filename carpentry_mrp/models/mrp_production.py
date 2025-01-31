@@ -13,9 +13,7 @@ class ManufacturingOrder(models.Model):
             mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
     
     #===== Fields =====#
-    description = fields.Char(
-        string='Description'
-    )
+    description = fields.Char(string='Description')
     launch_ids = fields.Many2many(
         comodel_name='carpentry.group.launch',
         relation='mrp_production_launch_rel',
@@ -27,13 +25,8 @@ class ManufacturingOrder(models.Model):
         related='launch_ids.purchase_ids'
     )
     # -- for planning --
-    active = fields.Boolean(
-        default=True,
-        string='Active?'
-    )
-    sequence = fields.Integer(
-        string='Sequence'
-    )
+    active = fields.Boolean(default=True, string='Active?')
+    sequence = fields.Integer(string='Sequence')
     
     #===== Compute =====#
     # @api.depends('move_finished_ids')

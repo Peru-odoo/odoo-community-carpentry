@@ -24,6 +24,12 @@ Carpentry Features
   Choosing a project on the PO adds the project's analytic account to PO lines analytic
   distribution.
 
+* Analytic Distribution of storable product in purchase order line follows following rule
+  (limited to project's analytic): stored product (`product`) are blocked on company's internal
+  project's analytic plan and consummable products (`consu`) are blocked on the PO's project
+  analytic plan. Indeed, to value the *Encours de production par affaire*, one need to only value
+  the outgoing stock moves per-project and not the incoming ones.
+
 * Adds delivery and invoicing address to project form's *Description* tab,
   selected within customer's addresses by types (delivery, invoicing) or default one
 

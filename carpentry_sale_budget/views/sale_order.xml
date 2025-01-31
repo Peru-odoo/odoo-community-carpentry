@@ -28,6 +28,7 @@
             <!-- Add field "Budget State" next to "Line State" -->
             <field name="lines_validated" position="after">
                 <field name="lines_budget_updated"
+                    optional="show"
                     widget="badge"
                     decoration-success="lines_budget_updated == 'all_updated'"
                     decoration-warning="lines_budget_updated == 'not_updated'"

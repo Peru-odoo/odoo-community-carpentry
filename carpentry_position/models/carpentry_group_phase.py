@@ -26,6 +26,6 @@ class CarpentryGroupPhase(models.Model):
     def _get_quantities_available(self, affectations):
         """ `Available quantity` in phase affectation is position's quantity in the project """
         return {
-            (x.record_id, x.group_id): x.record_ref.quantity
+            (x.record_res_model, x.record_id, x.group_id): x.record_ref.quantity
             for x in affectations
         }

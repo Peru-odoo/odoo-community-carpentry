@@ -7,7 +7,7 @@ _logger = logging.getLogger(__name__)
 EXTERNAL_DB_TYPE = [
     ('orgadata', 'Orgadata')
 ]
-SEPARATOR_COLOR = '-RAL' # example: "174170-RAL7016 Sat 30"
+SEPARATOR_COLOR = '-' # example: "174170-RAL7016 Sat 30"
 
 class CarpentryMrpImportWizard(models.TransientModel):
     _name = "carpentry.mrp.import.wizard"
@@ -252,7 +252,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 ) | {
                     # (!) very important
                     # needed so it's not guessed by [Create] operation
-                    # else these moves will be considered both as components and finished products
+                    # else these moves will be considered both as components *and* finished products
                     'production_id': False
                 })
             )

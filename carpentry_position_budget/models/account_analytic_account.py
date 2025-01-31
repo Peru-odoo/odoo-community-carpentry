@@ -1,10 +1,32 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
+from odoo.osv import expression
 
 class AccountAnalyticAccount(models.Model):
     _inherit = ['account.analytic.account']
+    # for Purchase & Manufacturing Orders
+    _carpentry_affectation = True # to allow affectation (as `group_ref`)
+    _carpentry_affectation_quantity = True # affectation by qty
+    _carpentry_affectation_allow_m2m = True
+    _carpentry_affectation_section = False
 
+    #===== Fields methods =====#
+    def name_get(self):
+        """ Add Budget Type in suffix """
+        res = super().name_get()
+        if self._context.get('analytic_display_budget_type'):
+            budget_type = dict(self._fields['budget_type'].selection)
+            res_updated = []
+            for id_, name in res:
+                analytic = self.browse(id_)
+                res_updated.append((id_, name + f' ({budget_type.get(analytic.budget_type)})'))
+        else:
+            res_updated = res
+        
+        return res_updated
+
+    #===== Fields =====#
     budget_type = fields.Selection(
         selection_add=[
             ('production', 'Production'),
@@ -29,18 +51,121 @@ class AccountAnalyticAccount(models.Model):
             return 'workforce'
         return super()._get_default_line_type()
 
-
     #==== Affectation matrix =====#
     def _get_quantities_available(self, affectations):
         """ Available budget on budget matrix depends on:
-            - the Launch (affectation.record_ref) *and*
+            - the Project or Launch (affectation.record_ref) *and*
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
         section = fields.first(affectations).section_ref
-        launch_ids = affectations.mapped('record_id')
-        analytic_ids = affectations.mapped('group_id')
-        return (
-            self.env['carpentry.group.launch'].sudo().browse(launch_ids).
-            _get_remaining_budget(section, analytic_ids)
+        launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
+        launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
+        return self._get_remaining_budget(launchs, section)
+
+    def _get_remaining_budget(self, launchs, section=None, mode='brut'):
+        """ Calculate [Initial Budget] - [Reservation], per launch & analytic
+            :arg sefl:       only those budgets are searched
+            :arg launchs:    filters searched budget to only those launches
+                             note: Global Cost are always searched, because per-project
+            :option section: PO or MO record
+            :option mode: 'brut' or 'valued'
+            :return: Dict like: 
+                {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
+        """
+        brut, valued = self._get_available_budget_initial(launchs)
+        budget = brut if mode == 'brut' else valued
+        reserved = self._get_sum_reserved_budget(launchs, section,sign=-1)
+
+        # careful: browse all keys and all rows of both `budget` and `reserved`
+        # since they might be budget without reservation, or even reservation without budget
+        remaining = reserved.copy() # are values are negative (`sign=-1`)
+        for (model, record_id), budgets in budget.items():
+            for analytic_id, amount in budgets.items():
+                key = (model, record_id, analytic_id)
+                remaining[key] = remaining.get(key, 0.0) + amount
+        return remaining
+    
+    def _get_available_budget_initial(self, launchs):
+        """ :return: (brut, valued) where each item is a dict-of-dict like:
+            {
+                ('launch',  launch.id): {analytic.id: amount, ...}, # per-position budget
+                ('project', project.id): {analytic.id: amount, ...}, # global budget (per project)
+                ...
+            }
+        """
+        def __adapt_key(brut_valued, model='carpentry.group.launch'):
+            """ Adds `model` in brut/valued key dict """
+            return (
+                {(model, k): v for k, v in brut_valued[0].items()},
+                {(model, k): v for k, v in brut_valued[1].items()}
+            )
+
+        # Budget from launches (computed)
+        brut, valued = __adapt_key(self.env['carpentry.position.budget'].sudo().sum(
+            quantities=launchs._get_quantities(),
+            groupby_group=['group_id'],
+            groupby_budget='analytic_account_id',
+            domain_budget=[('analytic_account_id', 'in', self.ids)]
+        ))
+
+        # Budget from the project (not computed)
+        rg_result = self.env['account.move.budget.line'].sudo().read_group(
+            domain=[('project_id', 'in', launchs.project_id.ids), ('is_computed_carpentry', '=', False)],
+            groupby=['project_id', 'analytic_account_id'],
+            fields=['balance:sum', 'qty_balance:sum'],
+            lazy=False
         )
+        for x in rg_result:
+            # Add global-cost budget to `brut` & `valued`
+            key = ('project.project', x['project_id'][0])
+            brut[key]   = brut.get(key, {})   | {x['analytic_account_id'][0]: x['qty_balance']}
+            valued[key] = valued.get(key, {}) | {x['analytic_account_id'][0]: x['balance']}
+        
+        return brut, valued
+    
+    def _get_sum_reserved_budget(self, launchs, section=None, sign=1):
+        """ Sum all budget reservation on project & launches
+             and return it by project-or-launches & analytics
+            
+            :arg launchs:    explicit
+            :option section: `section_ref` record (PO or MO) to be excluded from
+                             the sum. Useful to compute *remaining budgets* on POs and MOs
+            :option sign:    give `-1` so values are negative
+
+            :return: Dict like result of `_get_available_budget_initial`
+
+            Note: budget reservation are *affectation* with `record_ref` being
+             `launch_id` or `project_id`, and:
+                - `group_id`: analytic account
+                - `section_id`: the document reserving the budget (e.g. PO or MO)
+                - `quantity_affected`: the reserved budget
+            
+        """
+        domain_launch = launchs._get_domain_affect('record')
+        domain_project = [
+            ('record_res_model', '=', 'project.project'),
+            ('record_id', 'in', launchs.project_id.ids),
+        ]
+        domain = expression.OR([domain_launch, domain_project])
+        if section:
+            section.ensure_one()
+            domain = expression.AND([domain, [
+                ('section_res_model', '=', section._name),
+                ('section_id', '!=', section.id),
+            ]])
+        
+        rg_result = self.env['carpentry.group.affectation'].read_group(
+            domain=domain,
+            groupby=['record_model_id', 'record_id', 'group_id'],
+            fields=['quantity_affected:sum', 'record_id', 'group_id']
+        )
+        domain = [('id', 'in', [x['record_model_id'][0] for x in rg_result])]
+        mapped_model_name = {
+            model['id']: model['model']
+            for model in self.env['ir.model'].sudo().search_read(domain, ['model'])
+        }
+        return {
+            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x['group_id']): x['quantity_affected'] * sign
+            for x in rg_result
+        }

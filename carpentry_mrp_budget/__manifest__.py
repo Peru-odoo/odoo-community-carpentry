@@ -19,10 +19,12 @@
 
         # carpentry
         'carpentry_mrp',
-        'carpentry_position_budget',
+        'carpentry_purchase_budget',
     ],
-    'data': [
-        # data
-        'views/mrp_workcenter.xml',
+    "data": [
+        # views
+        "views/mrp_workcenter.xml",
+        "views/mrp_production.xml",
+        "views/stock_picking.xml",
     ]
 }

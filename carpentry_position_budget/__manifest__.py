@@ -33,6 +33,7 @@
         'views/carpentry_position.xml',
         'views/project_project.xml',
         'views/account_move_budget_line.xml',
+        'views/carpentry_affectation_budget.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -9,7 +9,10 @@
         <field name="arch" type="xml">
             <!-- Add `Analytic` filter between Project & Task -->
             <field name="add_line_project_id" position="after">
-                <field name="add_line_analytic_id" />
+                <field name="is_internal_project" invisible="1" />
+                <field name="add_line_analytic_id"
+                    attrs="{'invisible': [('is_internal_project', '=', True)]}"
+                />
             </field>
 
             <!-- *** 'Details' tab *** -->

@@ -131,10 +131,10 @@ msgstr "Les lancements doivent appartenir au projet."
 #, python-format
 msgid ""
 "The only allowed project in Analytic Distribution is the purchase order's "
-"one."
+"one (or internal project)."
 msgstr ""
 "Le seul projet autorisé dans les Distributions Analytiques des lignes de "
-"commandes est celui défini sur la commande."
+"commandes est celui défini sur la commande (ou le projet interne)."
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form

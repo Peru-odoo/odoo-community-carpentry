@@ -9,6 +9,9 @@ class HrTimesheetSheet(models.Model):
     add_line_project_id = fields.Many2one(
         default=lambda self: self.env['project.default.mixin']._get_project_id(),
     )
+    is_internal_project = fields.Boolean(
+        related='add_line_project_id.is_internal_project'
+    )
     add_line_analytic_id = fields.Many2one(
         comodel_name='account.analytic.account',
         string='Budget',
@@ -41,7 +44,7 @@ class HrTimesheetSheet(models.Model):
 
         domain = [('allow_timesheets', '=', True)]
 
-        if self.add_line_analytic_id:
+        if self.add_line_analytic_id and not self.is_internal_project:
             domain += [('analytic_account_id', 'in', self.add_line_analytic_id.ids)]
 
         if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):

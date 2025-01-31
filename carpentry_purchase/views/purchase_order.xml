@@ -53,9 +53,24 @@
             <!-- Add `Project` -->
             <field name="partner_id" position="before">
                 <field name="project_id_domain" invisible="1" />
-                <field name="project_id" required="1" attrs="{'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])]}" />
+                <field name="project_id" attrs="{
+                    'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])],
+                    'required': [(1, '=', 1)]
+                }" />
                 <field name="launch_ids" widget="many2many_tags" />
             </field>
+            
+            <div class="oe_title" position="before">
+                <field name="warning_stock" invisible="1" />
+                
+                <div name="warning_stock" role="alert" class="alert alert-danger"
+                    attrs="{'invisible': [('warning_stock', '!=', True)]}"
+                >
+                    <span class="fa fa-exclamation-triangle" />
+                    This Purchase Order mixes both stored and non-stored products. Please ensure this is the expected target
+                    or update the lines in "Products" page. 
+                </div>
+            </div>
 
             <!-- Date widget, instead of Datetime -->
             <field name="date_order" position="attributes">

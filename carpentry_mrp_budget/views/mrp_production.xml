@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- PO Form -->
-    <record id="purchase_order_form" model="ir.ui.view">
-        <field name="name">purchase.order.form.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.purchase_order_form" />
+
+    <!-- Production Form -->
+    <record id="mrp_production_form_view" model="ir.ui.view">
+        <field name="name">mrp.production.form.carpentry_budget</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="carpentry_mrp.mrp_production_form_view" />
         
         <field name="arch" type="xml">
-
+        
             <!-- Warning banner -->
             <sheet position="before">
-                <field name="amount_untaxed_consu" invisible="1" />
                 <field name="warning_budget" invisible="1" />
-
                 <div name="warning_banner" role="alert" class="alert alert-warning"
                     attrs="{'invisible': [('warning_budget', '=', False)]}"
                 >
-                    It seems the budget reservation should be updated because the total cost of non-stored products
-                    (<strong><field name="amount_untaxed_consu" /></strong>) is different than budget reservation
-                    (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>).
-                    <br />
-                    Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.
-                    <br />
-                    Note 2 : To reserve budget for storable products, please proceed through a Stock Reservation or do it manually from a Purchase Order.
+                    The total production hours reserved in the budget 
+                    <strong>(<field name="sum_quantity_affected" />h)</strong>
+                    is differerent than the total of hours in the Work Orders
+                    <strong>(<field name="production_duration_expected" />h)</strong>.
                 </div>
             </sheet>
 
-            <page name="products" position="after">
+            <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
+            <xpath expr="//field[@name='move_raw_ids']//tree" position="inside">
+                <field name="analytic_distribution"
+                    widget="analytic_distribution"
+                    optional="hide"
+                    groups="analytic.group_analytic_accounting"
+                    options="{'product_field': 'product_id', 'business_domain': 'manufacturing_order'}"
+                />
+            </xpath>
+
+
+            <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
                 <page name="budget" string="Budget reservation">
                     <field name="readonly_affectation" invisible="1" />
@@ -39,26 +46,19 @@
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose budgets">
-                            <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('amount_untaxed_consu', '!=', 0)]}"
-                            >
-                                Please ensure the "Products" tab contains at least 1 non-stored product (with a price) before placing a reservation.
-                            </div>
-
-                            <field name="budget_analytic_ids"
-                                widget="many2many_checkboxes"
-                                attrs="{'readonly': [('amount_untaxed_consu', '=', 0)]}"
-                                context="{'analytic_display_budget_type': 1}"
-                            />
+                            <field name="budget_analytic_ids" widget="many2many_checkboxes" context="{'analytic_display_budget_type': 1}" />
                         </group>
                         
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve budget">
                             <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': ['|',
-                                    ('affectation_ids', '!=', []),
-                                    '&amp;', ('readonly_affectation', '=', True), ('id', '!=', False)
-                                ]}"
+                                attrs="{'invisible': [('readonly_affectation', '=', False)]}"
+                            >
+                                Please save before continuing.
+                            </div>
+
+                            <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
+                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
                             >
                                 Please select launche(s) and budget(s) for placing a reservation.
                             </div>
@@ -74,7 +74,7 @@
 
                 </page>
             </page>
-
         </field>
     </record>
+
 </odoo>

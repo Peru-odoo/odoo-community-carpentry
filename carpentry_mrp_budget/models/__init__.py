@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from . import product_template
+from . import analytic_applicability
+from . import carpentry_group_affectation
+
+from . import stock_move
 from . import mrp_production
+from . import stock_picking

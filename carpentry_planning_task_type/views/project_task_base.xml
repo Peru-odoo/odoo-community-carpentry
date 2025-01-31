@@ -73,7 +73,7 @@
             </field>
             <!-- Description (after name, in Text) -->
             <field name="name" position="after">
-                <field name="description_text" optional="show" />
+                <field name="description_text" string="Description" optional="show" />
             </field>
             <!-- `project_id`: hides when possible -->
             <field name="project_id" position="attributes">

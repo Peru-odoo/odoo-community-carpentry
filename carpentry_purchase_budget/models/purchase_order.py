@@ -6,98 +6,56 @@ from odoo.tools import float_compare
 
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
-    _inherit = ['purchase.order', 'project.default.mixin', 'carpentry.group.affectation.mixin']
-    _carpentry_affectation_quantity = True
-    # record: launch
-    # group: analytic
-    # section: order
+    _inherit = ['purchase.order', 'carpentry.budget.reservation.mixin']
 
     #====== Fields ======#
-    # -- affectation matrix --
-    affectation_ids = fields.One2many(
-        inverse_name='section_id',
-        domain=[('section_res_model', '=', _name)],
-        compute='_compute_affectation_ids',
+    affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    warning_budget = fields.Boolean(compute='_compute_warning_budget')
+    amount_untaxed_consu = fields.Monetary(
+        string='Untaxed Amount (Consummable)',
         store=True,
-        readonly=False
-    )
-    
-    # -- ui/logic fields --
-    budget_analytic_ids = fields.Many2many(
-        comodel_name='account.analytic.account',
-        string='Budgets',
-        compute='_compute_budget_analytic_ids',
-        help='Budgets selected in analytic distribution of lines in "Products" page.',
-    )
-    budget_unique_analytic_id = fields.Many2one(
-        # Update lines' analytic distribution at once (budgets)
-        comodel_name='account.analytic.account',
-        string='Unique Budget',
-        compute='_compute_budget_analytic_ids',
-        inverse='_inverse_budget_unique_analytic_id',
-        domain="[('budget_project_ids', '=', project_id)]",
-        help="Change this field to reserve budget on this single one."
-             " To consume different budgets, modify the 'analytic distribution'"
-             " per line in 'Products' page.",
-    )
-    warning_budget = fields.Boolean(
-        compute='_compute_warning_budget'
+        readonly=True,
+        compute='_compute_amount_untaxed_consu'
     )
 
     #====== Affectation refresh ======#
-    @api.depends('launch_ids', 'order_line', 'order_line.analytic_distribution')
+    @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_affectation_ids(self):
-        """ Refresh budget matrix and auto-reservation when:
-            - (un)selecting launches
-            - (un)selecting budget analytic in order lines
-        """
-        for purchase in self:
-            vals_list = purchase._get_affectation_ids_vals_list(temp=False)
-
-            if purchase._has_real_affectation_matrix_changed(vals_list):
-                purchase.affectation_ids = purchase._get_affectation_ids(vals_list)
-                purchase._auto_update_budget_distribution()
-                purchase.readonly_affectation = True # some way to inform users the budget matrix was re-computed
+        self.readonly_affectation = True # tells the user to Save
+        return super()._compute_affectation_ids()
     
     @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_budget_analytic_ids(self):
-        """ Compute budget analytics shortcuts """
-        for purchase in self:
-            budgets = purchase.order_line.analytic_ids.filtered('is_project_budget')
-
-            purchase.budget_analytic_ids = budgets
-            purchase.budget_unique_analytic_id = len(budgets) == 1 and budgets
-    
-    #====== Affectation mixin methods ======#
-    def _get_record_refs(self):
-        """ [Affectation Refresh] 'Lines' are launches (of real affectation) """
-        return self.launch_ids._origin
-    
-    def _get_group_refs(self):
-        """ [Affectation Refresh] 'Columns' of Purchase Order affectation matrix are analytic account
-            present in the project's budgets
+        """ Compute budget analytics shortcuts
+            (!) ignores lines of storable products
         """
-        return self.budget_analytic_ids._origin.filtered(lambda x: x.budget_project_ids in self.project_id)
-    
-    def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
-        """ [Affectation Refresh] Store PO id in `section_ref` """
-        return super()._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation) | {
-            'section_model_id': mapped_model_ids.get(self._name),
-            'section_id': self._origin.id,
-        }
+        for purchase in self:
+            project_budgets = purchase.project_id.budget_line_ids.analytic_account_id
+            lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
+            purchase.budget_analytic_ids = lines.analytic_ids.filtered('is_project_budget') & project_budgets
 
-    def _get_domain_affect(self):
-        return [
-            ('section_res_model', '=', 'purchase.order'),
-            ('section_id', 'in', self.ids)
-        ]
+    def _get_total_by_analytic(self):
+        """ Group-sum `price_subtotal` of purchase order_line by analytic account,
+             for analytic accounts available in PO's project
+             (!) ignores lines of storable products
+            :return: Dict like {analytic_id: charged amount}
+        """
+        self.ensure_one()
+        mapped_analytics = self._get_mapped_project_analytics()
+        mapped_price = defaultdict(float)
+        
+        lines = self.order_line.filtered(lambda x: x.product_id.type != 'product')
+        for line in lines:
+            if not line.analytic_distribution:
+                continue
 
-    def _raise_if_no_affectations(self):
-        raise exceptions.UserError(_(
-            'There is no possible budget reservation. Please verify'
-            ' if the Purchase Order has lines with analytic distribution,'
-            ' (in "Products" page) and ensure some launches are selected.'
-        ))
+            for analytic_id, percentage in line.analytic_distribution.items():
+                analytic_id = int(analytic_id)
+                # Ignore cost if analytic not in project's budget
+                if analytic_id in mapped_analytics.get(line.project_id.id, []):
+                    amount = line.price_subtotal * percentage / 100
+                    mapped_price[analytic_id] += amount
+        return mapped_price
 
     #====== Compute ======#
     @api.depends('amount_untaxed', 'affectation_ids')
@@ -105,71 +63,23 @@ class PurchaseOrder(models.Model):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         states = ['to approve', 'approved', 'purchase', 'done']
         for purchase in self:
-            compare = float_compare(purchase.amount_untaxed, purchase.sum_quantity_affected, precision_digits=prec)
+            compare = float_compare(purchase.amount_untaxed_consu, purchase.sum_quantity_affected, precision_digits=prec)
             purchase.warning_budget = purchase.state in states and compare != 0
 
-    # --- budget_unique_analytic_id (shortcut to set line analytic at once on the budget) ---
-    def _inverse_budget_unique_analytic_id(self):
-        """ Modify all lines analytic at once """
-        for purchase in self:
-            replaced_ids = purchase.order_line.analytic_ids.filtered('is_project_budget')
-            added_id = purchase.budget_unique_analytic_id
-            # Don't do shortcut when `added_id` is empty *and* the order has multiple budgets
-            if added_id or len(replaced_ids) == 1:
-                purchase.order_line._replace_analytic(replaced_ids.ids, added_id.id)
+    @api.depends('order_line.price_total', 'order_line.product_id.type')
+    def _compute_amount_untaxed_consu(self):
+        """ Inspired from native code (purchase/purchase.py/_amount_all)"""
+        for order in self:
+            order_lines = order.order_line.filtered(lambda x: not x.display_type and x.product_id.type == 'consu')
 
-    #===== Business logics =====#
-    def _auto_update_budget_distribution(self):
-        """ Distribute line price (expenses) into budget reservation,
-             according to remaining budget
-        """
-        budget_distribution = self._get_auto_budget_distribution()
-        for affectation in self.affectation_ids:
-            key = (affectation.record_id, affectation.group_id) # launch_id, analytic_id
-            affectation.quantity_affected = budget_distribution.get(key, 0.0)
-    
-    def _get_auto_budget_distribution(self):
-        """ Calculate suggestion for budget reservation of an order, considering:
-             - total price per budget analytic in the order lines
-             - remaining budget of selected launches, per analytic
-            Values can be used for `quantity_affected` field of affectations
+            if order.company_id.tax_calculation_rounding_method == 'round_globally':
+                tax_results = self.env['account.tax']._compute_taxes([
+                    line._convert_to_tax_base_line_dict()
+                    for line in order_lines
+                ])
+                totals = tax_results['totals']
+                amount_untaxed = totals.get(order.currency_id, {}).get('amount_untaxed', 0.0)
+            else:
+                amount_untaxed = sum(order_lines.mapped('price_subtotal'))
 
-            :return: Dict like: {
-                (launch.id, analytic.id): average-weighted amount, i.e.:
-                    expense * remaining budget / total budget (per launch)
-            }
-        """
-        self.ensure_one() # (!) `remaining_budget` must be computed per order
-        line_total_price = self._get_price_by_analytic()
-        remaining_budget = self.launch_ids._get_remaining_budget(
-            section=self._origin,
-            analytic_ids=list(set(line_total_price.keys())),
-        )
-
-        # Sums launch total available budget per analytic
-        mapped_analytic_budget = defaultdict(float)
-        for (launch_id, analytic_id), budget in remaining_budget.items():
-            mapped_analytic_budget[analytic_id] += budget
-
-        # Calculate automatic budget reservation (avg-weight)
-        budget_distribution = {}
-        for (launch_id, analytic_id), budget_launch in remaining_budget.items():
-            total_price = line_total_price.get(analytic_id)
-            total_budget = mapped_analytic_budget.get(analytic_id)
-
-            reservation = total_budget and total_price * budget_launch / total_budget
-            key = (launch_id, analytic_id)
-            budget_distribution[key] = min(reservation or 0.0, total_budget)
-        return budget_distribution
-
-    def _get_price_by_analytic(self):
-        """ Group-sum `price_subtotal` of purchase order lines by analytic account
-            :return: Dict like {analytic_id: charged amount}
-        """
-        self.ensure_one()
-        mapped_price = defaultdict(float)
-        for line in self.order_line:
-            for analytic_id, percentage in line.analytic_distribution.items():
-                amount = line.price_subtotal * percentage / 100
-                mapped_price[int(analytic_id)] += amount
-        return mapped_price
+            order.amount_untaxed_consu = amount_untaxed

@@ -19,7 +19,6 @@ class TestCarpentryPurchaseBudget_Base(TestCarpentryPosition_Base):
             'date_start': '2022-01-01',
             'date': '2022-12-31',
         })
-        cls.project2 = cls.project.copy({'name': 'Project Test 002'})
         
         # affect all positions to phase1 and launch1 (qty=0 but position1-phase1)
         cls._clean_affectations(quick_affect=True)
@@ -34,7 +33,7 @@ class TestCarpentryPurchaseBudget_Base(TestCarpentryPosition_Base):
         })
         cls.analytic2 = cls.analytic.copy({'name': 'Account Test 02'})
 
-        # budget lines tempalte
+        # budget lines template
         cls.budget = fields.first(cls.project.budget_ids)
         cls.account = cls.env["account.account"].create({
             "code": "accounttest01",
@@ -63,6 +62,7 @@ class TestCarpentryPurchaseBudget_Base(TestCarpentryPosition_Base):
         # product
         cls.product = cls.env['product.product'].create({
             'name': 'Product Test 01',
+            'detailed_type': 'consu',
             'uom_id': cls.env.ref('uom.product_uom_unit').id,
             'uom_po_id': cls.env.ref('uom.product_uom_unit').id,
         })
@@ -82,6 +82,14 @@ class TestCarpentryPurchaseBudget_Base(TestCarpentryPosition_Base):
         })
         cls.line = fields.first(cls.purchase.order_line)
 
+        # global budget
+        cls.analytic_global = cls.analytic.copy({'name': 'Account Global Test 03'})
+        cls.project.budget_line_ids = [Command.create({
+            'budget_id': cls.project.budget_id.id,
+            'analytic_account_id': cls.analytic_global.id,
+            'account_id': cls.account.id,
+            'date': cls.project.date_start,
+        })]
 
 
 class TestCarpentryPurchaseBudget(TestCarpentryPurchaseBudget_Base):
@@ -90,76 +98,29 @@ class TestCarpentryPurchaseBudget(TestCarpentryPurchaseBudget_Base):
     def setUpClass(cls):
         super().setUpClass()
     
-    #----- analytic shortcuts & constrains of purchase order lines -----
-    def test_01_shortcut_analytic_project(self):
-        """ Test if **project** analytic account is well set on line (in mass) """
-        # Set project2 first, and ensure the new 'self.project' wins over the former one
-        with Form(self.purchase) as f:
-            f.project_id = self.project2
-        with Form(self.purchase) as f:
-            f.project_id = self.project
-        
-        self.assertTrue(all(
-            self.project.analytic_account_id in line.analytic_ids and
-            not self.project2.analytic_account_id in line.analytic_ids
-            for line in self.purchase.order_line
-        ))
 
-    def test_02_raise_analytic_project(self):
-        """ Should raise: cannot set different project analytic than the one in `project_id` """
-        self.purchase.project_id = self.project
-        with self.assertRaises(exceptions.ValidationError):
-            self.line.analytic_distribution = {self.project2.analytic_account_id.id: 100}
-
-    def test_03_shortcut_analytic_budget(self):
-        """ Test if analytic account well applies to PO's lines (in mass) """
-        # Set `self.analytic2` first, and ensure the new 'self.analytic' wins over the former one
-        with Form(self.purchase) as f:
-            f.budget_unique_analytic_id = self.analytic2
-        with Form(self.purchase) as f:
-            f.budget_unique_analytic_id = self.analytic
-        
-        self.assertTrue(all(
-            self.analytic == line.analytic_ids.filtered('is_project_budget')
-            for line in self.purchase.order_line
-        ))
-
-    # def test_04_raise_analytic_budget(self):
-    #     """ Should raise: cannot set budget analytic on PO lines
-    #         of an analytic account not in project's budget lines
-    #     """
-    #     self.purchase.project_id = self.project
-
-    #     # Remove budget on `analytic2`
-    #     fields.first(self.position.position_budget_ids).unlink()
-
-    #     # `analytic2` is not in the budget of `self.project` => should raise
-    #     with self.assertRaises(exceptions.ValidationError):
-    #         self.line.analytic_distribution = {self.analytic2.id: 100}
-
-    #----- affectation matrix -----
     def _set_full_affectation(self):
         po = self.purchase
         po.project_id = self.project.id
         po.launch_ids = [Command.set(self.project.launch_ids.ids)]
         po.order_line.analytic_distribution = {self.analytic.id: 50}
     
-    def test_05_affectation_full(self):
+    def test_01_affectation_full(self):
         """ Test if budget reservation matrix forms well
             - `record_ref: add all launches (row)
             - `group_ref`: add all analytics (col)
         """
         self._set_full_affectation()
-        self.assertEqual(len(self.purchase.affectation_ids), len(self.project.launch_ids))
+        aff = self.purchase.affectation_ids
+        self.assertEqual(len(aff), len(self.project.launch_ids))
 
         # Test if purchase expense is well distributed per launch for the automated budget reservation
         # Expected result: all expense on launch 1, since this only launch has available budget
-        a = self.purchase.affectation_ids
-        self.assertEqual(a[0].quantity_affected, self.BUDGET_POSITION)
-        self.assertEqual(a[1].quantity_affected, 0)
-        self.assertEqual(a[2].quantity_affected, 0)
+        self.assertEqual(aff[0].quantity_affected, self.BUDGET_POSITION)
+        self.assertEqual(aff[1].quantity_affected, 0)
+        self.assertEqual(aff[2].quantity_affected, 0)
 
-    def test_06_affectation_empty_budget(self):
+    def test_02_affectation_empty_budget(self):
         """ Test if budget matrix empty itself if no budget """
         self._set_full_affectation()
         for line in self.purchase.order_line:
@@ -167,7 +128,7 @@ class TestCarpentryPurchaseBudget(TestCarpentryPurchaseBudget_Base):
                 f.analytic_distribution = {}
         self.assertFalse(self.purchase.affectation_ids)
 
-    def test_07_affectation_single_launch(self):
+    def test_03_affectation_single_launch(self):
         """ Test if budget matrix & content well comes back to 1 launch (from all launches) """
         self._set_full_affectation() # starts with a complete matrix
         self.purchase.launch_ids = [Command.set(self.launch.ids)] # remove 2 launches
@@ -179,3 +140,27 @@ class TestCarpentryPurchaseBudget(TestCarpentryPurchaseBudget_Base):
             self.BUDGET_POSITION
         )
     
+    def test_04_analytic_choice(self):
+        """ Test manual choice of analytics """
+        with Form(self.purchase) as f:
+            f.budget_analytic_ids.remove(id=self.analytic.id)
+            f.budget_analytic_ids.add(self.analytic2)
+        
+        lines = self.purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
+        self.assertEqual(self.analytic2, lines.analytic_ids.filtered('is_project_budget'))
+    
+    def test_05_global_cost(self):
+        """ Test if global costs is well set on project and not on any launches """
+        self._set_full_affectation() # on 3 launches
+        with Form(self.purchase) as f:
+            # 1 single global (& manual) budget
+            f.budget_analytic_ids.remove(id=self.analytic.id)
+            f.budget_analytic_ids.add(self.analytic_global)
+        
+        # manual+global budget: well set on lines?
+        lines = self.purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
+        self.assertEqual(self.analytic_global, lines.analytic_ids.filtered('is_project_budget'))
+        # affectation matrix: only 1 row, linked to project instead of launch ?
+        self.assertEqual(len(self.purchase.affectation_ids), 1)
+        self.assertEqual(self.purchase.affectation_ids.record_ref, self.project)
+        self.assertEqual(self.purchase.affectation_ids.group_ref, self.analytic_global)
