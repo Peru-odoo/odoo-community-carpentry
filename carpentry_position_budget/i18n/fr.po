@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-14 15:27+0000\n"
-"PO-Revision-Date: 2025-01-14 16:29+0100\n"
+"POT-Creation-Date: 2025-01-31 15:53+0000\n"
+"PO-Revision-Date: 2025-01-31 17:08+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -40,7 +40,7 @@ msgstr ""
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "<span>h</span>"
-msgstr ""
+msgstr "<span>h</span>"
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_position_analytic
@@ -66,6 +66,11 @@ msgstr "Ajouter un budget"
 #: model:ir.actions.act_window,name:carpentry_position_budget.action_open_position_budget_add
 msgid "Add budget to positions"
 msgstr "Budgets du repère"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__affectation_ids
+msgid "Affectations"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__column_mode__all
@@ -97,12 +102,24 @@ msgstr ""
 "Cependant, le type de produit de cet article ne doit jamais être modifié."
 
 #. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
+msgid "Are you sure?"
+msgstr "Êtes-vous sûr ?"
+
+#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Are you sure? This will keep positions, but empty their budgets."
 msgstr "Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budgets seront vidés."
 
 #. module: carpentry_position_budget
-#: model:ir.ui.menu,name:carpentry_position_budget.menu_project_main_budget model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
+msgid "Available"
+msgstr "Disponible"
+
+#. module: carpentry_position_budget
+#: model:ir.ui.menu,name:carpentry_position_budget.menu_project_main_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Budget"
 msgstr ""
 
@@ -151,6 +168,16 @@ msgstr "Les lignes de budgets calculées depuis les Repères ne peuvent pas êtr
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
 msgid "Budget type"
 msgstr "Type de budget"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__budget_analytic_ids
+msgid "Budgets"
+msgstr ""
+
+#. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_reservation_mixin
+msgid "Carpentry Budget Reservation Mixin"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_budget_mixin
@@ -397,7 +424,7 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_carpentry_group_launch
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
 msgid "Launch"
 msgstr "Lancement"
 
@@ -420,7 +447,9 @@ msgstr "Lots (appelés \"phases\" dans Orgadata)"
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid ""
 "Make the link between budget, income and charges. Must have a \"Budget Type\" (for Type of Budget Line) and \"Template Lines\" rules (for General Account)."
-msgstr "Fait le lien entre le budget, les revenus et les charges."
+msgstr ""
+"Fait le lien entre le budget, les revenus et les charges. Doit avoir un \"Type de budget\" (pour le type de ligne de budget) et des \"Modèles de lignes\" "
+"(pour la comptabilité générale)."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_position_tree
@@ -469,7 +498,7 @@ msgstr "Seulement les colonnes listées, ignorer les autres"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__value
 msgid "Only relevant for budget in hours"
-msgstr ""
+msgstr "Seulement pertinent pour les budgets en heures"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_position_budget_import_wizard__external_db_type__orgadata
@@ -483,7 +512,7 @@ msgstr "Orgadonnées"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_global_cost
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_global_cost
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__project_global_cost
@@ -548,6 +577,11 @@ msgid "Positions (called 'Elevation' in Orgadata)"
 msgstr "Repères (appelés \"élévations\" dans Orgadata)"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
+msgid "Positions Count"
+msgstr "Nombre de repères"
+
+#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_pivot
 msgid "Positions budget"
 msgstr "Budget des repères"
@@ -578,7 +612,6 @@ msgid "Production"
 msgstr "Fabrication"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__project_id
@@ -608,11 +641,36 @@ msgstr "Quantité"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_tree
-msgid "Readonly because computed from Positions"
-msgstr ""
+msgid "Readonly"
+msgstr "Lecture seule"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__readonly_affectation
+msgid "Readonly Affectation"
+msgstr "Affectation en lecture seule"
+
+#. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_account_move_budget_line_tree
+msgid "Readonly because computed from Positions"
+msgstr "En lecture seule car calculé depuis les repères"
+
+#. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
+msgid "Remove"
+msgstr "Supprimer"
+
+#. module: carpentry_position_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
+msgid "Reservation"
+msgstr "Réservation"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__section_ids
+msgid "Sections"
+msgstr "Sections"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sequence
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__sequence
 msgid "Sequence"
 msgstr "Séquence"
@@ -643,6 +701,11 @@ msgid "Sub-total"
 msgstr "Sous-total"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
+msgid "Sum of affected quantities"
+msgstr "Somme des positions affectées"
+
+#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Supported formats"
 msgstr "Formats pris en charge"
@@ -651,6 +714,21 @@ msgstr "Formats pris en charge"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__template_line_ids
 msgid "Template Line"
 msgstr "Gabarit de ligne"
+
+#. module: carpentry_position_budget
+#. odoo-python
+#: code:addons/carpentry_position_budget/models/carpentry_budget_reservation_mixin.py:0
+#, python-format
+msgid ""
+"There is no possible budget reservation. Please ensure:\n"
+" - launches are selected;\n"
+" - the project has budget on the selected analytic accounts;\n"
+" - for Purchase Orders, that lines have analytic distribution, (in \"Products\" page)."
+msgstr ""
+"Il n'y a aucune réservation possible de budget. Veuillez vous assurer :\n"
+"- qu'au moins un lancement est sélectionné ;\n"
+"- que le projet a du budget sur les comptes analytiques choisis ;\n"
+"- pour les commandes, que les lignes ont des distributions analytiques (dans la page \"Produits\")."
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_interface_unique_col
@@ -742,6 +820,11 @@ msgstr "Voir les budgets"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__position_warning_name
 msgid "Warning Name"
 msgstr "Avertissement sur le nom"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_reservation_mixin__section_ids
+msgid "With at least 1 position in commun"
+msgstr "Avec au moins 1 repère en commun"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_group_launch__project_id

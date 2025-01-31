@@ -1,0 +1,163 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_mrp_budget
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-31 15:53+0000\n"
+"PO-Revision-Date: 2025-01-31 16:57+0100\n"
+"Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"X-Generator: Poedit 3.5\n"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__affectation_ids
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__affectation_ids
+msgid "Affectations"
+msgstr "Affectations"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_distribution
+msgid "Analytic"
+msgstr "Analytique"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_ids
+msgid "Analytic Accounts"
+msgstr "Comptes analytiques"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_distribution_search
+msgid "Analytic Distribution Search"
+msgstr "Recherche de distribution analytique"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model,name:carpentry_mrp_budget.model_account_analytic_applicability
+msgid "Analytic Plan's Applicabilities"
+msgstr "Applicabilités du plan analytique"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_precision
+msgid "Analytic Precision"
+msgstr "Précision analytique"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Budget reservation"
+msgstr "Réservation de budget"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__budget_analytic_ids
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__budget_analytic_ids
+msgid "Budgets"
+msgstr "Budgets"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Choose budgets"
+msgstr "Choisir les budgets"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_account_analytic_applicability__business_domain
+msgid "Domain"
+msgstr "Domaine"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields.selection,name:carpentry_mrp_budget.selection__account_analytic_applicability__business_domain__manufacturing_order
+msgid "Manufacturing Order"
+msgstr "Ordre de fabrication"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields.selection,name:carpentry_mrp_budget.selection__account_analytic_applicability__business_domain__picking
+msgid "Picking"
+msgstr "Transfert"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Please save before continuing."
+msgstr "Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid "Please select launche(s) and budget(s) for placing a reservation."
+msgstr ""
+"Veuillez sélectionner le(s) lancement(s) et le(s) budget(s) pour effectuer une "
+"réservation."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+"Please select launche(s) for placing a reservation and ensure the "
+"\"Operations\" tab contains at least\n"
+"                        1 product with an automated analytic distribution."
+msgstr ""
+"Veuillez sélectionner le(s) lancement(s) pour effectuer une réservation et "
+"vous assurez que l'onglet \"Opérations\" contienne au moins 1 article avec une "
+"distribution analytique automatique."
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
+msgid "Positions Count"
+msgstr "Nombre de repères"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__readonly_affectation
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__readonly_affectation
+msgid "Readonly Affectation"
+msgstr "Affectation en lecture seule"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Reserve budget"
+msgstr "Réserver du budget"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__section_ids
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__section_ids
+msgid "Sections"
+msgstr "Sections"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sequence
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
+msgid "Sum of affected quantities"
+msgstr "Somme des quantités affectées"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid "The total production hours reserved in the budget"
+msgstr "Le nombre total d'heures de production réservées dans le budget"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__warning_budget
+msgid "Warning Budget"
+msgstr "Alerte Budget"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__section_ids
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__section_ids
+msgid "With at least 1 position in commun"
+msgstr "Avec au moins 1 repère en commun"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid "is differerent than the total of hours in the Work Orders"
+msgstr "est différent du total des heures dans les ordres de travail"

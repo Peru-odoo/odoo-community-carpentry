@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-06 17:13+0000\n"
-"PO-Revision-Date: 2025-01-08 16:26+0100\n"
+"POT-Creation-Date: 2025-01-31 15:53+0000\n"
+"PO-Revision-Date: 2025-01-31 16:58+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -44,15 +44,15 @@ msgstr "Une famille de besoins avec ce nom existe déjà dans le projet."
 #: code:addons/carpentry_planning_task_need/models/project_task.py:0
 #, python-format
 msgid ""
-"A Task of type 'Need' which computed deadline cannot be deleted. Archive it "
-"instead or unaffect the Need Family from the Launch."
+"A Task of type 'Need' cannot be removed. To hide it, archive it. To really "
+"delete it, remove it Needs menu."
 msgstr ""
-"Une tâche de type \"Besoin\", dont la date objectif est calculée, ne peut "
-"pas être supprimée. Archivez-la plutôt, ou désaffecter la famille de besoin "
-"du lancement."
+"Une tâche de type \"Besoin\" ne peut pas être supprimée. Pour la cacher, "
+"archivez-la. Pour la supprimer réellement, retirez la depuis le menu "
+"\"Besoins\"."
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__active
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__active
 msgid "Active"
 msgstr "Actif"
 
@@ -94,11 +94,6 @@ msgstr ""
 "cette même colonne sera utilisé."
 
 #. module: carpentry_planning_task_need
-#: model:project.role,name:carpentry_planning_task_need.project_role_construction_manager
-msgid "Construction Site manager"
-msgstr "Conducteur de travaux"
-
-#. module: carpentry_planning_task_need
 #: model:ir.actions.act_window,name:carpentry_planning_task_need.action_open_need_family
 #: model:ir.actions.server,name:carpentry_planning_task_need.action_open_need_family_srv
 #: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_create
@@ -134,11 +129,6 @@ msgid "Display Name"
 msgstr "Nom affiché"
 
 #. module: carpentry_planning_task_need
-#: model:project.type,name:carpentry_planning_task_need.example_need_category
-msgid "Example of a Need Category"
-msgstr "Exemple de catégorie de besoin"
-
-#. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_output
 msgid "Go for Output"
 msgstr "Accord débit"
@@ -152,21 +142,6 @@ msgstr "Accord achat"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__id
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__id
 msgid "ID"
-msgstr ""
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__identifier_res_id
-msgid "Identifier ID"
-msgstr ""
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__identifier_res_model
-msgid "Identifier Model"
-msgstr ""
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__identifier_res_model_id
-msgid "Identifier Model ID"
 msgstr ""
 
 #. module: carpentry_planning_task_need
@@ -196,11 +171,6 @@ msgstr "Dernière mise à jour par"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__write_date
 msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__launch_id
-msgid "Launch"
-msgstr "Lancement"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
@@ -257,13 +227,13 @@ msgstr "Besoins"
 #: model:carpentry.planning.column,name:carpentry_planning_task_need.planning_column_need_construction
 #: model:project.type,name:carpentry_planning_task_need.task_type_need_construction
 msgid "Needs (Construction site)"
-msgstr "Besoins (travaux)"
+msgstr "Travaux"
 
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.column,name:carpentry_planning_task_need.planning_column_need_method
 #: model:project.type,name:carpentry_planning_task_need.task_type_need_method
 msgid "Needs (Method)"
-msgstr "Besoins (méthode)"
+msgstr "Méthode"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__family_ids
@@ -291,26 +261,17 @@ msgstr ""
 "ou de la pose)"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__planning_card_color
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color
 msgid "Planning Card Color"
-msgstr "Couleur de la carte du planning"
+msgstr ""
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__planning_card_color_is_auto
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_is_auto
 msgid "Planning Card Color Is Auto"
-msgstr "Couleur automatique de la carte dans le planning"
+msgstr ""
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__card_res_id
-msgid "Planning Card ID"
-msgstr "ID de la carte du planning"
-
-#. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__card_res_model_id
-msgid "Planning Card Model"
-msgstr "Modèle de carte du planning"
-
-#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__column_id
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__column_id
 msgid "Planning Column"
 msgstr "Colonne du planning"
@@ -332,14 +293,19 @@ msgid "Project Id Domain"
 msgstr ""
 
 #. module: carpentry_planning_task_need
-#: model:project.role,name:carpentry_planning_task_need.project_role_project
-msgid "Project Manager"
-msgstr "Chef de projet"
+#: model:ir.model,name:carpentry_planning_task_need.model_project_type
+msgid "Project Type"
+msgstr "Type de projet"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__role_id
 msgid "Role"
 msgstr "Rôle"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_project_task
+msgid "Task"
+msgstr "Tâche"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__task_ids
@@ -356,15 +322,6 @@ msgstr ""
 "Les tâches affectées à ce type seront automatiquement attribuées aux "
 "utilisateurs ayant ce rôle dans le projet. Si cette option n'est pas "
 "configurée, les assignés de ce type de tâche ne sont pas modifiés."
-
-#. module: carpentry_planning_task_need
-#. odoo-python
-#: code:addons/carpentry_planning_task_need/models/project_task.py:0
-#, python-format
-msgid "Tasks of type 'Need' can be affected to a single launch only."
-msgstr ""
-"Les tâches de type \"Besoin\" ne peuvent être affectées qu'à un unique "
-"lancement."
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.constraint,message:carpentry_planning_task_need.constraint_carpentry_need_name_unique
@@ -386,6 +343,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.view_task_tree_need
 msgid "Type of Need"
 msgstr "Type de besoin"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__user_ids
+msgid "Users"
+msgstr ""
 
 #. module: carpentry_planning_task_need
 #. odoo-python

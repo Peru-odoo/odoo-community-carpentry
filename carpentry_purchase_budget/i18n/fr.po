@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-06 17:13+0000\n"
-"PO-Revision-Date: 2025-01-06 19:40+0100\n"
+"POT-Creation-Date: 2025-01-31 15:53+0000\n"
+"PO-Revision-Date: 2025-01-31 17:11+0100\n"
 "Last-Translator: Arnaud LAYEC <arnaudlayec@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -20,36 +20,31 @@ msgstr ""
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
-")\n"
-"                    differs from total untaxed ("
+") is different than budget reservation\n"
+"                    ("
 msgstr ""
-")\n"
-"                    diffère du total non taxé ("
+") est différente de la réservation de budget\n"
+"                    ("
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid ""
+").\n"
+"                    <br/>\n"
+"                    Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.\n"
+"                    <br/>\n"
+"                    Note 2 : To reserve budget for storable products, please proceed through a Stock Reservation or do it manually from a Purchase Order."
+msgstr ""
+").\n"
+"                   <br/>\n"
+"                    Note 1 : Veuillez ignorer ce message si la réservation de budget a déjà été modifiée et doit rester différente du coût réel.\n"
+"                   <br/>\n"
+"                    Note 2 : Pour réserver un budget pour des articles stockables, veuillez procéder à une réservation de stock ou le faire manuellement à partir d'une commande."
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__affectation_ids
 msgid "Affectations"
 msgstr "Affectations"
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order_line__analytic_ids
-msgid "Analytic Accounts"
-msgstr "Comptes analytiques"
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Apply"
-msgstr "Appliquer"
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Available"
-msgstr "Disponible"
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Budget"
-msgstr "Budget"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -62,41 +57,33 @@ msgid "Budgets"
 msgstr "Budgets"
 
 #. module: carpentry_purchase_budget
-#: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__budget_analytic_ids
-msgid "Budgets selected in analytic distribution of lines in \"Products\" page."
-msgstr ""
-"Budgets sélectionnés dans la distribution analytique des lignes de la "
-"commande dans la page \"Produits\"."
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__budget_unique_analytic_id
-msgid ""
-"Change this field to reserve budget on this single one. To consume different "
-"budgets, modify the 'analytic distribution' per line in 'Products' page."
-msgstr ""
-"Modifiez ce champ pour réserver du budget sur ce seul budget. Pour consommer "
-"des budgets différents, modifiez la \"distribution analytique\" par ligne de "
-"la commande dans la page \"Produits\"."
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Choose"
-msgstr "Choisir"
-
-#. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid "Choose budgets"
 msgstr "Choisir les budgets"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Launch"
-msgstr "Lancement"
+msgid ""
+"It seems the budget reservation should be updated because the total cost of non-stored products\n"
+"                    ("
+msgstr ""
+"Il semble que la réservation de budget doive être actualisée car le coût total des articles non stockés\n"
+"                    ("
 
 #. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__launch_ids
-msgid "Launches"
-msgstr "Lancements"
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) before placing a reservation."
+msgstr "Veuillez vous assurer que l'onglet \"Produits\" contienne au moins 1 article non stocké (avec un prix) avant d'effectuer une réservation."
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Please save before continuing."
+msgstr "Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Please select launche(s) and budget(s) for placing a reservation."
+msgstr "Veuillez sélectionner le(s) lancement(s) et le(s) budget(s) pour effectuer une réservation."
 
 #. module: carpentry_purchase_budget
 #: model:ir.model,name:carpentry_purchase_budget.model_carpentry_group_affectation
@@ -109,40 +96,14 @@ msgid "Positions Count"
 msgstr "Nombre de repères"
 
 #. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__project_id
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order_line__project_id
-msgid "Project"
-msgstr "Projet"
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__project_id_domain
-msgid "Project Id Domain"
-msgstr "Domaine du projet"
-
-#. module: carpentry_purchase_budget
 #: model:ir.model,name:carpentry_purchase_budget.model_purchase_order
 msgid "Purchase Order"
 msgstr "Commande fournisseur"
 
 #. module: carpentry_purchase_budget
-#: model:ir.model,name:carpentry_purchase_budget.model_purchase_order_line
-msgid "Purchase Order Line"
-msgstr "Ligne de commande d'achat"
-
-#. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__readonly_affectation
 msgid "Readonly Affectation"
 msgstr "Affectation en lecture seule"
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Reservation"
-msgstr "Réservation"
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Reserve"
-msgstr "Réservation"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -155,50 +116,19 @@ msgid "Sections"
 msgstr "Sections"
 
 #. module: carpentry_purchase_budget
+#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: carpentry_purchase_budget
 #: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__sum_quantity_affected
 msgid "Sum of affected quantities"
 msgstr "Somme des quantités affectées"
 
 #. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "The budget reservation ("
-msgstr "La réservation de budget ("
-
-#. module: carpentry_purchase_budget
-#. odoo-python
-#: code:addons/carpentry_purchase_budget/models/purchase_order.py:0
-#, python-format
-msgid "The launches must belong to the project."
-msgstr "Les lancements doivent appartenir au projet."
-
-#. module: carpentry_purchase_budget
-#. odoo-python
-#: code:addons/carpentry_purchase_budget/models/purchase_order_line.py:0
-#, python-format
-msgid ""
-"The only allowed project in Analytic Distribution is the purchase order's one."
-msgstr ""
-"Le seul projet autorisé dans la distribution analytique est celui défini au "
-"niveau de la commande."
-
-#. module: carpentry_purchase_budget
-#. odoo-python
-#: code:addons/carpentry_purchase_budget/models/purchase_order.py:0
-#, python-format
-msgid ""
-"There is no possible budget reservation. Please verify if the Purchase Order "
-"has lines with analytic distribution, (in \"Products\" page) and ensure some "
-"launches are selected."
-msgstr ""
-"Aucune réservation de budget n'est possible. Veuillez vérifier si la commande "
-"comporte des lignes avec des distribution analytique (dans la page "
-"\"Produits\") et assurez-vous que des lancements sont sélectionnés au niveau "
-"de la commande."
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__budget_unique_analytic_id
-msgid "Unique Budget"
-msgstr "Budget unique"
+#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__amount_untaxed_consu
+msgid "Untaxed Amount (Consummable)"
+msgstr "Montant non imposé (des produits non-stockés)"
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__warning_budget
@@ -209,9 +139,3 @@ msgstr "Alerte Budget"
 #: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__section_ids
 msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__project_id
-#: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order_line__project_id
-msgid "Within your favorite projects"
-msgstr "Parmis vos projets favoris"

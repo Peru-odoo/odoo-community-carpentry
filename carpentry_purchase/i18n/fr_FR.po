@@ -1,0 +1,180 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* carpentry_purchase
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-31 15:53+0000\n"
+"PO-Revision-Date: 2025-01-31 15:53+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
+msgid ""
+"<span class=\"fa fa-exclamation-triangle\"/>\n"
+"                    This Purchase Order mixes both stored and non-stored products. Please ensure this is the expected target\n"
+"                    or update the lines in \"Products\" page."
+msgstr ""
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
+msgid "<span class=\"o_stat_text\">Purchase Invoices</span>"
+msgstr "<span class=\"o_stat_text\">Factures d'achat</span>"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
+msgid "<span class=\"o_stat_text\">Purchases</span>"
+msgstr "<span class=\"o_stat_text\">Achats</span>"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_project_form
+msgid "Address"
+msgstr "Addresse"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order_line__analytic_ids
+msgid "Analytic Accounts"
+msgstr "Comptes analytiques"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
+msgid "Based on analytic distribution of purchase invoices lines"
+msgstr "Basé sur la distribution analytique des lignes de factures d'achat"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
+msgid "Based on analytic distribution of purchases lines"
+msgstr ""
+"Basé sur la distribution analytique des lignes de commandes fournisseurs"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_res_company
+msgid "Companies"
+msgstr "Sociétés"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,help:carpentry_purchase.field_res_company__internal_project_id
+msgid "Default project value for timesheet generated from time off type."
+msgstr ""
+"Valeur de projet par défaut pour les feuilles de temps générées à partir de "
+"ce type de congés."
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__delivery_address_id
+msgid "Delivery address"
+msgstr "Adresse de livraison"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,help:carpentry_purchase.field_project_project__delivery_address_id
+msgid ""
+"Delivery address of the construction site, within the customer's addresses "
+"of type 'Delivery'."
+msgstr ""
+"Adresse de livraison du chantier, parmi les adresses de type \"Livraison\" "
+"du client."
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__description
+msgid "Description"
+msgstr ""
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_res_company__internal_project_id
+msgid "Internal Project"
+msgstr "Projet interne"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_account_move
+msgid "Journal Entry"
+msgstr "Pièce comptable"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_account_move_line
+msgid "Journal Item"
+msgstr "Écriture comptable"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_carpentry_group_launch
+msgid "Launch"
+msgstr "Lancement"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__launch_ids
+msgid "Launches"
+msgstr "Lancements"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
+msgid "Linked purchases"
+msgstr "Commandes liées"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__task_ids
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__task_ids
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
+msgid "Needs"
+msgstr "Besoins"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_bank_statement_line__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move_line__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_payment__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order_line__project_id
+msgid "Project"
+msgstr "Projet"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id_domain
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id_domain
+msgid "Project Id Domain"
+msgstr "Domaine du projet"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_purchase_order_line
+msgid "Purchase Order Line"
+msgstr "Ligne de commande d'achat"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__purchase_ids
+msgid "Purchase Orders"
+msgstr "Commandes fournisseurs"
+
+#. module: carpentry_purchase
+#. odoo-python
+#: code:addons/carpentry_purchase/models/purchase_order_line.py:0
+#, python-format
+msgid ""
+"The only allowed project in Analytic Distribution is the purchase order's "
+"one (or internal project)."
+msgstr ""
+"Le seul projet autorisé dans les Distributions Analytiques des lignes de "
+"commandes est celui défini sur la commande (ou le projet interne)."
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
+msgid "Title of Order"
+msgstr "Nom de la commande"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__warning_stock
+msgid "Warning Stock"
+msgstr ""
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,help:carpentry_purchase.field_account_bank_statement_line__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_move__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_move_line__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_payment__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_purchase_order__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_purchase_order_line__project_id
+msgid "Within your favorite projects"
+msgstr "Parmis vos projets favoris"
