@@ -42,7 +42,7 @@ class StockPicking(models.Model):
 
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(move.project_id.id, []):
-                    qty = move.product_uom_id._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
+                    qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
                     mapped_price[analytic_id] += qty * move._get_price_unit() * percentage / 100
         
         return mapped_price
