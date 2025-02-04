@@ -160,7 +160,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         budget_distribution = {}
         for key, budget in remaining_budget.items():
             model, record_id, analytic_id = key
-            total_price = total_by_analytic.get(analytic_id)
+            total_price = total_by_analytic.get(analytic_id, 0.0)
 
             if model == 'carpentry.group.launch':
                 launch_budget = mapped_launch_budget.get(analytic_id)

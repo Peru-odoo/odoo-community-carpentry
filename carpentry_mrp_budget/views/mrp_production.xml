@@ -9,19 +9,6 @@
         
         <field name="arch" type="xml">
         
-            <!-- Warning banner -->
-            <sheet position="before">
-                <field name="warning_budget" invisible="1" />
-                <div name="warning_banner" role="alert" class="alert alert-warning"
-                    attrs="{'invisible': [('warning_budget', '=', False)]}"
-                >
-                    The total production hours reserved in the budget 
-                    <strong>(<field name="sum_quantity_affected" />h)</strong>
-                    is differerent than the total of hours in the Work Orders
-                    <strong>(<field name="production_duration_expected" />h)</strong>.
-                </div>
-            </sheet>
-
             <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
             <xpath expr="//field[@name='move_raw_ids']//tree" position="inside">
                 <field name="analytic_distribution"

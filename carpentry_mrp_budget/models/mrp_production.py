@@ -10,7 +10,6 @@ class ManufacturingOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    warning_budget = fields.Boolean(compute='_compute_warning_budget')
     budget_analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
@@ -23,13 +22,6 @@ class ManufacturingOrder(models.Model):
         store=True,
         readonly=False
     )
-
-    def _compute_warning_budget(self):
-        prec = self.env['decimal.precision'].precision_get('Product Price')
-        states = ['confirmed', 'progress', 'to_close', 'done']
-        for mo in self:
-            compare = float_compare(mo.production_duration_expected, mo.sum_quantity_affected, precision_digits=prec)
-            mo.warning_budget = mo.state in states and compare != 0
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
