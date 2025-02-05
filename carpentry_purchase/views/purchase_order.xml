@@ -44,6 +44,7 @@
                     placeholder="Title of Order"
                     class="o_text_overflow flex-shrink-0"
                     style="width: 90%"
+                    attrs="{'readonly': [('state', '!=', 'draft')]}"
                 />
             </h1>
             <field name="name" position="attributes">
@@ -54,7 +55,7 @@
             <field name="partner_id" position="before">
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" attrs="{
-                    'readonly': [('state', 'in', ['done', 'purchase', 'cancel', 'approved'])],
+                    'readonly': [('state', '!=', 'draft')],
                     'required': [(1, '=', 1)]
                 }" />
                 <field name="launch_ids" widget="many2many_tags" />

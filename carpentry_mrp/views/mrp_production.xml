@@ -31,6 +31,7 @@
                     placeholder="Title of Manufacturing Order"
                     class="o_text_overflow flex-shrink-0"
                     style="width: 80%"
+                    attrs="{'readonly': [('state', '!=', 'draft')]}"
                 />
             </h1>
             <field name="name" position="attributes">
