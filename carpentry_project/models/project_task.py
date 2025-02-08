@@ -8,6 +8,8 @@ class ProjectTask(models.Model):
     def copy(self, default=None):
         res = super().copy(default)
 
-        suffix = _("%s (copy)")
+        suffix = _(" (copy)")
         if res.name.endswith(suffix):
             res.name = res.name.removesuffix(suffix)
+        
+        return res
