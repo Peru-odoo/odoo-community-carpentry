@@ -37,7 +37,7 @@
             <!-- Add `Launches` & `MOs` -->
             <field name="project_id" position="after">
                 <field name="launch_ids" widget="many2many_tags"
-                    attrs="{'readonly': ['|', '|', ('mrp_production_ids', '!=', []), ('purchase_id', '!=', False)]}"
+                    attrs="{'readonly': ['|', ('mrp_production_ids', '!=', []), ('purchase_id', '!=', False)]}"
                 />
 
                 <!-- Many2many tags: TO BE TESTED (because O2m) -->
