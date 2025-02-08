@@ -28,6 +28,9 @@ class ManufacturingOrder(models.Model):
     active = fields.Boolean(default=True, string='Active?')
     sequence = fields.Integer(string='Sequence')
     
+    #===== Components immediate consume =====#
+    # def 
+
     #===== Compute =====#
     # @api.depends('move_finished_ids')
     # def _compute_product_qty(self):

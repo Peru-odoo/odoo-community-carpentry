@@ -58,6 +58,11 @@
                 />
             </sheet>
 
+            <!-- Template project (only on new project form) -->
+            <field name="partner_id" position="before">
+                <field name="project_template_id" attrs="{'invisible': [('id', '!=', False)]}" />
+            </field>
+
             <!-- `Settings`: move in it the no more relevant fields (to leave them accessible, just in case) -->
             <field name="alias_contact" position="after">
                 <field name="label_tasks" position="move" />
@@ -66,21 +71,6 @@
         </field>
     </record>
     
-    <!-- Project Form for Role:
-        Hide assignment from project form since we introduce a menu-item for them
-    -->
-    <record id="edit_project_role_visibility" model="ir.ui.view">
-        <field name="name">project.project.form.role_visibility_carpentry</field>
-        <field name="model">project.project</field>
-        <field name="inherit_id" ref="project_role_visibility.edit_project" />
-
-        <field name="arch" type="xml">
-            <group name="assignments" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </group>
-        </field>
-    </record>
-
     <!-- Project's Tree -->
     <record id="view_project" model="ir.ui.view">
         <field name="name">project.project.tree.carpentry</field>
