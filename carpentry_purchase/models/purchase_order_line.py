@@ -34,7 +34,8 @@ class PurchaseOrderLine(models.Model):
             if to_verify and allowed and to_verify != allowed:
                 raise exceptions.ValidationError(_(
                     "The only allowed project in Analytic Distribution is the"
-                    " purchase order's one (or internal project)."
+                    " purchase order's one (or the internal project for storable"
+                    " products)."
                 ))
 
     #====== Compute ======#
@@ -61,15 +62,21 @@ class PurchaseOrderLine(models.Model):
         """
         for line in self:
             if not line.display_type:
-                # filter former projects/budgets
+                # if we're replacing analytic from project, keep other analytics plan (e.g. budgets)
                 kept = {} if not line.analytic_distribution else {
                     k: v for k, v in line.analytic_distribution.items()
                     if int(k) not in replaced_ids
                 }
 
-                # enforce internal project for storable products
+                # enforce default val for storable products (e.g. internal project)
                 vals = new_distrib
-                if line.product_id.type == 'product' and analytic_plan == 'project':
-                    project_analytic = line.company_id.internal_project_id.analytic_account_id
-                    vals = {project_analytic.id: 100} if project_analytic else {}
+                if line.product_id.type == 'product':
+                    default_analytic = line._get_default_storable_analytic(analytic_plan)
+                    vals = {default_analytic.id: 100} if default_analytic else {}
                 line.analytic_distribution = kept | vals
+
+    def _get_default_storable_analytic(analytic_plan):
+        """ Inherited in `carpentry_purchase_budget` for default budget """
+        self.ensure_one()
+        if analytic_plan == 'project':
+            return self.company_id.internal_project_id.analytic_account_id

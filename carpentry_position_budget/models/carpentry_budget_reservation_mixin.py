@@ -117,7 +117,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             nb_budgets = len(new_budgets)
             new_distrib = {x.id: 100/nb_budgets for x in new_budgets}
             
-            purchase.order_line._replace_analytic(replaced_ids.ids, new_distrib)
+            purchase.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
 
     @api.onchange('budget_analytic_ids')
     def _set_readonly_affectation(self):
