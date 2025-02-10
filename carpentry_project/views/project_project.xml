@@ -60,7 +60,10 @@
 
             <!-- Template project (only on new project form) -->
             <field name="partner_id" position="before">
-                <field name="project_template_id" attrs="{'invisible': [('id', '!=', False)]}" />
+                <field name="project_template_id"
+                    attrs="{'invisible': [('id', '!=', False)]}"
+                    context="{'active_test': False}"
+                />
             </field>
 
             <!-- `Settings`: move in it the no more relevant fields (to leave them accessible, just in case) -->

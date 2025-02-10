@@ -75,7 +75,7 @@ class PurchaseOrderLine(models.Model):
                     vals = {default_analytic.id: 100} if default_analytic else {}
                 line.analytic_distribution = kept | vals
 
-    def _get_default_storable_analytic(analytic_plan):
+    def _get_default_storable_analytic(self, analytic_plan):
         """ Inherited in `carpentry_purchase_budget` for default budget """
         self.ensure_one()
         if analytic_plan == 'project':
