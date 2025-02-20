@@ -607,7 +607,7 @@ msgstr "Surface"
 #: code:addons/carpentry_position/models/carpentry_group_affectation.py:0
 #, python-format
 msgid "The affected quantity is higher than the one available in the project (%s, %s)."
-msgstr "La quantité affecté est supérieure à celle disponible dans le projet (%s, %s)."
+msgstr "La quantité affectée est supérieure à celle disponible dans le projet (%s, %s)."
 
 #. module: carpentry_position
 #. odoo-python

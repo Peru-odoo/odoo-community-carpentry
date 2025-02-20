@@ -62,10 +62,39 @@
             </field>
 
             <page name="components" position="after">
+                <!-- New page "Related Purchase Orders" -->
                 <page name="purchases" string="Related Purchase Orders">
                     <field name="purchase_ids" />
                 </page>
             </page>
+
+            <!-- === Components === -->
+            <!-- Delete button -->
+            <field name="move_raw_ids" position="attributes">
+                <attribute name="options">{'delete': True}</attribute>
+            </field>
+            <!-- Lines color -->
+            <xpath expr="//field[@name='move_raw_ids']/tree" position="inside">
+                <field name="raw_material_production_id" invisible="1" />
+                <field name="state" invisible="1" />
+            </xpath>
+            <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
+                <attribute name="decoration-success">state != 'draft' and quantity_done == product_uom_qty</attribute>
+            </xpath>
+            <!-- To consume: without widget -->
+            <xpath expr="//field[@name='move_raw_ids']//field[@name='product_uom_qty']" position="attributes">
+                <attribute name="widget" />
+            </xpath>
+            
+            <button name="action_show_details" position="after">
+                <field name="state" widget="badge" nolabel="1"
+                    attrs="{'invisible': [('state', '!=', 'cancel')]}"
+                    decoration-danger="state == 'cancel'"
+                />
+            </button>
+
+
+
 
             <!-- MAIN PRODUCT -> SEVERAL PRODUCTS -->
             <!-- No main product manufacture: several product at same level -->

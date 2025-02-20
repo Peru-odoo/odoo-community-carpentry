@@ -50,7 +50,7 @@ class ProjectProject(models.Model):
     
     def _get_copied_fields(self):
         return [
-            'date_start', 'date', 'type_id', 'parent_id',
+            'date_start', 'date', 'type_id',
             'task_ids', 'assignment_ids'
         ]
     

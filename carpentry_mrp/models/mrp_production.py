@@ -30,11 +30,12 @@ class ManufacturingOrder(models.Model):
     active = fields.Boolean(default=True, string='Active?')
     sequence = fields.Integer(string='Sequence')
     
-    # def _action_cancel(self):
-    #     """ Forces the cancelling of `done` move_raw_ids """
-    #     super()._action_cancel()
-    #     move_done = self.move_raw_ids.filtered(lambda x: x.state in ('done'))
-    #     move_done.quantity_done = 0.0
+    #===== Compute =====#
+    def _action_cancel(self):
+        """ Forces the cancelling of `done` move_raw_ids """
+        super()._action_cancel()
+        move_done = self.move_raw_ids.filtered(lambda x: x.state in ('done'))
+        move_done.quantity_done = 0.0
 
 
     # def action_confirm(self):
