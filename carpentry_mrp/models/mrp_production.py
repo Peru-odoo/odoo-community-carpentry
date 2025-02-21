@@ -37,14 +37,6 @@ class ManufacturingOrder(models.Model):
         move_done = self.move_raw_ids.filtered(lambda x: x.state in ('done'))
         move_done.quantity_done = 0.0
 
-
-    # def action_confirm(self):
-    #     """ When confirming, set `move_raw_ids` to done so any changes in `quantity_done`
-    #         is taken into account in real time
-    #     """
-    #     res = super().action_confirm()
-    #     self._post_inventory(cancel_backorder=True, components=True, finished=False)
-    #     return res
     
     # def _autoconfirm_production(self):
     #     """ Called when move_raw_ids are added to the mrp.production
@@ -101,7 +93,20 @@ class ManufacturingOrder(models.Model):
         
     #     return True
 
+
+
+
+
     # #===== Compute =====#
+
+    # # def action_confirm(self):
+    # #     """ When confirming, set `move_raw_ids` to done so any changes in `quantity_done`
+    # #         is taken into account in real time
+    # #     """
+    # #     res = super().action_confirm()
+    # #     self._post_inventory(cancel_backorder=True, components=True, finished=False)
+    # #     return res
+
     # # @api.depends('move_finished_ids')
     # # def _compute_product_qty(self):
     # #     res = super()._compute_product_qty()

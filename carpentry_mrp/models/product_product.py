@@ -18,7 +18,8 @@ class ProductProduct(models.Model):
         for product_id, qties_dict in res.items():
             consumed = qties_outgoing_raw_material.get(product_id, 0.0)
             res[product_id]['qty_available'] -= consumed
-            # res[product_id]['virtual_available'] -= consumed
+            res[product_id]['outgoing_qty'] -= consumed
+            res[product_id]['virtual_available'] -= consumed
         
         return res
 
