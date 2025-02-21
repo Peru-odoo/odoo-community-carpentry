@@ -131,7 +131,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         budget_distribution = self._get_auto_launch_budget_distribution()
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
-            affectation.quantity_affected = budget_distribution.get(key, 0.0)
+            auto_reservation = budget_distribution.get(key, 0.0)
+            affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
     
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of an PO/MO, considering:
@@ -168,7 +169,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             else: # project
                 auto_reservation = budget
             
-            budget_distribution[key] = min(auto_reservation or 0.0, budget)
+            budget_distribution[key] = auto_reservation or 0.0
+            # budget_distribution[key] = min(auto_reservation or 0.0, budget) # moved to previous method
         return budget_distribution
 
     def _get_mapped_project_analytics(self):
