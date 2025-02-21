@@ -36,7 +36,7 @@ class ManufacturingOrder(models.Model):
         super()._action_cancel()
         move_done = self.move_raw_ids.filtered(lambda x: x.state in ('done'))
         move_done.quantity_done = 0.0
-
+    
     
     # def _autoconfirm_production(self):
     #     """ Called when move_raw_ids are added to the mrp.production

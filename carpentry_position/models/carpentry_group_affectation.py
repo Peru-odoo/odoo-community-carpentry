@@ -296,29 +296,7 @@ class CarpentryGroupAffectation(models.Model):
                     _('One line cannot be affected to several columns (%s).', affectation.display_name)
                 )
 
-    #===== Quantities & M2o: constrain & compute =====#
-    @api.onchange('quantity_affected')
-    @api.constrains('quantity_affected')
-    def _constrain_quantity(self):
-        # only for groups using qties for affectation
-        if self._context.get('constrain_quantity_affected_silent'):
-            return
-        
-        for affectation in self:
-            if not affectation.group_ref._carpentry_affectation_quantity:
-                continue
-
-            # 2024-11 - ALY: disabled to allow `qty == 0` via affectation shortcut
-            # if affectation.quantity_affected <= 0:
-            #     raise exceptions.ValidationError(
-            #         _("Quantity affected must be strictly greater than 0, delete it instead.")
-            #     )
-            if affectation.quantity_remaining_to_affect < 0:
-                raise exceptions.ValidationError(_(
-                    "The affected quantity is higher than the one available in the project (%s, %s).",
-                    affectation.record_ref.name, affectation.group_ref.name
-                ))
-
+    #===== Quantities & M2o: compute & constrain =====#
     @api.depends('record_id', 'group_id', 'section_id')
     def _compute_quantity_available(self):
         # Technically check if computation is relevant/possible
@@ -332,6 +310,7 @@ class CarpentryGroupAffectation(models.Model):
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
             affectation.quantity_available = mapped_quantities.get(key)
     
+    @api.onchange('quantity_affected')
     @api.depends('record_id', 'quantity_affected')
     def _compute_quantity_remaining_to_affect(self):
         """ Compute remaining qty to affect for phases affectation, i.e. where
@@ -339,6 +318,7 @@ class CarpentryGroupAffectation(models.Model):
             on remaining_qty>0 and good real-time display of remaining_qty
         """
         for affectation in self:
+            sibling_ids = False
             sum_affected_siblings = 0
             if affectation.record_ref:
                 domain = [('record_res_model', '=', affectation.record_res_model)] # similar affectations (needed for project, not to confuse budget with positions)
@@ -346,11 +326,35 @@ class CarpentryGroupAffectation(models.Model):
                 sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
             
             # exclude current affectation from the sum
-            affectation.quantity_remaining_to_affect = (
+            qty_remaining = (
                 affectation.quantity_available
                 - sum_affected_siblings
                 - affectation.quantity_affected
             )
+
+            # 2024-11 - ALY: disabled to allow `qty == 0` via affectation shortcut
+            # if affectation.quantity_affected <= 0:
+            #     raise exceptions.ValidationError(
+            #         _("Quantity affected must be strictly greater than 0, delete it instead.")
+            #     )
+            if qty_remaining < 0 and not self._context.get('constrain_quantity_affected_silent'):
+                raise exceptions.ValidationError(_(
+                    "The affected quantity is higher than the one available in the project:\n"
+                    "- Records: %s and %s;\n"
+                    "- Available quantity: %s;\n"
+                    "- Affected by siblings: %s;\n"
+                    "- Siblings: %s;\n"
+                    "- Affected quantity: %s;\n"
+                    "- Remaining: %s",
+                    affectation.record_ref.name,
+                    affectation.group_ref.name,
+                    sum_affected_siblings,
+                    sibling_ids and sibling_ids.display_name,
+                    affectation.quantity_affected,
+                    qty_remaining,
+                ))
+            else:
+                affectation.quantity_remaining_to_affect = qty_remaining
 
 
 class CarpentryAffectationTemp(models.TransientModel):

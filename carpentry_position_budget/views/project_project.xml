@@ -61,6 +61,7 @@
                         context="{'display_short_name': 1, 'default_project_id': id}"
                     >
                         <tree editable="top" delete="0">
+                            <field name="type" invisible="1" />
                             <field name="is_computed_carpentry" invisible="1" />
                             <field name="project_id" invisible="1" />
                             <field name="budget_id" invisible="1" />
@@ -73,9 +74,10 @@
                                 options="{'no_create_edit': 1}"
                                 attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
                             />
-                            <field name="qty_debit" string="Quantity"
-                                attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
-                            />
+                            <field name="qty_debit" string="Quantity" attrs="{
+                                'readonly': [('is_computed_carpentry', '=', True)],
+                                'invisible': [('type', '=', 'amount')]
+                            }" />
                             <field name="balance" string="Total" />
                             
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"

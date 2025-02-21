@@ -135,9 +135,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of an PO/MO, considering:
-             - total price per budget analytic (in the order_line, move_raw_ids or workcenter),
+             - total real cost, per budget analytic (e.g. in the order_line or stock moves),
                 for budgets available in the PO/MO's project
-             - remaining budget of selected launches, per analytic
+             - maximized to the remaining budget of selected launches, per analytic
             Values can be used for `quantity_affected` field of affectations
 
             :return: Dict like: {
@@ -168,8 +168,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             else: # project
                 auto_reservation = budget
             
-            max_reservation = remaining_budget.get(key, 0.0)
-            budget_distribution[key] = min(auto_reservation or 0.0, max_reservation)
+            budget_distribution[key] = min(auto_reservation or 0.0, budget)
         return budget_distribution
 
     def _get_mapped_project_analytics(self):

@@ -65,7 +65,7 @@ class AccountAnalyticAccount(models.Model):
 
     def _get_remaining_budget(self, launchs, section=None, mode='brut'):
         """ Calculate [Initial Budget] - [Reservation], per launch & analytic
-            :arg sefl:       only those budgets are searched
+            :arg self:       only those analytics budgets are searched
             :arg launchs:    filters searched budget to only those launches
                              note: Global Cost are always searched, because per-project
             :option section: PO or MO record
