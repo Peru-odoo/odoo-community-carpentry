@@ -18,20 +18,20 @@ class ProductProduct(models.Model):
         for product_id, qties_dict in res.items():
             consumed = qties_outgoing_raw_material.get(product_id, 0.0)
             res[product_id]['qty_available'] -= consumed
-            res[product_id]['virtual_available'] -= consumed
+            # res[product_id]['virtual_available'] -= consumed
         
         return res
 
-    def _get_domain_locations(self):
-        """ Do not count `Consumed` qties in `virtual_available` (Forecast)
-            To switch back to standard computation, pass `qties_raw_material_included` in context
-        """
-        domain_quant_loc, domain_move_in_loc, domain_move_out_loc = super()._get_domain_locations()
+    # def _get_domain_locations(self):
+    #     """ Do not count `Consumed` qties in `virtual_available` (Forecast)
+    #         To switch back to standard computation, pass `qties_raw_material_included` in context
+    #     """
+    #     domain_quant_loc, domain_move_in_loc, domain_move_out_loc = super()._get_domain_locations()
 
-        if not self._context.get('qties_raw_material_included'):
-            domain_move_out_loc = [('raw_material_production_id', '=', False)] + domain_move_out_loc
+    #     if not self._context.get('qties_raw_material_included'):
+    #         domain_move_out_loc = [('raw_material_production_id', '=', False)] + domain_move_out_loc
 
-        return domain_quant_loc, domain_move_in_loc, domain_move_out_loc
+    #     return domain_quant_loc, domain_move_in_loc, domain_move_out_loc
 
     def _get_qties_outgoing_raw_material(self, owner_id=None, from_date=False, to_date=False):
         """ Inspired from native `_compute_quantities_dict()`
@@ -39,8 +39,7 @@ class ProductProduct(models.Model):
 
             :return: dict like `{product_id: quantity_done}`
         """
-        # self = self.with_context(quantities_dict_raw_material_standard=True)
-        self = self.with_context(qties_raw_material_included=True)
+        # self = self.with_context(qties_raw_material_included=True)
         _, _, domain_move_out_loc = self._get_domain_locations()
         domain_move_out = (
             [('product_id', 'in', self.ids), ('raw_material_production_id', '!=', False)]
