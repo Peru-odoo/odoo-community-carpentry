@@ -138,7 +138,7 @@ class Task(models.Model):
             if record_id._name == 'carpentry.planning.card':
                 res_id_ = record_id.res_id
                 res_model_id_ = record_id.column_id.res_model_id.id
-            else: # Any other models (i.e. a Plan Set, a Task Meeting, ...)
+            else: # Any other models (e.g. a Plan Set)
                 res_id_ = record_id.id
                 res_model_id_ = self.env['ir.model'].sudo()._get(record_id._name).id
                 

@@ -141,10 +141,6 @@ class Task(models.Model):
     name_required = fields.Boolean(
         compute='_compute_name_required'
     )
-    can_create_linked_tasks = fields.Boolean(
-        default=False,
-        compute='_compute_can_create_linked_tasks'
-    )
     attachment_count = fields.Integer(
         string='Total Attachment Count',
         compute='_compute_attachment_count',
@@ -180,19 +176,6 @@ class Task(models.Model):
             task.name_required = required_by_ctx or task.root_type_id.id in required_list
     def _get_name_required_type_list(self):
         return [self.env.ref(XML_ID_INSTRUCTION).id]
-    
-    @api.depends('root_type_id', 'parent_type_id', 'type_id')
-    def _compute_can_create_linked_tasks(self):
-        """ Possible for: instruction, meeting and milestone """
-        can_create_list = self._get_can_create_linked_tasks_type_list()
-        for task in self:
-            task.can_create_linked_tasks = task.root_type_id.id in can_create_list
-    def _get_can_create_linked_tasks_type_list(self):
-        return [
-            self.env.ref(XML_ID_INSTRUCTION).id,
-            self.env.ref(XML_ID_MEETING).id,
-            self.env.ref(XML_ID_MILESTONE).id
-        ]
     
     def _compute_attachment_count(self):
         """ Count both `task.attachment_ids` and chatter's attachments """
@@ -310,18 +293,6 @@ class Task(models.Model):
         }
         
         return action
-
-    def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
-        """ For `Create Task` button for Meeting, Instruction...:
-            * `record_id` IS the task -> like planning task to Meeting, Instruction ...
-            * don't propagate `default_parent_type_id`
-
-            `See carpentry_planning_task` for parent method
-        """
-        if self.id:
-            context |= {'display_standard_form': True}
-            record_id = self
-        return super().action_open_planning_tree(domain, context, record_id, project_id_)
 
     #===== Task copy =====#
     def _fields_to_copy(self):
