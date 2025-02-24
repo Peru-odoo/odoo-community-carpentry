@@ -71,6 +71,7 @@
 
                             <field name="budget_type" string="Type" />
                             <field name="analytic_account_id" string="Budget"
+                                required="1"
                                 options="{'no_create_edit': 1}"
                                 attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
                             />
