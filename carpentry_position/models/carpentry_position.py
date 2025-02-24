@@ -10,6 +10,27 @@ class Position(models.Model):
     _order = "seq_group, lot_id, sequence"
     _rec_name = "display_name"
 
+    #===== Fields methods =====#
+    @api.depends('name')
+    def _compute_display_name(self):
+        for position in self:
+            position.display_name = position._get_display_name()
+    def _get_display_name(self, display_with_suffix=False):
+        """ We need to tweak positions' `display_name` when called in a x2many_2d_matrix """
+        self.ensure_one()
+        display_with_suffix = self._context.get('display_with_suffix', display_with_suffix)
+
+        prefix, suffix = '', ''
+        if display_with_suffix:
+            prefix = "[%s] " % (self.lot_id.name or '')
+            suffix = " (%s)" % (self.quantity)
+        return prefix + self.name + suffix
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """ For import """
+        return [('name', operator, value)]
+    
     #===== Fields =====#
     lot_id = fields.Many2one('carpentry.group.lot',
         domain="[('project_id', '=', project_id)]",
@@ -103,39 +124,26 @@ class Position(models.Model):
     def _clean_lots(self):
         """ Remove lots not linked to any positions """
         domain = [('id', 'in', self.lot_id.ids), ('affectation_ids', '=', False)]
-        orphan_lots = self.env['carpentry.group.lot'].sudo().search(domain)
+        orphan_lots = self.env['carpentry.group.lot'].search(domain)
         orphan_lots.unlink()
+    
+    # Cf. unlink() of carpentry_group_affectation_mixin.py => need to CASCADE the unlink to the affectations
+    def _clean_affectations(self):
+        domain = self._get_domain_affect('record')
+        affectations = self.env['carpentry.group.affectation'].search(domain)
+        affectations.unlink()
     
     def unlink(self):
         self._clean_lots()
+        self._clean_affectations()
         return super().unlink()
     
     def write(self, vals):
         if 'lot_id' in vals:
             self._clean_lots()
         return super().write(vals)
-
+    
     #===== Compute =====#
-    @api.depends('name')
-    def _compute_display_name(self):
-        for position in self:
-            position.display_name = position._get_display_name()
-    def _get_display_name(self, display_with_suffix=False):
-        """ We need to tweak positions' `display_name` when called in a x2many_2d_matrix """
-        self.ensure_one()
-        display_with_suffix = self._context.get('display_with_suffix', display_with_suffix)
-
-        prefix, suffix = '', ''
-        if display_with_suffix:
-            prefix = "[%s] " % (self.lot_id.name or '')
-            suffix = " (%s)" % (self.quantity)
-        return prefix + self.name + suffix
-
-    @api.model
-    def _search_display_name(self, operator, value):
-        """ For import """
-        return [('name', operator, value)]
-
     @api.depends('quantity', 'project_id.affectation_ids.quantity_affected')
     def _compute_quantities_and_state(self):
         # For a given position, get its quantity already affected in phases and launches
