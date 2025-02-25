@@ -61,21 +61,10 @@
             <field name="stage_id" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
-            <group position="attributes">
+            <!-- Hide top-right fields -->
+            <xpath expr="(//group/group)[2]" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </group>
-            <notebook position="attributes">
-                <attribute name="invisible">1</attribute>
-            </notebook>
-
-            <!-- Only show `type` and `attachment_ids` -->
-            <group position="before">
-                <group>
-                    <field name="type_id" />
-                    <field name="attachment_ids" widget="many2many_binary" />
-                    <field name="user_ids" position="move" />
-                </group>
-            </group>
+            </xpath>
         </field>
     </record>
 

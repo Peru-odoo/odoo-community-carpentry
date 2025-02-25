@@ -244,6 +244,15 @@ class Task(models.Model):
 
     #===== Action =====#
     def _get_task_views(self, type_code, custom, switch=[], module=''):
+        """
+            :arg type_code: `code` fields of `project.type`, like 'meeting',
+                            'need', ...
+            :arg custom:    list like ['tree', 'form'] of views type to load
+                            as custom views by tasks type
+            :option switch: list of standard or customs task views to display
+                            to the user (in right-bottom ControlPannel)
+            :option module: to pass `carpentry_planning_task_need` prefix for view XMLID
+        """
         switch = switch or custom
         module = module or 'carpentry_planning_task_type'
 
@@ -266,7 +275,8 @@ class Task(models.Model):
                     f'{module}.view_task_{view_mode}_{type_code}',
                     raise_if_not_found=False
                 )
-                view_id = custom_xml_id.id if custom_xml_id else view_id
+                if custom_xml_id:
+                    view_id = custom_xml_id.id
             
             views.append((view_id, view_mode))
         
@@ -285,7 +295,7 @@ class Task(models.Model):
 
         # return specific Task Form, if available
         action = super().action_open_planning_form() | {
-            'view_id': views_form[0]
+            'view_id': views_form[0][0]
         }
         action['context'] |= {
             # required for correct `name_required` computation

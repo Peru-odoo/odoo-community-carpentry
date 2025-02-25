@@ -237,11 +237,6 @@
             <field name="partner_id" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
-
-            <!-- Hide `launch_ids` when requested -->
-            <!-- <group name="group_planning_task" position="attributes">
-                <attribute name="invisible">not context.get('display_launch_ids', True)</attribute>
-            </group> -->
         </field>
     </record>
 
