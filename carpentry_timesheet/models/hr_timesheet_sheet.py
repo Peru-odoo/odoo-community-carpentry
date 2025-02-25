@@ -51,7 +51,7 @@ class HrTimesheetSheet(models.Model):
         if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):
             domain += ['|', '|',
                 ('user_ids', '=', self.env.uid),
-                ('project_id.is_internal_project', '=', True), ('is_timeoff_task', '=', False),
+                '&', ('project_id.is_internal_project', '=', True), ('is_timeoff_task', '=', False),
                 ('project_id.privacy_visibility', 'in', ['employees', 'portal']
             )]
         self.available_task_ids = self.available_task_ids.filtered_domain(domain)
