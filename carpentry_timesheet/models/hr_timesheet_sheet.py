@@ -62,10 +62,10 @@ class HrTimesheetSheet(models.Model):
             ]
 
         # 4.
-        if hasattr(self.available_task_ids, 'is_timeoff_task'):
+        if hasattr(self.env['project.task'], 'is_timeoff_task'):
             domain = AND([domain, [('is_timeoff_task', '=', False)]])
         print('domain', domain)
-        
+
         self.available_task_ids = self.available_task_ids.filtered_domain(domain)
         
         return res
