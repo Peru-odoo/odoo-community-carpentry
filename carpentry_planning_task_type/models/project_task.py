@@ -294,13 +294,15 @@ class Task(models.Model):
         views_form = self.env['project.task']._get_task_views(type_code, ['form'])
 
         # return specific Task Form, if available
-        action = super().action_open_planning_form() | {
-            'view_id': views_form[0][0]
-        }
+        action = super().action_open_planning_form()
+        action.pop('view_mode')
+        action['views'] = views_form
         action['context'] |= {
             # required for correct `name_required` computation
             'default_root_type_id': self.root_type_id.id
         }
+
+        print('action', action)
         
         return action
 
