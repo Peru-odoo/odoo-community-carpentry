@@ -13,6 +13,7 @@ class Task(models.Model):
     """ Manages special tasks: Instructions, Meetings, Milestones """
     _inherit = ['project.task']
     _rec_name = 'display_name'
+    _rec_names_search = ['name']
 
     #===== Fields' methods =====#
     @api.model
