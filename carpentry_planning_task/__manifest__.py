@@ -13,7 +13,7 @@
 
     'depends': [
         'project_task_link', # OCA
-        'project_favorite_switch', # other
+        'project_favorite_switch', 'project_task_copy', # other
         'carpentry_base', 'carpentry_planning',
     ],
     'data': [

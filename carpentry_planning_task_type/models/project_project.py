@@ -85,7 +85,7 @@ class Project(models.Model):
         return self._action_open_task_common(
             name=_('Instructions'),
             type_code='instruction',
-            custom=['tree'],
+            custom=['tree', 'form'],
             switch=['tree', 'form'],
             context={
                 'display_type_ids': True, # hide `parent_type_id` and `type_ids` ; display `type_ids`

@@ -35,6 +35,31 @@
         </field>
     </record>
 
+    <!-- Form tasks (instructions) -->
+    <record id="view_task_form_instruction" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry.instruction</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        
+        <field name="arch" type="xml">
+            <!-- Title placeholder -->
+            <field name="name" position="attributes">
+                <attribute name="placeholder">Instruction</attribute>
+            </field>
+
+            <!-- Hide some fields -->
+            <field name="stage_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <!-- Hide top-right fields -->
+            <xpath expr="(//group/group)[2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
     <!-- Pre-select project before opening Instruction (tasks) -->
     <record id="action_open_task_instruction_srv" model="ir.actions.server">
         <field name="name">Instructions</field>
