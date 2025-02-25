@@ -12,6 +12,10 @@ class ProjectType(models.Model):
         string='Planning Column',
         ondelete='set null',
     )
+    # -- planning --
+    active = fields.Boolean(
+        default=True
+    )
 
     @api.model
     def _synch_mirroring_column_id(self, column_id):
