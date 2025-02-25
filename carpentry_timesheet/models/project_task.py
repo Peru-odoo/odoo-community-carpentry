@@ -10,12 +10,6 @@ class Task(models.Model):
     _inherit = ['project.task']
 
     #===== Fields =====#
-    is_timeoff_task = fields.Boolean(
-        default=False,
-        # compatibility with bridge module `project_timesheet_holidays`.
-        # This field is used to prevent timesheeting on tasks that should be timesheeted
-        #  from HR Holidays (leaves) application
-    )
     allow_timesheets = fields.Boolean(
         # make it user choice per-task instead of per-project
         # False by default, True in specific `Timesheet's budget` task view

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command, SUPERUSER_ID
+from odoo.osv.expression import AND
 
 class HrTimesheetSheet(models.Model):
     _inherit = ['hr_timesheet.sheet']
@@ -40,20 +41,31 @@ class HrTimesheetSheet(models.Model):
                 - project visible by all users, *or*
                 - on which user is assigned, *or*
                 - tasks of Internal project and not used in *HR Leaves* 
+            4. *and* tasks not configured on Leaves
+               (compatibility with bridge module `project_timesheet_holidays`)
         """
         res = super()._compute_available_task_ids()
 
+        # 1.
         domain = [('allow_timesheets', '=', True)]
 
+        # 2.
         if self.add_line_analytic_id and not self.is_internal_project:
             domain += [('analytic_account_id', 'in', self.add_line_analytic_id.ids)]
-
+        
+        # 3.
         if not self.env.user.has_group('hr_timesheet.group_hr_timesheet_approver'):
             domain += ['|', '|',
+                ('project_id.privacy_visibility', 'in', ['employees', 'portal']),
                 ('user_ids', '=', self.env.uid),
-                '&', ('project_id.is_internal_project', '=', True), ('is_timeoff_task', '=', False),
-                ('project_id.privacy_visibility', 'in', ['employees', 'portal']
-            )]
+                ('project_id.is_internal_project', '=', True),
+            ]
+
+        # 4.
+        if hasattr(self.available_task_ids, 'is_timeoff_task'):
+            domain = AND([domain, [('is_timeoff_task', '=', False)]])
+        print('domain', domain)
+        
         self.available_task_ids = self.available_task_ids.filtered_domain(domain)
         
         return res
