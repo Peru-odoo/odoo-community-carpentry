@@ -174,7 +174,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
             for x in self.move_raw_ids.filtered(lambda x: x.product_id.type == 'consu')
         ]
         report_binary = self._make_report(mapped_components, byproducts, unknown, consu)
-        self._submit_chatter_message(byproducts, unknown, consu, report_binary)
+
+        # chatter message
+        mail_values = self._get_chatter_message(byproducts, unknown, consu, report_binary)
+        self.production_id.message_post(**mail_values)
 
     def _read_external_db(self, db_resource):
         """ Can be overriden to add import logic for other external database """
@@ -342,8 +345,8 @@ class CarpentryMrpImportWizard(models.TransientModel):
         output_stream.seek(0)
         return output_stream.read() # binary, NOT base64 encoded for `message_post`
 
-    def _submit_chatter_message(self, byproducts, unknown, consu, report_binary):
-        mail_values = {
+    def _get_chatter_message(self, byproducts, unknown, consu, report_binary):
+        return {
             'message_type': 'notification',
             'subtype_xmlid': 'mail.mt_note',
             'is_internal': True,
@@ -368,5 +371,3 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 (_('Component & products report'), report_binary)
             ]
         }
-        
-        self.production_id.message_post(**mail_values)
