@@ -23,21 +23,19 @@ export class GroupListController extends ListController {
             name: 'button_group_quick_create',
             resModel: this.env.model.root.resModel,
             onClose: actionReload,
-        }, {
-            additionalContext: this.env.model.root.context
+            context: this.env.model.root.context,
         });
     }
 
     async openAffectationMatrix() {
         console.log('=== openAffectationMatrix ===')
-        console.log('additionalContext', this.env.model.root.context)
+        console.log('context', this.env.model.root.context)
 
         this.actionService.doActionButton({
             type: 'object',
             name: 'button_open_affectation_matrix',
             resModel: this.env.model.root.resModel,
-        }, {
-            additionalContext: this.env.model.root.context
+            context: this.env.model.root.context,
         });
     }
 }
