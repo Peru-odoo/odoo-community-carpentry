@@ -33,6 +33,7 @@
                     <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"
                     >
+                        <span class="fa fa-floppy-o" />
                         Please save before continuing.
                     </div>
 
