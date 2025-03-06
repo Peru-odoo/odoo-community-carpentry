@@ -173,7 +173,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         report_binary = self._make_report(mapped_components, *args)
 
         # chatter message
-        mail_values = self._get_chatter_message(byproducts_valslist, *args, report_binary)
+        mail_values = self._get_chatter_message(*args, report_binary)
         self.production_id.message_post(**mail_values)
 
     def _read_external_db(self, db_resource):
@@ -221,10 +221,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
             :arg components_valslist: valslist from external database
             :return: tuple (
                 `mapped_components`: final `components` mapped dict
-                `substituted`: replaced codes (olds) mapped dict
+                `substituted`: replaced valslist (old codes), not mapped dict
             )
         """
-        
+
         def __weighted_avg(previous_vals, vals, key):
             """ When merging 2 references, merge its *price* and *discount* (`key` arg)
                 as weighted avg per `product_uom_qty`
@@ -236,7 +236,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 previous_vals['product_uom_qty'] + vals['product_uom_qty']
             )
         
-        mapped_components, substituted = {}, {}
+        mapped_components, substituted = {}, []
         vals_default = {
             'product_uom_qty': 0.0,
             'price': 0.0,
@@ -254,7 +254,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 # if the reference must be substituted
                 if new_default_code:
                     # add old ref to `substituted` mapped dict
-                    substituted[default_code] = vals
+                    substituted.append(vals)
                     default_code = new_default_code
                 
                 # merge new ref in `mapped_components`

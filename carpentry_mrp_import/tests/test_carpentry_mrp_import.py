@@ -10,7 +10,7 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
 
     COMPONENT_DB_FILE = 'orgadata_test.sqlite3'
     BYPRODUCTS_XLSX_FILE = 'byproducts_import_test.xlsx'
-    QUANTITY_218156_218157 = 96*2 # from `orgadata_test.sqlite3`
+    SUM_QUANTITY_SUBSTITUTED = 96*2 # from `orgadata_test.sqlite3`
 
     @classmethod
     def setUpClass(cls):
@@ -94,7 +94,7 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
 
         # good quantity (summed)
         move_raw_id = self.mo.move_raw_ids.filtered(lambda x: x.product_id == self.replacement)
-        self.assertEqual(move_raw_id.product_uom_qty == QUANTITY_218156_218157)
+        self.assertEqual(move_raw_id.product_uom_qty == self.SUM_QUANTITY_SUBSTITUTED)
     
     def test_05_report_chatter(self):
         self.assertTrue(self.mo.message_ids)
