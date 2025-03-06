@@ -94,7 +94,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _compute_sum_quantity_affected(self):
         """ [Overwritte] PO needs real-time computing => no read_group """
         for record in self:
-            record.sum_quantity_affected = sum(record.affectation_ids.quantity_affected)
+            record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
 
     def _get_domain_affect(self):
         return [
