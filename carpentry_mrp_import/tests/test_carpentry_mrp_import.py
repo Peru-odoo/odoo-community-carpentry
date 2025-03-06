@@ -11,6 +11,8 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
     COMPONENT_DB_FILE = 'orgadata_test.sqlite3'
     BYPRODUCTS_XLSX_FILE = 'byproducts_import_test.xlsx'
     SUM_QUANTITY_SUBSTITUTED = 96*2 # from `orgadata_test.sqlite3`
+    SUBSTITUTED_CODE_1 = '218156'
+    SUBSTITUTED_CODE_2 = '218157'
 
     @classmethod
     def setUpClass(cls):
@@ -19,8 +21,8 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
         cls.project = cls.env['project.project'].create({'name': 'Project Test 001'})
 
         # Products
-        Product = cls.env['product.product']
-        cls.final_product, cls.storable, cls.replacement, cls.ignored, cls.consu = Product.create([{
+        cls.Product = cls.env['product.product']
+        cls.final_product, cls.storable, cls.replacement, cls.ignored, cls.consu = cls.Product.create([{
             'name': 'Position Final Product Test 001',
             'default_code': False,
         }, {
@@ -32,8 +34,8 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
             'default_code': 'replacement',
             'type': 'product',
             'substitution_ids': [
-                Command.create({'substituted_code': '218156'}),
-                Command.create({'substituted_code': '218157'})
+                Command.create({'substituted_code': cls.SUBSTITUTED_CODE_1}),
+                Command.create({'substituted_code': cls.SUBSTITUTED_CODE_2})
             ]
         }, {
             'name': 'Ignored',
@@ -96,11 +98,24 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
         move_raw_id = self.mo.move_raw_ids.filtered(lambda x: x.product_id == self.replacement)
         self.assertEqual(move_raw_id.product_uom_qty, self.SUM_QUANTITY_SUBSTITUTED)
     
-    def test_05_report_chatter(self):
+    def test_05_substitution_raise_chain(self):
+        """ Tests constrain preventing a product to be both a
+            substitution one (target) a substituted reference (source)
+        """
+        # one can declare as real *product.product* a substituted reference...
+        product_substituted = self.Product.create([{
+            'name': 'Product both target and substituted',
+            'default_code': self.SUBSTITUTED_CODE_1,
+        }])
+        # ...but cannot create chained substitution
+        with self.assertRaises(exceptions.ValidationError):
+            product_substituted.substitution_ids = [Command.create({'substituted_code': 'anything'})]
+    
+    def test_06_report_chatter(self):
         self.assertTrue(self.mo.message_ids)
         self.assertEqual(self.mo.message_attachment_count, 1)
 
-    def test_06_byproducts_import(self):
+    def test_07_byproducts_import(self):
         wizard = self._load_wizard('byproduct')
         wizard.button_import()
         self.assertTrue(self.mo.move_byproduct_ids)

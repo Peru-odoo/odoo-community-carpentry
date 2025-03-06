@@ -2,7 +2,7 @@
 <odoo>
     <!-- Action & Config/menu-item -->
     <record id="action_open_product_substitution" model="ir.actions.act_window">
-        <field name="name">Products substitutions</field>
+        <field name="name">Substituted references</field>
         <field name="res_model">product.substitution</field>
         <field name="view_mode">tree,form</field>
     </record>

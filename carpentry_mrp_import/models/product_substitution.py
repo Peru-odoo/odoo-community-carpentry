@@ -3,6 +3,10 @@
 from odoo import models, fields, api, exceptions, _, Command
 
 class ProductSubstitutionCode(models.Model):
+    """ For product.product, stores alternatives `default_code`
+        (i.e. substitution references)
+    """
+
     _name = 'product.substitution'
     _description = 'Product Substitution Code'
     _rec_name = 'substituted_code'
@@ -36,18 +40,19 @@ class ProductSubstitutionCode(models.Model):
     _sql_constraints = [(
         "substituted_code",
         "UNIQUE (substituted_code)",
-        "This substituted reference is already used by another product."
+        "Another product is already substituting this internal reference."
     )]
     
-    @api.constrains('substituted_code')
-    def _constrain_code_unknown(self):
-        """ `substituted_code` must not exist as `product.default_code` """
-        domain = [('default_code', 'in', self.mapped('substituted_code'))]
-        if self.env['product.product'].with_context(active_test=False).search(domain):
-            raise exceptions.UserError(_(
-                'A product reference cannot also be used as a substitution reference.\n'
-                'Details: %s', self.mapped('substituted_code')
-            ))
+    # Update ALY 06-03-2025 : yes it should
+    # @api.constrains('substituted_code')
+    # def _constrain_code_unknown(self):
+    #     """ `substituted_code` must not exist as `product.default_code` """
+    #     domain = [('default_code', 'in', self.mapped('substituted_code'))]
+    #     if self.env['product.product'].with_context(active_test=False).search(domain):
+    #         raise exceptions.UserError(_(
+    #             'A product reference cannot also be used as a substitution reference.\n'
+    #             'Details: %s', self.mapped('substituted_code')
+    #         ))
 
     #===== CRUD / clean =====#
     def write(self, vals):

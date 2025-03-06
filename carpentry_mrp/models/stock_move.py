@@ -20,7 +20,7 @@ class StockMove(models.Model):
     # def _constrain_component_single_product(self):
     #     if self._context.get('ignore_constrain_component_single_product'):
     #         return
-        
+    
     #     for move in self:
     #         mo = move.raw_material_production_id
     #         if mo:
