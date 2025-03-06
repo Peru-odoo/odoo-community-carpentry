@@ -458,7 +458,5 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'res_id': self._get_project_id(raise_if_not_found=True),
             'view_mode': 'form',
             'view_id': self.env.ref('carpentry_position.carpentry_group_affectation_temp_matrix').id,
-            'context': self._context | {
-                'res_model': self._name,
-            }
+            'context': self._context | {'res_model': self._name}
         }

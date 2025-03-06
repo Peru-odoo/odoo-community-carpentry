@@ -94,7 +94,7 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
 
         # good quantity (summed)
         move_raw_id = self.mo.move_raw_ids.filtered(lambda x: x.product_id == self.replacement)
-        self.assertEqual(move_raw_id.product_uom_qty == self.SUM_QUANTITY_SUBSTITUTED)
+        self.assertEqual(move_raw_id.product_uom_qty, self.SUM_QUANTITY_SUBSTITUTED)
     
     def test_05_report_chatter(self):
         self.assertTrue(self.mo.message_ids)
