@@ -194,14 +194,17 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         affectations.unlink()
     
     # -- Compute of `affectation.temp` from `real` --
-    def _get_affectation_ids_temp(self, temp=True, vals_list=None):
-        """ Called from a Carpentry Form (e.g. Project for Phases and Launch)
+    def _get_affectation_ids_temp(self):
+        """ Called from a Carpentry Form (e.g. Project for Phases and Launches)
+            
+            :arg `self`: is a recordset of a Carpentry Group (Phases, Launches, ...)
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
-            `self` is a recordset of a Carpentry Group (Phases, Launches, ...)
         """
-        vals_list = vals_list or self._get_affectation_ids_vals_list(temp)
-        matrix = self._write_or_create_affectations(vals_list, temp)
-        return [Command.set(matrix.ids)]
+        affectation_temp_ids_ = []
+        for group in self:
+            vals_list = group._get_affectation_ids_vals_list(temp=True)
+            affectation_temp_ids_ += group._write_or_create_affectations(vals_list, temp=True).ids
+        return [Command.set(affectation_temp_ids_)]
 
     #===== Affectation method =====#
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):

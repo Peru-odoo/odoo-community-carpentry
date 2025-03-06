@@ -105,8 +105,6 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
             )
         )
 
-
-
     def test_affectations(self):
         """ - Test real affectation, like group's form wizard (phase & launch)
             - Test shortcut affectation, like group's tree view
