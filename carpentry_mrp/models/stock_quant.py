@@ -17,3 +17,13 @@ class StockQuant(models.Model):
         for quant in self:
             consumed = qties_outgoing_raw_material.get(quant.product_id.id, 0.0)
             quant.quantity_without_outgoing_raw_material = quant.quantity - consumed
+
+    def _compute_inventory_diff_quantity(self):
+        """ Compare `inventory_quantity` with `quantity_without_outgoing_raw_material`
+            instead of `quantity`
+        """
+        super()._compute_inventory_diff_quantity()
+
+        for quant in self:
+            quant.inventory_diff_quantity = quant.inventory_quantity - quant.quantity_without_outgoing_raw_material
+    
