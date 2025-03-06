@@ -10,6 +10,7 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
 
     COMPONENT_DB_FILE = 'orgadata_test.sqlite3'
     BYPRODUCTS_XLSX_FILE = 'byproducts_import_test.xlsx'
+    QUANTITY_218156_218157 = 96*2 # from `orgadata_test.sqlite3`
 
     @classmethod
     def setUpClass(cls):
@@ -28,8 +29,12 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
             'type': 'product',
         }, {
             'name': 'Replacement',
-            'default_code': '218156',
+            'default_code': 'replacement',
             'type': 'product',
+            'substitution_ids': [
+                Command.create({'substituted_code': '218156'}),
+                Command.create({'substituted_code': '218157'})
+            ]
         }, {
             'name': 'Ignored',
             'default_code': '236253',
@@ -40,12 +45,6 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
             'default_code': '269510',
             'type': 'consu',
         }])
-        cls.substituted = Product.create({
-            'name': 'Substituted',
-            'default_code': '218157',
-            'type': 'product',
-            'product_substitution_id': cls.replacement.id
-        })
 
         # Manufacturing Order
         cls.mo = cls.env['mrp.production'].create([{
@@ -75,25 +74,33 @@ class TestCarpentryMrpImport(common.SingleTransactionCase):
         return wizard
 
     def test_01_load_file(self):
-        # Load external database
+        """ Tests load of external database (code execution) """
         self.wizard.button_import()
         self.assertTrue(self.wizard.product_ids)
     
     def test_02_filter(self):
         self.assertTrue(self.storable in self.wizard.product_ids)
-        self.assertTrue(self.replacement in self.wizard.product_ids)
-        self.assertEqual(self.substituted, self.wizard.substituted_product_ids)
         self.assertEqual(self.ignored, self.wizard.with_context(active_test=False).ignored_product_ids)
 
     def test_03_import_component(self):
+        """ Tests components import in the Manufacturing Order """
         self.assertTrue(self.wizard.supplierinfo_ids)
         self.assertTrue(self.storable in self.mo.move_raw_ids.product_id)
     
-    def test_04_report_chatter(self):
+    def test_04_substitution(self):
+        """ Tests substitution logics """
+        # `replacement` in the components though not in .sqlite
+        self.assertTrue(self.replacement in self.wizard.product_ids)
+
+        # good quantity (summed)
+        move_raw_id = self.mo.move_raw_ids.filtered(lambda x: x.product_id == self.replacement)
+        self.assertEqual(move_raw_id.product_uom_qty == QUANTITY_218156_218157)
+    
+    def test_05_report_chatter(self):
         self.assertTrue(self.mo.message_ids)
         self.assertEqual(self.mo.message_attachment_count, 1)
 
-    def test_05_byproducts_import(self):
+    def test_06_byproducts_import(self):
         wizard = self._load_wizard('byproduct')
         wizard.button_import()
         self.assertTrue(self.mo.move_byproduct_ids)

@@ -23,8 +23,7 @@
         'wizard/carpentry_mrp_import_wizard.xml',
         # views
         'views/mrp_production.xml',
-        'views/product_product.xml',
+        'views/product_views.xml',
+        'views/product_substitution.xml',
     ]
 }
-
-

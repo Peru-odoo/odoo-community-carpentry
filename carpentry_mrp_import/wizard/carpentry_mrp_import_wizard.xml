@@ -24,14 +24,13 @@
 
         <field name="arch" type="xml">
             <form>
-                <field name="state" invisible="1" />
                 <field name="mode" invisible="1" />
 
                 <h1 name="production">
                     <field name="production_id" nolabel="1" />
                 </h1>
 
-                <group name="import" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                <group name="import">
                     <group>
                         <field name="filename" invisible="1" />
                         <field name="import_file" widget="binary" filename="filename" />
@@ -50,53 +49,10 @@
                         />
                     </group>
                 </group>
-
-                <!-- === State `done` === -->
-                <notebook attrs="{'invisible': ['|', ('mode', '!=', 'component'), ('state', '!=', 'done')]}">
-                    <!-- Imported components -->
-                    <page name="move_raw_ids" string="✅ Imported">
-                        <field name="move_raw_ids" />
-                    </page>
-
-                    <!-- Non-Stored -->
-                    <page name="non_stored" string="🛒 Consumables">
-                        <field name="move_raw_ids" domain="[('product_id.type', '=', 'consu')]" />
-                    </page>
-
-                    <!-- Supplierinfo -->
-                    <page name="supplierinfo" string="💶 Prices">
-                        <field name="supplierinfo_ids" />
-                    </page>
-
-                    <!-- Substituted products -->
-                    <page name="substituted_product" string="🔃 Substituted">
-                        <field name="substituted_product_ids">
-                            <tree>
-                                <field name="default_code" />
-                                <field name="name" />
-                                <field name="product_substitution_id" />
-                            </tree>
-                        </field>
-                    </page>
-
-                    <!-- Ignored products -->
-                    <page name="ignored_product" string="🚫 Ignored">
-                        <field name="ignored_product_ids" domain="[('active', '=', False)]">
-                            <tree>
-                                <field name="default_code" />
-                                <field name="name" />
-                                <field name="uom_id" />
-                            </tree>
-                        </field>
-                    </page>
-                </notebook>
                 
-                <footer attrs="{'invisible': [('state', '=', 'done')]}">
+                <footer>
                     <button type="object" name="button_import" string="Import" class="btn btn-primary" />
                     <button special="cancel" string="Discard" class="btn-secondary" />
-                </footer>
-                <footer attrs="{'invisible': [('state', '!=', 'done')]}">
-                    <button special="cancel" string="Finish" class="btn-secondary" />
                 </footer>
             </form>
         </field>

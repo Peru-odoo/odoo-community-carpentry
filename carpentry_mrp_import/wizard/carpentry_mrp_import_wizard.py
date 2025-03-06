@@ -25,14 +25,6 @@ class CarpentryMrpImportWizard(models.TransientModel):
         required=True,
         string='Import mode'
     )
-    state = fields.Selection(
-        selection=[
-            ('draft', 'Import'),
-            ('done', 'Done'),
-        ],
-        string='State',
-        default='draft'
-    )
     production_id = fields.Many2one(
         comodel_name='mrp.production',
         string='Manufacturing Order',
@@ -69,7 +61,6 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     # report
     move_raw_ids = fields.One2many(related='production_id.move_raw_ids')
-    substituted_product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
     ignored_product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
 
     #===== Buttons =====#
@@ -105,18 +96,6 @@ class CarpentryMrpImportWizard(models.TransientModel):
         db_resource = self._open_external_database(filename, db_content, mimetype, self.encoding, db_models=db_models) # from `utilities.file.database`
         self._run_import_component(db_resource)
 
-        # (!) not needed anymore because of full XLSX report
-        # move to wizard's next page
-        # self.state = 'done'
-        # return {
-        #     'type': 'ir.actions.act_window',
-        #     'res_model': self._name,
-        #     'res_id': self.id,
-        #     'context': self._context,
-        #     'view_mode': 'form',
-        #     'target': 'new',
-        # }
-
 
     #===== Import logics (Byproducts) =====#
     def _run_import_byproduct(self, vals_list):
@@ -150,33 +129,51 @@ class CarpentryMrpImportWizard(models.TransientModel):
     
     #===== Import logics (Components/Orgadata) =====#
     def _run_import_component(self, db_resource):
-        components, byproducts = self._read_external_db(db_resource)
+        """ Extract components and byproducts from Orgadata base
+            - components are added to MO
+            - byproducts are just exported in the Excel as a report
+            
+            Import logic:
+            0. Read
+            1. Substitute
+            2. Browse product.product
+            3. Identify unknown product
+            4. Ignore
+            5. Import
+            6. Report (consumable, unknown, byproducts, ...) & message
+        """
+        # 0. Read Orgadata base
+        components_valslist, byproducts_valslist = self._read_external_db(db_resource)
         self._close_db(db_resource) # close connection with external db
+        
+        # 1. Substitute
+        mapped_components, substituted = self._substitute(components_valslist)
 
-        # Get products
-        mapped_components = {x['default_code']: x for x in components}
+        # 2. Browse product.product
         domain = [('default_code', 'in', list(mapped_components.keys()))]
         self = self.with_context(active_test=False) # for ignored products
         self.product_ids = self.env['product.product'].search(domain)
 
-        # Unknown products
+        # 3. Unknown products
         default_code_list = self.product_ids.mapped('default_code')
         unknown = [v for k, v in mapped_components.items() if k not in default_code_list]
 
-        # Import logic : substitute -> import -> make report (consumable & unknown)
-        self._substitute()
+        # 4. Ignore
         self._ignore()
+
+        # 5. Import
         self._import_components(mapped_components)
 
-        # Report & message
+        # 6. Report & message
         consu = [
             mapped_components.get(x.product_id.default_code)
             for x in self.move_raw_ids.filtered(lambda x: x.product_id.type == 'consu')
         ]
-        report_binary = self._make_report(mapped_components, byproducts, unknown, consu)
+        args = byproducts_valslist, substituted, unknown, consu
+        report_binary = self._make_report(mapped_components, *args)
 
         # chatter message
-        mail_values = self._get_chatter_message(byproducts, unknown, consu, report_binary)
+        mail_values = self._get_chatter_message(byproducts_valslist, *args, report_binary)
         self.production_id.message_post(**mail_values)
 
     def _read_external_db(self, db_resource):
@@ -215,11 +212,60 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
         return components, byproducts
     
-    def _substitute(self):
-        substituted = self.product_ids.filtered('product_substitution_id')
-        if substituted:
-            self.product_ids += substituted.product_substitution_id - substituted
-            self.substituted_product_ids = substituted
+    def _substitute(self, components_valslist):
+        """ Apply reference substitution logic updated components dict.
+            Especially, it manages the *merge* of several *substituted* (old) references
+             that may happen into a single *target* (new) product, by summing qties
+             and weight-averaging price & discount.
+
+            :arg components_valslist: valslist from external database
+            :return: tuple (
+                `mapped_components`: final `components` mapped dict
+                `substituted`: replaced codes (olds) mapped dict
+            )
+        """
+        
+        def __weighted_avg(previous_vals, vals, key):
+            """ When merging 2 references, merge its *price* and *discount* (`key` arg)
+                as weighted avg per `product_uom_qty`
+            """
+            return (
+                previous_vals['product_uom_qty'] * previous_vals[key] +
+                vals['product_uom_qty'] * vals[key]
+            ) / (
+                previous_vals['product_uom_qty'] + vals['product_uom_qty']
+            )
+        
+        mapped_components, substituted = {}, {}
+        vals_default = {
+            'product_uom_qty': 0.0,
+            'price': 0.0,
+            'discount': 0.0
+        }
+        substitution_dict = {
+            x.substituted_code: x.default_code # old -> new
+            for x in self.env['product.substitution'].search([])
+        }
+        if substitution_dict:
+            for vals in components_valslist:
+                default_code = vals['default_code']
+                new_default_code = substitution_dict.get(default_code)
+                
+                # if the reference must be substituted
+                if new_default_code:
+                    # add old ref to `substituted` mapped dict
+                    substituted[default_code] = vals
+                    default_code = new_default_code
+                
+                # merge new ref in `mapped_components`
+                previous_vals = mapped_components.get(default_code, vals_default.copy())
+                mapped_components[default_code] = {
+                    'product_uom_qty': vals['product_uom_qty'] + previous_vals['product_uom_qty'],
+                    'price': __weighted_avg(previous_vals, vals, 'price'),
+                    'discount': __weighted_avg(previous_vals, vals, 'discount'),
+                }
+        
+        return mapped_components, substituted
 
     def _ignore(self):
         all_products = self.product_ids
@@ -266,7 +312,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         _logger.info(f'[_import_components] component_vals_list: {component_vals_list}')
         self.production_id.move_raw_ids = component_vals_list
 
-    def _make_report(self, mapped_components, byproducts, unknown, consu):
+    def _make_report(self, mapped_components, byproducts, substituted, unknown, consu):
         def __write_section(start_row, title, cols, vals_list):
             # Title
             cell = 'A' + str(start_row)
@@ -324,7 +370,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
             _('Unknown'): unknown,
             _('Consumable'): consu,
             _('Imported components'): [mapped_components.get(x.default_code, {}) for x in self.product_ids],
-            _('Substituted components'): [mapped_components.get(x.default_code, {}) for x in self.substituted_product_ids],
+            _('Substituted components'): substituted,
             _('Ignored components'): [mapped_components.get(x.default_code, {}) for x in self.ignored_product_ids]
         }
         cols = {
@@ -345,7 +391,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
         output_stream.seek(0)
         return output_stream.read() # binary, NOT base64 encoded for `message_post`
 
-    def _get_chatter_message(self, byproducts, unknown, consu, report_binary):
+    def _get_chatter_message(self, byproducts, substituted, unknown, consu, report_binary):
         return {
             'message_type': 'notification',
             'subtype_xmlid': 'mail.mt_note',
@@ -363,7 +409,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 byproducts=len(byproducts),
                 components=len(self.product_ids),
                 consu=len(consu),
-                substituted=len(self.substituted_product_ids),
+                substituted=len(substituted),
                 ignored=len(self.ignored_product_ids),
                 unknown=len(unknown),
             ),

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Action & Config/menu-item -->
+    <record id="action_open_product_substitution" model="ir.actions.act_window">
+        <field name="name">Products substitutions</field>
+        <field name="res_model">product.substitution</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_product_substitution" action="action_open_product_substitution" parent="stock.menu_product_in_config_stock" />
+
+    <!-- product.substitution tree -->
+    <record id="product_substitution_tree_view" model="ir.ui.view">
+        <field name="name">product.substitution.tree</field>
+        <field name="model">product.substitution</field>
+        
+        <field name="arch" type="xml">
+            <tree editable="top">
+                <field name="substituted_code" />
+                <field name="product_id" />
+            </tree>
+        </field>
+    </record>
+    <!-- product.substitution form -->
+    <record id="product_substitution_form_view" model="ir.ui.view">
+        <field name="name">product.substitution.form</field>
+        <field name="model">product.substitution</field>
+        
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="substituted_code" />
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

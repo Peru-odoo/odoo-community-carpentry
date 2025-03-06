@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Product.Template (Only) Form -->
+    <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.product.form.carpentry_mrp</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `substitution_ids` after `default_code` -->
+            <field name="default_code" position="after">
+                <field name="product_variant_id" invisible="1" />
+                <field name="substitution_ids"
+                    widget="many2many_tags" options="{'no_create_edit': True, 'create': True, 'create_name_field': 'substitution_code'}"
+                    context="{'default_product_tmpl_id': id}"
+                    attrs="{
+                        'readonly': [('id', '=', False)],
+                        'invisible': [('product_variant_count', '>', 1)]
+                    }"
+                />
+            </field>
+        </field>
+    </record>
+
+    <!-- Product.Product (Only) Form -->
+    <record id="product_normal_form_view" model="ir.ui.view">
+        <field name="name">product.product.form.carpentry_mrp</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `substitution_ids` after `default_code` -->
+            <field name="default_code" position="after">
+                <field name="substitution_ids"
+                    widget="many2many_tags" options="{'no_create_edit': True, 'create': True, 'create_name_field': 'substitution_code'}"
+                    context="{'default_product_id': id}"
+                    attrs="{'readonly': [('id', '=', False)]}"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

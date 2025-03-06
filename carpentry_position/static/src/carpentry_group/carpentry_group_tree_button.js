@@ -29,6 +29,9 @@ export class GroupListController extends ListController {
     }
 
     async openAffectationMatrix() {
+        console.log('=== openAffectationMatrix ===')
+        console.log('additionalContext', this.env.model.root.context)
+
         this.actionService.doActionButton({
             type: 'object',
             name: 'button_open_affectation_matrix',

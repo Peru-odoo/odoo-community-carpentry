@@ -91,11 +91,17 @@ class Project(models.Model):
     # Temp<->real affectation logics
     def _compute_affectation_ids_temp_phase(self):
         for project in self:
-            matrix = project.phase_ids._get_affectation_ids_temp()
-            project.affectation_ids_temp_phase = matrix
+            project.affectation_ids_temp_phase = [
+                phase._get_affectation_ids_temp()
+                for phase in project.phase_ids
+            ]
     def _compute_affectation_ids_temp_launch(self):
         for project in self:
-            project.affectation_ids_temp_launch = project.launch_ids._get_affectation_ids_temp()
+            project.affectation_ids_temp_launch = [
+                launch._get_affectation_ids_temp()
+                for launch in project.launch_ids
+            ]
+
     def _inverse_affectation_ids_temp(self, vals):
         """ Affectations: call _inverse matrix method of related carpentry's model
             Warning: since affectation_ids_temp_... are computed, `write()` has not effect on those fields, so we look for
