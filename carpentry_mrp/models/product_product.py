@@ -20,7 +20,7 @@ class ProductProduct(models.Model):
             res[product_id]['qty_available'] -= consumed
             res[product_id]['outgoing_qty'] -= consumed
         
-    #     return res
+        return res
 
     # def _get_domain_locations(self):
     #     """ Do not count `Consumed` qties in `virtual_available` (Forecast)
