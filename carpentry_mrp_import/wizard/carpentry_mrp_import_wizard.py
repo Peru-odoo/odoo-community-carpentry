@@ -215,8 +215,9 @@ class CarpentryMrpImportWizard(models.TransientModel):
     def _substitute(self, components_valslist):
         """ Apply reference substitution logic updated components dict.
             Especially, it manages the *merge* of several *substituted* (old) references
-             that may happen into a single *target* (new) product, by summing qties
-             and weight-averaging price & discount.
+             that may happen into a single *target* (new) product, applying the logics:
+             - `product_uom_qty`: summed
+             - `price` and `discount`: weight-averaged
 
             :arg components_valslist: valslist from external database
             :return: tuple (
@@ -242,24 +243,30 @@ class CarpentryMrpImportWizard(models.TransientModel):
             'price': 0.0,
             'discount': 0.0
         }
-        substitution_dict = {
-            x.substituted_code: x.default_code # old -> new
+        mapped_substitution_product = {
+            x.substituted_code: x.product_id # old -> new
             for x in self.env['product.substitution'].search([])
         }
-        if substitution_dict:
+        if mapped_substitution_product:
             for vals in components_valslist:
+                metadata = vals # default_code, name, uom_name
                 default_code = vals['default_code']
-                new_default_code = substitution_dict.get(default_code)
+                substitution_product = mapped_substitution_product.get(default_code)
                 
                 # if the reference must be substituted
-                if new_default_code:
+                if substitution_product:
                     # add old ref to `substituted` mapped dict
                     substituted.append(vals)
-                    default_code = new_default_code
+                    default_code = substitution_product.default_code
+                    metadata = {
+                        'default_code': default_code,
+                        'name': substitution_product.name,
+                        'uom_name': substitution_product.uom_name
+                    }
                 
                 # merge new ref in `mapped_components`
                 previous_vals = mapped_components.get(default_code, vals_default.copy())
-                mapped_components[default_code] = {
+                mapped_components[default_code] = metadata | {
                     'product_uom_qty': vals['product_uom_qty'] + previous_vals['product_uom_qty'],
                     'price': __weighted_avg(previous_vals, vals, 'price'),
                     'discount': __weighted_avg(previous_vals, vals, 'discount'),

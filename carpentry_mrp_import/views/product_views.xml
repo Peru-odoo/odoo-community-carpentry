@@ -10,11 +10,11 @@
             <label for="name" position="before">
                 <field name="substitution_product_id" invisible="1" />
                 
-                <div name="info_substitution" role="alert" class="alert alert-info"
+                <div name="info_substitution" role="alert" class="text-info fw-bold"
                     attrs="{'invisible': [('substitution_product_id', '=', False)]}"
                 >
                     <span class="fa fa-info-circle" />
-                    This product is substituted by <field name="substitution_product_id" />.
+                    This product is substituted by <field name="substitution_product_id" /> in imports of Manufacturing Order components.
                 </div>
             </label>
         </field>
