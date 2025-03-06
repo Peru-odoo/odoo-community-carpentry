@@ -158,7 +158,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
 
     # -- Refresh *real* `affectation` (for PO and WO) --
-    def _get_affectation_ids(self, vals_list=None):
+    def _get_affectation_ids(self, vals_list=[]):
         """ Called from PO or MO to refresh *real* affectations """
         return self._get_affectation_ids_temp(temp=False, vals_list=vals_list)
     
@@ -194,16 +194,21 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         affectations.unlink()
     
     # -- Compute of `affectation.temp` from `real` --
-    def _get_affectation_ids_temp(self):
+    def _get_affectation_ids_temp(self, temp=True, vals_list=[]):
         """ Called from a Carpentry Form (e.g. Project for Phases and Launches)
             
             :arg `self`: is a recordset of a Carpentry Group (Phases, Launches, ...)
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
         """
-        affectation_temp_ids_ = []
-        for group in self:
-            vals_list = group._get_affectation_ids_vals_list(temp=True)
-            affectation_temp_ids_ += group._write_or_create_affectations(vals_list, temp=True).ids
+        # for PO and WO
+        if vals_list and len(self) == 1:
+            affectation_temp_ids_ = self._write_or_create_affectations(vals_list, temp).ids
+        # for Phases and Launches
+        else:
+            affectation_temp_ids_ = []
+            for group in self:
+                vals_list = group._get_affectation_ids_vals_list(temp)
+                affectation_temp_ids_ += group._write_or_create_affectations(vals_list, temp).ids
         return [Command.set(affectation_temp_ids_)]
 
     #===== Affectation method =====#
