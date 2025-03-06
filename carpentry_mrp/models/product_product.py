@@ -7,18 +7,18 @@ from collections import defaultdict
 class ProductProduct(models.Model):
     _inherit = ['product.product']
 
-    # def _compute_quantities_dict(self, lot_id, owner_id, package_id, from_date=False, to_date=False):
-    #     """ Overwritte native method to count outgoing qties of MRP raw_material (`Consumed` column in MO) as
-    #         already *out* in `qty_available` (On Hand) as soon as Manufacturing Order is confirmed,
-    #         without waiting MO (and its move) to be done
-    #     """
-    #     res = super()._compute_quantities_dict(lot_id, owner_id, package_id, from_date, to_date)
-    #     qties_outgoing_raw_material = self._get_qties_outgoing_raw_material(owner_id, from_date, to_date)
+    def _compute_quantities_dict(self, lot_id, owner_id, package_id, from_date=False, to_date=False):
+        """ Overwritte native method to count outgoing qties of MRP raw_material (`Consumed` column in MO) as
+            already *out* in `qty_available` (On Hand) as soon as Manufacturing Order is confirmed,
+            without waiting MO (and its move) to be done
+        """
+        res = super()._compute_quantities_dict(lot_id, owner_id, package_id, from_date, to_date)
+        qties_outgoing_raw_material = self._get_qties_outgoing_raw_material(owner_id, from_date, to_date)
 
-    #     for product_id, qties_dict in res.items():
-    #         consumed = qties_outgoing_raw_material.get(product_id, 0.0)
-    #         res[product_id]['qty_available'] -= consumed
-    #         res[product_id]['outgoing_qty'] -= consumed
+        for product_id, qties_dict in res.items():
+            consumed = qties_outgoing_raw_material.get(product_id, 0.0)
+            res[product_id]['qty_available'] -= consumed
+            res[product_id]['outgoing_qty'] -= consumed
         
     #     return res
 
