@@ -33,13 +33,13 @@ msgid ""
 "                    <br/>\n"
 "                    Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.\n"
 "                    <br/>\n"
-"                    Note 2 : To reserve budget for storable products, please proceed through a Stock Reservation or do it manually from a Purchase Order."
+"                    Note 2 : To reserve budget linked to storable products, do a Stock Reservation."
 msgstr ""
 ").\n"
 "                   <br/>\n"
 "                    Note 1 : Veuillez ignorer ce message si la réservation de budget a déjà été modifiée et doit rester différente du coût réel.\n"
 "                   <br/>\n"
-"                    Note 2 : Pour réserver un budget pour des articles stockables, veuillez procéder à une réservation de stock ou le faire manuellement à partir d'une commande."
+"                    Note 2 : Pour réserver un budget lié à des articles stockés, procéder à une réservation de stock."
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__affectation_ids

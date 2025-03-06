@@ -22,7 +22,7 @@
                     <br />
                     Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.
                     <br />
-                    Note 2 : To reserve budget for storable products, please proceed through a Stock Reservation or do it manually from a Purchase Order.
+                    Note 2 : To reserve budget link to storable products, please do a Stock Reservation.
                 </div>
             </sheet>
 
