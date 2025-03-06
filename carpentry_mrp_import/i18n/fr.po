@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-23 16:54+0000\n"
-"PO-Revision-Date: 2025-01-23 18:12+0100\n"
+"POT-Creation-Date: 2025-03-06 14:56+0000\n"
+"PO-Revision-Date: 2025-03-06 16:00+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -16,6 +16,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
+
+#. module: carpentry_mrp_import
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.product_template_form_view
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    This product is substituted by"
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    Ce produit est remplacé par"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -35,6 +44,23 @@ msgstr ""
 "séparément)</li><li><strong>%(substituted)s</strong> références remplacées</"
 "li><li><strong>%(ignored)s</strong> ignorés explicitement</"
 "li><li><strong>%(unknown)s</strong> produits inconnus en base</li></ul>"
+
+#. module: carpentry_mrp_import
+#. odoo-python
+#: code:addons/carpentry_mrp_import/models/product_product.py:0
+#, python-format
+msgid ""
+"A product used as substitution for other references cannot itself have its "
+"internal reference substituted. Product: %s"
+msgstr ""
+"Un produit utilisé comme substitut de certaines références ne peut pas lui-"
+"même être substitué à un autre produit. Produit : %s"
+
+#. module: carpentry_mrp_import
+#: model:ir.model.constraint,message:carpentry_mrp_import.constraint_product_substitution_substituted_code
+msgid "Another product is already substituting this internal reference."
+msgstr ""
+"Un autre produit utilise déjà cette référence comme référence alternative."
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
@@ -69,11 +95,13 @@ msgstr "Consommable"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__create_uid
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__create_uid
 msgid "Created by"
 msgstr "Créé par"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__create_date
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__create_date
 msgid "Created on"
 msgstr "Créé le"
 
@@ -98,13 +126,9 @@ msgstr "Annuler"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__display_name
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__display_name
 msgid "Display Name"
 msgstr "Nom affiché"
-
-#. module: carpentry_mrp_import
-#: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__state__done
-msgid "Done"
-msgstr "Terminé"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__encoding
@@ -131,12 +155,8 @@ msgid "Final products"
 msgstr "Produits finis"
 
 #. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "Finish"
-msgstr "Terminer"
-
-#. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__id
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__id
 msgid "ID"
 msgstr ""
 
@@ -158,7 +178,6 @@ msgid "Ignored components"
 msgstr "Composants ignorés"
 
 #. module: carpentry_mrp_import
-#: model:ir.model.fields.selection,name:carpentry_mrp_import.selection__carpentry_mrp_import_wizard__state__draft
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
 msgid "Import"
 msgstr "Importer"
@@ -187,16 +206,19 @@ msgstr "Composants importés"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard____last_update
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution____last_update
 msgid "Last Modified on"
 msgstr "Dernière modification le"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__write_uid
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__write_uid
 msgid "Last Updated by"
 msgstr "Dernière mise à jour par"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__write_date
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__write_date
 msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
@@ -240,19 +262,14 @@ msgid "Product"
 msgstr "Produit"
 
 #. module: carpentry_mrp_import
-#: model:ir.model.fields,help:carpentry_mrp_import.field_product_product__product_substitution_id
-#: model:ir.model.fields,help:carpentry_mrp_import.field_product_template__product_substitution_id
-msgid ""
-"Product that will serve as component in Work Order in replacement of this "
-"one."
-msgstr ""
-"Article qui servira de composant dans l'ordre de travail en remplacement de "
-"celui-ci."
+#: model:ir.model,name:carpentry_mrp_import.model_product_substitution
+msgid "Product Substitution Code"
+msgstr "Réféférence de substitution"
 
 #. module: carpentry_mrp_import
-#: model:ir.model,name:carpentry_mrp_import.model_mrp_production
-msgid "Production Order"
-msgstr "Ordre de fabrication"
+#: model:ir.model,name:carpentry_mrp_import.model_product_product
+msgid "Product Variant"
+msgstr "Variante de produit"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -281,21 +298,21 @@ msgid "Reference"
 msgstr "Référence"
 
 #. module: carpentry_mrp_import
+#: model:ir.model.fields,help:carpentry_mrp_import.field_product_product__substitution_ids
+#: model:ir.model.fields,help:carpentry_mrp_import.field_product_template__substitution_ids
+msgid ""
+"References replaced by the current product when importing Components in "
+"Manufacturing Orders."
+msgstr ""
+"Liste des références remplacées par le produit ouvert lors de l'import des "
+"composants dans un Ordre de Fabrication."
+
+#. module: carpentry_mrp_import
 #. odoo-python
 #: code:addons/carpentry_mrp_import/wizard/carpentry_mrp_import_wizard.py:0
 #, python-format
 msgid "Report for the import of manufacturing Components"
 msgstr "Rapport d'import de composants de fabrication"
-
-#. module: carpentry_mrp_import
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__state
-msgid "State"
-msgstr "État"
-
-#. module: carpentry_mrp_import
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__substituted_product_ids
-msgid "Substituted Product"
-msgstr "Produit de substitution"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -305,15 +322,38 @@ msgid "Substituted components"
 msgstr "Composants substitués"
 
 #. module: carpentry_mrp_import
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__product_substitution_id
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__product_substitution_id
-msgid "Substitution Product"
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__substituted_code
+msgid "Substituted reference"
+msgstr "Référence alternatives"
+
+#. module: carpentry_mrp_import
+#: model:ir.actions.act_window,name:carpentry_mrp_import.action_open_product_substitution
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__substitution_ids
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__substitution_ids
+#: model:ir.ui.menu,name:carpentry_mrp_import.menu_product_substitution
+msgid "Substituted references"
+msgstr "Références alternatives"
+
+#. module: carpentry_mrp_import
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__substitution_product_id
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__substitution_product_id
+msgid "Substitution product"
 msgstr "Produit de substitution"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__supplierinfo_ids
 msgid "Supplierinfo"
 msgstr "Informations sur les fournisseurs"
+
+#. module: carpentry_mrp_import
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__product_id
+msgid "Target Product"
+msgstr "Produit cible"
+
+#. module: carpentry_mrp_import
+#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__default_code
+msgid "Target Product's reference"
+msgstr "Référence du produit cible"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
@@ -368,26 +408,6 @@ msgstr ""
 "%s"
 
 #. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "✅ Imported"
-msgstr "✅ Importé"
-
-#. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "💶 Prices"
-msgstr "💶 Prix"
-
-#. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "🔃 Substituted"
-msgstr "🔃 Substitué"
-
-#. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "🚫 Ignored"
-msgstr "🚫 Ignoré"
-
-#. module: carpentry_mrp_import
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.view_budget_import_wizard
-msgid "🛒 Consumables"
-msgstr "🛒 Consommables"
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.product_template_form_view
+msgid "in imports of Manufacturing Order components."
+msgstr "dans les imports de composants des Ordres de Fabrication."
