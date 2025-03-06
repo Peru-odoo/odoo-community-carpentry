@@ -11,11 +11,10 @@ class PurchaseOrder(models.Model):
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     warning_budget = fields.Boolean(compute='_compute_warning_budget')
-    amount_untaxed_consu = fields.Monetary(
-        string='Untaxed Amount (Consummable)',
-        store=True,
+    amount_budgetable = fields.Monetary(
+        string='Budgetable Amount',
         readonly=True,
-        compute='_compute_amount_untaxed_consu'
+        compute='_compute_amount_budgetable'
     )
 
     #====== Affectation refresh ======#
@@ -63,14 +62,14 @@ class PurchaseOrder(models.Model):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         states = ['to approve', 'approved', 'purchase', 'done']
         for purchase in self:
-            compare = float_compare(purchase.amount_untaxed_consu, purchase.sum_quantity_affected, precision_digits=prec)
+            compare = float_compare(purchase.amount_budgetable, purchase.sum_quantity_affected, precision_digits=prec)
             purchase.warning_budget = purchase.state in states and compare != 0
 
     @api.depends('order_line.price_total', 'order_line.product_id.type')
-    def _compute_amount_untaxed_consu(self):
+    def _compute_amount_budgetable(self):
         """ Inspired from native code (purchase/purchase.py/_amount_all)"""
         for order in self:
-            order_lines = order.order_line.filtered(lambda x: not x.display_type and x.product_id.type == 'consu')
+            order_lines = order.order_line.filtered(lambda x: not x.display_type and x.product_id.type != 'product')
 
             if order.company_id.tax_calculation_rounding_method == 'round_globally':
                 tax_results = self.env['account.tax']._compute_taxes([
@@ -82,4 +81,4 @@ class PurchaseOrder(models.Model):
             else:
                 amount_untaxed = sum(order_lines.mapped('price_subtotal'))
 
-            order.amount_untaxed_consu = amount_untaxed
+            order.amount_budgetable = amount_untaxed

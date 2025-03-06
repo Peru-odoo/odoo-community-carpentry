@@ -10,14 +10,14 @@
 
             <!-- Warning banner -->
             <sheet position="before">
-                <field name="amount_untaxed_consu" invisible="1" />
+                <field name="amount_budgetable" invisible="1" />
                 <field name="warning_budget" invisible="1" />
 
                 <div name="warning_banner" role="alert" class="alert alert-warning"
                     attrs="{'invisible': [('warning_budget', '=', False)]}"
                 >
                     It seems the budget reservation should be updated because the total cost of non-stored products
-                    (<strong><field name="amount_untaxed_consu" /></strong>) is different than budget reservation
+                    (<strong><field name="amount_budgetable" /></strong>) is different than budget reservation
                     (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>).
                     <br />
                     Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.
@@ -40,14 +40,14 @@
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose budgets">
                             <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('amount_untaxed_consu', '!=', 0)]}"
+                                attrs="{'invisible': [('amount_budgetable', '!=', 0)]}"
                             >
                                 Please ensure the "Products" tab contains at least 1 non-stored product (with a price) before placing a reservation.
                             </div>
 
                             <field name="budget_analytic_ids"
                                 widget="many2many_checkboxes"
-                                attrs="{'readonly': [('amount_untaxed_consu', '=', 0)]}"
+                                attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{'analytic_display_budget_type': 1}"
                             />
                         </group>
