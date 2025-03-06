@@ -90,6 +90,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             'seq_section': calendar.timegm(self._origin.create_date.timetuple()),
         }
     
+    @api.depends('affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self, groupby='group_id'):
         """ PO and WO are saved in `section_id` instead of `group_id` """
         return super()._compute_sum_quantity_affected(groupby='section_id')

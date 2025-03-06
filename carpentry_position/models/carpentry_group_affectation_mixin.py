@@ -406,7 +406,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
 
     #====== Affectations counters ======#
-    @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
+    @api.depends('affectation_ids')
     def _compute_sum_quantity_affected(self, groupby='group_id'):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
         rg_result = self.env['carpentry.group.affectation'].read_group(
