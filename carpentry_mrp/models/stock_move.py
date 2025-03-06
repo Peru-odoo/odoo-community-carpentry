@@ -11,7 +11,6 @@ class StockMoveLine(models.Model):
 class StockMove(models.Model):
     _inherit = ['stock.move']
 
-    raw_material_production_id_state = fields.Selection(related='raw_material_production_id.state')
     launch_ids = fields.Many2many(related='picking_id.launch_ids')
 
     # # ===== V2 =====
