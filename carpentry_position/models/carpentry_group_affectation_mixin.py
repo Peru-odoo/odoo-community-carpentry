@@ -450,8 +450,6 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
 
     def button_open_affectation_matrix(self):
-        print('== button_open_affectation_matrix ==')
-        print('self._context', self._context)
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'project.project',
