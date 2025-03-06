@@ -7,6 +7,4 @@ class StockValuationLayer(models.Model):
 
     project_id = fields.Many2one(
         related='stock_move_id.project_id',
-        store=True,
-        index=True,
     )
