@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
+from odoo.tools.float_utils import float_compare
 
 class StockQuant(models.Model):
     _inherit = ['stock.quant']
