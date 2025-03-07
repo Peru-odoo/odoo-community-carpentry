@@ -22,10 +22,12 @@
         # security
         'security/ir.model.access.csv',
         'security/project_security.xml',
-        # data
+        # views
         'views/mrp_production.xml',
         'views/product_template.xml',
         'views/stock_picking.xml',
         'views/stock_quant.xml',
+        # wizard
+        'wizard/stock_inventory_conflict.xml',
     ]
 }
