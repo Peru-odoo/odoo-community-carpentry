@@ -27,3 +27,14 @@ class StockQuant(models.Model):
         for quant in self:
             quant.inventory_diff_quantity = quant.inventory_quantity - quant.quantity_without_outgoing_raw_material
     
+    def _compute_is_outdated(self):
+        super()._compute_is_outdated()
+
+        self.is_outdated = False
+        for quant in self:
+            if quant.product_id and float_compare(
+                quant.inventory_quantity - quant.inventory_diff_quantity,
+                quant.quantity_without_outgoing_raw_material,
+                precision_rounding=quant.product_uom_id.rounding
+            ) and quant.inventory_quantity_set:
+                quant.is_outdated = True
