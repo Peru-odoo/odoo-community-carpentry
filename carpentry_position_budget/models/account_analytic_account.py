@@ -47,7 +47,6 @@ class AccountAnalyticAccount(models.Model):
         inverse_name='analytic_account_id'
     )
 
-
     def _get_default_line_type(self):
         if self.budget_type in ['service', 'production', 'installation']:
             return 'workforce'
