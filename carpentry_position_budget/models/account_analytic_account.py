@@ -81,16 +81,19 @@ class AccountAnalyticAccount(models.Model):
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
         brut, valued = self._get_available_budget_initial(launchs, section)
-        budget = brut if mode == 'brut' else valued
-        reserved = self._get_sum_reserved_budget(launchs, section,sign=-1)
+        print('brut, valued', brut, valued)
+        available = brut if mode == 'brut' else valued
+        reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
+        print('reserved', reserved)
 
         # careful: browse all keys and all rows of both `budget` and `reserved`
         # since they might be budget without reservation, or even reservation without budget
         remaining = reserved.copy() # are values are negative (`sign=-1`)
-        for (model, record_id), budgets in budget.items():
-            for analytic_id, amount in budgets.items():
+        for (model, record_id), budgets in available.items():
+            for analytic_id, amount_available in budgets.items():
                 key = (model, record_id, analytic_id)
-                remaining[key] = remaining.get(key, 0.0) + amount
+                remaining[key] = remaining.get(key, 0.0) + amount_available
+        print('remaining', remaining)
         return remaining
     
     def _get_available_budget_initial(self, launchs, section=None):
