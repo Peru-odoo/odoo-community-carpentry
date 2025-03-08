@@ -6,6 +6,7 @@ class CarpentryPosition(models.Model):
     _name = 'carpentry.position'
     _inherit = ['carpentry.position', 'carpentry.group.budget.mixin']
     _rec_name = 'display_name'
+    _rec_names_search = ['name']
 
     # import
     external_db_guid = fields.Char(string='Last External DB ID')
