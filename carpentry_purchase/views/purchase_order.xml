@@ -62,15 +62,7 @@
             </field>
             
             <div class="oe_title" position="before">
-                <field name="warning_stock" invisible="1" />
-                
-                <div name="warning_stock" role="alert" class="alert alert-danger"
-                    attrs="{'invisible': [('warning_stock', '!=', True)]}"
-                >
-                    <span class="fa fa-exclamation-triangle" />
-                    This Purchase Order mixes both stored and non-stored products. Please ensure this is the expected target
-                    or update the lines in "Products" page. 
-                </div>
+                <field name="products_type" widget="badge" decoration-warning="products_type == 'mix'" />
             </div>
 
             <!-- Date widget, instead of Datetime -->

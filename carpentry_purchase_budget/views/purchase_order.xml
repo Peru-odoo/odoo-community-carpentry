@@ -8,23 +8,22 @@
         
         <field name="arch" type="xml">
 
-            <!-- Warning banner -->
-            <sheet position="before">
+            <!-- Budget info banner -->
+            <div class="oe_title" position="before">
                 <field name="amount_budgetable" invisible="1" />
                 <field name="warning_budget" invisible="1" />
 
-                <div name="warning_banner" role="alert" class="alert alert-warning"
+                <div name="alert_banner" role="alert" class="alert alert-info"
                     attrs="{'invisible': [('warning_budget', '=', False)]}"
                 >
-                    It seems the budget reservation should be updated because the total cost of non-stored products
-                    (<strong><field name="amount_budgetable" /></strong>) is different than budget reservation
+                    <span class="fa fa-info-circle" />
+                    
+                    The cost affected to the project (<strong><field name="amount_budgetable" /></strong>, of non-stored products only)
+                    differs of the budget reservation
                     (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>).
-                    <br />
-                    Note 1 : Please ignore this message if the budget reservation has already been modified, and should stay different than the real cost.
-                    <br />
-                    Note 2 : To reserve budget link to storable products, please do a Stock Reservation.
+                    You might need to review "Budget reservation" tab.
                 </div>
-            </sheet>
+            </div>
 
             <page name="products" position="after">
                 <!-- Add `Budget` notebook tab -->
@@ -63,6 +62,10 @@
                             >
                                 Please select launche(s) and budget(s) for placing a reservation.
                             </div>
+
+                            <p attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}">
+                                Product cost affected to the project: <strong><field name="amount_budgetable" /></strong> (non-stored products only).
+                            </p>
                             
                             <field name="affectation_ids"
                                 nolabel="1" colspan="2"

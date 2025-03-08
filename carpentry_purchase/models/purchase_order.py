@@ -25,7 +25,14 @@ class PurchaseOrder(models.Model):
     )
     task_ids = fields.One2many(related='launch_ids.task_ids')
     # -- ui --
-    warning_stock = fields.Boolean(compute='_compute_warning_stock')
+    products_type = fields.Selection(
+        selection=[
+            ('storable', 'Purchase Order of stored products only'),
+            ('non_storable', 'Purchase Order of non-stored products only'),
+            ('mix', 'This Purchase Order mixes both stored and non-stored products')
+        ],
+        compute='_compute_products_type'
+    )
     
     #===== Compute =====#
     def _compute_display_name(self):
@@ -34,11 +41,16 @@ class PurchaseOrder(models.Model):
 
     #====== Compute ======#
     @api.depends('order_line', 'order_line.product_id', 'order_line.product_id.type')
-    def _compute_warning_stock(self):
-        """ Display a warning banner if purchase has both storable and consummable products """
+    def _compute_products_type(self):
+        """ Display a warning if purchase has both storable and consummable products """
         for purchase in self:
-            both_types = all(x in purchase.order_line.product_id.mapped('type') for x in ['consu', 'product'])
-            purchase.warning_stock = both_types
+            types = purchase.order_line.product_id.mapped('type')
+            if 'product' in types and len(types) > 1:
+                purchase.products_type = 'mix'
+            elif types == ['product']:
+                purchase.products_type = 'storable'
+            else:
+                purchase.products_type = 'non_storable'
     
     # --- project_id (shortcut to set line analytic at once on the project) ---
     @api.onchange('project_id')

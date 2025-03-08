@@ -27,6 +27,8 @@ class PurchaseOrder(models.Model):
     def _compute_budget_analytic_ids(self):
         """ Compute budget analytics shortcuts
             (!) ignores lines of storable products
+
+            Also called from `_compute_amount_budgetable()` when cost of non-stored products changes
         """
         for purchase in self:
             project_budgets = purchase.project_id.budget_line_ids.analytic_account_id
@@ -82,3 +84,7 @@ class PurchaseOrder(models.Model):
                 amount_untaxed = sum(order_lines.mapped('price_subtotal'))
 
             order.amount_budgetable = amount_untaxed
+
+            # update automatic budget reservation
+            if order.amount_budgetable != order._origin.amount_budgetable:
+                order._compute_budget_analytic_ids()

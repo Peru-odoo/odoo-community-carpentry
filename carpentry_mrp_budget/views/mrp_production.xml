@@ -49,6 +49,10 @@
                             >
                                 Please select launche(s) and budget(s) for placing a reservation.
                             </div>
+
+                            <!-- <p attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}">
+                                Product cost affected to the project: <strong><field name="amount_budgetable" /></strong> (non-stored products only).
+                            </p> -->
                             
                             <field name="affectation_ids"
                                 nolabel="1" colspan="2"
