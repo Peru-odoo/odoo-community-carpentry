@@ -80,7 +80,7 @@ class AccountAnalyticAccount(models.Model):
             :return: Dict like: 
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
-        brut, valued = self._get_available_budget_initial(launchs)
+        brut, valued = self._get_available_budget_initial(launchs, section)
         budget = brut if mode == 'brut' else valued
         reserved = self._get_sum_reserved_budget(launchs, section,sign=-1)
 
@@ -93,7 +93,7 @@ class AccountAnalyticAccount(models.Model):
                 remaining[key] = remaining.get(key, 0.0) + amount
         return remaining
     
-    def _get_available_budget_initial(self, launchs):
+    def _get_available_budget_initial(self, launchs, section=None):
         """ :return: (brut, valued) where each item is a dict-of-dict like:
             {
                 ('launch',  launch.id): {analytic.id: amount, ...}, # per-position budget
@@ -117,8 +117,9 @@ class AccountAnalyticAccount(models.Model):
         ))
 
         # Budget from the project (not computed)
+        project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
         rg_result = self.env['account.move.budget.line'].sudo().read_group(
-            domain=[('project_id', 'in', launchs.project_id.ids), ('is_computed_carpentry', '=', False)],
+            domain=[('project_id', 'in', project_ids_), ('is_computed_carpentry', '=', False)],
             groupby=['project_id', 'analytic_account_id'],
             fields=['balance:sum', 'qty_balance:sum'],
             lazy=False
@@ -149,10 +150,11 @@ class AccountAnalyticAccount(models.Model):
                 - `quantity_affected`: the reserved budget
             
         """
+        project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
         domain_launch = launchs._get_domain_affect('record')
         domain_project = [
             ('record_res_model', '=', 'project.project'),
-            ('record_id', 'in', launchs.project_id.ids),
+            ('record_id', 'in', project_ids_),
         ]
         domain = expression.OR([domain_launch, domain_project])
         if section:
