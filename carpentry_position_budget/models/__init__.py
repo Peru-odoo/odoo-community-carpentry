@@ -8,6 +8,7 @@ from . import carpentry_group_phase
 from . import carpentry_group_launch
 from . import carpentry_group_lot
 from . import carpentry_budget_reservation_mixin # for PO, MO, picking, ...
+from . import carpentry_group_affectation
 
 from . import carpentry_position_budget_interface
 

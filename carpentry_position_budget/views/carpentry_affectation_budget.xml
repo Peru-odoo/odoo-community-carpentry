@@ -9,7 +9,6 @@
         <field name="arch" type="xml">
             <tree editable="top" create="0" delete="1" default_order="sequence, seq_group">
                 <field name="sequence" invisible="1" />
-                <field name="currency_id" invisible="1" />
                 <field name="project_id" invisible="1" />
                 <field name="seq_group" invisible="1" />
                 <field name="record_res_model" invisible="1" />
@@ -21,8 +20,9 @@
                     options="{'no_create': 1, 'no_open': 1}"
                     attrs="{'invisible': [('record_res_model', '=', 'project.project')]}"
                 />
-                <field name="quantity_available" widget="monetary" string="Available" />
-                <field name="quantity_affected" widget="monetary" string="Reservation" required="1" sum="1" />
+                <field name="quantity_available" string="Available" />
+                <field name="quantity_affected" string="Reservation" required="1" sum="1" />
+                <field name="uom_name" nolabel="1" />
             </tree>
         </field>
     </record>

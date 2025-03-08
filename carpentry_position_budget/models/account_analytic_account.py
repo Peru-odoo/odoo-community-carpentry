@@ -70,30 +70,52 @@ class AccountAnalyticAccount(models.Model):
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
         return self._get_remaining_budget(launchs, section)
 
-    def _get_remaining_budget(self, launchs, section=None, mode='brut'):
+    def _get_remaining_budget(self, launchs, section=None, mode=None):
         """ Calculate [Initial Budget] - [Reservation], per launch & analytic
             :arg self:       only those analytics budgets are searched
             :arg launchs:    filters searched budget to only those launches
                              note: Global Cost are always searched, because per-project
             :option section: PO or MO record
-            :option mode: 'brut' or 'valued'
+            :option mode: None, 'brut' or 'valued'
+                if `None`, it will switch between 'brut' and 'valued' depending the budget, e.g.
+                (hours) will use `brut`
+                (amount) will use `valued`
             :return: Dict like: 
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
         brut, valued = self._get_available_budget_initial(launchs, section)
-        print('brut, valued', brut, valued)
-        available = brut if mode == 'brut' else valued
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
-        print('reserved', reserved)
 
-        # careful: browse all keys and all rows of both `budget` and `reserved`
-        # since they might be budget without reservation, or even reservation without budget
+        domain = [('timesheetable', '=', True)]
+        timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids
+
+        # careful: browse all keys and all rows of both `brut-or-valued` and `reserved`
+        # since they might be budget without reservation *or* reservation without budget
         remaining = reserved.copy() # are values are negative (`sign=-1`)
-        for (model, record_id), budgets in available.items():
-            for analytic_id, amount_available in budgets.items():
-                key = (model, record_id, analytic_id)
-                remaining[key] = remaining.get(key, 0.0) + amount_available
-        print('remaining', remaining)
+
+        def __add_available_budget(remaining, budget_dict, add_mode):
+            if mode and add_mode != mode:
+                return remaining
+            
+            for (model, record_id), budgets in budget_dict.items():
+                for analytic_id, amount_available in budgets.items():
+                    timesheetable = analytic_id in timesheetable_analytics_ids
+                    if (
+                        # either a specific mode is wanted
+                        mode and add_mode == mode or not mode and (
+                            # or computation mixes both mode: add `h` or `€` depending
+                            # analytic type (timesheetable or not)
+                            timesheetable and add_mode == 'brut' or # h
+                            not timesheetable and add_mode == 'valued' # €
+                        )
+                    ):
+                        key = (model, record_id, analytic_id)
+                        remaining[key] = remaining.get(key, 0.0) + amount_available
+            return remaining
+        
+        remaining = __add_available_budget(remaining, brut, 'brut')
+        remaining = __add_available_budget(remaining, valued, 'valued')
+
         return remaining
     
     def _get_available_budget_initial(self, launchs, section=None):
