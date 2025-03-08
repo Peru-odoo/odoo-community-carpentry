@@ -27,9 +27,9 @@ class PurchaseOrder(models.Model):
     # -- ui --
     products_type = fields.Selection(
         selection=[
-            ('storable', 'Purchase Order of stored products only'),
-            ('non_storable', 'Purchase Order of non-stored products only'),
-            ('mix', 'This Purchase Order mixes both stored and non-stored products')
+            ('storable', 'Stored products only'),
+            ('non_storable', 'Non-stored products only'),
+            ('mix', 'Mix of stored and non-stored products')
         ],
         compute='_compute_products_type'
     )

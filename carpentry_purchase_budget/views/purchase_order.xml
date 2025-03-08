@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- PO Tree -->
+    <record id="purchase_order_view_tree" model="ir.ui.view">
+        <field name="name">purchase.order.view.tree.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_tree" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `Description` & `Project` -->
+            <field name="amount_untaxed" position="before">
+                <field name="amount_budgetable" invisible="1" />
+                <field name="sum_quantity_affected" optional="hide" string="Total budget reserved"
+                    decoration-success="sum_quantity_affected &lt; amount_budgetable"
+                    decoration-danger="sum_quantity_affected &gt; amount_budgetable"
+                />
+            </field>
+        </field>
+    </record>
+
     <!-- PO Form -->
     <record id="purchase_order_form" model="ir.ui.view">
         <field name="name">purchase.order.form.carpentry.budget</field>
@@ -9,7 +27,7 @@
         <field name="arch" type="xml">
 
             <!-- Budget info banner -->
-            <div class="oe_title" position="before">
+            <field name="products_type" position="before">
                 <field name="amount_budgetable" invisible="1" />
                 <field name="warning_budget" invisible="1" />
 
@@ -17,13 +35,13 @@
                     attrs="{'invisible': [('warning_budget', '=', False)]}"
                 >
                     <span class="fa fa-info-circle" />
-                    
-                    The cost affected to the project (<strong><field name="amount_budgetable" /></strong>, of non-stored products only)
-                    differs of the budget reservation
-                    (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>).
-                    You might need to review "Budget reservation" tab.
+                    The budget reservation
+                    (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>)
+                    differs from the cost affected to the project
+                    (<strong><field name="amount_budgetable" /></strong>, of non-stored products only).
+                    You might need to review "Budget reservation" tab except if this is on purpose.
                 </div>
-            </div>
+            </field>
 
             <page name="products" position="after">
                 <!-- Add `Budget` notebook tab -->
@@ -55,16 +73,17 @@
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve budget">
                             <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': ['|',
-                                    ('affectation_ids', '!=', []),
-                                    '&amp;', ('readonly_affectation', '=', True), ('id', '!=', False)
-                                ]}"
+                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
                             >
-                                Please select launche(s) and budget(s) for placing a reservation.
+                                Please select budget(s) and possibly launch(es) for placing a reservation.
                             </div>
 
-                            <p attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}">
-                                Product cost affected to the project: <strong><field name="amount_budgetable" /></strong> (non-stored products only).
+                            <p colspan="2"
+                                attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
+                            >
+                                Product cost affected to the project:
+                                <strong><field name="amount_budgetable" nolabel="1" /></strong>
+                                (non-stored products only).
                             </p>
                             
                             <field name="affectation_ids"
