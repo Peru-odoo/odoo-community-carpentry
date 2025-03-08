@@ -29,6 +29,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         inverse='_inverse_budget_analytic_ids',
         domain="[('budget_project_ids', '=', project_id)]"
     )
+    sum_quantity_affected = fields.Float(
+        string='Budget reserved',
+        store=True # to search on Budget Reservation amount on Purchase Orders
+    )
 
     #===== CRUD =====#
     @api.model_create_multi

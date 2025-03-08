@@ -10,8 +10,8 @@
             <!-- Add `Description` & `Project` -->
             <field name="amount_untaxed" position="before">
                 <field name="amount_budgetable" invisible="1" />
-                <field name="sum_quantity_affected" optional="hide" string="Total budget reserved"
-                    decoration-success="sum_quantity_affected &lt; amount_budgetable"
+                <field name="sum_quantity_affected" optional="hide"
+                    decoration-success="sum_quantity_affected &lt; amount_budgetable &amp; sum_quantity_affected != 0"
                     decoration-danger="sum_quantity_affected &gt; amount_budgetable"
                 />
             </field>
@@ -38,7 +38,7 @@
                     The budget reservation
                     (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>)
                     differs from the cost affected to the project
-                    (<strong><field name="amount_budgetable" /></strong>, of non-stored products only).
+                    (<strong><field name="amount_budgetable" /></strong>).
                     You might need to review "Budget reservation" tab except if this is on purpose.
                 </div>
             </field>
@@ -82,8 +82,7 @@
                                 attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
                             >
                                 Product cost affected to the project:
-                                <strong><field name="amount_budgetable" nolabel="1" /></strong>
-                                (non-stored products only).
+                                <strong><field name="amount_budgetable" class="oe_inline" /></strong>.
                             </p>
                             
                             <field name="affectation_ids"

@@ -16,11 +16,13 @@ class AccountAnalyticAccount(models.Model):
         """ Add Budget Type in suffix """
         res = super().name_get()
         if self._context.get('analytic_display_budget_type'):
-            budget_type = dict(self._fields['budget_type'].selection)
+            budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
             res_updated = []
             for id_, name in res:
                 analytic = self.browse(id_)
-                res_updated.append((id_, name + f' ({budget_type.get(analytic.budget_type)})'))
+                budget_type = _(budget_type_selection.get(analytic.budget_type))
+                name += ' 🕓' if analytic.timesheetable else ''
+                res_updated.append((id_, f'[{budget_type}] {name}'))
         else:
             res_updated = res
         
@@ -50,6 +52,12 @@ class AccountAnalyticAccount(models.Model):
         if self.budget_type in ['service', 'production', 'installation']:
             return 'workforce'
         return super()._get_default_line_type()
+    
+    #===== Native ORM methods =====#
+    def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
+        if self._context.get('analytic_display_budget_type'):
+            order = 'budget_type, name'
+        return super()._search(domain, offset, limit, order, count, access_rights_uid)
 
     #==== Affectation matrix =====#
     def _get_quantities_available(self, affectations):

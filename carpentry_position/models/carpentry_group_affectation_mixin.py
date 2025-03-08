@@ -39,7 +39,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     sum_quantity_affected = fields.Float(
         string='Positions Count', # `Positions Count` or `Budget sum` depending the use-case
         compute='_compute_sum_quantity_affected',
-        help='Sum of affected quantities',
+        help='Sum of affected quantities'
     )
     readonly_affectation = fields.Boolean(
         # technical UI field to `readonly` either `section_ids` or `affectation_ids`,
@@ -406,7 +406,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
 
     #====== Affectations counters ======#
-    @api.depends('affectation_ids')
+    @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self, groupby='group_id'):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
         rg_result = self.env['carpentry.group.affectation'].read_group(
@@ -414,11 +414,9 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             groupby=[groupby],
             fields=['quantity_affected:sum']
         )
-        print('rg_result', rg_result)
         mapped_data = {x[groupby]: x['quantity_affected'] for x in rg_result}
         for record in self:
             record.sum_quantity_affected = mapped_data.get(record.id, 0)
-
 
     def _get_quantities(self):
         """ :return: param of `carpentry_position_budget.sum()` """
