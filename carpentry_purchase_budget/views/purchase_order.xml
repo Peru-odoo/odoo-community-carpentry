@@ -11,7 +11,7 @@
             <field name="amount_untaxed" position="before">
                 <field name="amount_budgetable" invisible="1" />
                 <field name="sum_quantity_affected" optional="hide"
-                    decoration-success="sum_quantity_affected &lt; amount_budgetable &amp;&amp; sum_quantity_affected != 0"
+                    decoration-success="sum_quantity_affected &lt; amount_budgetable and sum_quantity_affected != 0"
                     decoration-danger="sum_quantity_affected &gt; amount_budgetable"
                 />
             </field>
