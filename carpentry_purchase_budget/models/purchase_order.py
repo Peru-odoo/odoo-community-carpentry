@@ -35,6 +35,10 @@ class PurchaseOrder(models.Model):
             lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
             purchase.budget_analytic_ids = lines.analytic_ids.filtered('is_project_budget') & project_budgets
 
+            print('project_budgets', project_budgets)
+            print('lines', lines)
+            print('purchase.budget_analytic_ids', purchase.budget_analytic_ids)
+
     def _get_total_by_analytic(self):
         """ Group-sum `price_subtotal` of purchase order_line by analytic account,
              for analytic accounts available in PO's project

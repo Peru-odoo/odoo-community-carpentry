@@ -223,6 +223,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         mapped_model_ids = self._get_mapped_model_ids()
         record_refs = record_refs or self._get_record_refs()
         group_refs = group_refs or self._get_group_refs()
+        print('record_refs', record_refs)
+        print('group_refs', group_refs)
         if not temp:
             # Remove affectations of unselected rows or cols
             self._clean_real_affectations(group_refs, record_refs)

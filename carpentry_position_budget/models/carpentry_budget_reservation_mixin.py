@@ -52,7 +52,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ Appends *Global Cost* (on the *project*) to the matrix """
         _super = super()._get_affectation_ids_vals_list
         global_lines = self.project_id.budget_line_ids.filtered(lambda x: not x.is_computed_carpentry)
-        global_budgets = self.budget_analytic_ids & global_lines.analytic_account_id
+        global_budgets = self.budget_analytic_ids._origin & global_lines.analytic_account_id
         
         vals_list = _super(temp)
         if self.project_id and global_budgets:
@@ -79,12 +79,16 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         return self.launch_ids._origin
     
     def _get_group_refs(self):
-        """ [Affectation Refresh] 'Columns' of PO/MO affectation matrix are project's *auto* budgets (yet)
-             *auto* budgets are the ones computed from Launches logics
-             `_get_affectation_ids_vals_list` appens project's global budgets to the matrix
+        """ [Affectation Refresh] 'Columns' of PO/MO affectation matrix are project's *computed* budgets (yet)
+             *computed* budgets are the ones computed from Launches logics
+            (!!!) `_get_affectation_ids_vals_list` appends project's global budgets to the matrix
         """
-        launch_lines = self.project_id.budget_line_ids.filtered('is_computed_carpentry')
-        return self.budget_analytic_ids & launch_lines.analytic_account_id
+        print('===== _get_group_refs =====')
+        computed_lines = self.project_id.budget_line_ids.filtered('is_computed_carpentry')
+        print('maybe "NewId" ?')
+        print('self.budget_analytic_ids', self.budget_analytic_ids)
+        print('computed_lines.analytic_account_id', computed_lines.analytic_account_id)
+        return self.budget_analytic_ids._origin & computed_lines.analytic_account_id
 
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ [Affectation Refresh] Store MO/PO id in `section_ref` """
