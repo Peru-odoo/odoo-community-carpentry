@@ -331,7 +331,7 @@ class CarpentryGroupAffectation(models.Model):
     @api.depends('record_id', 'group_id', 'section_id')
     def _compute_quantity_available(self):
         # Technically check if computation is relevant/possible
-        groups_ids = self.env[affectation.group_res_model].browse(self.mapped('group_id'))
+        groups_ids = self.env[self.group_res_model].browse(self.mapped('group_id'))
         if not groups_ids or not hasattr(groups_ids, '_get_quantities_available'):
             self.quantity_available = False
             return
