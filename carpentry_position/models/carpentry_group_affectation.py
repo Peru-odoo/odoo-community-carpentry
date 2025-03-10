@@ -174,7 +174,7 @@ class CarpentryGroupAffectation(models.Model):
         compute='_compute_quantity_affected_parent',
         string='Quantity affected to parent group',
     )
-    quantity_available = fields.Integer(
+    quantity_available = fields.Float(
         # Position Quantity (for Phase) or Available budget (for PO, MO)
         string="Available",
         compute='_compute_quantity_available',
