@@ -33,10 +33,10 @@ class PurchaseOrder(models.Model):
         for purchase in self:
             project_budgets = purchase.project_id.budget_line_ids.analytic_account_id
             lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
-            purchase.budget_analytic_ids = lines.analytic_ids.filtered('is_project_budget') & project_budgets
+            purchase.budget_analytic_ids = lines.analytic_ids._origin.filtered('is_project_budget') & project_budgets
 
             print('project_budgets', project_budgets)
-            print('lines', lines)
+            print('lines.analytic_ids', lines.analytic_ids)
             print('purchase.budget_analytic_ids', purchase.budget_analytic_ids)
 
     def _get_total_by_analytic(self):
