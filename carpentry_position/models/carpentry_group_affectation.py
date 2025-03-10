@@ -316,9 +316,9 @@ class CarpentryGroupAffectation(models.Model):
             if affectation.quantity_remaining_to_affect < 0:
                 raise exceptions.ValidationError(_(
                     "The affected quantity is higher than the one available in the project:\n"
-                    "- Records: %s and %s;\n"
-                    "- Available quantity: %s;\n"
-                    "- Affected quantity: %s;\n"
+                    "- Records: '%s' and '%s'\n"
+                    "- Available quantity: %s\n"
+                    "- Affected quantity: %s\n"
                     "- Remaining: %s",
                     affectation.record_ref.name,
                     affectation.group_ref.name,

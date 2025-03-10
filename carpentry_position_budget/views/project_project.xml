@@ -57,7 +57,6 @@
 
                     <field name="budget_id" invisible="1" />
                     <field name="budget_line_ids"
-                        domain="[('is_computed_carpentry', '=', False)]"
                         context="{'display_short_name': 1, 'default_project_id': id}"
                     >
                         <tree editable="top" delete="0">
@@ -79,8 +78,9 @@
                                 'readonly': [('is_computed_carpentry', '=', True)],
                                 'invisible': [('type', '=', 'amount')]
                             }" />
-                            <field name="debit" string="Total" attrs="{
-                                'readonly': [('type', '!=', 'amount')],
+                            <field name="debit" string="Total" attrs="{'readonly': '|',
+                                [('is_computed_carpentry', '=', True)]
+                                [('type', '!=', 'amount')],
                             }" />
                             
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"
