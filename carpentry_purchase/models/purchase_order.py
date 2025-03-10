@@ -44,7 +44,7 @@ class PurchaseOrder(models.Model):
     def _compute_products_type(self):
         """ Display a warning if purchase has both storable and consummable products """
         for purchase in self:
-            types = purchase.order_line.product_id.mapped('type')
+            types = set(purchase.order_line.product_id.mapped('type'))
             if 'product' in types and len(types) > 1:
                 purchase.products_type = 'mix'
             elif types == ['product']:
