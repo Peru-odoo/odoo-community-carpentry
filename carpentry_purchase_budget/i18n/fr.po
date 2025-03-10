@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 17:40+0000\n"
-"PO-Revision-Date: 2025-03-06 18:42+0100\n"
+"POT-Creation-Date: 2025-03-10 08:51+0000\n"
+"PO-Revision-Date: 2025-03-10 10:04+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -20,29 +20,23 @@ msgstr ""
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
-") is different than budget reservation\n"
+")\n"
+"                    differs from the cost affected to the project\n"
 "                    ("
 msgstr ""
-") est différente de la réservation de budget\n"
+")\n"
+"                    est différent du coût affecté au projet\n"
 "                    ("
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
 ").\n"
-"                    <br/>\n"
-"                    Note 1 : Please ignore this message if the budget reservation has already been "
-"modified, and should stay different than the real cost.\n"
-"                    <br/>\n"
-"                    Note 2 : To reserve budget link to storable products, please do a Stock Reservation."
+"                    You might need to review \"Budget reservation\" tab except if this is on purpose."
 msgstr ""
 ").\n"
-"                    <br/>\n"
-"                    Note 1 : Ignorez ce message si la réservation de budget a déjà été modifiée "
-"manuellement et devrait rester telle quelle.\n"
-"                    <br/>\n"
-"                    Note 2 : Pour réserver du budget lié à des articles de stock, faites une "
-"réservation de stock plutôt qu'une commande."
+"                    Vous pourriez réviser l'onglet \"Réservation de budget\", sauf si cette "
+"différence est intentionnelle."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -51,7 +45,18 @@ msgid ""
 "                        Please save before continuing."
 msgstr ""
 "<span class=\"fa fa-floppy-o\"/>\n"
-"                        Please save before continuing."
+"                        Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    The budget reservation\n"
+"                    ("
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    La réservation de budget\n"
+"                    ("
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__affectation_ids
@@ -62,6 +67,11 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid "Budget reservation"
 msgstr "Réservation de budget"
+
+#. module: carpentry_purchase_budget
+#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__sum_quantity_affected
+msgid "Budget reserved"
+msgstr "Nombre de repères"
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__amount_budgetable
@@ -81,36 +91,23 @@ msgstr "Choisir les budgets"
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
-"It seems the budget reservation should be updated because the total cost of non-stored products\n"
-"                    ("
+"Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) before "
+"placing a reservation."
 msgstr ""
-"Il semble que la réservation de budget doive être actualisée car le coût total des articles non "
-"stockés\n"
-"                    ("
+"Veuillez vous assurer que l'onglet \"Produits\" contienne au moins 1 article non stocké (avec un "
+"prix) avant d'effectuer une réservation."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid ""
-"Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) before placing "
-"a reservation."
+msgid "Please select budget(s) and possibly launch(es) for placing a reservation."
 msgstr ""
-"Veuillez vous assurer que l'onglet \"Produits\" contienne au moins 1 article non stocké (avec un prix) "
-"avant d'effectuer une réservation."
-
-#. module: carpentry_purchase_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
-msgid "Please select launche(s) and budget(s) for placing a reservation."
-msgstr "Veuillez sélectionner le(s) lancement(s) et le(s) budget(s) pour effectuer une réservation."
+"Veuillez sélectionner un(des) budget(s) et éventuellement un(des) lancement(s) pour effectuer une "
+"réservation de budget."
 
 #. module: carpentry_purchase_budget
 #: model:ir.model,name:carpentry_purchase_budget.model_carpentry_group_affectation
 msgid "Position Affectation"
 msgstr "Affectation de repère"
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__sum_quantity_affected
-msgid "Positions Count"
-msgstr "Nombre de repères"
 
 #. module: carpentry_purchase_budget
 #: model:ir.model,name:carpentry_purchase_budget.model_purchase_order
@@ -140,7 +137,12 @@ msgstr "Séquence"
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__sum_quantity_affected
 msgid "Sum of affected quantities"
-msgstr "Somme des quantités affectées"
+msgstr "Montant budget réservé"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Total expense amount:"
+msgstr "Montant total de la dépense affectée à l'affaire :"
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__warning_budget

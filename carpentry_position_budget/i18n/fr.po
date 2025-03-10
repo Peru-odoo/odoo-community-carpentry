@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-31 15:53+0000\n"
-"PO-Revision-Date: 2025-01-31 17:08+0100\n"
+"POT-Creation-Date: 2025-03-10 08:51+0000\n"
+"PO-Revision-Date: 2025-03-10 09:55+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -163,6 +163,11 @@ msgid "Budget lines computed from Positions cannot be removed (%s)"
 msgstr "Les lignes de budgets calculées depuis les Repères ne peuvent pas être supprimées (%s)"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
+msgid "Budget reserved"
+msgstr "Nombre de repères"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
@@ -177,12 +182,12 @@ msgstr ""
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_reservation_mixin
 msgid "Carpentry Budget Reservation Mixin"
-msgstr ""
+msgstr "Assistant de Réservation du budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_budget_mixin
 msgid "Carpentry Group Budget Mixin"
-msgstr ""
+msgstr "Assistant de Réservation de budget pour les groupes de menuiserie"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position_budget_import_wizard
@@ -577,11 +582,6 @@ msgid "Positions (called 'Elevation' in Orgadata)"
 msgstr "Repères (appelés \"élévations\" dans Orgadata)"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
-msgid "Positions Count"
-msgstr "Nombre de repères"
-
-#. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_pivot
 msgid "Positions budget"
 msgstr "Budget des repères"
@@ -667,7 +667,7 @@ msgstr "Réservation"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__section_ids
 msgid "Sections"
-msgstr "Sections"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sequence
@@ -802,6 +802,12 @@ msgstr "Valeur unitaire"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
 msgid "Unitary Amount"
 msgstr "Montant"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation__uom_name
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation_temp__uom_name
+msgid "Uom Name"
+msgstr "Nom de l'unité"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id

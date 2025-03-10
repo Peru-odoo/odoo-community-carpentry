@@ -81,7 +81,7 @@
                             <p colspan="2"
                                 attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
                             >
-                                Total expense amount:
+                                Total expense amount affected to the project:
                                 <strong><field name="amount_budgetable" class="oe_inline" /></strong>.
                             </p>
                             

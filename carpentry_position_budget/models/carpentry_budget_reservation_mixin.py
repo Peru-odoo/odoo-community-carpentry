@@ -30,7 +30,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         domain="[('budget_project_ids', '=', project_id)]"
     )
     sum_quantity_affected = fields.Float(
-        string='Budget reserved',
+        string='Amount of reserved budget',
         store=True # to search on Budget Reservation amount on Purchase Orders
     )
 
