@@ -80,7 +80,7 @@
                                 'invisible': [('type', '=', 'amount')]
                             }" />
                             <field name="debit" string="Total" attrs="{
-                                'readonly': [('is_computed_carpentry', '=', True)],
+                                'readonly': [('type', '!=', 'amount')],
                             }" />
                             
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"
