@@ -59,10 +59,10 @@ class PurchaseOrder(models.Model):
         project_analytics = self.env.company.analytic_plan_id.account_ids
         for purchase in self:
             purchase._ensure_project_launches_consistency()
-            project_id = purchase.project_id.analytic_account_id._origin.id
+            project_account_id = purchase.project_id._origin.analytic_account_id._origin.id
             purchase.order_line._replace_analytic(
                 replaced_ids=project_analytics._origin.ids,
-                new_distrib={project_id: 100} if project_id else {},
+                new_distrib={project_account_id: 100} if project_account_id else {},
                 analytic_plan='project',
             )
     

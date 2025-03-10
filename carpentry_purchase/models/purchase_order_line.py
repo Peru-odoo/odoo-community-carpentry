@@ -61,19 +61,22 @@ class PurchaseOrderLine(models.Model):
             :option analytic_plan:  if set to 'project', forces *Internal* project analytic for storable products 
         """
         for line in self:
-            if not line.display_type:
-                # if we're replacing analytic from project, keep other analytics plan (e.g. budgets)
-                kept = {} if not line.analytic_distribution else {
-                    k: v for k, v in line.analytic_distribution.items()
-                    if int(k) not in replaced_ids
-                }
+            if line.display_type:
+                # line without products: do nothing
+                continue
+            
+            # if we're replacing analytic from project, keep other analytics plan (e.g. budgets)
+            kept = {} if not line.analytic_distribution else {
+                k: v for k, v in line.analytic_distribution.items()
+                if int(k) not in replaced_ids
+            }
 
-                # enforce default val for storable products (e.g. internal project)
-                vals = new_distrib
-                if line.product_id.type == 'product':
-                    default_analytic = line._get_default_storable_analytic(analytic_plan)
-                    vals = {default_analytic.id: 100} if default_analytic else {}
-                line.analytic_distribution = kept | vals
+            # enforce default val for storable products (e.g. internal project)
+            vals = new_distrib
+            if line.product_id.type == 'product':
+                default_analytic = line._get_default_storable_analytic(analytic_plan)
+                vals = {default_analytic.id: 100} if default_analytic else {}
+            line.analytic_distribution = kept | vals
 
     def _get_default_storable_analytic(self, analytic_plan):
         """ Inherited in `carpentry_purchase_budget` for default budget """
