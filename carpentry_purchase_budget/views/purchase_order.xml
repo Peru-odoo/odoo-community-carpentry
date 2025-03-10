@@ -32,7 +32,7 @@
                 <field name="warning_budget" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': [('warning_budget', '=', False), ('state', '=', 'cancel')]}"
+                    attrs="{'invisible': ['|', ('warning_budget', '=', False), ('state', '=', 'cancel')]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
