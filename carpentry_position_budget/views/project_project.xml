@@ -75,9 +75,8 @@
                                 options="{'no_create_edit': 1}"
                                 attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
                             />
-                            <field name="qty_debit" string="Quantity" attrs="{
+                            <field name="qty_debit" string="Amount" attrs="{
                                 'readonly': [('is_computed_carpentry', '=', True)],
-                                'invisible': [('type', '=', 'amount')]
                             }" />
                             <field name="balance" string="Total" />
                             
