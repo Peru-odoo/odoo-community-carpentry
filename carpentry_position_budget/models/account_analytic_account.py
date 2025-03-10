@@ -89,6 +89,7 @@ class AccountAnalyticAccount(models.Model):
         print('=== _get_remaining_budget ===')
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
+        print('reserved', reserved)
 
         domain = [('timesheetable', '=', True)]
         timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids
