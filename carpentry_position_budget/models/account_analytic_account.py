@@ -190,7 +190,7 @@ class AccountAnalyticAccount(models.Model):
             domain = expression.AND([domain, [
                 ('section_res_model', '=', section._name),
                 ('section_id', '!=', section.id),
-                ('section_ref.state', 'not in', ['draft', 'cancel']),
+                # ('section_ref.state', 'not in', ['draft', 'cancel']),
             ]])
         
         rg_result = self.env['carpentry.group.affectation'].read_group(
