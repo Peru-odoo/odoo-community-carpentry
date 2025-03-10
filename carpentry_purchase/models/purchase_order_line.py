@@ -80,6 +80,5 @@ class PurchaseOrderLine(models.Model):
 
     def _get_default_storable_analytic(self, analytic_plan):
         """ Inherited in `carpentry_purchase_budget` for default budget """
-        self.ensure_one()
         if analytic_plan == 'project':
             return self.company_id.internal_project_id.analytic_account_id
