@@ -83,11 +83,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
              *computed* budgets are the ones computed from Launches logics
             (!!!) `_get_affectation_ids_vals_list` appends project's global budgets to the matrix
         """
-        print('===== _get_group_refs =====')
         computed_lines = self.project_id.budget_line_ids.filtered('is_computed_carpentry')
-        print('maybe "NewId" ?')
-        print('self.budget_analytic_ids', self.budget_analytic_ids)
-        print('computed_lines.analytic_account_id', computed_lines.analytic_account_id)
         return self.budget_analytic_ids._origin & computed_lines.analytic_account_id
 
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
