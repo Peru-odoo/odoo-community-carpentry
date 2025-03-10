@@ -336,7 +336,7 @@ class CarpentryGroupAffectation(models.Model):
             self.quantity_available = False
             return
         
-        mapped_quantities = affectation.group_ref._get_quantities_available(self._origin)
+        mapped_quantities = self.group_ref._get_quantities_available(self._origin)
         for affectation in self:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
             affectation.quantity_available = mapped_quantities.get(key)
