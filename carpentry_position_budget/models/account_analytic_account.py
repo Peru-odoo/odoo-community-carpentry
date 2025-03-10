@@ -65,10 +65,13 @@ class AccountAnalyticAccount(models.Model):
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
+        print('=== _get_quantities_available ===')
         section = fields.first(affectations).section_ref
         launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
-        return self._get_remaining_budget(launchs, section)
+        remaining_budget = self._get_remaining_budget(launchs, section)
+        print('remaining_budget', remaining_budget)
+        return remaining_budget
 
     def _get_remaining_budget(self, launchs, section=None, mode=None):
         """ Calculate [Initial Budget] - [Reservation], per launch & analytic
@@ -187,6 +190,7 @@ class AccountAnalyticAccount(models.Model):
             domain = expression.AND([domain, [
                 ('section_res_model', '=', section._name),
                 ('section_id', '!=', section.id),
+                ('section_ref.state', 'not in', ['draft', 'cancel']),
             ]])
         
         rg_result = self.env['carpentry.group.affectation'].read_group(
