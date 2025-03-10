@@ -73,7 +73,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         if any(x not in vals for x in ['active', 'state']):
             self._set_affectations_active()
         
-        return super().write()
+        return res
 
     def _set_affectations_sequence(self, group_sequence):
         """ Two types of affectation's sequence must be updated:
