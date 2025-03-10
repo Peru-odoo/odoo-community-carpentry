@@ -47,7 +47,7 @@ class PurchaseOrder(models.Model):
             types = set(purchase.order_line.product_id.mapped('type'))
             if 'product' in types and len(types) > 1:
                 purchase.products_type = 'mix'
-            elif types == ['product']:
+            elif types == {'product'}:
                 purchase.products_type = 'storable'
             else:
                 purchase.products_type = 'non_storable'
