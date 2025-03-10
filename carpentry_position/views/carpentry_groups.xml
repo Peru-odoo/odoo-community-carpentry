@@ -76,7 +76,7 @@
                     string="Related Lots"
                     readonly="1"
                 />
-                <field name="sum_quantity_affected" readonly="True" sum="1" />
+                <field name="sum_quantity_affected" digits="[10,0]" readonly="True" sum="1" />
             </tree>
         </field>
     </record>
@@ -213,7 +213,7 @@
                 <tree limit="200">
                     <field name="section_ref" string="Phase" />
                     <field name="position_id" decoration-bf="True" options="{'no_create': 1, 'no_open': 1}" />
-                    <field name="quantity_affected_parent" string="Quantity" />
+                    <field name="quantity_affected_parent" string="Quantity" digits="[10,0]" />
                 </tree>
             </field>
         </field>

@@ -20,13 +20,11 @@
                     readonly="1"
                     decoration-bf="True"
                 />
-                <field name="quantity_available" readonly="1" string="Position quantity" />
+                <field name="quantity_available" readonly="1" string="Position quantity" digits="[10,0]" />
                 <field name="quantity_remaining_to_affect" readonly="1" digits="[10,0]" />
                 <field name="quantity_affected" digits="[10,0]"
-                    sum="1"
-                    required="True"
-                    decoration-bf="True"
-                    decoration-primary="True"
+                    sum="1" required="True"
+                    decoration-bf="True" decoration-primary="True"
                 />
             </tree>
         </field>
