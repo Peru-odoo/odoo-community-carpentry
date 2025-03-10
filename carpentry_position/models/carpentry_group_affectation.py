@@ -331,12 +331,12 @@ class CarpentryGroupAffectation(models.Model):
     @api.depends('record_id', 'group_id', 'section_id')
     def _compute_quantity_available(self):
         # Technically check if computation is relevant/possible
-        affectation = fields.first(self)
-        if not affectation.group_ref or not hasattr(affectation.group_ref, '_get_quantities_available'):
+        groups_ids = self.env[affectation.group_res_model].browse(self.mapped('group_id'))
+        if not groups_ids or not hasattr(groups_ids, '_get_quantities_available'):
             self.quantity_available = False
             return
         
-        mapped_quantities = self.group_ref._get_quantities_available(self._origin)
+        mapped_quantities = groups_ids._get_quantities_available(self._origin)
         for affectation in self:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
             affectation.quantity_available = mapped_quantities.get(key)
