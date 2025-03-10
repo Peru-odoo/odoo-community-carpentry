@@ -78,10 +78,9 @@
                                 'readonly': [('is_computed_carpentry', '=', True)],
                                 'invisible': [('type', '=', 'amount')]
                             }" />
-                            <field name="debit" string="Total" attrs="{'readonly': '|',
-                                [('is_computed_carpentry', '=', True)],
-                                [('type', '!=', 'amount')],
-                            }" />
+                            <field name="debit" string="Total" attrs="{'readonly': [
+                                '|', ('is_computed_carpentry', '=', True), ('type', '!=', 'amount')
+                            ]}" />
                             
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"
                                 attrs="{'invisible': [('is_computed_carpentry', '=', True)]}"
