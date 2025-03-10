@@ -27,6 +27,7 @@ class PurchaseOrder(models.Model):
     # -- ui --
     products_type = fields.Selection(
         selection=[
+            ('none', 'No products'),
             ('storable', 'Stock purchase order (only)'),
             ('non_storable', 'Purchase Order with non-stored products (only)'),
             ('mix', 'Purchase order mixing both stored and non-stored products')
@@ -46,11 +47,14 @@ class PurchaseOrder(models.Model):
         for purchase in self:
             types = set(purchase.order_line.product_id.mapped('type'))
             if 'product' in types and len(types) > 1:
-                purchase.products_type = 'mix'
+                type = 'mix'
             elif types == {'product'}:
-                purchase.products_type = 'storable'
+                type = 'storable'
+            elif types:
+                type = 'non_storable'
             else:
-                purchase.products_type = 'non_storable'
+                type = 'none'
+            purchase.products_type = type
     
     # --- project_id (shortcut to set line analytic at once on the project) ---
     @api.onchange('project_id')
