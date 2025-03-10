@@ -60,6 +60,7 @@ class PurchaseOrderLine(models.Model):
             :arg added_id:          single replacement `analytic_id` in place of `replaced_ids`
             :option analytic_plan:  if set to 'project', forces *Internal* project analytic for storable products 
         """
+        default_analytic = self._get_default_storable_analytic(analytic_plan)
         for line in self:
             if line.display_type:
                 # line without products: do nothing
@@ -74,7 +75,6 @@ class PurchaseOrderLine(models.Model):
             # enforce default val for storable products (e.g. internal project)
             vals = new_distrib
             if line.product_id.type == 'product':
-                default_analytic = line._get_default_storable_analytic(analytic_plan)
                 vals = {default_analytic.id: 100} if default_analytic else {}
             line.analytic_distribution = kept | vals
 
