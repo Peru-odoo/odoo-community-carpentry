@@ -62,10 +62,9 @@ class PurchaseOrder(models.Model):
     @api.depends('amount_untaxed', 'affectation_ids')
     def _compute_warning_budget(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
-        states = ['to approve', 'approved', 'purchase', 'done']
         for purchase in self:
             compare = float_compare(purchase.amount_budgetable, purchase.sum_quantity_affected, precision_digits=prec)
-            purchase.warning_budget = purchase.state in states and compare != 0
+            purchase.warning_budget = purchase.state != 'cancel' and compare != 0
 
     @api.depends('order_line.price_total', 'order_line.product_id.type')
     def _compute_amount_budgetable(self):
