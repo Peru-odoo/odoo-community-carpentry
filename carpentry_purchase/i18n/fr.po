@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-13 18:30+0000\n"
-"PO-Revision-Date: 2025-01-13 19:32+0100\n"
+"POT-Creation-Date: 2025-03-10 09:17+0000\n"
+"PO-Revision-Date: 2025-03-10 10:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -49,6 +49,18 @@ msgstr ""
 "Basé sur la distribution analytique des lignes de commandes fournisseurs"
 
 #. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_res_company
+msgid "Companies"
+msgstr "Sociétés"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,help:carpentry_purchase.field_res_company__internal_project_id
+msgid "Default project value for timesheet generated from time off type."
+msgstr ""
+"Valeur de projet par défaut pour les feuilles de temps générées à partir de "
+"ce type de congés."
+
+#. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__delivery_address_id
 msgid "Delivery address"
 msgstr "Adresse de livraison"
@@ -66,6 +78,21 @@ msgstr ""
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__description
 msgid "Description"
 msgstr ""
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_res_company__internal_project_id
+msgid "Internal Project"
+msgstr "Projet interne"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_account_move
+msgid "Journal Entry"
+msgstr "Pièce comptable"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_account_move_line
+msgid "Journal Item"
+msgstr "Écriture comptable"
 
 #. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_carpentry_group_launch
@@ -90,7 +117,16 @@ msgid "Needs"
 msgstr "Besoins"
 
 #. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__products_type
+msgid "Products Type"
+msgstr ""
+
+#. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_project_project
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_bank_statement_line__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move_line__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_payment__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order_line__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_stock_picking__project_id
@@ -98,6 +134,7 @@ msgid "Project"
 msgstr "Projet"
 
 #. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id_domain
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id_domain
 #: model:ir.model.fields,field_description:carpentry_purchase.field_stock_picking__project_id_domain
 msgid "Project Id Domain"
@@ -114,16 +151,24 @@ msgid "Purchase Order Line"
 msgstr "Ligne de commande d'achat"
 
 #. module: carpentry_purchase
+#: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__non_storable
+msgid "Purchase Order with non-stored products (only)"
+msgstr "Commande d'articles non-stockés (uniquement)"
+
+#. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__purchase_ids
 msgid "Purchase Orders"
 msgstr "Commandes fournisseurs"
 
 #. module: carpentry_purchase
-#. odoo-python
-#: code:addons/carpentry_purchase/models/purchase_order.py:0
-#, python-format
-msgid "The launches must belong to the project."
-msgstr "Les lancements doivent appartenir au projet."
+#: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__mix
+msgid "Purchase order mixing both stored and non-stored products"
+msgstr "Commande mélangeant des articles stockés et non-stockés"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__storable
+msgid "Stock purchase order (only)"
+msgstr "Commande de stock (uniquemnet)"
 
 #. module: carpentry_purchase
 #. odoo-python
@@ -131,10 +176,11 @@ msgstr "Les lancements doivent appartenir au projet."
 #, python-format
 msgid ""
 "The only allowed project in Analytic Distribution is the purchase order's "
-"one (or internal project)."
+"one (or the internal project for storable products)."
 msgstr ""
-"Le seul projet autorisé dans les Distributions Analytiques des lignes de "
-"commandes est celui défini sur la commande (ou le projet interne)."
+"Le seul projet autorisé dans les distributions analytiques des lignes de la "
+"commande est le projet de la commande (ou le projet \"interne\" pour les "
+"lignes de produits stockés)."
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
@@ -147,6 +193,10 @@ msgid "Transfer"
 msgstr "Transfert"
 
 #. module: carpentry_purchase
+#: model:ir.model.fields,help:carpentry_purchase.field_account_bank_statement_line__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_move__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_move_line__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_account_payment__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_purchase_order__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_purchase_order_line__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_stock_picking__project_id
