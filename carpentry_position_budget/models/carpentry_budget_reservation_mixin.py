@@ -139,17 +139,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ Distribute line price (expenses) into budget reservation,
              according to remaining budget
         """
-        print('==== _auto_update_budget_distribution ====')
         budget_distribution = self._get_auto_launch_budget_distribution()
-        print('budget_distribution', budget_distribution)
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
             auto_reservation = budget_distribution.get(key, 0.0)
             affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
-            print('key', key)
-            print('auto_reservation', auto_reservation)
-            print('affectation.quantity_remaining_to_affect', affectation.quantity_remaining_to_affect)
-            print('affectation.quantity_affected', affectation.quantity_affected)
     
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of a PO or MO, considering:
@@ -163,19 +157,16 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                     expense * remaining budget / total budget (per launch)
             }
         """
-        print('==== _get_auto_launch_budget_distribution ====')
         self.ensure_one() # (!) `remaining_budget` must be computed per order
         total_by_analytic = self._get_total_by_analytic()
         analytics = self.env['account.analytic.account'].sudo().browse(set(total_by_analytic.keys()))
         remaining_budget = analytics._get_remaining_budget(self.launch_ids, self._origin)
-        print('total_by_analytic', total_by_analytic)
 
         # Sums launch total available budget per analytic
         mapped_launch_budget = defaultdict(float)
         for (model, launch_id, analytic_id), budget in remaining_budget.items():
             if model == 'carpentry.group.launch':
                 mapped_launch_budget[analytic_id] += budget
-        print('mapped_launch_budget', mapped_launch_budget)
         
         # Calculate automatic budget reservation (avg-weight)
         budget_distribution = {}
@@ -186,12 +177,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             if model == 'carpentry.group.launch':
                 launch_budget = mapped_launch_budget.get(analytic_id)
                 auto_reservation = launch_budget and total_price * budget / launch_budget
-                print('launch_id', record_id)
-                print('analytic_id', analytic_id)
-                print('launch_budget', launch_budget)
-                print('total_price', total_price)
-                print('budget', budget)
-                print('auto_reservation', auto_reservation)
             else: # project
                 auto_reservation = total_price
             

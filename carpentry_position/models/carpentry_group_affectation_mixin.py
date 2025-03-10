@@ -63,13 +63,17 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ Manually update affectation's fields, because @api.depends('record_ref.any_field')
             on Reference field is not supported (see `carpentry.group.affectation`)
         """
+        res = super().write(vals)
+
         # sequence
         if 'sequence' in vals:
             self._set_affectations_sequence(vals['sequence'])
-        # active, state
+        
+        # active
         if any(x not in vals for x in ['active', 'state']):
-            self._set_affectations_state(vals)
-        return super().write(vals)
+            self._set_affectations_active()
+        
+        return super().write()
 
     def _set_affectations_sequence(self, group_sequence):
         """ Two types of affectation's sequence must be updated:
@@ -90,31 +94,34 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             if affectation_ids_section:
                 affectation_ids_section.seq_section = group_sequence
     
-    def _set_affectations_state(self, vals={}, filter_domain=[]):
-        """ Enable or disable `affectation_ids` depending group's fields:
-             - `active`
-             - `state`: if ['draft', 'cancel'], affectations are disabled
+    def _set_affectations_active(self):
+        """ Actualize `active` field of affectations
 
-            :option vals: `write()` arg
-            # :option filter_domain: filters `self.affectation_ids` to sub-part of affectations
-            #                        (useful for project_project.affectation_ids) 
+            Example: a PO reserves budget on launches *A* and *B*. One archives launch *A*.
+             One should not see archived launch *A* on PO's affectations.
         """
-        # filtered_affectation_ids_ = []
-        # if filter_domain:
-        #     filtered_affectation_ids_ = self.affectation_ids.filtered_domain(filter_domain).ids
+        self = self.with_context(active_test=False)
+        for a in self.affectation_ids:
+            a.active = self._get_affectation_active(a.record_ref, a.group_ref, a.section_ref)
+    
+    def _get_affectation_active(self, *args):
+        """ Calculate `affectation.active` from `record_ref`, `group_ref` and/or `section_ref`
+             optionally passed in `*args`, depending their fields `active` and possibly `state`:
+             - `active`: if 1 arg is archived ............ => archive the affectation
+             - `state`:  if 1 arg is ['draft' or 'cancel'] => archive the affectation
+        """
+        active = True
+        for arg in args:
+            if not arg:
+                continue
+            # active
+            if hasattr(arg, 'active'):
+                active = active and arg['active']
+            # state
+            if hasattr(arg, 'state'):
+                active = active and arg['state'] not in ['draft', 'cancel']
+        return active
 
-        no_active = not hasattr(self, 'active')
-        no_state = not hasattr(self, 'state')
-
-        for group in self:
-            affectation_ids = group.affectation_ids
-            # if filtered_affectation_ids_:
-            #     affectation_ids = affectation_ids.browse(filtered_affectation_ids_)
-            
-            affectation_ids.active = (
-                (no_active or vals.get('active', self.active)) and
-                (no_state or vals.get('state', self.state) not in ['draft', 'cancel'])
-            )
 
     #====== Affectation Temp ======#
     # -- Generic methods to be / that can be overritten, for compute and/or inverse of `affectation.temp` --
@@ -146,10 +153,9 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         group_ref = affectation.group_ref if affectation else group_ref
         section_ref = record_ref.group_ref if self._carpentry_affectation_section else False
 
-        # Quantity
-        # qty = False
-        # if group_ref._carpentry_affectation_quantity:
+        # vals
         qty = affectation.quantity_affected if affectation else self._default_quantity(record_ref, group_ref)
+        active = affectation.active if affectation else self._get_affectation_active(record_ref, group_ref, section_ref)
 
         vals = {
             'project_id': record_ref.id if record_ref._name == 'project.project' else record_ref.project_id.id,
@@ -167,6 +173,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'seq_section': bool(section_ref) and section_ref.sequence,
             # vals
             'quantity_affected': qty,
+            'active': active
         }
         return vals
     
@@ -215,6 +222,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ When unselecting `analytics` or `launches`, real affectation
             still exists but are not wished in target matrix => unlink() them
         """
+        self = self.with_context(active_test=False)
         groups_ids = set(self.affectation_ids.mapped('group_id')) - set(group_refs.ids)
         record_ids = set(self.affectation_ids.mapped('record_id')) - set(record_refs.ids)
         
@@ -233,6 +241,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             :arg `self`: is a recordset of a Carpentry Group (Phases, Launches, ...)
             :return: Command object list for One2many field of `carpentry.group.affectation.temp`
         """
+        self = self.with_context(active_test=False) # browse even in archived affectations
+
         # for PO and WO
         if vals_list and len(self) == 1:
             affectation_temp_ids_ = self._write_or_create_affectations(vals_list, temp).ids
@@ -250,6 +260,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             - fully compute `temp` affectation from real + fill in cells gaps (e.g. phase & launch)
             - refresh *real* affectations and add a new column or row (e.g. purchase)
         """
+        self = self.with_context(active_test=False)
         self.ensure_one()
 
         # Get target values
@@ -270,6 +281,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         return vals_list
     
     def _add_matrix_cell(self, group_ref, record_ref, mapped_real_ids, mapped_model_ids, temp):
+        self = self.with_context(active_test=False)
+
         key = (mapped_model_ids.get(group_ref._name), group_ref.id, record_ref.id)
         affectation = mapped_real_ids.get(key)
 
@@ -278,6 +291,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         return vals | affected
 
     def _get_mapped_real_ids(self):
+        self = self.with_context(active_test=False)
+
         return {
             (affectation.group_model_id.id, affectation.group_id, affectation.record_id): affectation
             for affectation in self.affectation_ids
@@ -287,12 +302,14 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ `group` is either the Carpentry Group (Phase, Launch)
             or Analytic (for PO, MO, ...)
         """
-        return self
+        return self.with_context(active_test=False)
     
     def _write_or_create_affectations(self, vals_list, temp):
         """ Returns the affectation_ids that can be used in Command.set() for a O2m on a `form`,
             by searching any existing records in database (and updating them with val_list) or creating them
         """
+        self = self.with_context(active_test=False)
+
         model = 'carpentry.group.affectation'
         if temp:
             model += '.temp'
@@ -324,7 +341,10 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             * `vals_list`: {temp_id: vals} of **updated only** `affectation_ids_temp`
                 where `vals` **only** keys are updated vals (i.e. `quantity_affected` or `affected`)
         """
-        self = self.with_context(constrain_quantity_affected_silent=True)
+        self = self.with_context(
+            constrain_quantity_affected_silent=True,
+            active_test=False
+        )
         vals_list_create, ids_to_remove = [], []
 
         # *temp* affectations (user input sent to `write()`)

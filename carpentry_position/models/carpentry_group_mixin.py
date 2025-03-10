@@ -44,6 +44,8 @@ class CarpentryGroupMixin(models.AbstractModel):
     #===== Compute =====#
     @api.depends('project_id')
     def _compute_sequence(self):
+        self = self.with_context(active_test=False)
+        
         rg_result = self.read_group(
             domain=[('project_id', 'in', self.project_id.ids)],
             groupby=['project_id'],

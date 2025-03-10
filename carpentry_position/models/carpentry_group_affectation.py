@@ -240,7 +240,7 @@ class CarpentryGroupAffectation(models.Model):
                 position_id = position_id.record_ref
             affectation.position_id = position_id if position_id._name == 'carpentry.position' else False
 
-    #===== Constrain: can't delete if children =====#
+    #===== Constrain: can't delete if having children =====#
     @api.ondelete(at_uninstall=False)
     def _unlink_affectation_id(self):
         """ * Prevent affectation deletion when it has affectation children (i.e.
@@ -255,9 +255,11 @@ class CarpentryGroupAffectation(models.Model):
             )
 
     #===== Constrain: M2o-like if `_carpentry_affectation_quantity == False` =====#
-    @api.constrains('record_id')
+    @api.constrains('record_id', 'active')
     def _constrain_m2o(self):
         """ Replay a M2o constrain: prevent from 2 affectations on same row """
+        self = self.with_context(active_test=False)
+
         is_temp = bool(self._name == 'carpentry.group.affectation.temp')
         _filter = (lambda x: x.affected) if is_temp else (lambda x: True)
         
@@ -299,7 +301,7 @@ class CarpentryGroupAffectation(models.Model):
 
     #===== Quantities & M2o: constrain & compute =====#
     @api.onchange('quantity_affected')
-    @api.constrains('quantity_affected')
+    @api.constrains('quantity_affected', 'active')
     def _constrain_quantity(self):
         # only for groups using qties for affectation
         if self._context.get('constrain_quantity_affected_silent'):
@@ -328,7 +330,7 @@ class CarpentryGroupAffectation(models.Model):
                     affectation.quantity_remaining_to_affect,
                 ))
 
-    @api.depends('record_id', 'group_id', 'section_id')
+    @api.depends('record_id', 'group_id', 'section_id', 'active')
     def _compute_quantity_available(self):
         # Technically check if computation is relevant/possible
         self.group_model_id.ensure_one()

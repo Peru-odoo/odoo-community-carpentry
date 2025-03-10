@@ -65,12 +65,10 @@ class AccountAnalyticAccount(models.Model):
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
-        print('=== _get_quantities_available ===')
         section = fields.first(affectations).section_ref
         launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
         remaining_budget = self._get_remaining_budget(launchs, section)
-        print('remaining_budget', remaining_budget)
         return remaining_budget
 
     def _get_remaining_budget(self, launchs, section=None, mode=None):
@@ -83,13 +81,11 @@ class AccountAnalyticAccount(models.Model):
                 if `None`, it will switch between 'brut' and 'valued' depending the budget, e.g.
                 (hours) will use `brut`
                 (amount) will use `valued`
-            :return: Dict like: 
+            :return: Dict like:
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
-        print('=== _get_remaining_budget ===')
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
-        print('reserved', reserved)
 
         domain = [('timesheetable', '=', True)]
         timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids
@@ -118,8 +114,6 @@ class AccountAnalyticAccount(models.Model):
                         remaining[key] = remaining.get(key, 0.0) + amount_available
             return remaining
         
-        print('brut', brut)
-        print('valued', valued)
         remaining = __add_available_budget(remaining, brut, 'brut')
         remaining = __add_available_budget(remaining, valued, 'valued')
         
@@ -147,9 +141,6 @@ class AccountAnalyticAccount(models.Model):
             groupby_budget='analytic_account_id',
             domain_budget=[('analytic_account_id', 'in', self.ids)]
         ))
-        print('=== budget from launches ====')
-        print('brut', brut)
-        print('valued', valued)
 
         # Budget from the project (not computed)
         project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
