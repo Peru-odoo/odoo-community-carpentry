@@ -107,8 +107,10 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     def _get_affectation_active(self, *args):
         """ Calculate `affectation.active` from `record_ref`, `group_ref` and/or `section_ref`
              optionally passed in `*args`, depending their fields `active` and possibly `state`:
-             - `active`: if 1 arg is archived ............ => archive the affectation
-             - `state`:  if 1 arg is ['draft' or 'cancel'] => archive the affectation
+             - `active`: if 1 arg is archived   => archive the affectation
+             - `state`:  if 1 arg is ['cancel'] => archive the affectation
+
+             (!) for budget, the `section_ref` state is ignored
         """
         active = True
         for arg in args:
@@ -119,7 +121,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 active = active and arg['active']
             # state
             if hasattr(arg, 'state'):
-                active = active and arg['state'] not in ['draft', 'cancel']
+                active = active and arg['state'] not in ['cancel']
         return active
 
 

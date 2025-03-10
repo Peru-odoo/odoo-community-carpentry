@@ -32,7 +32,7 @@
                 <field name="warning_budget" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': [('warning_budget', '=', False)]}"
+                    attrs="{'invisible': [('warning_budget', '=', False), ('state', '=', 'cancel')]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
@@ -45,7 +45,7 @@
 
             <page name="products" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation">
+                <page name="budget" string="Budget reservation" attrs="{'invisible': [('state', '=', 'cancel')]}">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"
