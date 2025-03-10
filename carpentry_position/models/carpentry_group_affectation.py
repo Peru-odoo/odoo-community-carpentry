@@ -145,6 +145,7 @@ class CarpentryGroupAffectation(models.Model):
     section_ref = fields.Reference(
         selection='_selection_section_res_model',
         compute='_compute_fields_ref',
+        search='_search_section_ref',
     )
     seq_section = fields.Integer()
 
@@ -222,6 +223,14 @@ class CarpentryGroupAffectation(models.Model):
             affectation.record_ref = '%s,%s' % (affectation.record_res_model, affectation.record_id)
             affectation.section_ref = '%s,%s' % (affectation.section_res_model, affectation.section_id) if affectation.section_id else False
 
+    def _search_section_ref(self, operator, value):
+        if hasattr(value, '__iter__'):
+            operator = '!=' if 'not' in operator else '='
+            return expression.OR([self._search_section_ref(operator, x) for x in value])
+        else:
+            res_model, res_id = value.split(',')
+            return [('section_res_model', '=', res_model), ('section_id', operator, res_id)]
+        
     def _compute_quantity_affected_parent(self):
         for affectation in self:
             affectation.quantity_affected_parent = (

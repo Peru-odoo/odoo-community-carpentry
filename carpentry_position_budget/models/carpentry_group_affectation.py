@@ -5,7 +5,9 @@ from odoo import models, fields, api, exceptions, _, Command
 class CarpentryGroupAffectation(models.Model):
     _inherit = ["carpentry.group.affectation"]
 
-    uom_name = fields.Char(compute='_compute_uom_name')
+    uom_name = fields.Char(
+        compute='_compute_uom_name'
+    )
 
     @api.depends('group_id')
     def _compute_uom_name(self):
