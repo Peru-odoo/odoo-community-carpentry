@@ -22,34 +22,34 @@ class Project(models.Model):
         store=True
     )
     lot_ids = fields.One2many(
-        'carpentry.group.lot',
-        'project_id',
+        comodel_name='carpentry.group.lot',
+        inverse_name='project_id',
         string='Lots'
     )
     phase_ids = fields.One2many(
-        'carpentry.group.phase',
-        'project_id',
+        comodel_name='carpentry.group.phase',
+        inverse_name='project_id',
         string='Phases'
     )
     launch_ids = fields.One2many(
-        'carpentry.group.launch',
-        'project_id',
+        comodel_name='carpentry.group.launch',
+        inverse_name='project_id',
         string='Launches'
     )
 
     # affectations
     affectation_ids = fields.One2many(
-        'carpentry.group.affectation',
-        'project_id',
+        comodel_name='carpentry.group.affectation',
+        inverse_name='project_id',
         string='Affectations'
     )
     affectation_ids_temp_phase = fields.One2many(
-        'carpentry.group.affectation.temp',
+        comodel_name='carpentry.group.affectation.temp',
         readonly=False,
         compute='_compute_affectation_ids_temp_phase'
     )
     affectation_ids_temp_launch = fields.One2many(
-        'carpentry.group.affectation.temp',
+        comodel_name='carpentry.group.affectation.temp',
         readonly=False,
         compute='_compute_affectation_ids_temp_launch'
     )

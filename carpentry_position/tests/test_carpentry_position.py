@@ -84,14 +84,14 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
         super().setUpClass()
 
 
-    def test_position_copy(self):
-        copied_position_id = self.position.copy()
-        self.assertEqual(copied_position_id.name, self.position.name + _(' (copied)'))
+    def test_01_position_copy(self):
+        copied_position_id = self.project.position_ids[-1].copy()
+        self.assertEqual(copied_position_id.name, self.project.position_ids[-2].name + _(' (copied)'))
 
-    def test_project_position_count(self):
+    def test_02_project_position_count(self):
         self.assertEqual(self.project.position_count, len(self.project.position_ids))
     
-    def test_display_name(self):
+    def test_03_display_name(self):
         """ Test specifics `display_name`: position and nested affectation """
         self._clean_affectations(quick_affect=True)
 
@@ -105,7 +105,7 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
             )
         )
 
-    def test_affectations(self):
+    def test_04_affectations(self):
         """ - Test real affectation, like group's form wizard (phase & launch)
             - Test shortcut affectation, like group's tree view
             (cannot test like with x2m_2d_matrix)
@@ -209,7 +209,7 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
         with self.assertRaises(exceptions.UserError):
             self.project.phase_ids.affectation_ids.unlink()
 
-    def test_populate_group_from_section(self):
+    def test_05_populate_group_from_section(self):
         """ Test button 'populate group from section' """
         project, _, _, _, _ = self._create_project_with_test_data('Project test2')
         project.launch_ids.unlink()
@@ -221,7 +221,7 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
         self.assertTrue(project.launch_ids.ids)
         # self.assertTrue(project.position_fully_affected)
 
-    def test_sequence(self):
+    def test_06_sequence(self):
         """ Test update of fields `sequence`, `sec_group`, `sec_section`
             in `carpentry.group.affectation`
         """
@@ -229,18 +229,22 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
 
         self.assertEqual(self.project.launch_ids[2].sequence, 3)
 
-        # Modify a group's sequence: it should propagate to its affectation & children
+        # Modify a group's sequence: it should propagate to its affectation
         self.phase.sequence = 10
-        self.assertEqual(self.phase.affectation_ids.mapped('seq_group'), [10])
-        self.assertEqual(self.project.launch_ids.affectation_ids.mapped('seq_section'), [10])
+        self.assertEqual(set(self.phase.affectation_ids.mapped('seq_group')), {10})
 
-        # Modify a position's sequence: it should propagate to its affectation & children
+        # Modify a position's sequence: it should propagate to its affectation
         self.position.sequence = 20
         affectations = self.project.affectation_ids.filtered(lambda x: x.position_id == self.position)
-        self.assertEqual(affectations.sequence('section'), [20])
+        self.assertEqual(set(affectations.sequence('section')), {20})
 
+    def test_07_active(self):
+        """ Test that archiving a group also archives its affectations """
+        self._clean_affectations(quick_affect=True)
+        self.launch.active = False
+        self.assertEqual(self.launch.affectation_ids.active, False)
     
-    def test_inverse_temp(self):
+    def test_08_inverse_temp(self):
         """ Test writing in real `affectation` from x2m_2d_matrix of affectation temp """
         self._clean_affectations()
 

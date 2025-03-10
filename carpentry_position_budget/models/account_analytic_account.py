@@ -86,6 +86,7 @@ class AccountAnalyticAccount(models.Model):
             :return: Dict like: 
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
+        print('=== _get_remaining_budget ===')
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
 
@@ -116,9 +117,11 @@ class AccountAnalyticAccount(models.Model):
                         remaining[key] = remaining.get(key, 0.0) + amount_available
             return remaining
         
+        print('brut', brut)
+        print('valued', valued)
         remaining = __add_available_budget(remaining, brut, 'brut')
         remaining = __add_available_budget(remaining, valued, 'valued')
-
+        
         return remaining
     
     def _get_available_budget_initial(self, launchs, section=None):
@@ -143,6 +146,9 @@ class AccountAnalyticAccount(models.Model):
             groupby_budget='analytic_account_id',
             domain_budget=[('analytic_account_id', 'in', self.ids)]
         ))
+        print('=== budget from launches ====')
+        print('brut', brut)
+        print('valued', valued)
 
         # Budget from the project (not computed)
         project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
@@ -190,7 +196,6 @@ class AccountAnalyticAccount(models.Model):
             domain = expression.AND([domain, [
                 ('section_res_model', '=', section._name),
                 ('section_id', '!=', section.id),
-                # ('section_ref.state', 'not in', ['draft', 'cancel']),
             ]])
         
         rg_result = self.env['carpentry.group.affectation'].read_group(
@@ -204,6 +209,7 @@ class AccountAnalyticAccount(models.Model):
             for model in self.env['ir.model'].sudo().search_read(domain, ['model'])
         }
         return {
-            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x['group_id']): x['quantity_affected'] * sign
+            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x['group_id']):
+            x['quantity_affected'] * sign
             for x in rg_result
         }

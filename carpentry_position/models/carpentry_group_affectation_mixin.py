@@ -58,30 +58,63 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """
         self.env['carpentry.group.affectation'].search(self._get_domain_affect()).unlink()
         return super().unlink()
-
-
-    @api.onchange('sequence')
-    def _onchange_sequence(self):
-        """ Manually update affectation's sequences, because @api.depends('record_ref.sequence')
+    
+    def write(self, vals):
+        """ Manually update affectation's fields, because @api.depends('record_ref.any_field')
             on Reference field is not supported (see `carpentry.group.affectation`)
+        """
+        # sequence
+        if 'sequence' in vals:
+            self._set_affectations_sequence(vals['sequence'])
+        # active, state
+        if any(x not in vals for x in ['active', 'state']):
+            self._set_affectations_state(vals)
+        return super().write(vals)
 
-            Two types of affectation's sequence must be updated:
+    def _set_affectations_sequence(self, group_sequence):
+        """ Two types of affectation's sequence must be updated:
             1. ones where `self.sequence` is `seq_group` -> self.affectation_ids
             2. ones where `self.sequence` is `seq_section` -> trickier
         """
-        # 2. Get affectations where `self.sequence` is `seq_section`
+        # (pre-2). Get affectations where `self.sequence` is `seq_section`
         domain = self._get_domain_affect(group='section')
         mapped_affectation_ids_section = {
             affectation.section_id: affectation
             for affectation in self.env['carpentry.group.affectation'].search(domain)
         }
 
-        # Update `seq_group` and `seq_section`
+        # 1 & 2. Update `seq_group` and `seq_section`
         for group in self:
-            group.affectation_ids.seq_group = group.sequence
+            group.affectation_ids.seq_group = group_sequence
             affectation_ids_section = mapped_affectation_ids_section.get(group.id)
             if affectation_ids_section:
-                affectation_ids_section.seq_section = group.sequence
+                affectation_ids_section.seq_section = group_sequence
+    
+    def _set_affectations_state(self, vals={}, filter_domain=[]):
+        """ Enable or disable `affectation_ids` depending group's fields:
+             - `active`
+             - `state`: if ['draft', 'cancel'], affectations are disabled
+
+            :option vals: `write()` arg
+            # :option filter_domain: filters `self.affectation_ids` to sub-part of affectations
+            #                        (useful for project_project.affectation_ids) 
+        """
+        # filtered_affectation_ids_ = []
+        # if filter_domain:
+        #     filtered_affectation_ids_ = self.affectation_ids.filtered_domain(filter_domain).ids
+
+        no_active = not hasattr(self, 'active')
+        no_state = not hasattr(self, 'state')
+
+        for group in self:
+            affectation_ids = group.affectation_ids
+            # if filtered_affectation_ids_:
+            #     affectation_ids = affectation_ids.browse(filtered_affectation_ids_)
+            
+            affectation_ids.active = (
+                (no_active or vals.get('active', self.active)) and
+                (no_state or vals.get('state', self.state) not in ['draft', 'cancel'])
+            )
 
     #====== Affectation Temp ======#
     # -- Generic methods to be / that can be overritten, for compute and/or inverse of `affectation.temp` --

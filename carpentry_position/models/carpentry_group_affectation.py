@@ -18,7 +18,6 @@ class CarpentryGroupAffectation(models.Model):
              purchase.order           analytic_id         launch_id (M2M)                po_id
              (
              mrp.workorder            mrp_workorder_id    affectation_id of launch       wo_id
-             mrp.workcenter           mrp_workcenter_id   -                              wo_id
              )
 
         ==== Affectations patterns ====
@@ -79,6 +78,7 @@ class CarpentryGroupAffectation(models.Model):
     currency_id = fields.Many2one(
         related='project_id.company_id.currency_id'
     )
+    active = fields.Boolean(default=True)
 
     # group: the record holding the affecation (in column in x2m_2d_matrix)
     group_id = fields.Many2oneReference( # actually an `Integer` field, so not .dot notation
@@ -222,19 +222,7 @@ class CarpentryGroupAffectation(models.Model):
             affectation.group_ref = '%s,%s' % (affectation.group_res_model, affectation.group_id)
             affectation.record_ref = '%s,%s' % (affectation.record_res_model, affectation.record_id)
             affectation.section_ref = '%s,%s' % (affectation.section_res_model, affectation.section_id) if affectation.section_id else False
-
-    def _search_section_ref(self, operator, value):
-        if hasattr(value, '__iter__'):
-            operator = '!=' if 'not' in operator else '='
-            all_domain = expression.OR([self._search_section_ref(operator, x) for x in value])
-            print('all_domain', all_domain)
-            return all_domain
-        else:
-            res_model, res_id = value.split(',')
-            domain = [('section_res_model', '=', res_model), ('section_id', operator, res_id)]
-            print('unit_domain', domain)
-            return domain
-        
+    
     def _compute_quantity_affected_parent(self):
         for affectation in self:
             affectation.quantity_affected_parent = (

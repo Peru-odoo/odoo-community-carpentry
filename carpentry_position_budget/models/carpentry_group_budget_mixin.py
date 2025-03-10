@@ -4,7 +4,7 @@ from odoo import models, fields, api, exceptions, _
 
 class CarpentryGroupBudgetMixin(models.AbstractModel):
     """ Budget sums from Affectations
-        Relevant for Phases, Launches, Positions (and possibly Project)
+        Relevant for Phases, Launches, Positions (and Project)
     """
     _name = 'carpentry.group.budget.mixin'
     _description = 'Carpentry Group Budget Mixin'

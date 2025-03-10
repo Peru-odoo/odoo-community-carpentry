@@ -12,12 +12,12 @@ class TestCarpentryDesign(TestCarpentryPosition):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.plan_set = cls.env['carpentry.plan.set'].create({
+        cls.plan_set = cls.env['carpentry.plan.set'].create([{
             'name': 'Plan Set Test 01',
             'project_id': cls.project.id,
             'launch_ids': [Command.set(cls.project.launch_ids.ids)],
             'plan_release_ids': [Command.create({'name': x}) for x in ['Test A', 'Test B']]
-        })
+        }])
         cls.release1, cls.release2 = cls.plan_set.plan_release_ids
 
 

@@ -16,3 +16,8 @@ class Lot(models.Model):
         string='Positions',
         domain=[]
     )
+
+    def _set_affectation_ids_state(self):
+        """ Don't propagate `lot` active/state to its `positions` """
+        return
+    
