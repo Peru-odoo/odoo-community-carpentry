@@ -75,10 +75,13 @@
                                 options="{'no_create_edit': 1}"
                                 attrs="{'readonly': [('is_computed_carpentry', '=', True)]}"
                             />
-                            <field name="qty_debit" string="Amount" attrs="{
+                            <field name="qty_debit" string="Quantity" attrs="{
+                                'readonly': [('is_computed_carpentry', '=', True)],
+                                'invisible': [('type', '=', 'amount')]
+                            }" />
+                            <field name="debit" string="Total" attrs="{
                                 'readonly': [('is_computed_carpentry', '=', True)],
                             }" />
-                            <field name="balance" string="Total" />
                             
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"
                                 attrs="{'invisible': [('is_computed_carpentry', '=', True)]}"
