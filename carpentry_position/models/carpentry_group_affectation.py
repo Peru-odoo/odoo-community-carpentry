@@ -226,10 +226,14 @@ class CarpentryGroupAffectation(models.Model):
     def _search_section_ref(self, operator, value):
         if hasattr(value, '__iter__'):
             operator = '!=' if 'not' in operator else '='
-            return expression.OR([self._search_section_ref(operator, x) for x in value])
+            all_domain = expression.OR([self._search_section_ref(operator, x) for x in value])
+            print('all_domain', all_domain)
+            return all_domain
         else:
             res_model, res_id = value.split(',')
-            return [('section_res_model', '=', res_model), ('section_id', operator, res_id)]
+            domain = [('section_res_model', '=', res_model), ('section_id', operator, res_id)]
+            print('unit_domain', domain)
+            return domain
         
     def _compute_quantity_affected_parent(self):
         for affectation in self:
