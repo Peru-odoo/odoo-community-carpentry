@@ -79,7 +79,7 @@
                                 'invisible': [('type', '=', 'amount')]
                             }" />
                             <field name="debit" string="Total" attrs="{'readonly': '|',
-                                [('is_computed_carpentry', '=', True)]
+                                [('is_computed_carpentry', '=', True)],
                                 [('type', '!=', 'amount')],
                             }" />
                             
