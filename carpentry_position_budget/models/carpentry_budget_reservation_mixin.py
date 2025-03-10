@@ -145,7 +145,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
     
     def _get_auto_launch_budget_distribution(self):
-        """ Calculate suggestion for budget reservation of an PO/MO, considering:
+        """ Calculate suggestion for budget reservation of a PO or MO, considering:
              - total real cost, per budget analytic (e.g. in the order_line or stock moves),
                 for budgets available in the PO/MO's project
              - maximized to the remaining budget of selected launches, per analytic
@@ -177,7 +177,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                 launch_budget = mapped_launch_budget.get(analytic_id)
                 auto_reservation = launch_budget and total_price * budget / launch_budget
             else: # project
-                auto_reservation = budget
+                auto_reservation = total_price
             
             budget_distribution[key] = auto_reservation or 0.0
             # budget_distribution[key] = min(auto_reservation or 0.0, budget) # moved to previous method
