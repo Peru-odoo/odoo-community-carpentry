@@ -84,7 +84,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
              *computed* budgets are the ones computed from Launches logics
             (!!!) `_get_affectation_ids_vals_list` appends project's global budgets to the matrix
         """
-        computed_lines = self.project_id.budget_line_ids.filtered('is_computed_carpentry')
+        computed_lines = self.project_id._origin.budget_line_ids.filtered('is_computed_carpentry')
+        print('==== _get_group_refs ====')
+        print('computed_lines', computed_lines)
+        print('computed_lines.analytic_account_id', computed_lines.analytic_account_id)
+        print('self.budget_analytic_ids._origin', self.budget_analytic_ids._origin)
         return self.budget_analytic_ids._origin & computed_lines.analytic_account_id
 
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
@@ -121,8 +125,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _inverse_budget_analytic_ids(self):
         """ Manual budget choice => update line's analytic distribution """
         for purchase in self:
-            replaced_ids = purchase.order_line.analytic_ids.filtered('is_project_budget')._origin
-            project_budgets = purchase.project_id.budget_line_ids.analytic_account_id
+            replaced_ids = purchase.order_line.analytic_ids._origin.filtered('is_project_budget')
+            project_budgets = purchase.project_id._origin.budget_line_ids.analytic_account_id
             new_budgets = purchase.budget_analytic_ids & project_budgets # in the PO lines and the project
 
             nb_budgets = len(new_budgets)

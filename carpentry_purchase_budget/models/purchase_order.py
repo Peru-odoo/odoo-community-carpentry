@@ -31,7 +31,7 @@ class PurchaseOrder(models.Model):
             Also called from `_compute_amount_budgetable()` when cost of non-stored products changes
         """
         for purchase in self:
-            project_budgets = purchase.project_id.budget_line_ids.analytic_account_id
+            project_budgets = purchase.project_id._origin.budget_line_ids.analytic_account_id
             lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
             purchase.budget_analytic_ids = lines.analytic_ids._origin.filtered('is_project_budget') & project_budgets
 
