@@ -62,7 +62,10 @@
             </field>
             
             <div class="oe_title" position="before">
-                <field name="products_type" widget="badge" decoration-warning="products_type == 'mix'" />
+                <field name="products_type" widget="badge"
+                    decoration-warning="products_type == 'mix'"
+                    attrs="{'invisible': [('products_type', '=', 'none')]}"
+                />
             </div>
 
             <!-- Date widget, instead of Datetime -->

@@ -22,6 +22,8 @@
         'carpentry_purchase_budget',
     ],
     "data": [
+        # security
+        "security/ir.model.access.csv",
         # views
         "views/mrp_workcenter.xml",
         "views/mrp_production.xml",
