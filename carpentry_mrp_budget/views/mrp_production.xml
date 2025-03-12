@@ -33,7 +33,12 @@
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose budgets">
-                            <field name="budget_analytic_ids" widget="many2many_checkboxes" context="{'analytic_display_budget_type': 1}" />
+                            <field name="budget_analytic_ids"
+                                nolabel="1" colspan="2"
+                                widget="many2many_checkboxes"
+                                context="{'analytic_display_budget_type': 1}"
+                                domain="[('budget_type', 'in', ['production', 'installation'])]"
+                            />
                         </group>
                         
                         <!-- Right: real affectations (budget reservation) -->

@@ -65,8 +65,10 @@
 
                             <field name="budget_analytic_ids"
                                 widget="many2many_checkboxes"
+                                nolabel="1" colspan="2"
                                 attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{'analytic_display_budget_type': 1}"
+                                domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
                             />
                         </group>
                         
