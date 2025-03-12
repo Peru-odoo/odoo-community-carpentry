@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <!-- Add `Description` & `Project` -->
             <field name="amount_untaxed" position="before">
-                <field name="gain" invisible="1" />
+                <field name="amount_gain" invisible="1" />
 
                 <field name="sum_quantity_affected" optional="hide"
                     decoration-success="gain &gt; 0" decoration-danger="gain &lt; 0"
@@ -29,7 +29,7 @@
             <!-- Budget info banner -->
             <field name="products_type" position="before">
                 <field name="amount_budgetable" invisible="1" />
-                <field name="gain" invisible="1" />
+                <field name="amount_gain" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
                     attrs="{'invisible': [('gain', '=', False)]}"
@@ -95,7 +95,7 @@
                             <p colspan="2" attrs="{'invisible': [('gain', '=', False)]}">
                                 Recorded gain or loss:
                                 <strong decoration-success="gain &gt; 0" decoration-danger="gain &gt; 0">
-                                    <field name="gain" class="oe_inline" />
+                                    <field name="amount_gain" class="oe_inline" />
                                 </strong>.
                             </p>
                         </group>
