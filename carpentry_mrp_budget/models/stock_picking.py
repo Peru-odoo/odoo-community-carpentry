@@ -8,9 +8,8 @@ class StockPicking(models.Model):
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'carpentry.budget.reservation.mixin']
 
-    budget_analytic_ids = fields.Many2many(
-        inverse='', # cancel from mixin: `analytic_distribution` is not writable but computed on stock_move
-    )
+    # cancel from mixin: `analytic_distribution` is not writable but computed on stock_move
+    budget_analytic_ids = fields.Many2many(inverse='')
     amount_budgetable = fields.Monetary(string='Total Cost',)
     currency_id = fields.Many2one(related='project_id.currency_id')
 
@@ -49,15 +48,20 @@ class StockPicking(models.Model):
         return mapped_price
 
     #====== Compute amount ======#
-    @api.depends('analytic_account_line_id', 'move_ids', 'move_ids.product_id')
+    @api.depends('move_ids', 'move_ids.product_id', 'move_ids.stock_valuation_layer_ids')
     def _compute_amount_budgetable(self):
         """ Picking's cost is:
             - its moves valuation when valuated
             - else, estimation via products' prices
         """
+        rg_result = self.env['stock.valuation.layer'].read_group(
+            domain=[('stock_picking_id', 'in', self.ids)],
+            fields=['value:sum'],
+            groupby=['stock_picking_id']
+        )
+        mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
         for picking in self:
-            svl_line = picking.analytic_account_line_id
-            if svl_line:
-                picking.amount_budgetable = svl_line.amount
-            else:
-                picking.amount_budgetable = sum(picking._get_total_by_analytic().values())
+            picking.amount_budgetable = mapped_svl_values.get(
+                picking._origin.id,
+                sum(picking._get_total_by_analytic().values())
+            )
