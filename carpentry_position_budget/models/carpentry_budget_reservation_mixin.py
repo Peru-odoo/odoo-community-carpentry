@@ -82,10 +82,16 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         self.readonly_affectation = True # tells the user to Save
 
+        print('=== _compute_affectation_ids ===')
+
         for order in self:
             vals_list = order._get_affectation_ids_vals_list(temp=False)
 
-            if order._has_real_affectation_matrix_changed(vals_list):
+            has_changed = order._has_real_affectation_matrix_changed(vals_list)
+            print('vals_list', vals_list)
+            print('has_changed', has_changed)
+
+            if has_changed:
                 order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
                 order._auto_update_budget_distribution() # fills in
                 order.readonly_affectation = True # some way to inform users the budget matrix was re-computed
@@ -141,7 +147,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _compute_amount_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         for purchase in self:
-            gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
+            gain = -1 * float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
             purchase.amount_gain = purchase.state != 'cancel' and gain
 
     #====== Compute/Inverse ======#
