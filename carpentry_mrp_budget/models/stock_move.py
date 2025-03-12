@@ -29,6 +29,8 @@ class StockMove(models.Model):
 
             print('new_distrib', new_distrib)
             print('new_distrib.keys()', new_distrib and new_distrib.keys())
+            print('[Command.set([int(x) for x in new_distrib.keys()])]', [Command.set([int(x) for x in new_distrib.keys()])])
 
             # synthetic: only analytic_ids (no % distribution)
             move.analytic_ids = new_distrib and [Command.set([int(x) for x in new_distrib.keys()])]
+            print('move.analytic_ids', move.analytic_ids)
