@@ -10,7 +10,7 @@ class PurchaseOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-a
+
     #====== Affectation refresh ======#
     @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_affectation_ids(self):
