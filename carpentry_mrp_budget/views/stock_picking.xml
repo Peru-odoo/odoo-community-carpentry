@@ -2,10 +2,10 @@
 <odoo>
 
     <!-- Picking Tree -->
-    <record id="purchase_order_view_tree" model="ir.ui.view">
-        <field name="name">purchase.order.view.tree.carpentry.budget</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_tree" />
+    <record id="vpicktree" model="ir.ui.view">
+        <field name="name">stock.picking.tree.carpentry.budget</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree" />
         
         <field name="arch" type="xml">
             <!-- Add `amount_gain` -->
