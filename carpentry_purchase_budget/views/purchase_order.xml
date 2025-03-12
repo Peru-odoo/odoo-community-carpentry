@@ -93,12 +93,12 @@
                             />
 
                             <p name="gain" role="alert" colspan="2"
-                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&gt;', 0.0)]}"
+                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&lt;', 0.0)]}"
                             >
                                 Recorded gain: <strong><field name="amount_gain" class="oe_inline" /></strong>.
                             </p>
                             <p name="loss" role="alert" colspan="2"
-                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&lt;', 0.0)]}"
+                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&gt;', 0.0)]}"
                             >
                                 Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
                             </p>

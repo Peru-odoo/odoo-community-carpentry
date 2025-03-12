@@ -10,7 +10,7 @@ class PurchaseOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    amount_gain = fields.Monetary(compute='_compute_gain')
+    amount_gain = fields.Monetary(compute='_compute_amount_gain')
     amount_budgetable = fields.Monetary(
         string='Budgetable Amount',
         readonly=True,
@@ -60,10 +60,10 @@ class PurchaseOrder(models.Model):
 
     #====== Compute ======#
     @api.depends('affectation_ids', 'order_line.price_total', 'order_line.product_id')
-    def _compute_gain(self):
+    def _compute_amount_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         for purchase in self:
-            gain = float_round(purchase.amount_budgetable - purchase.sum_quantity_affected, precision_digits=prec)
+            gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
             purchase.amount_gain = purchase.state != 'cancel' and gain
 
     @api.depends('order_line.price_total', 'order_line.product_id')
