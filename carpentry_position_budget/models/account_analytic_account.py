@@ -39,15 +39,15 @@ class AccountAnalyticAccount(models.Model):
             name = f'[{budget_type}] {name}'
 
             # suffix budget & clock
-            if section_res_model:
-                amount_budget = 0.0
-                for model in ['carpentry.group.launch', 'project.project']:
-                    amount_budget += remaining_budget.get((model, id_), 0.0)
-                amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
-                unit = 'h' if analytic.timesheetable else '€'
-                name += f' ({amount_str}{unit})'
-
-            name += ' 🕓' if analytic.timesheetable else ''
+            amount_budget = 0.0
+            for model in ['carpentry.group.launch', 'project.project']:
+                amount_budget += remaining_budget.get((model, id_), 0.0)
+            amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
+            clock = ''
+            if analytic.timesheetable:
+                amount_str = amount_str.replace('€', 'h')
+                clock = ' 🕓'
+            name += f'({amount_str})' + clock
 
             res_updated.append((id_, name))
         
