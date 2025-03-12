@@ -22,7 +22,7 @@ class StockPicking(models.Model):
     mrp_production_ids = fields.One2many(
         # related from procurement group
         # when modified, we link the picking to the MO's procurement group
-        inverse='_inverse_mrp_production_ids',
+        # inverse='_inverse_mrp_production_ids',
         domain="[('launch_ids', 'in', launch_ids)]"
     )
 
@@ -45,8 +45,8 @@ class StockPicking(models.Model):
         ]
 
     # !!!!!!!! TO BE TESTED !!!!!!!!
-    def _inverse_mrp_production_ids(self):
-        for picking in self:
-            mo = picking.production_ids
-            if len(mo) == 1:
-                picking.group_id = mo.procurement_group_id
+    # def _inverse_mrp_production_ids(self):
+    #     for picking in self:
+    #         mo = picking.production_ids
+    #         if len(mo) == 1:
+    #             picking.group_id = mo.procurement_group_id
