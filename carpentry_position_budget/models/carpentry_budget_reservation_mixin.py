@@ -138,7 +138,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ To be inherited """
         return
 
-    @api.depends('affectation_ids', 'order_line.price_total', 'order_line.product_id')
+    @api.depends('affectation_ids')
     def _compute_amount_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         for purchase in self:

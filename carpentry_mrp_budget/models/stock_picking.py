@@ -65,3 +65,7 @@ class StockPicking(models.Model):
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())
             )
+
+    @api.depends('move_ids', 'move_ids.product_id', 'move_ids.stock_valuation_layer_ids')
+    def _compute_amount_gain(self):
+        return super()._compute_amount_gain()

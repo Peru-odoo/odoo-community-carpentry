@@ -74,3 +74,7 @@ class PurchaseOrder(models.Model):
             # update automatic budget reservation
             if order.amount_budgetable != order._origin.amount_budgetable:
                 order._compute_budget_analytic_ids()
+
+    @api.depends('order_line.price_total', 'order_line.product_id')
+    def _compute_amount_gain(self):
+        return super()._compute_amount_gain()
