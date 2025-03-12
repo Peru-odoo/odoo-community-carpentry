@@ -37,7 +37,7 @@ class StockPicking(models.Model):
             print('project_budgets', project_budgets)
             print('picking', picking)
             print('picking.move_ids', picking.move_ids)
-            print('picking.move_ids.analytic_ids', picking.move_ids.analytic_ids)
+            print('picking.move_ids.read()', picking.move_ids.read(['analytic_ids']))
             print('picking.move_ids.analytic_ids._origin', picking.move_ids.analytic_ids._origin)
             print('picking.move_ids.analytic_ids._origin.filtered', picking.move_ids.analytic_ids._origin.filtered('is_project_budget'))
             picking.budget_analytic_ids = picking.move_ids.analytic_ids._origin.filtered('is_project_budget') & project_budgets
