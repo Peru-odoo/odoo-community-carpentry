@@ -25,7 +25,7 @@ class AccountAnalyticAccount(models.Model):
         analytics = self.browse(list(dict(res).keys()))
         section_res_model, section_id = self._context.get('section_res_model'), self._context.get('section_id')
         remaining_budget = {}
-        if section_res_model, section_id:
+        if section_res_model and section_id:
             section = self.env[section_res_model].sudo().browse(section_id)
             remaining_budget = analytics._get_remaining_budget(section.launch_ids, section)
         
