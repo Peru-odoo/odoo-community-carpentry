@@ -269,13 +269,7 @@ class CarpentryGroupAffectation(models.Model):
             return
 
         # get siblings
-        domain = [
-            # on the same matrix
-            ('group_model_id', 'in', self.group_model_id.ids),
-            ('record_model_id', 'in', self.record_model_id.ids),
-            # on the same line
-            ('record_id', 'in', self.mapped('record_id'))
-        ]
+        domain = self._get_domain_siblings()
         if is_temp:
             domain += [('affected', '=', True)]
         rg_result = self.env[self._name].read_group(
@@ -298,6 +292,15 @@ class CarpentryGroupAffectation(models.Model):
                 raise exceptions.ValidationError(
                     _('One line cannot be affected to several columns (%s).', affectation.display_name)
                 )
+    
+    def _get_domain_siblings(self):
+        return [
+            # on the same matrix
+            ('group_model_id', 'in', self.group_model_id.ids),
+            ('record_model_id', 'in', self.record_model_id.ids),
+            # on the same line
+            ('record_id', 'in', self.mapped('record_id'))
+        ]
 
     #===== Quantities & M2o: constrain & compute =====#
     @api.onchange('quantity_affected')
@@ -320,8 +323,8 @@ class CarpentryGroupAffectation(models.Model):
                 raise exceptions.ValidationError(_(
                     "The affected quantity is higher than the one available in the project:\n"
                     "- Records: '%s' and '%s'\n"
-                    "- Available: %s\n"
-                    "- Affected: %s\n"
+                    "- Available quantity: %s\n"
+                    "- Affected quantity: %s\n"
                     "- Remaining: %s",
                     affectation.record_ref.name,
                     affectation.group_ref.name,
@@ -349,12 +352,15 @@ class CarpentryGroupAffectation(models.Model):
     def _compute_quantity_remaining_to_affect(self):
         """ Compute remaining qty to affect for phases affectation, i.e. where
             `record_id` is a `carpentry.position`. This is needed for constrain
-            on remaining_qty>0 and good real-time display of remaining_qty
+            on remaining_qty>0
+            
+            Note: we cannot use `search()` because we need real-time display of remaining_qty
+            (2 affectation can be modified in `x2m_2d_matrix`)
         """
         for affectation in self:
             sum_affected_siblings = 0
             if affectation.record_ref:
-                domain = [('record_res_model', '=', affectation.record_res_model)] # similar affectations (needed for project, not to confuse budget with positions)
+                domain = affectation._get_domain_siblings()
                 sibling_ids = affectation._origin.record_ref.affectation_ids.filtered_domain(domain) - affectation._origin
                 sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
             

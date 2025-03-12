@@ -11,3 +11,5 @@ class CarpentryGroupAffectation(models.Model):
             ('purchase.order', 'Purchase Order')
         ]
     
+    def _get_budget_section_res_model(self):
+        return self._get_budget_section_res_model() + ['purchase.order']
