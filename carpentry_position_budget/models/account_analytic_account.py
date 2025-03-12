@@ -24,11 +24,13 @@ class AccountAnalyticAccount(models.Model):
 
         analytics = self.browse(list(dict(res).keys()))
         section_res_model = self._context.get('section_res_model')
-        launch_ids, section_id = self._context.get('launch_ids'), self._context.get('section_id')
-        remaining_budget = analytics._get_remaining_budget(
-            launchs=self.env['carpentry.group.launch'].browse(launch_ids),
-            section=self.env[section_res_model].sudo().browse(section_id)
-        )
+        remaining_budget = {}
+        if section_res_model:
+            launch_ids, section_id = self._context.get('launch_ids'), self._context.get('section_id')
+            remaining_budget = analytics._get_remaining_budget(
+                launchs=self.env['carpentry.group.launch'].browse(launch_ids),
+                section=self.env[section_res_model].sudo().browse(section_id)
+            )
         
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
         res_updated = []
