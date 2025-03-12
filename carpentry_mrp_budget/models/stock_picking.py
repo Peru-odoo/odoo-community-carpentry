@@ -32,6 +32,9 @@ class StockPicking(models.Model):
     def _compute_budget_analytic_ids(self):
         """ Picking budgets are from moves' analytic distribution """
         print('=== _compute_budget_analytic_ids ===')
+        self.flush_recordset()
+        self.picking_ids.flush_recordset()
+        self.picking_ids.analytic_ids.flush_recordset()
         for picking in self:
             project_budgets = picking.project_id._origin.budget_line_ids.analytic_account_id
             print('project_budgets', project_budgets)
