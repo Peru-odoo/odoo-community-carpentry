@@ -320,8 +320,8 @@ class CarpentryGroupAffectation(models.Model):
                 raise exceptions.ValidationError(_(
                     "The affected quantity is higher than the one available in the project:\n"
                     "- Records: '%s' and '%s'\n"
-                    "- Available quantity: %s\n"
-                    "- Affected quantity: %s\n"
+                    "- Available: %s\n"
+                    "- Affected: %s\n"
                     "- Remaining: %s",
                     affectation.record_ref.name,
                     affectation.group_ref.name,
