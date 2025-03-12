@@ -70,7 +70,13 @@ class StockPicking(models.Model):
             groupby=['stock_picking_id']
         )
         mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
+        print('mapped_svl_values', mapped_svl_values)
         for picking in self:
+            print('picking.id', picking.id)
+            print('picking._origin.id', picking._origin.id)
+            print('mapped_svl_values.get()', mapped_svl_values.get(picking._origin.id))
+            print('picking._get_total_by_analytic().values()', picking._get_total_by_analytic().values())
+            print('sum()', sum(picking._get_total_by_analytic().values()))
             picking.amount_budgetable = mapped_svl_values.get(
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())
