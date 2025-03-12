@@ -36,7 +36,7 @@
                             <field name="budget_analytic_ids"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
-                                context="{'analytic_display_budget_type': 1}"
+                                context="{'analytic_display_budget': 1}"
                                 domain="[('budget_type', 'in', ['production', 'installation'])]"
                             />
                         </group>

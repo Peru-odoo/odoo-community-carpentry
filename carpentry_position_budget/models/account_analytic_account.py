@@ -2,6 +2,7 @@
 
 from odoo import api, fields, models, _
 from odoo.osv import expression
+from odoo.tools.misc import format_amount
 
 class AccountAnalyticAccount(models.Model):
     _inherit = ['account.analytic.account']
@@ -13,18 +14,44 @@ class AccountAnalyticAccount(models.Model):
 
     #===== Fields methods =====#
     def name_get(self):
-        """ Add Budget Type in suffix """
+        """ Add:
+            - prefix: [Budget Type] ...
+            - suffix: ... remaining budget 0,00€
+        """
         res = super().name_get()
-        if self._context.get('analytic_display_budget_type'):
-            budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
-            res_updated = []
-            for id_, name in res:
-                analytic = self.browse(id_)
-                budget_type = _(budget_type_selection.get(analytic.budget_type))
-                name += ' 🕓' if analytic.timesheetable else ''
-                res_updated.append((id_, f'[{budget_type}] {name}'))
-        else:
-            res_updated = res
+        if not self._context.get('analytic_display_budget'):
+            return res
+
+        analytics = self.browse(list(dict(res).keys()))
+        launch_ids, order_id = self._context.get('launch_ids'), self._context.get('order_id')
+        remaining_budget = analytics._get_remaining_budget(
+            launchs=self.env['carpentry.group.launch'].browse(launch_ids),
+            section=self.env['purchase.order'].sudo().browse(order_id)
+        )
+        
+        budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
+        res_updated = []
+        for id_, name in res:
+            analytic = analytics.browse(id_)
+
+            # prefix [Budget Type]
+            budget_type = _(budget_type_selection.get(analytic.budget_type))
+            name = f'[{budget_type}] {name}'
+
+            # suffix budget & clock
+            amount_budget = 0.0
+            for model in ['carpentry.group.launch', 'project.project']:
+                amount_budget += remaining_budget.get((model, id_), 0.0)
+            amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
+            if analytic.timesheetable:
+                unit = 'h'
+                clock = ' 🕓'
+            else:
+                unit = '€'
+                clock = ''
+            name += f' ({amount_budget}{unit})' + clock
+
+            res_updated.append((id_, name))
         
         return res_updated
 
@@ -54,12 +81,12 @@ class AccountAnalyticAccount(models.Model):
     
     #===== Native ORM methods =====#
     def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
-        if self._context.get('analytic_display_budget_type'):
+        if self._context.get('analytic_display_budget'):
             order = 'budget_type, name'
         return super()._search(domain, offset, limit, order, count, access_rights_uid)
 
     #==== Affectation matrix =====#
-    def _get_quantities_available(self, affectations):
+    def _get_quantities_available(self, affectations=None, section=None, launchs=None):
         """ Available budget on budget matrix depends on:
             - the Project or Launch (affectation.record_ref) *and*
             - the Budget type (affectation.group_ref) *and*
