@@ -3,6 +3,7 @@
 from odoo import api, fields, models, _
 from odoo.osv import expression
 from odoo.tools.misc import format_amount
+from collections import defaultdict
 
 class AccountAnalyticAccount(models.Model):
     _inherit = ['account.analytic.account']
@@ -27,7 +28,7 @@ class AccountAnalyticAccount(models.Model):
         remaining_budget = {}
         if section_res_model and section_id:
             section = self.env[section_res_model].sudo().browse(section_id)
-            remaining_budget = analytics._get_remaining_budget(section.launch_ids, section)
+            remaining_budget = analytics._get_remaining_budget_groupped(section.launch_ids, section)
         
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
         res_updated = []
@@ -39,10 +40,8 @@ class AccountAnalyticAccount(models.Model):
             name = f'[{budget_type}] {name}'
 
             # suffix budget & clock
-            amount_budget = 0.0
-            for model in ['carpentry.group.launch', 'project.project']:
-                amount_budget += remaining_budget.get((model, id_), 0.0)
-            amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
+            amount_remaining = remaining_budget.get(id_, 0.0)
+            amount_str = format_amount(self.env, amount_remaining, analytic.currency_id)
             clock = ''
             if analytic.timesheetable:
                 amount_str = amount_str.replace('€', 'h')
@@ -95,6 +94,15 @@ class AccountAnalyticAccount(models.Model):
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
         remaining_budget = self._get_remaining_budget(launchs, section)
         return remaining_budget
+
+    def _get_remaining_budget_groupped(self, launchs, section=None, mode=None):
+        """ Group remaining budget by `analytic`, according to a context of `launchs` & `section` """
+        remaining_budget = self._get_remaining_budget(launchs, section, mode)
+        groupped_data = defaultdict(float)
+        for key in remaining_budget:
+            _, _, analytic_id = key
+            groupped_data[analytic_id] += remaining_budget[key]
+        return groupped_data
 
     def _get_remaining_budget(self, launchs, section=None, mode=None):
         """ Calculate [Initial Budget] - [Reservation], per launch & analytic
