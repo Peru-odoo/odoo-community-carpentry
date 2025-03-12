@@ -29,10 +29,20 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         inverse='_inverse_budget_analytic_ids',
         domain="[('budget_project_ids', '=', project_id)]"
     )
+    amount_budgetable = fields.Monetary(
+        string='Budgetable Amount',
+        compute='_compute_amount_budgetable',
+        help="Cost amount imputed on the project."
+             " Gain = 'Amount of reserved budget' - this amount"
+    )
     sum_quantity_affected = fields.Float(
         store=True, # to search on Budget Reservation amount on Purchase Orders
         string='Amount of reserved budget',
         help='Sum of budget reservation'
+    )
+    amount_gain = fields.Monetary(
+        # gain = sum_quantity_affected - amount_budgetable  
+        compute='_compute_amount_gain'
     )
 
     #===== CRUD =====#
@@ -66,6 +76,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             - (un)selecting launches
             - (un)selecting budget analytic in order lines
         """
+        self.readonly_affectation = True # tells the user to Save
+
         for order in self:
             vals_list = order._get_affectation_ids_vals_list(temp=False)
 
@@ -94,12 +106,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             'section_id': self._origin.id,
             'seq_section': calendar.timegm(self._origin.create_date.timetuple()),
         }
-    
-    @api.depends('affectation_ids.quantity_affected')
-    def _compute_sum_quantity_affected(self):
-        """ [Overwritte] PO needs real-time computing => no read_group """
-        for record in self:
-            record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
 
     def _get_domain_affect(self):
         return [
@@ -116,6 +122,23 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             ' (in "Products" page).'
         ))
     
+    #===== Compute amounts =====#
+    @api.depends('affectation_ids.quantity_affected')
+    def _compute_sum_quantity_affected(self):
+        """ [Overwritte] PO needs real-time computing => no read_group """
+        for record in self:
+            record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
+    
+    def _compute_amount_budgetable(self):
+        """ To be inherited """
+        return
+
+    @api.depends('affectation_ids', 'order_line.price_total', 'order_line.product_id')
+    def _compute_amount_gain(self):
+        prec = self.env['decimal.precision'].precision_get('Product Price')
+        for purchase in self:
+            gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
+            purchase.amount_gain = purchase.state != 'cancel' and gain
 
     #====== Compute/Inverse ======#
     def _inverse_budget_analytic_ids(self):

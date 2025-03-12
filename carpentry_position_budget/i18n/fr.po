@@ -86,7 +86,7 @@ msgstr "Toutes les colonnes, sauf celles listées"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
 msgid "Amount of reserved budget"
-msgstr "Nombre de repères"
+msgstr "Montant budget réservé"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_account_analytic_account

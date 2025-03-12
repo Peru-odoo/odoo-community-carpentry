@@ -46,7 +46,7 @@ class AccountAnalyticAccount(models.Model):
             if analytic.timesheetable:
                 amount_str = amount_str.replace('€', 'h')
                 clock = ' 🕓'
-            name += f'({amount_str})' + clock
+            name += f' ({amount_str})' + clock
 
             res_updated.append((id_, name))
         

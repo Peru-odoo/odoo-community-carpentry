@@ -11,11 +11,13 @@ class StockPicking(models.Model):
     budget_analytic_ids = fields.Many2many(
         inverse='', # cancel from mixin: `analytic_distribution` is not writable but computed on stock_move
     )
+    amount_budgetable = fields.Monetary(
+        string='Total Cost',
+    )
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_affectation_ids(self):
-        """ Update budget reservation matrix when updating stock reservation & workorders """
-        self.readonly_affectation = True # tells the user to Save
+        """ Inherite to add fields in @api.depends """
         return super()._compute_affectation_ids()
 
     @api.depends('move_ids', 'move_ids.product_id')
@@ -46,3 +48,17 @@ class StockPicking(models.Model):
                     mapped_price[analytic_id] += qty * move._get_price_unit() * percentage / 100
         
         return mapped_price
+
+    #====== Compute amount ======#
+    @api.depends('analytic_account_line_id', 'move_ids', 'move_ids.product_id')
+    def _compute_amount_budgetable(self):
+        """ Picking's cost is:
+            - its moves valuation when valuated
+            - else, estimation via products' prices
+        """
+        for picking in self:
+            svl_line = picking.analytic_account_line_id
+            if svl_line:
+                picking.amount_budgetable = svl_line.amount
+            else:
+                picking.amount_budgetable = sum(picking._get_total_by_analytic().values())

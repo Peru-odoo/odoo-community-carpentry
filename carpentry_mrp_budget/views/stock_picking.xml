@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
+    <!-- Picking Tree -->
+    <record id="purchase_order_view_tree" model="ir.ui.view">
+        <field name="name">purchase.order.view.tree.carpentry.budget</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="carpentry_purchase.purchase_order_view_tree" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `amount_gain` -->
+            <field name="amount_untaxed" position="before">
+                <field name="amount_gain" invisible="1" />
+
+                <field name="amount_budgetable" optional="hide" />
+                <field name="sum_quantity_affected" optional="hide"
+                    decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
+                />
+            </field>
+        </field>
+    </record>
+
     <!-- Picking Form -->
     <record id="view_picking_form" model="ir.ui.view">
         <field name="name">stock.picking.form.carpentry_mrp_budget</field>
@@ -8,6 +27,23 @@
         <field name="inherit_id" ref="mrp_project_link.view_picking_form" />
         
         <field name="arch" type="xml">
+
+            <!-- Budget info banner -->
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <field name="amount_budgetable" invisible="1" />
+                <field name="amount_gain" invisible="1" />
+
+                <div name="alert_banner" role="alert" class="alert alert-info"
+                    attrs="{'invisible': [('amount_gain', '=', 0.0)]}"
+                >
+                    <span class="fa fa-info-circle" />
+                    The budget reservation
+                    (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>)
+                    differs from the cost affected to the project
+                    (<strong><field name="amount_budgetable" /></strong>).
+                    If this is not on purpose, review the "Budget reservation" tab.
+                </div>
+            </xpath>
         
             <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
             <xpath expr="//field[@name='move_ids_without_package']//tree" position="inside">
@@ -19,29 +55,32 @@
                 />
             </xpath>
 
+            <!-- Add `Budget` notebook tab -->
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation">
+                <page name="budget" string="Budget reservation" attrs="{'invisible': [('state', '=', 'cancel')]}">
                     <field name="readonly_affectation" invisible="1" />
-                    <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
+                    <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"
                     >
+                        <span class="fa fa-floppy-o" />
                         Please save before continuing.
-                    </div>
-
-                    <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
-                        attrs="{'invisible': [('affectation_ids', '!=', [])]}"
-                    >
-                        Please select launche(s) for placing a reservation and ensure the "Operations" tab contains at least
-                        1 product with an automated analytic distribution.
                     </div>
 
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
-                        <group name="left" colspan="3" string="Choose budgets">
+                        <group name="left" colspan="5" string="Choose budgets">
+                            <div name="nobudget_banner" role="alert" colspan="2" class="alert alert-warning"
+                                attrs="{'invisible': [('amount_budgetable', '!=', 0)]}"
+                            >
+                                Please select launche(s) for placing a reservation and ensure the "Operations" tab contains at least
+                                1 product with an automated analytic distribution.
+                            </div>
+
                             <field name="budget_analytic_ids"
-                                nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
+                                nolabel="1" colspan="2"
+                                attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'stock.picking',
@@ -53,6 +92,30 @@
                         
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve budget">
+                            <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
+                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
+                            >
+                                Please select budget(s) and possibly launch(es) for placing a reservation.
+                            </div>
+
+                            <p colspan="2"
+                                attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
+                            >
+                                Total expense amount affected to the project:
+                                <strong><field name="amount_budgetable" class="oe_inline" /></strong>.
+                            </p>
+
+                            <p name="gain" role="alert" colspan="2"
+                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&lt;=', 0.0)]}"
+                            >
+                                Recorded gain: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                            </p>
+                            <p name="loss" role="alert" colspan="2"
+                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&gt;=', 0.0)]}"
+                            >
+                                Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                            </p>
+                            
                             <field name="affectation_ids"
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}" widget="one2many"
