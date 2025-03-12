@@ -9,7 +9,8 @@
         <field name="arch" type="xml">
             <!-- Add `Description` & `Project` -->
             <field name="amount_untaxed" position="before">
-                <field name="amount_budgetable" invisible="1" />
+                <field name="gain" invisible="1" />
+
                 <field name="sum_quantity_affected" optional="hide"
                     decoration-success="gain &gt; 0" decoration-danger="gain &lt; 0"
                 />
@@ -38,7 +39,7 @@
                     (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>)
                     differs from the cost affected to the project
                     (<strong><field name="amount_budgetable" /></strong>).
-                    You might need to review "Budget reservation" tab except if this is on purpose.
+                    If this is not on purpose, review the "Budget reservation" tab.
                 </div>
             </field>
 
