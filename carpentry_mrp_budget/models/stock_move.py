@@ -7,7 +7,7 @@ class StockMove(models.Model):
     _inherit = ['stock.move', 'analytic.mixin']
 
     analytic_distribution = fields.Json(store=False)
-    analytic_ids = fields.Many2many(
+    analytic_ids = fields.One2many(
         comodel_name='account.analytic.account',
         compute='_compute_analytic_distribution',
         string='Analytic Accounts'
