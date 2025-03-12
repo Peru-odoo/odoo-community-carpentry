@@ -9,7 +9,7 @@
         
         <field name="arch" type="xml">
             <!-- Add `amount_gain` -->
-            <field name="amount_untaxed" position="before">
+            <field name="state" position="before">
                 <field name="amount_gain" invisible="1" />
 
                 <field name="amount_budgetable" optional="hide" />
