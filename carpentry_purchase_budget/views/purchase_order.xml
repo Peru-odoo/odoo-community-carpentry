@@ -71,7 +71,6 @@
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'purchase.order',
                                     'section_id': id,
-                                    'launch_ids': launch_ids.ids
                                 }"
                                 domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
                             />
