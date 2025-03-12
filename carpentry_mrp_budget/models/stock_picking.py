@@ -46,7 +46,7 @@ class StockPicking(models.Model):
         for move in self.move_ids:
             if not move.analytic_distribution:
                 continue
-            
+            # TODO : {} si pas sortant
             for analytic_id, percentage in move.analytic_distribution.items():
                 analytic_id = int(analytic_id)
 

@@ -94,7 +94,7 @@
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
                                 attrs="{'invisible': [('affectation_ids', '!=', [])]}"
                             >
-                                Please launch(es) for placing a reservation.
+                                Please select launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"
