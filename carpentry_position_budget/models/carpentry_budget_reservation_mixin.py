@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _
 from collections import defaultdict
+from odoo.tools import float_round
 import calendar
 
 class CarpentryBudgetReservationMixin(models.AbstractModel):
@@ -47,7 +48,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     currency_id = fields.Many2one(
         comodel_name='res.currency',
         string='Currency',
-        default=lambda self: self.env.user.company_id.currency_id
     )
 
     #===== CRUD =====#

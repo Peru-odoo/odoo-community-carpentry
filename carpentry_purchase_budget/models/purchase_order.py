@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from collections import defaultdict
-from odoo.tools import float_round
 
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
