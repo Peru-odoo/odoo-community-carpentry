@@ -117,8 +117,11 @@ class AccountAnalyticAccount(models.Model):
             :return: Dict like:
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
+        print('===== _get_remaining_budget =====')
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
+        print('reserved', reserved)
+        print('brut, valued', brut, valued)
 
         domain = [('timesheetable', '=', True)]
         timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids

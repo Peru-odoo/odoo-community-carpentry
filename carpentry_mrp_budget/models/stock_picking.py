@@ -44,7 +44,6 @@ class StockPicking(models.Model):
         mapped_price = defaultdict(float)
 
         for move in self.move_ids:
-            print('move', move.read(['product_id', 'analytic_distribution']))
             if not move.analytic_distribution:
                 continue
             # TODO : {} si pas sortant
@@ -53,7 +52,6 @@ class StockPicking(models.Model):
 
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(move.project_id.id, []):
-                    print('move._get_price_unit()', move._get_price_unit())
                     qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
                     mapped_price[analytic_id] += qty * move._get_price_unit() * percentage / 100
         
@@ -72,13 +70,7 @@ class StockPicking(models.Model):
             groupby=['stock_picking_id']
         )
         mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
-        print('mapped_svl_values', mapped_svl_values)
         for picking in self:
-            print('picking.id', picking.id)
-            print('picking._origin.id', picking._origin.id)
-            print('mapped_svl_values.get()', mapped_svl_values.get(picking._origin.id))
-            print('picking._get_total_by_analytic().values()', picking._get_total_by_analytic().values())
-            print('sum()', sum(picking._get_total_by_analytic().values()))
             picking.amount_budgetable = mapped_svl_values.get(
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())
