@@ -92,11 +92,15 @@
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
 
-                            <p colspan="2" attrs="{'invisible': [('amount_gain', '=', 0.0)]}">
-                                Recorded gain or loss:
-                                <strong decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &gt; 0">
-                                    <field name="amount_gain" class="oe_inline" />
-                                </strong>.
+                            <p name="gain" role="alert" colspan="2"
+                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&gt;', 0.0)]}"
+                            >
+                                Recorded gain: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                            </p>
+                            <p name="loss" role="alert" colspan="2"
+                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&lt;', 0.0)]}"
+                            >
+                                Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
                             </p>
                         </group>
                     </group>
