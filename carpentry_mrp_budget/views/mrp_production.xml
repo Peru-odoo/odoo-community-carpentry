@@ -41,7 +41,10 @@
                                     'section_res_model': 'mrp.production',
                                     'section_id': id,
                                 }"
-                                domain="[('budget_type', 'in', ['production', 'installation'])]"
+                                domain="[
+                                    ('budget_project_ids', '=', project_id),
+                                    ('budget_type', 'in', ['production', 'installation']
+                                )]"
                             />
                         </group>
                         

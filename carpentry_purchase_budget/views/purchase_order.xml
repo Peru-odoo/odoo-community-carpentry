@@ -72,7 +72,10 @@
                                     'section_res_model': 'purchase.order',
                                     'section_id': id,
                                 }"
-                                domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
+                                domain="[
+                                    ('budget_project_ids', '=', project_id),
+                                    ('budget_type', 'in', ['goods', 'project_global_cost']
+                                )]"
                             />
                         </group>
                         

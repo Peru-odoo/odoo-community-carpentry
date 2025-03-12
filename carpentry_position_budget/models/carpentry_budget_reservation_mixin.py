@@ -28,7 +28,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         string='Budgets',
         compute='_compute_budget_analytic_ids',
         inverse='_inverse_budget_analytic_ids',
-        domain="[('budget_project_ids', '=', project_id)]"
     )
     amount_budgetable = fields.Monetary(
         string='Budgetable Amount',
