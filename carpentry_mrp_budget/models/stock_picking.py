@@ -44,6 +44,7 @@ class StockPicking(models.Model):
         mapped_price = defaultdict(float)
 
         for move in self.move_ids:
+            print('move', move.read(['product_id', 'analytic_distribution']))
             if not move.analytic_distribution:
                 continue
             # TODO : {} si pas sortant
