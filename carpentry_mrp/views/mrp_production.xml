@@ -58,7 +58,7 @@
 
             <!-- Launches -->
             <field name="project_id" position="after">
-                <field name="launch_ids" optional="hide" widget="many2many_tags" />
+                <field name="launch_ids" widget="many2many_tags" context="{'default_project_id': project_id}" />
             </field>
 
             <page name="components" position="after">

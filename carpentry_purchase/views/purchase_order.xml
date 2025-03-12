@@ -58,7 +58,7 @@
                     'readonly': [('state', '!=', 'draft')],
                     'required': [(1, '=', 1)]
                 }" />
-                <field name="launch_ids" widget="many2many_tags" />
+                <field name="launch_ids" widget="many2many_tags" context="{'default_project_id': project_id}" />
             </field>
             
             <div class="oe_title" position="before">
