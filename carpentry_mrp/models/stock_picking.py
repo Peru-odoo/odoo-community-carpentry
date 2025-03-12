@@ -34,8 +34,8 @@ class StockPicking(models.Model):
             mo = picking.mrp_production_ids
 
             # picking.launch_ids = po.launch_ids | mo.launch_ids
-            # if po or len(mo) == 1:
-            #     picking.description = po.description if po else mo.description
+            if po or len(mo) == 1:
+                picking.description = po.description if po else mo.description
 
     @api.model
     def _search_launch_ids(self, operator, value):
