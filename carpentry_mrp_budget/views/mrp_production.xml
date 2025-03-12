@@ -40,7 +40,7 @@
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'mrp.production',
                                     'section_id': id,
-                                    'launch_ids': launch_ids
+                                    'launch_ids': launch_ids.ids
                                 }"
                                 domain="[('budget_type', 'in', ['production', 'installation'])]"
                             />
