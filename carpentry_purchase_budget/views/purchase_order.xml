@@ -32,7 +32,7 @@
                 <field name="amount_gain" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': [('amount_gain', '=', False)]}"
+                    attrs="{'invisible': [('amount_gain', '=', 0.0)]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
@@ -92,7 +92,7 @@
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
 
-                            <p colspan="2" attrs="{'invisible': [('amount_gain', '=', False)]}">
+                            <p colspan="2" attrs="{'invisible': [('amount_gain', '=', 0.0)]}">
                                 Recorded gain or loss:
                                 <strong decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &gt; 0">
                                     <field name="amount_gain" class="oe_inline" />
