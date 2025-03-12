@@ -67,7 +67,12 @@
                                 widget="many2many_checkboxes"
                                 nolabel="1" colspan="2"
                                 attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
-                                context="{'analytic_display_budget': 1}"
+                                context="{
+                                    'analytic_display_budget': 1,
+                                    'section_res_model': 'purchase.order',
+                                    'section_id': id,
+                                    'launch_ids': launch_ids
+                                }"
                                 domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
                             />
                         </group>

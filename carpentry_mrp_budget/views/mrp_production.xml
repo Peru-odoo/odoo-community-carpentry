@@ -36,7 +36,12 @@
                             <field name="budget_analytic_ids"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
-                                context="{'analytic_display_budget': 1}"
+                                context="{
+                                    'analytic_display_budget': 1,
+                                    'section_res_model': 'mrp.production',
+                                    'section_id': id,
+                                    'launch_ids': launch_ids
+                                }"
                                 domain="[('budget_type', 'in', ['production', 'installation'])]"
                             />
                         </group>

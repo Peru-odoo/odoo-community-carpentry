@@ -23,10 +23,11 @@ class AccountAnalyticAccount(models.Model):
             return res
 
         analytics = self.browse(list(dict(res).keys()))
-        launch_ids, order_id = self._context.get('launch_ids'), self._context.get('order_id')
+        section_res_model = self._context.get('section_res_model')
+        launch_ids, section_id = self._context.get('launch_ids'), self._context.get('section_id')
         remaining_budget = analytics._get_remaining_budget(
             launchs=self.env['carpentry.group.launch'].browse(launch_ids),
-            section=self.env['purchase.order'].sudo().browse(order_id)
+            section=self.env[section_res_model].sudo().browse(section_id)
         )
         
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
@@ -39,17 +40,15 @@ class AccountAnalyticAccount(models.Model):
             name = f'[{budget_type}] {name}'
 
             # suffix budget & clock
-            amount_budget = 0.0
-            for model in ['carpentry.group.launch', 'project.project']:
-                amount_budget += remaining_budget.get((model, id_), 0.0)
-            amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
-            if analytic.timesheetable:
-                unit = 'h'
-                clock = ' 🕓'
-            else:
-                unit = '€'
-                clock = ''
-            name += f' ({amount_budget}{unit})' + clock
+            if section_res_model:
+                amount_budget = 0.0
+                for model in ['carpentry.group.launch', 'project.project']:
+                    amount_budget += remaining_budget.get((model, id_), 0.0)
+                amount_str = format_amount(self.env, amount_budget, analytic.currency_id)
+                unit = 'h' if analytic.timesheetable else '€'
+                name += f' ({amount_str}{unit})'
+
+            name += ' 🕓' if analytic.timesheetable else ''
 
             res_updated.append((id_, name))
         
