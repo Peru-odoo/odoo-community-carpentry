@@ -27,8 +27,10 @@ class AccountAnalyticAccount(models.Model):
         remaining_budget = {}
         if section_res_model:
             launch_ids, section_id = self._context.get('launch_ids'), self._context.get('section_id')
+            print('launch_ids', launch_ids, self.env['carpentry.group.launch'].sudo().browse(launch_ids))
+            print('section_id', section_id, self.env[section_res_model].sudo().browse(section_id))
             remaining_budget = analytics._get_remaining_budget(
-                launchs=self.env['carpentry.group.launch'].browse(launch_ids),
+                launchs=self.env['carpentry.group.launch'].sudo().browse(launch_ids),
                 section=self.env[section_res_model].sudo().browse(section_id)
             )
         
