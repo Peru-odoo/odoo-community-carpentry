@@ -12,7 +12,7 @@
                 <field name="amount_gain" invisible="1" />
 
                 <field name="sum_quantity_affected" optional="hide"
-                    decoration-success="gain &gt; 0" decoration-danger="gain &lt; 0"
+                    decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
                 />
             </field>
         </field>
@@ -32,7 +32,7 @@
                 <field name="amount_gain" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': [('gain', '=', False)]}"
+                    attrs="{'invisible': [('amount_gain', '=', False)]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
@@ -92,9 +92,9 @@
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
 
-                            <p colspan="2" attrs="{'invisible': [('gain', '=', False)]}">
+                            <p colspan="2" attrs="{'invisible': [('amount_gain', '=', False)]}">
                                 Recorded gain or loss:
-                                <strong decoration-success="gain &gt; 0" decoration-danger="gain &gt; 0">
+                                <strong decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &gt; 0">
                                     <field name="amount_gain" class="oe_inline" />
                                 </strong>.
                             </p>
