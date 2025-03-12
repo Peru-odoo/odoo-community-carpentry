@@ -85,7 +85,6 @@
                                     'section_res_model': 'stock.picking',
                                     'section_id': id,
                                 }"
-                                domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
                             />
                         </group>
                         
