@@ -11,9 +11,8 @@ class StockPicking(models.Model):
     budget_analytic_ids = fields.Many2many(
         inverse='', # cancel from mixin: `analytic_distribution` is not writable but computed on stock_move
     )
-    amount_budgetable = fields.Monetary(
-        string='Total Cost',
-    )
+    amount_budgetable = fields.Monetary(string='Total Cost',)
+    currency_id = fields.Many2one(related='project_id.currency_id')
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_affectation_ids(self):

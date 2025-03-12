@@ -44,6 +44,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         # gain = sum_quantity_affected - amount_budgetable  
         compute='_compute_amount_gain'
     )
+    currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Currency',
+        default=lambda self: self.env.user.company_id.currency_id
+    )
 
     #===== CRUD =====#
     @api.model_create_multi
