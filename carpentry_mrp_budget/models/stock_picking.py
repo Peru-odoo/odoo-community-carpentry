@@ -8,14 +8,24 @@ class StockPicking(models.Model):
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'carpentry.budget.reservation.mixin']
 
-    # cancel from mixin: `analytic_distribution` is not writable but computed on stock_move
-    budget_analytic_ids = fields.Many2many(inverse='')
-    amount_budgetable = fields.Monetary(string='Total Cost',)
+    #====== Fields ======#
+    affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    budget_analytic_ids = fields.Many2many(
+        relation='carpentry_group_affectation_budget_picking_analytic_rel',
+        column1='picking_id',
+        column2='analytic_id',
+        inverse='', # cancel from mixin
+        store=True,
+        readonly=False,
+    )
+    amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
 
-    @api.depends('move_ids', 'move_ids.product_id')
+    @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
-        """ Inherite to add fields in @api.depends """
+        """ Update budget reservation matrix on
+            manual update of `budget_analytic_ids`
+        """
         return super()._compute_affectation_ids()
 
     @api.depends('move_ids', 'move_ids.product_id')

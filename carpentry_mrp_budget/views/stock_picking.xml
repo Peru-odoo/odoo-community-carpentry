@@ -73,8 +73,7 @@
                             <div name="nobudget_banner" role="alert" colspan="2" class="alert alert-warning"
                                 attrs="{'invisible': [('amount_budgetable', '!=', 0)]}"
                             >
-                                Please select launche(s) for placing a reservation and ensure the "Operations" tab contains at least
-                                1 product with an automated analytic distribution.
+                                Please ensure the "Operations" tab contains at least one product move (with a price) before placing a reservation.
                             </div>
 
                             <field name="budget_analytic_ids"
@@ -95,7 +94,7 @@
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
                                 attrs="{'invisible': [('affectation_ids', '!=', [])]}"
                             >
-                                Please select budget(s) and possibly launch(es) for placing a reservation.
+                                Please launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"

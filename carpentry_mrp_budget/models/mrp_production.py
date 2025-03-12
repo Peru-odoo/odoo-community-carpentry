@@ -1,48 +1,47 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-from odoo.tools import float_compare
 from collections import defaultdict
 
 class ManufacturingOrder(models.Model):
+    """ Budget Reservation on MOs """
     _name = 'mrp.production'
     _inherit = ['mrp.production', 'carpentry.budget.reservation.mixin']
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     budget_analytic_ids = fields.Many2many(
-        comodel_name='account.analytic.account',
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
         column1='production_id',
         column2='analytic_id',
-        string='Budgets',
-        compute='_compute_budget_analytic_ids',
         inverse='', # cancel from mixin
-        domain="[('budget_project_ids', '=', project_id)]",
         store=True,
-        readonly=False
+        readonly=False,
     )
+    amount_budgetable = fields.Monetary(string='Total Cost')
+    currency_id = fields.Many2one(related='project_id.currency_id')
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
-        """ Update budget reservation matrix when:
-            - updating stock reservation, workorders (auto)
-            - manual update of `budget_analytic_ids`
+        """ Update budget reservation matrix on
+            manual update of `budget_analytic_ids`
         """
-        self.readonly_affectation = True # tells the user to Save
         return super()._compute_affectation_ids()
 
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'workorder_ids', 'workorder_ids.workcenter_id')
+    @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ MO's budgets are from:
             - component's analytic distribution model
-            - workcenter's analytics
+            (- workcenter's analytics [STOPPED - ALY 2025-03-12]) -> now only manual
         """
         for mo in self:
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
-            components_analytics = mo.move_raw_ids.analytic_ids
-            workcenter_analytics = mo.workorder_ids.workcenter_id.costs_hour_account_id
-            mo.budget_analytic_ids = (components_analytics | workcenter_analytics).filtered('is_project_budget') & project_budgets
+
+            new = mo.move_raw_ids.analytic_ids # | mo.workorder_ids.workcenter_id.costs_hour_account_id
+            old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
+            to_add = new - new & old
+            to_remove = old - new & old
+            mo.budget_analytic_ids = to_add.filtered('is_project_budget') & project_budgets - to_remove
 
     def _get_total_by_analytic(self):
         """ Group-sum real cost of components & workcenter
@@ -75,3 +74,28 @@ class ManufacturingOrder(models.Model):
                 mapped_cost[analytic.id] += wo.duration_expected / 60 # in hours
 
         return mapped_cost
+
+    #====== Compute amount ======#
+    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids') # TODO: hours
+    def _compute_amount_budgetable(self):
+        """ MO's cost is:
+            - its moves + hours valuation when valuated 
+            - else, estimation via products' & hours prices
+        """
+        pass
+        # TODO
+        # rg_result = self.env['stock.valuation.layer'].read_group(
+        #     domain=[('raw_material_production_id', 'in', self.ids)],
+        #     fields=['value:sum'],
+        #     groupby=['raw_material_production_id']
+        # )
+        # mapped_svl_values = {x['raw_material_production_id'][0]: x['value'] for x in rg_result}
+        # for picking in self:
+        #     picking.amount_budgetable = mapped_svl_values.get(
+        #         picking._origin.id,
+        #         sum(picking._get_total_by_analytic().values())
+        #     )
+
+    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids') # TODO: hours
+    def _compute_amount_gain(self):
+        return super()._compute_amount_gain()
