@@ -84,6 +84,17 @@
                                 Total expense amount affected to the project:
                                 <strong><field name="amount_budgetable" class="oe_inline" /></strong>.
                             </p>
+
+                            <p name="gain" role="alert" colspan="2"
+                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&lt;=', 0.0)]}"
+                            >
+                                Recorded gain: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                            </p>
+                            <p name="loss" role="alert" colspan="2"
+                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&gt;=', 0.0)]}"
+                            >
+                                Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                            </p>
                             
                             <field name="affectation_ids"
                                 nolabel="1" colspan="2"
@@ -91,17 +102,6 @@
                                 attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
-
-                            <p name="gain" role="alert" colspan="2"
-                                class="alert alert-success" attrs="{'invisible': [('amount_gain', '&lt;', 0.0)]}"
-                            >
-                                Recorded gain: <strong><field name="amount_gain" class="oe_inline" /></strong>.
-                            </p>
-                            <p name="loss" role="alert" colspan="2"
-                                class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&gt;', 0.0)]}"
-                            >
-                                Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
-                            </p>
                         </group>
                     </group>
 
