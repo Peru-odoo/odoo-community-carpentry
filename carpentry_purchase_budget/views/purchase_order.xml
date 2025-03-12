@@ -11,8 +11,7 @@
             <field name="amount_untaxed" position="before">
                 <field name="amount_budgetable" invisible="1" />
                 <field name="sum_quantity_affected" optional="hide"
-                    decoration-success="sum_quantity_affected &lt; amount_budgetable and sum_quantity_affected != 0"
-                    decoration-danger="sum_quantity_affected &gt; amount_budgetable"
+                    decoration-success="gain &gt; 0" decoration-danger="gain &lt; 0"
                 />
             </field>
         </field>
@@ -29,10 +28,10 @@
             <!-- Budget info banner -->
             <field name="products_type" position="before">
                 <field name="amount_budgetable" invisible="1" />
-                <field name="warning_budget" invisible="1" />
+                <field name="gain" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': ['|', ('warning_budget', '=', False), ('state', '=', 'cancel')]}"
+                    attrs="{'invisible': [('gain', '=', False)]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
@@ -91,6 +90,13 @@
                                 attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
+
+                            <p colspan="2" attrs="{'invisible': [('gain', '=', False)]}">
+                                Recorded gain or loss:
+                                <strong decoration-success="gain &gt; 0" decoration-danger="gain &gt; 0">
+                                    <field name="gain" class="oe_inline" />
+                                </strong>.
+                            </p>
                         </group>
                     </group>
 

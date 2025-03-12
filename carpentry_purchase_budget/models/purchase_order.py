@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from collections import defaultdict
-from odoo.tools import float_compare
+from odoo.tools import float_round
 
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
@@ -10,7 +10,7 @@ class PurchaseOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    warning_budget = fields.Boolean(compute='_compute_warning_budget')
+    amount_gain = fields.Monetary(compute='_compute_gain')
     amount_budgetable = fields.Monetary(
         string='Budgetable Amount',
         readonly=True,
@@ -59,18 +59,14 @@ class PurchaseOrder(models.Model):
         return mapped_price
 
     #====== Compute ======#
-    @api.depends('amount_untaxed', 'affectation_ids')
-    def _compute_warning_budget(self):
+    @api.depends('affectation_ids', 'order_line.price_total', 'order_line.product_id')
+    def _compute_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         for purchase in self:
-            print('purchase.amount_budgetable', purchase.amount_budgetable)
-            print('purchase.sum_quantity_affected', purchase.sum_quantity_affected)
-            compare = float_compare(purchase.amount_budgetable, purchase.sum_quantity_affected, precision_digits=prec)
-            print('compare', compare)
-            purchase.warning_budget = purchase.state != 'cancel' and compare != 0
-            print('purchase.warning_budget', purchase.warning_budget)
+            gain = float_round(purchase.amount_budgetable - purchase.sum_quantity_affected, precision_digits=prec)
+            purchase.amount_gain = purchase.state != 'cancel' and gain
 
-    @api.depends('order_line.price_total', 'order_line.product_id.type')
+    @api.depends('order_line.price_total', 'order_line.product_id')
     def _compute_amount_budgetable(self):
         """ Inspired from native code (purchase/purchase.py/_amount_all)"""
         for order in self:
