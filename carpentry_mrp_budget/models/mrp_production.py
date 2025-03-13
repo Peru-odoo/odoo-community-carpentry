@@ -20,7 +20,7 @@ class ManufacturingOrder(models.Model):
     )
     amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
-    
+
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
         """ Update budget reservation matrix on

@@ -26,11 +26,33 @@ class ManufacturingOrder(models.Model):
         string='Related Purchase Orders',
         related='launch_ids.purchase_ids'
     )
+    purchase_order_count = fields.Integer(
+        # from `purchase_mrp`
+        string='Count of linked PO'
+    )
     # -- for planning --
     active = fields.Boolean(default=True, string='Active?')
     sequence = fields.Integer(string='Sequence')
     
-    #===== Compute =====#
+    #===== Linked Purchase Orders =====#
+    @api.depends('launch_ids')
+    def _compute_purchase_order_count(self):
+        for production in self:
+            production.purchase_order_count = len(production._get_purchase_ids())
+    
+    def _get_purchase_ids(self):
+        return (
+            self.procurement_group_id.stock_move_ids.created_purchase_line_id.order_id |
+            self.procurement_group_id.stock_move_ids.move_orig_ids.purchase_line_id.order_id |
+            self.launch_ids.purchase_ids
+        )
+    
+    def action_view_purchase_orders(self):
+        return super().action_view_purchase_orders() | {
+            'domain': [('id', 'in', self._get_purchase_ids().ids)]
+        }
+
+    #===== Logics =====#
     def _action_cancel(self):
         """ Forces the cancelling of `done` move_raw_ids """
         super()._action_cancel()

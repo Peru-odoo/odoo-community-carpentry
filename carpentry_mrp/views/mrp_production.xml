@@ -61,13 +61,6 @@
                 <field name="launch_ids" widget="many2many_tags" context="{'default_project_id': project_id}" />
             </field>
 
-            <page name="components" position="after">
-                <!-- New page "Related Purchase Orders" -->
-                <page name="purchases" string="Related Purchase Orders">
-                    <field name="purchase_ids" />
-                </page>
-            </page>
-
             <!-- === Components === -->
             <!-- Delete button -->
             <field name="move_raw_ids" position="attributes">
