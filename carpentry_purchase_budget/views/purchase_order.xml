@@ -45,7 +45,7 @@
 
             <page name="products" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation" attrs="{'invisible': [('state', '=', 'cancel')]}">
+                <page name="budget" string="Budget reservation" attrs="{'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]}">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"

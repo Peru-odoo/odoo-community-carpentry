@@ -64,14 +64,14 @@ class ManufacturingOrder(models.Model):
                     continue
                 # qty in product.uom_id
                 qty = move.product_uom_id._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
-                mapped_cost[analytic_id] += qty * move._get_price_unit() * percentage / 100
+                mapped_cost[analytic_id] += qty * move.sudo()._get_price_unit() * percentage / 100
         
         # Workcenter
-        for wo in self.workorder_ids:
-            analytic = wo.workcenter_id.costs_hour_account_id
-            # Ignore cost if analytic not in project's budget
-            if analytic.id in mapped_analytics.get(wo.project_id.id, []):
-                mapped_cost[analytic.id] += wo.duration_expected / 60 # in hours
+        # for wo in self.workorder_ids:
+        #     analytic = wo.workcenter_id.costs_hour_account_id
+        #     # Ignore cost if analytic not in project's budget
+        #     if analytic.id in mapped_analytics.get(wo.project_id.id, []):
+        #         mapped_cost[analytic.id] += wo.duration_expected / 60 # in hours
 
         return mapped_cost
 

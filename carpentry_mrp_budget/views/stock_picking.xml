@@ -51,7 +51,6 @@
             <xpath expr="//field[@name='move_ids_without_package']//tree" position="inside">
                 <field name="analytic_distribution"
                     widget="analytic_distribution"
-                    optional="hide"
                     groups="analytic.group_analytic_accounting"
                     options="{'product_field': 'product_id', 'business_domain': 'picking'}"
                 />
@@ -60,7 +59,7 @@
             <!-- Add `Budget` notebook tab -->
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation" attrs="{'invisible': [('state', '=', 'cancel')]}">
+                <page name="budget" string="Budget reservation" attrs="{'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]}">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"

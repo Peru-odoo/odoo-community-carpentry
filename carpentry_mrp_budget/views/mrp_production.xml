@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
+    <!-- Production Tree -->
+    <record id="mrp_production_tree_view" model="ir.ui.view">
+        <field name="name">mrp.production.tree.carpentry.budget</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view" />
+        
+        <field name="arch" type="xml">
+            <!-- Add `amount_gain` -->
+            <field name="state" position="before">
+                <field name="amount_gain" invisible="1" />
+                <field name="currency_id" invisible="1" />
+
+                <field name="amount_budgetable" optional="hide" />
+                <field name="sum_quantity_affected" optional="hide" sum="1"
+                    decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
+                />
+            </field>
+        </field>
+    </record>
+
     <!-- Production Form -->
     <record id="mrp_production_form_view" model="ir.ui.view">
         <field name="name">mrp.production.form.carpentry_budget</field>
@@ -8,21 +28,19 @@
         <field name="inherit_id" ref="carpentry_mrp.mrp_production_form_view" />
         
         <field name="arch" type="xml">
-        
+
             <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
             <xpath expr="//field[@name='move_raw_ids']//tree" position="inside">
                 <field name="analytic_distribution"
                     widget="analytic_distribution"
-                    optional="hide"
                     groups="analytic.group_analytic_accounting"
                     options="{'product_field': 'product_id', 'business_domain': 'manufacturing_order'}"
                 />
             </xpath>
 
-
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation">
+                <page name="budget" string="Budget of components" attrs="{'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]}">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"

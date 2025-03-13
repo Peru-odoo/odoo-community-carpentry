@@ -65,7 +65,7 @@ class StockPicking(models.Model):
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(move.project_id.id, []):
                     qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
-                    mapped_price[analytic_id] += qty * abs(move._get_price_unit()) * percentage / 100
+                    mapped_price[analytic_id] += qty * abs(move.sudo()._get_price_unit()) * percentage / 100
         
         return mapped_price
 
@@ -82,7 +82,7 @@ class StockPicking(models.Model):
         if not self:
             return
         
-        rg_result = self.env['stock.valuation.layer'].read_group(
+        rg_result = self.env['stock.valuation.layer'].sudo().read_group(
             domain=[('stock_picking_id', 'in', self.ids)],
             fields=['value:sum'],
             groupby=['stock_picking_id']
