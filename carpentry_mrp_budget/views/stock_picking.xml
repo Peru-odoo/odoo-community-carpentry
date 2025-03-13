@@ -13,7 +13,7 @@
                 <field name="amount_gain" invisible="1" />
 
                 <field name="amount_budgetable" optional="hide" />
-                <field name="sum_quantity_affected" optional="hide"
+                <field name="sum_quantity_affected" optional="hide" sum="1"
                     decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
                 />
             </field>

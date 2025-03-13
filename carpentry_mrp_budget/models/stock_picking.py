@@ -21,19 +21,20 @@ class StockPicking(models.Model):
     amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
 
-    @api.depends('budget_analytic_ids')
-    def _compute_affectation_ids(self):
-        """ Update budget reservation matrix on
-            manual update of `budget_analytic_ids`
-        """
-        return super()._compute_affectation_ids()
+    # @api.depends('budget_analytic_ids')
+    # def _compute_affectation_ids(self):
+    #     """ Update budget reservation matrix on
+    #         manual update of `budget_analytic_ids`
+    #     """
+    #     return super()._compute_affectation_ids()
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
-        """ Picking budgets are from moves' analytic distribution """
+        """ Update budgets list when adding product in `Operations` tab """
         for picking in self:
             project_budgets = picking.project_id._origin.budget_line_ids.analytic_account_id
             picking.budget_analytic_ids = picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget') & project_budgets
+            picking._compute_affectation_ids()
     
     def _get_total_by_analytic(self):
         """ Group-sum price of move
