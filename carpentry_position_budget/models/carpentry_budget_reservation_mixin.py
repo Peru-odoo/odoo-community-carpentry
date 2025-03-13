@@ -79,15 +79,18 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             - (un)selecting launches
             - (un)selecting budget analytic in order lines
         """
-        self.readonly_affectation = True # tells the user to Save
+        print('==== _compute_affectation_ids ====')
 
         for order in self:
             vals_list = order._get_affectation_ids_vals_list(temp=False)
+            print('vals_list', vals_list)
 
             has_changed = order._has_real_affectation_matrix_changed(vals_list)
+            print('has_changed', has_changed)
 
             if has_changed:
                 order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
+                print('order.affectation_ids', order.affectation_ids)
                 order._auto_update_budget_distribution() # fills in
                 order.readonly_affectation = True # some way to inform users the budget matrix was re-computed
 

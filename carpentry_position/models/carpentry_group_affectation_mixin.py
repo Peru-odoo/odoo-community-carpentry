@@ -215,6 +215,11 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             group_ids.add(vals['group_id'])
         
         # Compare to existing
+        print('==== _has_real_affectation_matrix_changed ====')
+        print('record_ids',  record_ids)
+        print('group_ids',  group_ids)
+        print('set(self.affectation_ids.mapped(record_id))',  set(self.affectation_ids.mapped('record_id')))
+        print('set(self.affectation_ids.mapped(group_id))',  set(self.affectation_ids.mapped('group_id')))
         return (
             record_ids != set(self.affectation_ids.mapped('record_id')) or
             group_ids != set(self.affectation_ids.mapped('group_id'))
