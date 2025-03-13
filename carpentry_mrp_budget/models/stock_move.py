@@ -41,5 +41,6 @@ class StockMove(models.Model):
         analytic_ids_ = []
         for analytic in self:
             distrib = analytic.analytic_distribution
-            analytic_ids_ += [int(x) for x in distrib.keys()]
+            if distrib:
+                analytic_ids_ += [int(x) for x in distrib.keys()]
         return self.env['account.analytic.account'].sudo().browse(analytic_ids_)
