@@ -15,7 +15,6 @@ class StockMove(models.Model):
 
     @api.depends('product_id', 'partner_id')
     def _compute_analytic_distribution(self):
-        print('===== _compute_analytic_distribution ====')
         """ Computed field `analytic_distribution` (intermediate Manufacturing Order) """
         for move in self:
             distribution = self.env['account.analytic.distribution.model']._get_distribution({
@@ -28,13 +27,8 @@ class StockMove(models.Model):
             new_distrib = distribution or move.analytic_distribution
             move.analytic_distribution = new_distrib
 
-            print('new_distrib', new_distrib)
-            print('new_distrib.keys()', new_distrib and new_distrib.keys())
-            print('[Command.set([int(x) for x in new_distrib.keys()])]', new_distrib and [Command.set([int(x) for x in new_distrib.keys()])])
-
             # synthetic: only analytic_ids (no % distribution)
             move.analytic_ids = self._get_analytic_ids()
-            print('move.analytic_ids', move.analytic_ids)
 
     def _get_analytic_ids(self):
         """ Compute analytics records from json `analytic_distribution` """

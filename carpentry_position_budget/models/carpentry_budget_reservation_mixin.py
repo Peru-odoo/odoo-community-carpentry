@@ -82,14 +82,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         self.readonly_affectation = True # tells the user to Save
 
-        print('=== _compute_affectation_ids ===')
-
         for order in self:
             vals_list = order._get_affectation_ids_vals_list(temp=False)
 
             has_changed = order._has_real_affectation_matrix_changed(vals_list)
-            print('vals_list', vals_list)
-            print('has_changed', has_changed)
 
             if has_changed:
                 order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
@@ -172,12 +168,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ Distribute line price (expenses) into budget reservation,
              according to remaining budget
         """
-        print('==== _auto_update_budget_distribution ====')
         budget_distribution = self._get_auto_launch_budget_distribution()
-        print('==== budget_distribution ====')
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
-            print('key', key)
             auto_reservation = budget_distribution.get(key, 0.0)
             affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
     
@@ -193,14 +186,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                     expense * remaining budget / total budget (per launch)
             }
         """
-        print('==== _get_auto_launch_budget_distribution ====')
         self.ensure_one() # (!) `remaining_budget` must be computed per order
         total_by_analytic = self._get_total_by_analytic()
         analytics = self.env['account.analytic.account'].sudo().browse(set(total_by_analytic.keys()))
         remaining_budget = analytics._get_remaining_budget(self.launch_ids, self._origin)
-
-        print('total_by_analytic', total_by_analytic)
-        print('remaining_budget', remaining_budget)
 
         # Sums launch total available budget per analytic
         mapped_launch_budget = defaultdict(float)

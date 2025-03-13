@@ -41,12 +41,14 @@ class AccountAnalyticAccount(models.Model):
 
             # suffix budget & clock
             amount_remaining = remaining_budget.get(id_, 0.0)
-            amount_str = format_amount(self.env, amount_remaining, analytic.currency_id)
-            clock = ''
-            if analytic.timesheetable:
-                amount_str = amount_str.replace('€', 'h')
-                clock = ' 🕓'
-            name += f' ({amount_str})' + clock
+            if not float_is_zero(amount_remaining, precision_rounding=analytic.currency_id.rounding):
+                amount_str = format_amount(self.env, amount_remaining, analytic.currency_id)
+                if analytic.timesheetable:
+                    amount_str = amount_str.replace('€', 'h')
+                name += f' ({amount_str})'
+            
+            # clock
+            name += ' 🕓' if analytic.timesheetable else ''
 
             res_updated.append((id_, name))
         
@@ -117,11 +119,8 @@ class AccountAnalyticAccount(models.Model):
             :return: Dict like:
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
-        print('===== _get_remaining_budget =====')
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
-        print('reserved', reserved)
-        print('brut, valued', brut, valued)
 
         domain = [('timesheetable', '=', True)]
         timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids
