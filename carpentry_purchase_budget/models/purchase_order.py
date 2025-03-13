@@ -16,7 +16,7 @@ class PurchaseOrder(models.Model):
         """ Inherite to add fields in @api.depends """
         return super()._compute_affectation_ids()
     
-    @api.depends('order_line', 'order_line.analytic_distribution')
+    @api.depends('order_line', 'order_line.analytic_distribution', 'launch_ids')
     def _compute_budget_analytic_ids(self):
         """ Compute budget analytics shortcuts
             (!) ignores lines of storable products

@@ -67,7 +67,6 @@
                                 widget="many2many_checkboxes"
                                 nolabel="1" colspan="2"
                                 attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
-                                options="{'always_reload': 1}"
                                 context="{
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'purchase.order',
