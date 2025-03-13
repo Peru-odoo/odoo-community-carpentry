@@ -11,6 +11,7 @@
             <!-- Add `amount_gain` -->
             <field name="state" position="before">
                 <field name="amount_gain" invisible="1" />
+                <field name="currency_id" invisible="1" />
 
                 <field name="amount_budgetable" optional="hide" />
                 <field name="sum_quantity_affected" optional="hide" sum="1"
