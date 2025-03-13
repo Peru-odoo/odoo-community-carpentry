@@ -80,9 +80,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         vals_list = _super(temp)
         print('vals_list_super', vals_list)
         if self.project_id and global_budgets:
-            vals_list_global = _super(temp, self.project_id, global_budgets)
-            print('vals_list_global', vals_list_global)
-            vals_list += valst_list_global
+            vals_list += _super(temp, self.project_id, global_budgets)
         return vals_list
 
     @api.depends('launch_ids') # add `order_line` and `move_raw_ids` in PO/MO
