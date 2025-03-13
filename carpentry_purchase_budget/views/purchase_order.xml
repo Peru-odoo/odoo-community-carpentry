@@ -12,7 +12,7 @@
                 <field name="amount_gain" invisible="1" />
 
                 <field name="sum_quantity_affected" optional="hide"
-                    decoration-success="amount_gain &gt;= 0" decoration-danger="amount_gain &lt;= 0"
+                    decoration-success="amount_gain &gt; 0.0" decoration-danger="amount_gain &lt; 0.0"
                 />
             </field>
         </field>

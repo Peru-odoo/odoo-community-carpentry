@@ -41,9 +41,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         help='Sum of budget reservation'
     )
     amount_gain = fields.Monetary(
-        # gain = sum_quantity_affected - amount_budgetable  
-        compute='_compute_amount_gain',
-        digits='Product Price'
+        compute='_compute_amount_gain'
     )
     currency_id = fields.Many2one(
         comodel_name='res.currency',
