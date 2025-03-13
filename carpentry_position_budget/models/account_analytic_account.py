@@ -3,6 +3,7 @@
 from odoo import api, fields, models, _
 from odoo.osv import expression
 from odoo.tools.misc import format_amount
+from odoo.tools import float_is_zero
 from collections import defaultdict
 
 class AccountAnalyticAccount(models.Model):
