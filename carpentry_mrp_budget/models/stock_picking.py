@@ -58,17 +58,14 @@ class StockPicking(models.Model):
         for move in self.move_ids:
             if not move.analytic_distribution:
                 continue
-            # TODO : {} si pas sortant
+            
             for analytic_id, percentage in move.analytic_distribution.items():
                 analytic_id = int(analytic_id)
 
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(move.project_id.id, []):
                     qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
-                    print('move', move)
-                    print('qty', qty)
-                    print('move._get_price_unit()', move._get_price_unit())
-                    mapped_price[analytic_id] += qty * move._get_price_unit() * percentage / 100
+                    mapped_price[analytic_id] += qty * abs(move._get_price_unit()) * percentage / 100
         
         return mapped_price
 
@@ -91,14 +88,11 @@ class StockPicking(models.Model):
             groupby=['stock_picking_id']
         )
         mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
-        print('mapped_svl_values', mapped_svl_values)
         for picking in self:
-            print('mapped_svl_values.get(picking.id)', mapped_svl_values.get(picking._origin.id))
-            print('picking._get_total_by_analytic().values()', picking._get_total_by_analytic().values())
-            picking.amount_budgetable = mapped_svl_values.get(
+            picking.amount_budgetable = abs(mapped_svl_values.get(
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())
-            )
+            ))
 
     @api.depends('move_ids', 'move_ids.product_id', 'move_ids.stock_valuation_layer_ids')
     def _compute_amount_gain(self):
