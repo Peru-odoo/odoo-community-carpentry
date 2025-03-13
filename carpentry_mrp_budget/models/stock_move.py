@@ -38,6 +38,8 @@ class StockMove(models.Model):
 
     def _get_analytic_ids(self):
         """ Compute analytics records from json `analytic_distribution` """
-        distrib = self.analytic_distribution
-        Analytic = self.env['account.analytic.account'].sudo()
-        return Analytic.browse([int(x) for x in distrib.keys()]) if distrib else Analytic
+        analytic_ids_ = []
+        for analytic in self:
+            distrib = analytic.analytic_distribution
+            analytic_ids_ += [int(x) for x in distrib.keys()]
+        return self.env['account.analytic.account'].sudo().browse(analytic_ids_)
