@@ -67,7 +67,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         print('==== _get_affectation_ids_vals_list ====')
         _super = super()._get_affectation_ids_vals_list
         global_lines = self.project_id._origin.budget_line_ids.filtered(lambda x: not x.is_computed_carpentry)
-        global_budgets = self.budget_analytic_ids & global_lines.analytic_account_id
+        global_budgets = self.budget_analytic_ids._origin & global_lines.analytic_account_id
         
         print('global_lines', global_lines)
         print('global_lines.analytic_account_id', global_lines.analytic_account_id)
