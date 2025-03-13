@@ -21,16 +21,25 @@ class StockPicking(models.Model):
     amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
 
+    def _should_reserve_budget(self):
+        return self._is_to_external_location()
+
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
         """ Update budget reservation matrix on
             manual update of `budget_analytic_ids`
         """
+        if not self._should_reserve_budget():
+            return
+        
         return super()._compute_affectation_ids()
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
+        if not self._should_reserve_budget():
+            return
+        
         for picking in self:
             project_budgets = picking.project_id._origin.budget_line_ids.analytic_account_id
             picking.budget_analytic_ids = picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget') & project_budgets
@@ -40,6 +49,9 @@ class StockPicking(models.Model):
             :return: Dict like {analytic_id: charged amount}
         """
         self.ensure_one()
+        if not self._should_reserve_budget():
+            return {}
+        
         mapped_analytics = self._get_mapped_project_analytics()
         mapped_price = defaultdict(float)
 
@@ -53,6 +65,9 @@ class StockPicking(models.Model):
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(move.project_id.id, []):
                     qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id) # qty in product.uom_id
+                    print('move', move)
+                    print('qty', qty)
+                    print('move._get_price_unit()', move._get_price_unit())
                     mapped_price[analytic_id] += qty * move._get_price_unit() * percentage / 100
         
         return mapped_price
@@ -64,13 +79,22 @@ class StockPicking(models.Model):
             - its moves valuation when valuated
             - else, estimation via products' prices
         """
+        no_reservation = self.filtered(lambda picking: not picking._should_reserve_budget)
+        no_reservation.amount_budgetable = False
+        self -= no_reservation
+        if not self:
+            return
+        
         rg_result = self.env['stock.valuation.layer'].read_group(
             domain=[('stock_picking_id', 'in', self.ids)],
             fields=['value:sum'],
             groupby=['stock_picking_id']
         )
         mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
+        print('mapped_svl_values', mapped_svl_values)
         for picking in self:
+            print('mapped_svl_values.get(picking.id)', mapped_svl_values.get(picking._origin.id))
+            print('picking._get_total_by_analytic().values()', picking._get_total_by_analytic().values())
             picking.amount_budgetable = mapped_svl_values.get(
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())

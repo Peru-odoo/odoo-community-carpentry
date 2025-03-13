@@ -64,21 +64,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     #====== Affectation refresh ======#
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
         """ Appends *Global Cost* (on the *project*) to the matrix """
-        print('==== _get_affectation_ids_vals_list ====')
         _super = super()._get_affectation_ids_vals_list
         global_lines = self.project_id._origin.budget_line_ids.filtered(lambda x: not x.is_computed_carpentry)
         global_budgets = self.budget_analytic_ids._origin & global_lines.analytic_account_id
         
-        print('global_lines', global_lines)
-        print('global_lines.analytic_account_id', global_lines.analytic_account_id)
-        print('self', self)
-        print('self.budget_analytic_ids', self.budget_analytic_ids)
-        print('self.budget_analytic_ids._origin', self.budget_analytic_ids._origin)
-        print('self.budget_analytic_ids._origin', self.budget_analytic_ids._origin)
-        print('global_budgets', global_budgets)
-
         vals_list = _super(temp)
-        print('vals_list_super', vals_list)
         if self.project_id and global_budgets:
             vals_list += _super(temp, self.project_id, global_budgets)
         return vals_list
@@ -89,18 +79,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             - (un)selecting launches
             - (un)selecting budget analytic in order lines
         """
-        print('==== _compute_affectation_ids ====')
-
         for order in self:
             vals_list = order._get_affectation_ids_vals_list(temp=False)
-            print('vals_list', vals_list)
 
-            has_changed = order._has_real_affectation_matrix_changed(vals_list)
-            print('has_changed', has_changed)
-
-            if has_changed:
+            if order._has_real_affectation_matrix_changed(vals_list):
                 order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
-                print('order.affectation_ids', order.affectation_ids)
                 order._auto_update_budget_distribution() # fills in
                 order.readonly_affectation = True # some way to inform users the budget matrix was re-computed
 
