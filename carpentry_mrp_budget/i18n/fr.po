@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 18:23+0000\n"
-"PO-Revision-Date: 2025-03-06 19:23+0100\n"
+"POT-Creation-Date: 2025-03-13 08:23+0000\n"
+"PO-Revision-Date: 2025-03-13 10:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,10 +18,61 @@ msgstr ""
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+")\n"
+"                    differs from the cost affected to the project\n"
+"                    ("
+msgstr ""
+")\n"
+"                    diffère du coût affecté au projet\n"
+"                    ("
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+").\n"
+"                    If this is not on purpose, review the \"Budget reservation\" tab."
+msgstr ""
+").\n"
+"                    Si cela n'est pas intentionel, réviser l'onglet \"Réservation de "
+"budget\"."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+"<span class=\"fa fa-floppy-o\"/>\n"
+"                        Please save before continuing."
+msgstr "Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    The budget reservation\n"
+"                    ("
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    La réservation de budget\n"
+"                    ("
+
+#. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__affectation_ids
 msgid "Affectations"
 msgstr ""
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_gain
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__amount_gain
+msgid "Amount Gain"
+msgstr "Montant du gain"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
+msgid "Amount of reserved budget"
+msgstr "Montant budget réservé"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_distribution
@@ -67,6 +118,20 @@ msgid "Choose budgets"
 msgstr "Choisir les budgets"
 
 #. module: carpentry_mrp_budget
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__amount_budgetable
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__amount_budgetable
+msgid ""
+"Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
+msgstr ""
+"Montant du coût imputé au projet. Gain = \"Montant budget réservé\" - ce montant"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__currency_id
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__currency_id
+msgid "Currency"
+msgstr "Devise"
+
+#. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_account_analytic_applicability__business_domain
 msgid "Domain"
 msgstr "Domaine"
@@ -82,39 +147,31 @@ msgid "Picking"
 msgstr "Transfert"
 
 #. module: carpentry_mrp_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+"Please ensure the \"Operations\" tab contains at least one product move (with a "
+"price) before placing a reservation."
+msgstr ""
+"Veuillez vous assurer que l'onglet \"Opérations\" contienne au moins 1 mouvement de "
+"produit valorisé avant d'effectuer une reservation."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid "Please save before continuing."
 msgstr "Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Please select launch(es) for placing a reservation."
+msgstr ""
+"Veuillez sélectionner un(des) lancement(s) pour effectuer une réservation de budget."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid "Please select launche(s) and budget(s) for placing a reservation."
 msgstr ""
-"Veuillez sélectionner le(s) lancement(s) et le(s) budget(s) pour effectuer "
-"une réservation."
-
-#. module: carpentry_mrp_budget
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
-msgid ""
-"Please select launche(s) for placing a reservation and ensure the "
-"\"Operations\" tab contains at least\n"
-"                        1 product with an automated analytic distribution."
-msgstr ""
-"Veuillez sélectionner le(s) lancement(s) pour effectuer une réservation et "
-"vous assurez que l'onglet \"Opérations\" contienne au moins 1 article avec "
-"une distribution analytique automatique."
-
-#. module: carpentry_mrp_budget
-#: model:ir.model,name:carpentry_mrp_budget.model_carpentry_group_affectation
-msgid "Position Affectation"
-msgstr "Affectation de repère"
-
-#. module: carpentry_mrp_budget
-#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
-#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
-msgid "Positions Count"
-msgstr "Nombre de repères"
+"Veuillez sélectionner un(des) budget(s) et éventuellement un(des) lancement(s) pour "
+"effectuer une réservation de budget."
 
 #. module: carpentry_mrp_budget
 #: model:ir.model,name:carpentry_mrp_budget.model_mrp_production
@@ -122,15 +179,20 @@ msgid "Production Order"
 msgstr "Ordre de fabrication"
 
 #. module: carpentry_mrp_budget
-#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__project_id
-msgid "Project"
-msgstr "Projet"
-
-#. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__readonly_affectation
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__readonly_affectation
 msgid "Readonly Affectation"
 msgstr "Affectation en lecture seule"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Recorded gain:"
+msgstr "Gain enregistré :"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Recorded loss:"
+msgstr "Perte enregistrée :"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
@@ -163,11 +225,23 @@ msgstr "Couche de valorisation d'inventaire"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
-msgid "Sum of affected quantities"
+msgid "Sum of budget reservation"
 msgstr "Somme des quantités affectées"
 
 #. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_budgetable
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__amount_budgetable
+msgid "Total Cost"
+msgstr "Coût total"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "Total expense amount affected to the project:"
+msgstr "Montant total de la dépense affectée au projet :"
+
+#. module: carpentry_mrp_budget
 #: model:ir.model,name:carpentry_mrp_budget.model_stock_picking
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__stock_picking_id
 msgid "Transfer"
 msgstr "Transfert"
 
@@ -176,8 +250,3 @@ msgstr "Transfert"
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__section_ids
 msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
-
-#. module: carpentry_mrp_budget
-#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_valuation_layer__project_id
-msgid "Within your favorite projects"
-msgstr ""

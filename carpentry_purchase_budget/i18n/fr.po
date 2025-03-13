@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-10 09:16+0000\n"
-"PO-Revision-Date: 2025-03-10 10:17+0100\n"
+"POT-Creation-Date: 2025-03-13 08:23+0000\n"
+"PO-Revision-Date: 2025-03-13 10:48+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -35,7 +35,7 @@ msgid ""
 "                    If this is not on purpose, review the \"Budget reservation\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionel, modifiez l'onglet \"Réservation de budget\"."
+"                    Si cela n'est pas intentionel, réviser l'onglet \"Réservation de budget\"."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -63,6 +63,11 @@ msgid "Affectations"
 msgstr ""
 
 #. module: carpentry_purchase_budget
+#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__amount_gain
+msgid "Amount Gain"
+msgstr "Montant du gain"
+
+#. module: carpentry_purchase_budget
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__sum_quantity_affected
 msgid "Amount of reserved budget"
 msgstr "Montant budget réservé"
@@ -88,18 +93,30 @@ msgid "Choose budgets"
 msgstr "Choisir les budgets"
 
 #. module: carpentry_purchase_budget
+#: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__amount_budgetable
+msgid "Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
+msgstr "Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce montant"
+
+#. module: carpentry_purchase_budget
+#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__currency_id
+msgid "Currency"
+msgstr "Devise"
+
+#. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
-"Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) before placing a reservation."
+"Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) "
+"before placing a reservation."
 msgstr ""
-"Veuillez vous assurer que l'onglet \"Produits\" contienne au moins 1 article non stocké (avec un prix) avant d'effectuer "
-"une réservation."
+"Veuillez vous assurer que l'onglet \"Produits\" contienne au moins 1 article non stocké (avec "
+"un prix) avant d'effectuer une réservation."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid "Please select budget(s) and possibly launch(es) for placing a reservation."
 msgstr ""
-"Veuillez sélectionner un(des) budget(s) et éventuellement un(des) lancement(s) pour effectuer une réservation de budget."
+"Veuillez sélectionner un(des) budget(s) et éventuellement un(des) lancement(s) pour effectuer "
+"une réservation de budget."
 
 #. module: carpentry_purchase_budget
 #: model:ir.model,name:carpentry_purchase_budget.model_carpentry_group_affectation
@@ -115,6 +132,16 @@ msgstr "Commande fournisseur"
 #: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__readonly_affectation
 msgid "Readonly Affectation"
 msgstr "Affectation en lecture seule"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Recorded gain:"
+msgstr "Gain enregistré :"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Recorded loss:"
+msgstr "Perte enregistrée :"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -140,11 +167,6 @@ msgstr "Total des budgets réservés"
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid "Total expense amount affected to the project:"
 msgstr "Montant total de la dépense affectée au projet :"
-
-#. module: carpentry_purchase_budget
-#: model:ir.model.fields,field_description:carpentry_purchase_budget.field_purchase_order__warning_budget
-msgid "Warning Budget"
-msgstr "Alerte Budget"
 
 #. module: carpentry_purchase_budget
 #: model:ir.model.fields,help:carpentry_purchase_budget.field_purchase_order__section_ids
