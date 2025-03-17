@@ -179,9 +179,9 @@ class AccountAnalyticAccount(models.Model):
         ))
 
         # Budget from the project (not computed)
-        project_ids_ = [section.project_id._origin.id] if section else launchs.project_id._origin.ids
+        project_ids = (section.project_id or launchs.project_id)._origin
         rg_result = self.env['account.move.budget.line'].sudo().read_group(
-            domain=[('project_id', 'in', project_ids_), ('is_computed_carpentry', '=', False)],
+            domain=[('project_id', 'in', project_ids.ids), ('is_computed_carpentry', '=', False)],
             groupby=['project_id', 'analytic_account_id'],
             fields=['balance:sum', 'qty_balance:sum'],
             lazy=False
