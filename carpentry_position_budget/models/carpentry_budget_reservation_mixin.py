@@ -44,6 +44,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     amount_gain = fields.Monetary(
         compute='_compute_amount_gain'
     )
+    amount_loss = fields.Monetary(
+        compute='_compute_amount_gain'
+    )
     currency_id = fields.Many2one(
         comodel_name='res.currency',
         string='Currency',
@@ -143,6 +146,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         for purchase in self:
             gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
             purchase.amount_gain = purchase.state != 'cancel' and gain
+            purchase.amount_loss = -1 * purchase.amount_gain
 
     #====== Compute/Inverse ======#
     def _inverse_budget_analytic_ids(self):

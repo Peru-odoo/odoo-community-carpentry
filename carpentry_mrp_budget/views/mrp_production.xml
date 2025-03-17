@@ -117,7 +117,7 @@
                             <p name="loss" role="alert" colspan="2"
                                 class="alert alert-danger" attrs="{'invisible': [('amount_gain', '&gt;=', 0.0)]}"
                             >
-                                Recorded loss: <strong><field name="amount_gain" class="oe_inline" /></strong>.
+                                Recorded loss: <strong><field name="amount_loss" class="oe_inline" /></strong>.
                             </p>
                             
                             <field name="affectation_ids"
