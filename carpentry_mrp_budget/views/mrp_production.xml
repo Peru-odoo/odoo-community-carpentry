@@ -29,6 +29,24 @@
         
         <field name="arch" type="xml">
 
+            <!-- Budget info banner -->
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <field name="currency_id" invisible="1" />
+                <field name="amount_budgetable" invisible="1" />
+                <field name="amount_gain" invisible="1" />
+
+                <div name="alert_banner" role="alert" class="alert alert-info"
+                    attrs="{'invisible': [('amount_gain', '=', 0.0)]}"
+                >
+                    <span class="fa fa-info-circle" />
+                    The budget reservation of components
+                    (<strong><field name="sum_quantity_affected" widget="monetary" options="{'currency_field': 'currency_id'}" /></strong>)
+                    differs from the components cost affected to the project
+                    (<strong><field name="amount_budgetable" /></strong>).
+                    If this is not on purpose, review the "Budget (components)" tab.
+                </div>
+            </xpath>
+
             <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
             <xpath expr="//field[@name='move_raw_ids']//tree" position="inside">
                 <field name="analytic_distribution"
@@ -38,8 +56,8 @@
                 />
             </xpath>
 
-            <page name="operations" position="after">
-                <!-- Add `Budget (components)` notebook tab -->
+            <!-- Add `Budget (components)` notebook tab -->
+            <page name="components" position="after">
                 <page name="budget" string="Budget (components)" attrs="{
                     'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]
                 }">
@@ -63,6 +81,7 @@
                             <field name="budget_analytic_ids"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
+                                attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'mrp.production',
@@ -109,9 +128,11 @@
                             />
                         </group>
                     </group>
-
                 </page>
             </page>
+
+            <!-- Add `Budget (hours)` notebook tab -->
+            <!-- .... -->
         </field>
     </record>
 
