@@ -22,7 +22,7 @@ class StockPicking(models.Model):
     currency_id = fields.Many2one(related='project_id.currency_id')
 
     def _should_reserve_budget(self):
-        return self._is_to_external_location()
+        return self._is_to_external_location() and x.state not in ['draft', 'cancel']
 
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
