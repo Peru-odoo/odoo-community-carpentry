@@ -101,8 +101,9 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
              One should not see archived launch *A* on PO's affectations.
         """
         self = self.with_context(active_test=False)
-        for a in self.affectation_ids:
-            a.active = self._get_affectation_active(a.record_ref, a.group_ref, a.section_ref)
+        for group in self:
+            for a in group.affectation_ids:
+                a.active = group._get_affectation_active(a.record_ref, a.group_ref, a.section_ref)
     
     def _get_affectation_active(self, *args):
         """ Calculate `affectation.active` from `record_ref`, `group_ref` and/or `section_ref`

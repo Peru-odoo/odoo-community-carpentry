@@ -168,7 +168,7 @@ msgstr "Commande mélangeant des articles stockés et non-stockés"
 #. module: carpentry_purchase
 #: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__storable
 msgid "Stock purchase order (only)"
-msgstr "Commande de stock (uniquemnet)"
+msgstr "Commande de stock (uniquement)"
 
 #. module: carpentry_purchase
 #. odoo-python
