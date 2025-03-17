@@ -141,7 +141,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _compute_amount_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
         for purchase in self:
-            gain = -1 * float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
+            gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
             purchase.amount_gain = purchase.state != 'cancel' and gain
 
     #====== Compute/Inverse ======#
