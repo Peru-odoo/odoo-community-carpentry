@@ -179,7 +179,7 @@ class AccountAnalyticAccount(models.Model):
         ))
 
         # Budget from the project (not computed)
-        project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
+        project_ids_ = [section.project_id._origin.id] if section else launchs.project_id._origin.ids
         rg_result = self.env['account.move.budget.line'].sudo().read_group(
             domain=[('project_id', 'in', project_ids_), ('is_computed_carpentry', '=', False)],
             groupby=['project_id', 'analytic_account_id'],
