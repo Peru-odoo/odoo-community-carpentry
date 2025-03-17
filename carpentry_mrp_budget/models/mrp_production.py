@@ -27,7 +27,7 @@ class ManufacturingOrder(models.Model):
     currency_id = fields.Many2one(related='project_id.currency_id')
 
     def _should_move_raw_reserve_budget(self):
-        return and self.state not in ['draft', 'cancel']
+        return self.state not in ['draft', 'cancel']
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
