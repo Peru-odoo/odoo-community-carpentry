@@ -186,8 +186,6 @@ class AccountAnalyticAccount(models.Model):
             fields=['balance:sum', 'qty_balance:sum'],
             lazy=False
         )
-        print('project_ids_', project_ids_)
-        print('rg_result', rg_result)
         for x in rg_result:
             # Add global-cost budget to `brut` & `valued`
             key = ('project.project', x['project_id'][0])
