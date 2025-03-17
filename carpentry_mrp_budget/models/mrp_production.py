@@ -18,9 +18,14 @@ class ManufacturingOrder(models.Model):
         store=True,
         readonly=False,
     )
-    amount_budgetable = fields.Monetary(string='Total Cost')
+    amount_budgetable = fields.Monetary(
+        string='Total Cost',
+    )
     currency_id = fields.Many2one(related='project_id.currency_id')
 
+    def _should_move_raw_reserve_budget(self):
+        return self._is_to_external_location() and self.state not in ['draft', 'cancel']
+    
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
         """ Update budget reservation matrix on
@@ -30,29 +35,34 @@ class ManufacturingOrder(models.Model):
 
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
-        """ MO's budgets are from:
+        """ MO's budgets are updated automatically from:
             - component's analytic distribution model
             (- workcenter's analytics [STOPPED - ALY 2025-03-12]) -> now only manual
+
+            (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
         for mo in self:
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
 
-            new = mo.move_raw_ids.analytic_ids # | mo.workorder_ids.workcenter_id.costs_hour_account_id
+            new = mo.filtered(lambda x: x._should_move_raw_reserve_budget()).move_raw_ids.analytic_ids # | mo.workorder_ids.workcenter_id.costs_hour_account_id
             old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
             to_add = new - new & old
             to_remove = old - new & old
             mo.budget_analytic_ids = to_add.filtered('is_project_budget') & project_budgets - to_remove
 
     def _get_total_by_analytic(self):
-        """ Group-sum real cost of components & workcenter
+        """ Group-sum real cost of components (& workcenter)
             :return: Dict like {analytic_id: charged amount}
         """
-        self.ensure_one()
-        mapped_analytics = self._get_mapped_project_analytics()
+        to_compute_move_raw = self.filtered(lambda x: x._should_move_raw_reserve_budget())
+        if not to_compute_move_raw:
+            return {}
+        
+        mapped_analytics = to_compute_move_raw._get_mapped_project_analytics()
         mapped_cost = defaultdict(float)
 
         # Components
-        for move in self.move_raw_ids:
+        for move in to_compute_move_raw.move_raw_ids:
             if not move.analytic_distribution:
                 continue
 
@@ -76,26 +86,41 @@ class ManufacturingOrder(models.Model):
         return mapped_cost
 
     #====== Compute amount ======#
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids') # TODO: hours
+    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids')
     def _compute_amount_budgetable(self):
-        """ MO's cost is:
-            - its moves + hours valuation when valuated 
-            - else, estimation via products' & hours prices
+        """ MO's **COMPONENTS-ONLY** cost is like for picking:
+            - its moves valuation when valuated
+            - else, estimation via products' prices
         """
-        pass
-        # TODO
-        # rg_result = self.env['stock.valuation.layer'].read_group(
-        #     domain=[('raw_material_production_id', 'in', self.ids)],
-        #     fields=['value:sum'],
-        #     groupby=['raw_material_production_id']
-        # )
-        # mapped_svl_values = {x['raw_material_production_id'][0]: x['value'] for x in rg_result}
-        # for picking in self:
-        #     picking.amount_budgetable = mapped_svl_values.get(
-        #         picking._origin.id,
-        #         sum(picking._get_total_by_analytic().values())
-        #     )
-
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids') # TODO: hours
+        to_compute = self.filtered(lambda x: x._should_move_raw_reserve_budget())
+        (self - to_compute).amount_budgetable = False
+        if not to_compute:
+            return
+        
+        rg_result = self.env['stock.valuation.layer'].sudo().read_group(
+            domain=[('raw_material_production_id', 'in', to_compute.ids)],
+            fields=['value:sum'],
+            groupby=['raw_material_production_id']
+        )
+        mapped_svl_values = {x['raw_material_production_id'][0]: x['value'] for x in rg_result}
+        for production in to_compute:
+            production.amount_budgetable = abs(mapped_svl_values.get(
+                production._origin.id,
+                sum(production._get_total_by_analytic().values())
+            ))
+    
+    @api.depends('affectation_ids.quantity_affected')
+    def _compute_sum_quantity_affected(self):
+        """ [Overwritte] `sum_quantity_affected` and `gain` are for filtered for components only (goods), not workorder (hours) """
+        budget_types = ['goods', 'project_global_cost']
+        for production in self:
+            affectations_goods = production.affectation_ids.filtered(lambda x: x.group_ref and x.group_ref.budget_type in budget_types)
+            production.sum_quantity_affected = sum(affectations_goods.mapped('quantity_affected'))
+    
+    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids')
     def _compute_amount_gain(self):
         return super()._compute_amount_gain()
+
+    # TODO: hours
+    # @api.depends('workorder_ids')
+    # def _compute_amount_budgetable_workorder(self):

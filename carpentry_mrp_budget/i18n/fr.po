@@ -43,7 +43,7 @@ msgstr ""
 msgid ""
 "<span class=\"fa fa-floppy-o\"/>\n"
 "                        Please save before continuing."
-msgstr "Veuillez sauvegarder avant de continuer."
+msgstr "<span class=\"fa fa-floppy-o\"/>\n Veuillez sauvegarder avant de continuer."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
@@ -157,8 +157,8 @@ msgstr ""
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
-msgid "Please save before continuing."
-msgstr "Veuillez sauvegarder avant de continuer."
+msgid "<span class=\"fa fa-floppy-o\"/> Please save before continuing."
+msgstr "<span class=\"fa fa-floppy-o\"/> Veuillez sauvegarder avant de continuer."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form

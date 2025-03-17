@@ -59,7 +59,9 @@
             <!-- Add `Budget` notebook tab -->
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
-                <page name="budget" string="Budget reservation" attrs="{'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]}">
+                <page name="budget" string="Budget reservation" attrs="{
+                    'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]
+                }">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
                         attrs="{'invisible': ['|', ('readonly_affectation', '=', False), ('id', '=', False)]}"
@@ -74,8 +76,7 @@
                             <div name="nobudget_banner" role="alert" colspan="2" class="alert alert-warning"
                                 attrs="{'invisible': [('amount_budgetable', '!=', 0)]}"
                             >
-                                Please ensure the picking is confirmed and that
-                                "Operations" tab contains at least one product move (with a price) before placing a reservation.
+                                Please ensure "Operations" tab contains at least one product move (with a price) before placing a reservation.
                             </div>
 
                             <field name="budget_analytic_ids"
@@ -99,7 +100,7 @@
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
                                 attrs="{'invisible': [('affectation_ids', '!=', [])]}"
                             >
-                                Please confirm the picking and/or select launch(es) for placing a reservation.
+                                Please select launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"
