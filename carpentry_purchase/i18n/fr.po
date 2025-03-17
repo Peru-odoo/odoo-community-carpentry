@@ -30,7 +30,7 @@ msgstr "<span class=\"o_stat_text\">Achats</span>"
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_project_form
 msgid "Address"
-msgstr "Addresse"
+msgstr "Adresse"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order_line__analytic_ids

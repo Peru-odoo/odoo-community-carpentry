@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _
 from collections import defaultdict
+from datetime import datetime
 from odoo.tools import float_round
 import calendar
 
@@ -102,10 +103,15 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
 
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ [Affectation Refresh] Store MO/PO id in `section_ref` """
+        if self.id:
+            date_to_seq = calendar.timegm(self._origin.create_date.timetuple())
+        else:
+            date_to_seq = datetime.now()
+
         return super()._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation) | {
             'section_model_id': mapped_model_ids.get(self._name),
             'section_id': self._origin.id,
-            'seq_section': calendar.timegm(self._origin.create_date.timetuple()),
+            'seq_section': date_to_seq,
         }
 
     def _get_domain_affect(self):
