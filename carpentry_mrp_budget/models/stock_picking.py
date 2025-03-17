@@ -29,18 +29,17 @@ class StockPicking(models.Model):
         """ Update budget reservation matrix on
             manual update of `budget_analytic_ids`
         """
-        if not self._should_reserve_budget():
-            return
-        
-        return super()._compute_affectation_ids()
+        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        (self - to_compute).affectation_ids = False
+        return super(StockPicking, to_compute)._compute_affectation_ids()
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
-        if not self._should_reserve_budget():
-            return
+        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        (self - to_compute).budget_analytic_ids = False
         
-        for picking in self:
+        for picking in to_compute:
             project_budgets = picking.project_id._origin.budget_line_ids.analytic_account_id
             picking.budget_analytic_ids = picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget') & project_budgets
     
@@ -48,14 +47,14 @@ class StockPicking(models.Model):
         """ Group-sum price of move
             :return: Dict like {analytic_id: charged amount}
         """
-        self.ensure_one()
-        if not self._should_reserve_budget():
+        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        if not to_compute:
             return {}
         
-        mapped_analytics = self._get_mapped_project_analytics()
+        mapped_analytics = to_compute._get_mapped_project_analytics()
         mapped_price = defaultdict(float)
 
-        for move in self.move_ids:
+        for move in to_compute.move_ids:
             if not move.analytic_distribution:
                 continue
             
@@ -76,19 +75,18 @@ class StockPicking(models.Model):
             - its moves valuation when valuated
             - else, estimation via products' prices
         """
-        no_reservation = self.filtered(lambda picking: not picking._should_reserve_budget)
-        no_reservation.amount_budgetable = False
-        self -= no_reservation
-        if not self:
+        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        (self - to_compute).amount_budgetable = False
+        if not to_compute:
             return
         
         rg_result = self.env['stock.valuation.layer'].sudo().read_group(
-            domain=[('stock_picking_id', 'in', self.ids)],
+            domain=[('stock_picking_id', 'in', to_compute.ids)],
             fields=['value:sum'],
             groupby=['stock_picking_id']
         )
         mapped_svl_values = {x['stock_picking_id'][0]: x['value'] for x in rg_result}
-        for picking in self:
+        for picking in to_compute:
             picking.amount_budgetable = abs(mapped_svl_values.get(
                 picking._origin.id,
                 sum(picking._get_total_by_analytic().values())
