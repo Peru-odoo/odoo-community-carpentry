@@ -103,15 +103,12 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
 
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ [Affectation Refresh] Store MO/PO id in `section_ref` """
-        if self.id:
-            date_to_seq = calendar.timegm(self._origin.create_date.timetuple())
-        else:
-            date_to_seq = datetime.now()
-
+        date_seq = self._origin.create_date if self.id else datetime.now()
+        
         return super()._get_affect_vals(mapped_model_ids, record_ref, group_ref, affectation) | {
             'section_model_id': mapped_model_ids.get(self._name),
             'section_id': self._origin.id,
-            'seq_section': date_to_seq,
+            'seq_section': calendar.timegm(date_seq.timetuple()),
         }
 
     def _get_domain_affect(self):
