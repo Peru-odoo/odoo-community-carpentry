@@ -52,10 +52,10 @@ class Task(models.Model):
     @api.depends('description')
     def _compute_description_text(self):
         for task in self:
-            task.description_text = html2plaintext(task.description)
+            task.description_text = html2plaintext(task.description or '')
     def _inverse_description_text(self):
         for task in self:
-            task.description = plaintext2html(task.description_text)
+            task.description = plaintext2html(task.description_text or '')
 
     #===== Compute `stage_id` depending `date_end` =====#
     @api.depends('date_end')
