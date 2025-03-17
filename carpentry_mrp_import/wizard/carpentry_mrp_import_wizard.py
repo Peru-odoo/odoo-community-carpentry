@@ -292,12 +292,15 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 continue
         
             # Update product price
-            supplierinfo_vals_list.append({
-                'product_id': product.id,
-                'partner_id': product.preferred_supplier_id.id,
-                'price': data.get('price'),
-                'discount': data.get('discount'),
-            })
+            if data.get('price') or data.get('discount'):
+                supplierinfo_vals_list.append({
+                    'product_id': product.id,
+                    'product_tmpl_id': product.product_tmpl_id.id,
+                    'partner_id': product.preferred_supplier_id.id,
+                    'price': data.get('price'),
+                    'discount': data.get('discount'),
+                    'sequence': max(product.seller_ids.mapped('sequence') + [0]) + 1,
+                })
 
             # Create need (reservation)
             component_vals_list.append(Command.create(
@@ -313,11 +316,13 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 })
             )
         
-        _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
-        self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
+        if supplierinfo_vals_list:
+            _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
+            self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
 
-        _logger.info(f'[_import_components] component_vals_list: {component_vals_list}')
-        self.production_id.move_raw_ids = component_vals_list
+        if component_vals_list:
+            _logger.info(f'[_import_components] component_vals_list: {component_vals_list}')
+            self.production_id.move_raw_ids = component_vals_list
 
     def _make_report(self, mapped_components, byproducts, substituted, unknown, consu):
         def __write_section(start_row, title, cols, vals_list):
