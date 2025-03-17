@@ -18,13 +18,16 @@ class ManufacturingOrder(models.Model):
         store=True,
         readonly=False,
     )
-    amount_budgetable = fields.Monetary(
-        string='Total Cost',
+    amount_budgetable = fields.Monetary(string='Total cost (components)')
+    amount_gain = fields.Monetary(string='Gain (components)')
+    sum_quantity_affected = fields.Float(
+        string='Amount of reserved budget (components)',
+        help='Sum of budget reservation (for components only)'
     )
     currency_id = fields.Many2one(related='project_id.currency_id')
 
     def _should_move_raw_reserve_budget(self):
-        return self._is_to_external_location() and self.state not in ['draft', 'cancel']
+        return and self.state not in ['draft', 'cancel']
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
