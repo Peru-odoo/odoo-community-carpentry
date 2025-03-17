@@ -15,7 +15,7 @@ class PlanningMilestoneWizard(models.Model):
         """
         vals = super().default_get(fields)
 
-        milestone_id_ = fields.get('milestone_id') or self._context.get('milestone_id')
+        milestone_id_ = vals.get('milestone_id') or self._context.get('milestone_id')
         milestone_id = self.env['carpentry.planning.milestone'].browse(milestone_id_)
         if 'shift' in fields and milestone_id:
             vals['shift'] = milestone_id._should_shift()
