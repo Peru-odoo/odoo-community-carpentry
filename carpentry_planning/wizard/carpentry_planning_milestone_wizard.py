@@ -8,6 +8,20 @@ class PlanningMilestoneWizard(models.Model):
     _name = "carpentry.planning.milestone.wizard"
     _description = "Planning Milestone Wizard"
 
+    #===== Fields' methods =====#
+    def default_get(self, fields):
+        """ Whether the wizard should trigger other milestones shift
+            => it depends on the shifted milestone
+        """
+        vals = super().default_get(fields)
+
+        milestone_id_ = fields.get('milestone_id') or self._context.get('milestone_id')
+        milestone_id = self.env['carpentry.planning.milestone'].browse(milestone_id_)
+        if 'shift' in fields and milestone_id:
+            vals['shift'] = milestone_id._should_shift()
+
+        return vals
+
     #===== Fields =====#
     milestone_id = fields.Many2one(
         comodel_name='carpentry.planning.milestone',
@@ -29,7 +43,6 @@ class PlanningMilestoneWizard(models.Model):
     )
     shift = fields.Boolean(
         string='Shift',
-        default=True,
         help='If activated, the other start and end date of the launch will be'
              ' updated of the same offset.'
     )
@@ -41,7 +54,7 @@ class PlanningMilestoneWizard(models.Model):
             d1, d2 = wizard.date_origin, wizard.date_new
             if not d1 or not d2:
                 continue
-                
+            
             monday1 = (d1 - datetime.timedelta(days=d1.weekday()))
             monday2 = (d2 - datetime.timedelta(days=d2.weekday()))
 
@@ -74,9 +87,9 @@ class PlanningMilestoneWizard(models.Model):
 
             # shift siblings
             if should_shift:
-                siblings = wizard.launch_id.milestone_ids.filtered('date') - wizard.milestone_id
-                for sibling in siblings:
+                siblings = wizard.launch_id.milestone_ids - wizard.milestone_id
+                to_shift = siblings.filtered(lambda x: x.date and x._should_shift())
+                for sibling in to_shift:
                     sibling.date += datetime.timedelta(days = 7 * wizard.offset)
-            
-            
+        
         return self

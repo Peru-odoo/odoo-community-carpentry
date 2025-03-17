@@ -24,10 +24,6 @@ class PlanningMilestone(models.Model):
         string='Date',
         default=False
     )
-    synchro = fields.Boolean(
-        default=True,
-        string='Synchronize'
-    )
 
     # related fields
     name = fields.Char(
@@ -70,28 +66,5 @@ class PlanningMilestone(models.Model):
             if end_date < start_date:
                 raise exceptions.ValidationError(_('End date must be after the start date.'))
 
-    
-    def _synch_date(self, new_date):
-        """ Shift siblings date of the same threshold that the update. Example:
-             +1 week of production start => make +1 week of all other `start` and
-             `end` dates of the same launch
-            
-            If changed date is `synchro=False`, nothing happen
-            If changed date is `synchro=True`, changes are synched only with dates
-             also having `synchro=True`
-        """
-        domain = [
-            ('synchro', '=', True),
-            ('id', 'not in', self.ids),
-            ('type', 'in', ['start', 'end']),
-        ]
-        mapped_siblings = {
-            x.launch_id.id: x
-            for x in self.launch_id.milestone_ids.filtered_domain(domain)
-        }
-
-        for milestone in self:
-            # siblings are start and end dates of the same launch, not being modifying too
-            siblings = mapped_siblings.get(milestone.launch_id.id)
-            if siblings:
-                siblings.date += (new_date - milestone.date)
+    def _should_shift(self):
+        return self.type in ['start', 'end']
