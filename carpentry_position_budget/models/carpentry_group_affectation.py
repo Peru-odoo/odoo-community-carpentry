@@ -33,11 +33,6 @@ class CarpentryGroupAffectation(models.Model):
             is_budget = affectation.group_res_model == 'account.analytic.account'
             affectation.budget_unit = is_budget and affectation.group_ref.budget_unit
             affectation.budget_type = is_budget and affectation.group_ref.budget_type
-    
-    def _search_budget_type(self, operator, value):
-        domain = [('budget_type', '=', value)]
-        analytics = self.env['account.analytic.account'].search(domain)
-        return [('group_id', 'in', analytics.ids)]
 
     #===== Logic methods =====#
     def _get_domain_siblings(self):
