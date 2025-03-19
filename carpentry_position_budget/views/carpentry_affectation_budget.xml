@@ -24,6 +24,7 @@
                 <field name="budget_unit" nolabel="1" />
                 <field name="quantity_affected" string="Reservation" required="1" sum="1" />
                 <field name="budget_unit" nolabel="1" />
+                <field name="budget_type" />
             </tree>
         </field>
     </record>
