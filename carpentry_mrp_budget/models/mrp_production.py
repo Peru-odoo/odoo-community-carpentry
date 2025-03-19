@@ -18,7 +18,7 @@ class ManufacturingOrder(models.Model):
     affectation_ids_workorder = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='section_id',
-        domain=[('section_res_model', '=', _name), ('budget_type', '=', 'production')]
+        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['production'])]
     )
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',

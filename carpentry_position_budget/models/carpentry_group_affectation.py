@@ -32,7 +32,7 @@ class CarpentryGroupAffectation(models.Model):
             affectation.budget_type = is_budget and affectation.group_ref.budget_type
     
     def _search_budget_type(self, operator, value):
-        domain = [('budget_type', '=', value)]
+        domain = [('budget_type', operator, value)]
         analytics = self.env['account.analytic.account'].search(domain)
         return [('group_id', 'in', analytics.ids)]
 
