@@ -16,24 +16,23 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
-    uom_name = fields.Char(compute='_compute_uom_name')
-    budget_type = fields.Selection(
-        selection=self.env['account.analytic.account']._fields['budget_type'].selection,
-        string='Budget type',
-        compute='_compute_budget_type',
-    )
+    uom_name = fields.Char(compute='_compute_uom_name_is_budget_timesheetable')
+    is_budget = fields.Boolean(compute='_compute_uom_name_is_budget_timesheetable')
+    timesheetable = fields.Boolean(compute='_compute_uom_name_is_budget_timesheetable')
 
     #===== Compute =====#
-    @api.depends('group_id')
-    def _compute_uom_name(self):
+    @api.depends('group_id', 'group_res_model')
+    def _compute_uom_name_is_budget_timesheetable(self):
         for affectation in self:
+            # uom_name
             affectation.uom_name = 'h' if affectation.group_ref.timesheetable else '€'
 
-    @api.depends('group_id')
-    def _compute_budget_type(self):
-        for affectation in self:
+            # is_budget
             is_budget = affectation.group_res_model == 'account.analytic.account'
-            affectation.budget_type = is_budget and affectation.group_ref.budget_type
+            affectation.is_budget = is_budget
+
+            # timesheetable
+            affectation.timesheetable = is_budget and affectation.group_ref.timesheetable
             
     #===== Logic methods =====#
     def _get_domain_siblings(self):
