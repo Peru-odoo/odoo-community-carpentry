@@ -44,6 +44,6 @@ class CarpentryGroupAffectation(models.Model):
             (used in `_compute_quantity_remaining_to_affect()`)
         """
         domain = super()._get_domain_siblings()
-        if all(x.is_budget for x in self):
+        if all(x.budget_type for x in self):
             domain = expression.AND([domain, [('group_id', 'in', self.mapped('group_id'))]])
         return domain
