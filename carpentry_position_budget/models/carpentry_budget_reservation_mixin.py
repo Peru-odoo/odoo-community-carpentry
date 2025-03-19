@@ -64,10 +64,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
 
     def write(self, vals):
         vals['readonly_affectation'] = False
+        res = super().write(vals)
         fields = self._get_fields_affectation_refresh()
         if any(field in vals for field in fields):
             self._compute_affectation_ids()
-        return super().write(vals)
+        return res
     
     #====== Affectation refresh ======#
     def _get_fields_affectation_refresh(self):
