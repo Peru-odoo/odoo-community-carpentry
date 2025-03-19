@@ -28,6 +28,8 @@ class ManufacturingOrder(models.Model):
 
     def _should_move_raw_reserve_budget(self):
         return self.state not in ['cancel']
+    def _get_component_budget_types(self):
+        return ['goods', 'project_global_cost']
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
@@ -44,20 +46,19 @@ class ManufacturingOrder(models.Model):
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
-        for mo in self:
+        to_clean = self.filtered(lambda x: not x._should_move_raw_reserve_budget())
+        to_clean.budget_analytic_ids = False
+
+        budget_types = self._get_component_budget_types()
+        for mo in (self - to_clean):
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
 
-            new = mo.filtered(lambda x: x._should_move_raw_reserve_budget()).move_raw_ids.analytic_ids._origin # | mo.workorder_ids.workcenter_id.costs_hour_account_id
-            old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
-            print('new', new)
-            print('old', old)
-            to_add = new.filtered('is_project_budget') & project_budgets
-            to_remove = old - new & old
+            existing = mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin
+            to_add = mo.move_raw_ids.analytic_ids._origin & project_budgets
+            to_remove = existing - to_add
             print('to_add', to_add)
             print('to_remove', to_remove)
-            if to_add or to_remove:
-                print('to_add.filtered(is_project_budget) & project_budgets', to_add.filtered('is_project_budget') & project_budgets)
-                mo.budget_analytic_ids += to_add.filtered('is_project_budget') & project_budgets - to_remove
+            mo.budget_analytic_ids += to_add - to_remove
 
     def _get_total_by_analytic(self):
         """ Group-sum real cost of components (& workcenter)
@@ -122,7 +123,7 @@ class ManufacturingOrder(models.Model):
     @api.depends('affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self):
         """ [Overwritte] `sum_quantity_affected` and `gain` are for filtered for components only (goods), not workorder (hours) """
-        budget_types = ['goods', 'project_global_cost']
+        budget_types = self._get_component_budget_types()
         for production in self:
             affectations_goods = production.affectation_ids.filtered(lambda x: x.group_ref and x.group_ref.budget_type in budget_types)
             production.sum_quantity_affected = sum(affectations_goods.mapped('quantity_affected'))
