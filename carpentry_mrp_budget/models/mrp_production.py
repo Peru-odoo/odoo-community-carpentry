@@ -63,6 +63,7 @@ class ManufacturingOrder(models.Model):
         """ Group-sum real cost of components (& workcenter)
             :return: Dict like {analytic_id: charged amount}
         """
+        self.ensure_one()
         to_compute_move_raw = self.filtered(lambda x: x._should_move_raw_reserve_budget())
         if not to_compute_move_raw:
             return {}

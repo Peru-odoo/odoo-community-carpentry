@@ -3,18 +3,19 @@
 from odoo import models, fields, api, exceptions, _, Command
 
 class StockMove(models.Model):
-    _inherit = ['stock.move']
+    _name = 'stock.move'
+    _inherit = ['stock.move', 'analytic.mixin']
 
+    analytic_distribution = fields.Json(store=False)
     analytic_ids = fields.Many2many(
-        string='Analytic Accounts',
         comodel_name='account.analytic.account',
         compute='_compute_analytic_distribution',
-        help='Automatic budget from analytic distribution model',
+        string='Analytic Accounts'
     )
 
     @api.depends('product_id', 'partner_id')
     def _compute_analytic_distribution(self):
-        """ Compute budget analytics from automated analytic distribution model """
+        """ Computed field `analytic_distribution` (intermediate Manufacturing Order) """
         for move in self:
             distribution = self.env['account.analytic.distribution.model']._get_distribution({
                 "product_id": move.product_id.id,
@@ -23,8 +24,17 @@ class StockMove(models.Model):
                 "partner_category_id": move.partner_id.category_id.ids,
                 "company_id": move.company_id.id,
             })
+            new_distrib = distribution or move.analytic_distribution
+            move.analytic_distribution = new_distrib
 
             # synthetic: only analytic_ids (no % distribution)
-            analytic_ids_ = [int(x) for x in distribution.keys()] if distribution else []
-            analytic_ids = self.env['account.analytic.account'].browse(analytic_ids_)
-            move.analytic_ids = analytic_ids.filtered('is_project_budget')
+            move.analytic_ids = self._get_analytic_ids()
+
+    def _get_analytic_ids(self):
+        """ Compute analytics records from json `analytic_distribution` """
+        analytic_ids_ = []
+        for analytic in self:
+            distrib = analytic.analytic_distribution
+            if distrib:
+                analytic_ids_ += [int(x) for x in distrib.keys()]
+        return self.env['account.analytic.account'].sudo().browse(analytic_ids_)
