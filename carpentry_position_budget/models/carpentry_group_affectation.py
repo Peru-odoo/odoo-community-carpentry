@@ -18,7 +18,10 @@ class CarpentryGroupAffectation(models.Model):
     #===== Fields =====#
     uom_name = fields.Char(compute='_compute_uom_name_is_budget_timesheetable')
     is_budget = fields.Boolean(compute='_compute_uom_name_is_budget_timesheetable')
-    timesheetable = fields.Boolean(compute='_compute_uom_name_is_budget_timesheetable')
+    timesheetable = fields.Boolean(
+        compute='_compute_uom_name_is_budget_timesheetable',
+        search='_search_timesheetable',
+    )
 
     #===== Compute =====#
     @api.depends('group_id', 'group_res_model')
@@ -33,7 +36,10 @@ class CarpentryGroupAffectation(models.Model):
 
             # timesheetable
             affectation.timesheetable = is_budget and affectation.group_ref.timesheetable
-            
+    
+    def _search_timesheetable(self, operator, value):
+        return [('group_ref.timesheetable', operator, value)]
+
     #===== Logic methods =====#
     def _get_domain_siblings(self):
         """ Budget reservation are 3d-matrix:
