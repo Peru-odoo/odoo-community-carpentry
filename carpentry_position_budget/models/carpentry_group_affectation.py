@@ -17,7 +17,8 @@ class CarpentryGroupAffectation(models.Model):
     
     #===== Fields =====#
     uom_name = fields.Char(compute='_compute_uom_name_is_budget_timesheetable')
-    budget_type = fields.Boolean(
+    budget_type = fields.Selection(
+        selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
         compute='_compute_uom_name_budget_type',
         search='_search_budget_type',
     )
