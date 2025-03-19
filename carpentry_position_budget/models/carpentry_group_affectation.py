@@ -16,11 +16,14 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
-    budget_unit = fields.Char(compute='_compute_budget_unit_type')
+    budget_unit = fields.Char(
+        compute='_compute_budget_unit_type',
+        compute_sudo=True,
+    )
     budget_type = fields.Selection(
         selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
         compute='_compute_budget_unit_type',
-        search='_search_budget_type',
+        store=True,
     )
 
     #===== Compute =====#
