@@ -128,7 +128,7 @@
 
             <!-- Add `Budget (hours)` notebook tab -->
             <page name="operations" position="after">
-                <page name="operations_budget" string="Budget (times)" attrs="{
+                <page name="operations_budget" string="Budget (work orders)" attrs="{
                     'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]
                 }">
                     <group col="12">

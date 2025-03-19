@@ -30,7 +30,7 @@ class ManufacturingOrder(models.Model):
     )
     budget_analytic_ids_workorder = fields.Many2many(
         related='budget_analytic_ids',
-        string='Budget (production)',
+        string='Budget (work orders)',
         readonly=False,
         domain="""[
             ('budget_project_ids', '=', project_id),
