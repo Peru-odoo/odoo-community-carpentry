@@ -221,11 +221,8 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             affectation.group_ref = '%s,%s' % (affectation.group_res_model, affectation.group_id)
             affectation.record_ref = '%s,%s' % (affectation.record_res_model, affectation.record_id)
-    
-    def _compute_section_ref(self):
-        for affectation in self:
             affectation.section_ref = '%s,%s' % (affectation.section_res_model, affectation.section_id) if affectation.section_id else False
-
+    
     def _compute_quantity_affected_parent(self):
         for affectation in self:
             affectation.quantity_affected_parent = (

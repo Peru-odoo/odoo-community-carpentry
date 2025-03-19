@@ -11,13 +11,8 @@ class ManufacturingOrder(models.Model):
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     affectation_ids_production = fields.One2many(
-        related='affectation_ids',
-        string='Affectations (production)',
-        readonly=False,
-        domain=[
-            ('section_res_model', '=', _name),
-            ('budget_type', '=', 'production')
-        ],
+        compute='_compute_affectation_ids_production',
+        inverse='_inverse_affectation_ids_production'
     )
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
@@ -44,6 +39,7 @@ class ManufacturingOrder(models.Model):
     )
     currency_id = fields.Many2one(related='project_id.currency_id')
 
+    #===== Affectations configuration =====#
     def _should_move_raw_reserve_budget(self):
         return self.state not in ['cancel']
     
@@ -52,7 +48,20 @@ class ManufacturingOrder(models.Model):
     
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
+
+    #===== Affectations: time =====#
+    def _compute_affectation_ids_production(self):
+        domain = [('budget_type', '=', 'production')]
+        for production in self:
+            production.affectation_ids_production = production.affectation_ids.filtered_domain(domain)
     
+    def _inverse_affectation_ids_production(self):
+        domain = [('budget_type', '=', 'production')]
+        self.affectation_ids.filtered_domain(domain).unlink()
+        for production in self:
+            production.affectation_ids += production.affectation_ids_production
+
+    #===== Affectations: compute =====#
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ MO's budgets are updated automatically from:
