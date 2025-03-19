@@ -54,7 +54,7 @@ class ManufacturingOrder(models.Model):
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
 
             to_add = mo.move_raw_ids.analytic_ids._origin & project_budgets
-            to_remove = mo.move_raw_ids._origin.analytic_ids - to_add
+            to_remove = mo._origin.move_raw_ids.analytic_ids - to_add
             print('to_add', to_add)
             print('to_remove', to_remove)
             if to_add:
