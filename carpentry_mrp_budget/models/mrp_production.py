@@ -76,7 +76,7 @@ class ManufacturingOrder(models.Model):
                 if not analytic_id in mapped_analytics.get(move.project_id.id, []):
                     continue
                 # qty in product.uom_id
-                qty = move.product_uom_id._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
+                qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
                 mapped_cost[analytic_id] += qty * move.sudo()._get_price_unit() * percentage / 100
         
         # Workcenter
