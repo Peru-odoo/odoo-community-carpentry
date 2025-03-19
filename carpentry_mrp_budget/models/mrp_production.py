@@ -53,11 +53,8 @@ class ManufacturingOrder(models.Model):
         for mo in (self - to_clean):
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
 
-            existing = mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin
             to_add = mo.move_raw_ids.analytic_ids._origin & project_budgets
-            to_remove = existing - to_add
-            print('to_add', to_add)
-            print('to_remove', to_remove)
+            to_remove = mo._origin.move_raw_ids.analytic_ids._origin - to_add
             if to_add:
                 mo.budget_analytic_ids += to_add
             if to_remove:
