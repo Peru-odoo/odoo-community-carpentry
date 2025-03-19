@@ -49,10 +49,8 @@
         
             <!-- Add analytic distribution (computed, readonly) in `move_raw_ids` -->
             <xpath expr="//field[@name='move_ids_without_package']//tree" position="inside">
-                <field name="analytic_distribution"
-                    widget="analytic_distribution"
+                <field name="analytic_ids" widget="many2many_tags"
                     groups="analytic.group_analytic_accounting"
-                    options="{'product_field': 'product_id', 'business_domain': 'picking'}"
                 />
             </xpath>
 
