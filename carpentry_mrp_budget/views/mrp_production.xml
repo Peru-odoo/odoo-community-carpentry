@@ -72,16 +72,9 @@
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose components budgets">
-                            <div name="nobudget_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('amount_budgetable', '!=', 0)]}"
-                            >
-                                Please ensure "Operations" tab contains at least one product move (with a price) before placing a reservation.
-                            </div>
-                            
                             <field name="budget_analytic_ids"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
-                                attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'mrp.production',
@@ -89,8 +82,8 @@
                                 }"
                                 domain="[
                                     ('budget_project_ids', '=', project_id),
-                                    ('budget_type', 'in', ['goods', 'project_global_cost']
-                                )]"
+                                    ('budget_type', 'in', ['goods', 'project_global_cost'])
+                                ]"
                             />
                         </group>
                         
@@ -125,6 +118,7 @@
                                 options="{'create': 0}" widget="one2many"
                                 attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
+                                domain="[('budget_type', 'in', ['goods', 'project_global_cost'])]"
                             />
                         </group>
                     </group>

@@ -12,9 +12,3 @@ class CarpentryGroupAffectation(models.Model):
             ('mrp.production', 'Manufacturing Orders')
         ]
     
-    
-    def _get_budget_section_res_model(self):
-        return super()._get_budget_section_res_model() + [
-            'stock.picking',
-            'mrp.production'
-        ]

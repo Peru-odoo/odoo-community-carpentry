@@ -17,7 +17,11 @@ class CarpentryGroupAffectation(models.Model):
     
     #===== Fields =====#
     uom_name = fields.Char(compute='_compute_uom_name')
-    is_budget = fields.Boolean(compute='_compute_is_budget', default=False)
+    budget_type = fields.Selection(
+        selection=self.env['account.analytic.account']._fields['budget_type'].selection,
+        string='Budget type',
+        compute='_compute_budget_type',
+    )
 
     #===== Compute =====#
     @api.depends('group_id')
@@ -25,14 +29,12 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             affectation.uom_name = 'h' if affectation.group_ref.timesheetable else '€'
 
-    def _compute_is_budget(self):
-        section_res_models = self._get_budget_section_res_model()
+    @api.depends('group_id')
+    def _compute_budget_type(self):
         for affectation in self:
-            affectation.is_budget = affectation.section_res_model in section_res_models
-    def _get_budget_section_res_model(self):
-        """ To be inherited """
-        return []
-
+            is_budget = affectation.group_res_model == 'account.analytic.account'
+            affectation.budget_type = is_budget and affectation.group_ref.budget_type
+            
     #===== Logic methods =====#
     def _get_domain_siblings(self):
         """ Budget reservation are 3d-matrix:
