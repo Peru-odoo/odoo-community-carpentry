@@ -58,7 +58,10 @@ class ManufacturingOrder(models.Model):
             to_remove = existing - to_add
             print('to_add', to_add)
             print('to_remove', to_remove)
-            mo.budget_analytic_ids += to_add - to_remove
+            if to_add:
+                mo.budget_analytic_ids += to_add
+            if to_remove:
+                mo.budget_analytic_ids -= to_remove
 
     def _get_total_by_analytic(self):
         """ Group-sum real cost of components (& workcenter)
