@@ -11,10 +11,8 @@ class PurchaseOrder(models.Model):
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
 
     #====== Affectation refresh ======#
-    @api.depends('order_line', 'order_line.analytic_distribution')
-    def _compute_affectation_ids(self):
-        """ Inherite to add fields in @api.depends """
-        return super()._compute_affectation_ids()
+    def _get_fields_affectation_refresh(self):
+        return super()._get_fields_affectation_refresh() + ['budget_analytic_ids']
     
     @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_budget_analytic_ids(self):

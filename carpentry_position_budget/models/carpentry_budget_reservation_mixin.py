@@ -20,9 +20,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
 
     affectation_ids = fields.One2many(
         inverse_name='section_id',
-        compute='_compute_affectation_ids',
-        store=True,
-        readonly=False
+    )
+    readonly_affectation = fields.Boolean(
+        default=False
     )
     budget_analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
@@ -58,14 +58,26 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ When modifying some fields, we lock the affectation table.
             The matrix is unlocked at form save.
         """
-        vals_list = [vals | {'readonly_affectation': False} for vals in vals_list]
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._compute_affectation_ids()
+        return records
 
     def write(self, vals):
         vals['readonly_affectation'] = False
+        fields = self._get_fields_affectation_refresh()
+        if any(field in vals for field in fields):
+            self._compute_affectation_ids()
         return super().write(vals)
     
     #====== Affectation refresh ======#
+    def _get_fields_affectation_refresh(self):
+        return ['launch_ids']
+    
+    @api.onchange(lambda self: self._get_fields_affectation_refresh())
+    def _set_readonly_affectation(self):
+        """ Way to inform users the budget matrix must be re-computed """
+        self.readonly_affectation = True
+    
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
         """ Appends *Global Cost* (on the *project*) to the matrix """
         _super = super()._get_affectation_ids_vals_list
@@ -77,7 +89,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             vals_list += _super(temp, self.project_id, global_budgets)
         return vals_list
 
-    @api.depends('launch_ids') # add `order_line` and `move_raw_ids` in PO/MO
     def _compute_affectation_ids(self):
         """ Refresh budget matrix and auto-reservation when:
             - (un)selecting launches
@@ -89,7 +100,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             if order._has_real_affectation_matrix_changed(vals_list):
                 order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
                 order._auto_update_budget_distribution() # fills in
-                order.readonly_affectation = True # some way to inform users the budget matrix was re-computed
 
     #====== Affectation mixin methods ======#
     def _get_record_refs(self):
@@ -160,10 +170,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             new_distrib = {x.id: 100/nb_budgets for x in new_budgets}
             
             purchase.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
-
-    @api.onchange('budget_analytic_ids')
-    def _set_readonly_affectation(self):
-        self.readonly_affectation = True
 
     #===== Business logics =====#
     def _auto_update_budget_distribution(self):

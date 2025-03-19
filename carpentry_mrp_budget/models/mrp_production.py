@@ -31,12 +31,8 @@ class ManufacturingOrder(models.Model):
     def _get_component_budget_types(self):
         return ['goods', 'project_global_cost']
     
-    @api.depends('budget_analytic_ids')
-    def _compute_affectation_ids(self):
-        """ Update budget reservation matrix on
-            manual update of `budget_analytic_ids`
-        """
-        return super()._compute_affectation_ids()
+    def _get_fields_affectation_refresh(self):
+        return super()._get_fields_affectation_refresh() + ['budget_analytic_ids']
 
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
@@ -56,8 +52,6 @@ class ManufacturingOrder(models.Model):
             existing = mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin
             to_add = mo.move_raw_ids.analytic_ids._origin & project_budgets
             to_remove = existing - to_add
-            print('to_add', to_add)
-            print('to_remove', to_remove)
             if to_add:
                 mo.budget_analytic_ids += to_add
             if to_remove:
