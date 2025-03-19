@@ -47,7 +47,7 @@ class ManufacturingOrder(models.Model):
         for mo in self:
             project_budgets = mo.project_id.budget_line_ids.analytic_account_id
 
-            new = mo.filtered(lambda x: x._should_move_raw_reserve_budget()).move_raw_ids.analytic_ids # | mo.workorder_ids.workcenter_id.costs_hour_account_id
+            new = mo.filtered(lambda x: x._should_move_raw_reserve_budget()).move_raw_ids.analytic_ids._origin # | mo.workorder_ids.workcenter_id.costs_hour_account_id
             old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
             print('new', new)
             print('old', old)
