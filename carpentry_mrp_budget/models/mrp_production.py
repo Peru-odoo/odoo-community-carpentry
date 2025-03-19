@@ -11,6 +11,8 @@ class ManufacturingOrder(models.Model):
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     affectation_ids_production = fields.One2many(
+        comodel_name='carpentry.group.affectation',
+        inverse_name='section_id',
         domain=[('section_res_model', '=', _name), ('budget_type', '=', 'production')]
     )
     # affectation_ids_production = fields.One2many(
