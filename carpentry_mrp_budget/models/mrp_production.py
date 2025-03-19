@@ -12,10 +12,12 @@ class ManufacturingOrder(models.Model):
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     affectation_ids_production = fields.One2many(
         related='affectation_ids',
+        string='Affectations (production)',
+        readonly=False,
         domain=[
             ('section_res_model', '=', _name),
             ('budget_type', 'in', ['production'])
-        ]
+        ],
     )
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
@@ -28,6 +30,7 @@ class ManufacturingOrder(models.Model):
     budget_analytic_ids_production = fields.Many2many(
         related='budget_analytic_ids',
         string='Budget (production)',
+        readonly=False,
         domain="""[
             ('budget_project_ids', '=', project_id),
             ('budget_type', 'in', ['production'])
