@@ -180,8 +180,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         budget_distribution = self._get_auto_launch_budget_distribution()
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
-            auto_reservation = budget_distribution.get(key, 0.0)
-            affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
+            auto_reservation = budget_distribution.get(key, None)
+            if auto_reservation != None:
+                affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
     
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of a PO or MO, considering:

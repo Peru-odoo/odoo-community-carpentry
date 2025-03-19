@@ -55,18 +55,6 @@ class ManufacturingOrder(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
 
-    #===== Affectations: time =====#
-    def _compute_affectation_ids_production(self):
-        domain = [('budget_type', '=', 'production')]
-        for production in self:
-            production.affectation_ids_production = production.affectation_ids.filtered_domain(domain)
-    
-    def _inverse_affectation_ids_production(self):
-        domain = [('budget_type', '=', 'production')]
-        self.affectation_ids.filtered_domain(domain).unlink()
-        for production in self:
-            production.affectation_ids += production.affectation_ids_production
-
     #===== Affectations: compute =====#
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
@@ -120,7 +108,7 @@ class ManufacturingOrder(models.Model):
                 qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
                 mapped_cost[analytic_id] += qty * move.sudo()._get_price_unit() * percentage / 100
         
-        # Workcenter
+        # Workcenter: fully manual, no cost automation (0,00h by default)
         # for wo in self.workorder_ids:
         #     analytic = wo.workcenter_id.costs_hour_account_id
         #     # Ignore cost if analytic not in project's budget
