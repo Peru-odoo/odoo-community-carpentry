@@ -21,9 +21,9 @@
                     attrs="{'invisible': [('record_res_model', '=', 'project.project')]}"
                 />
                 <field name="quantity_available" string="Available" sum="1"  />
-                <field name="uom_name" nolabel="1" />
+                <field name="budget_unit" nolabel="1" />
                 <field name="quantity_affected" string="Reservation" required="1" sum="1" />
-                <field name="uom_name" nolabel="1" />
+                <field name="budget_unit" nolabel="1" />
             </tree>
         </field>
     </record>

@@ -44,12 +44,12 @@ class AccountAnalyticAccount(models.Model):
             amount_remaining = remaining_budget.get(id_, 0.0)
             if not float_is_zero(amount_remaining, precision_rounding=analytic.currency_id.rounding):
                 amount_str = format_amount(self.env, amount_remaining, analytic.currency_id)
-                if analytic.timesheetable:
+                if analytic.budget_unit == 'h':
                     amount_str = amount_str.replace('€', 'h')
                 name += f' ({amount_str})'
             
             # clock
-            name += ' 🕓' if analytic.timesheetable else ''
+            name += ' 🕓' if analytic.budget_unit == 'h' else ''
 
             res_updated.append((id_, name))
         
@@ -68,6 +68,9 @@ class AccountAnalyticAccount(models.Model):
             'project_global_cost': 'set goods',
         }
     )
+    budget_unit = fields.Char(
+        compute='_compute_budget_unit'
+    )
     template_line_ids = fields.One2many(
         # for domain in Interface
         comodel_name='account.move.budget.line.template',
@@ -78,6 +81,10 @@ class AccountAnalyticAccount(models.Model):
         if self.budget_type in ['service', 'production', 'installation']:
             return 'workforce'
         return super()._get_default_line_type()
+    
+    def _compute_budget_unit(self):
+        for analytic in self:
+            analytic.budget_unit = 'h' if analytic._get_default_line_type() == 'workforce' else '€' 
     
     #===== Native ORM methods =====#
     def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):

@@ -16,7 +16,7 @@ class ManufacturingOrder(models.Model):
         readonly=False,
         domain=[
             ('section_res_model', '=', _name),
-            ('budget_type', 'in', ['production'])
+            ('budget_type', '=', 'production')
         ],
     )
     budget_analytic_ids = fields.Many2many(
