@@ -23,19 +23,15 @@ class StockPicking(models.Model):
 
     def _should_reserve_budget(self):
         return self._is_to_external_location() and self.state not in ['draft', 'cancel']
-
-    @api.depends('budget_analytic_ids')
-    def _compute_affectation_ids(self):
-        """ Update budget reservation matrix on
-            manual update of `budget_analytic_ids`
-        """
-        to_compute = self.filtered(lambda x: x._should_reserve_budget())
-        (self - to_compute).affectation_ids = False
-        return super(StockPicking, to_compute)._compute_affectation_ids()
+    
+    def _get_fields_affectation_refresh(self):
+        return super()._get_fields_affectation_refresh() + ['move_ids']
 
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
+        self._set_readonly_affectation()
+        
         to_compute = self.filtered(lambda x: x._should_reserve_budget())
         (self - to_compute).budget_analytic_ids = False
         

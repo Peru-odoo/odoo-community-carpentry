@@ -71,9 +71,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     
     #====== Affectation refresh ======#
     def _get_fields_affectation_refresh(self):
-        return ['launch_ids']
+        return ['launch_ids', 'budget_analytic_ids']
     
-    @api.onchange(lambda self: self._get_fields_affectation_refresh())
+    @api.onchange('launch_ids', 'budget_analytic_ids')
     def _set_readonly_affectation(self):
         """ Way to inform users the budget matrix must be re-computed """
         self.readonly_affectation = True

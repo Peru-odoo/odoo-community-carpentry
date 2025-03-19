@@ -28,12 +28,13 @@ class ManufacturingOrder(models.Model):
 
     def _should_move_raw_reserve_budget(self):
         return self.state not in ['cancel']
+    
     def _get_component_budget_types(self):
         return ['goods', 'project_global_cost']
     
     def _get_fields_affectation_refresh(self):
-        return super()._get_fields_affectation_refresh() + ['budget_analytic_ids']
-
+        return super()._get_fields_affectation_refresh() + ['move_raw_ids']
+    
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ MO's budgets are updated automatically from:
@@ -42,6 +43,8 @@ class ManufacturingOrder(models.Model):
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
+        self._set_readonly_affectation()
+
         to_clean = self.filtered(lambda x: not x._should_move_raw_reserve_budget())
         to_clean.budget_analytic_ids = False
 
