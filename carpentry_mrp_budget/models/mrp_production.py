@@ -10,6 +10,13 @@ class ManufacturingOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    affectation_ids_production = fields.One2many(
+        related='affectation_ids',
+        domain=[
+            ('section_res_model', '=', _name),
+            ('budget_type', 'in', ['production'])
+        ]
+    )
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
         column1='production_id',
@@ -17,6 +24,14 @@ class ManufacturingOrder(models.Model):
         inverse='', # cancel from mixin
         store=True,
         readonly=False,
+    )
+    budget_analytic_ids_production = fields.Many2many(
+        related='budget_analytic_ids',
+        string='Budget (production)',
+        domain="""[
+            ('budget_project_ids', '=', project_id),
+            ('budget_type', 'in', ['production'])
+        ]"""
     )
     amount_budgetable = fields.Monetary(string='Total cost (components)')
     amount_gain = fields.Monetary(string='Gain (components)')

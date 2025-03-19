@@ -17,10 +17,9 @@ class CarpentryGroupAffectation(models.Model):
     
     #===== Fields =====#
     uom_name = fields.Char(compute='_compute_uom_name_is_budget_timesheetable')
-    is_budget = fields.Boolean(compute='_compute_uom_name_is_budget_timesheetable')
-    timesheetable = fields.Boolean(
-        compute='_compute_uom_name_is_budget_timesheetable',
-        search='_search_timesheetable',
+    budget_type = fields.Boolean(
+        compute='_compute_uom_name_budget_type',
+        search='_search_budget_type',
     )
 
     #===== Compute =====#
@@ -30,15 +29,12 @@ class CarpentryGroupAffectation(models.Model):
             # uom_name
             affectation.uom_name = 'h' if affectation.group_ref.timesheetable else '€'
 
-            # is_budget
+            # budget_type
             is_budget = affectation.group_res_model == 'account.analytic.account'
-            affectation.is_budget = is_budget
-
-            # timesheetable
-            affectation.timesheetable = is_budget and affectation.group_ref.timesheetable
+            affectation.budget_type = is_budget and affectation.group_ref.budget_type
     
-    def _search_timesheetable(self, operator, value):
-        return [('group_ref.timesheetable', operator, value)]
+    def _search_budget_type(self, operator, value):
+        return [('group_ref.budget_type', operator, value)]
 
     #===== Logic methods =====#
     def _get_domain_siblings(self):
