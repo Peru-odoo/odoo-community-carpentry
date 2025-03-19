@@ -49,9 +49,15 @@ class ManufacturingOrder(models.Model):
 
             new = mo.filtered(lambda x: x._should_move_raw_reserve_budget()).move_raw_ids.analytic_ids # | mo.workorder_ids.workcenter_id.costs_hour_account_id
             old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
+            print('new', new)
+            print('old', old)
             to_add = new - new & old
             to_remove = old - new & old
-            mo.budget_analytic_ids = to_add.filtered('is_project_budget') & project_budgets - to_remove
+            print('to_add', to_add)
+            print('to_remove', to_remove)
+            if to_add or to_remove:
+                print('to_add.filtered(is_project_budget) & project_budgets', to_add.filtered('is_project_budget') & project_budgets)
+                mo.budget_analytic_ids += to_add.filtered('is_project_budget') & project_budgets - to_remove
 
     def _get_total_by_analytic(self):
         """ Group-sum real cost of components (& workcenter)
