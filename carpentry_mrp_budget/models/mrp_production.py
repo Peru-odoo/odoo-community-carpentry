@@ -51,7 +51,7 @@ class ManufacturingOrder(models.Model):
         return ['goods', 'project_global_cost']
     
     def _get_fields_affectation_refresh(self):
-        return super()._get_fields_affectation_refresh() + ['move_raw_ids']
+        return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
     
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):

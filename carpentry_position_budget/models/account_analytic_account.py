@@ -47,9 +47,6 @@ class AccountAnalyticAccount(models.Model):
                 if analytic.budget_unit == 'h':
                     amount_str = amount_str.replace('€', 'h')
                 name += f' ({amount_str})'
-            
-            # clock
-            name += ' 🕓' if analytic.budget_unit == 'h' else ''
 
             res_updated.append((id_, name))
         
