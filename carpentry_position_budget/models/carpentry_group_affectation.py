@@ -16,7 +16,7 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
-    uom_name = fields.Char(compute='_compute_uom_name_is_budget_timesheetable')
+    uom_name = fields.Char(compute='_compute_uom_name_budget_type')
     budget_type = fields.Selection(
         selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
         compute='_compute_uom_name_budget_type',
@@ -25,7 +25,7 @@ class CarpentryGroupAffectation(models.Model):
 
     #===== Compute =====#
     @api.depends('group_id', 'group_res_model')
-    def _compute_uom_name_is_budget_timesheetable(self):
+    def _compute_uom_name_budget_type(self):
         for affectation in self:
             # uom_name
             affectation.uom_name = 'h' if affectation.group_ref.timesheetable else '€'
