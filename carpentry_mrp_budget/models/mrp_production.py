@@ -27,7 +27,7 @@ class ManufacturingOrder(models.Model):
     currency_id = fields.Many2one(related='project_id.currency_id')
 
     def _should_move_raw_reserve_budget(self):
-        return self.state not in ['draft', 'cancel']
+        return self.state not in ['cancel']
     
     @api.depends('budget_analytic_ids')
     def _compute_affectation_ids(self):
@@ -51,7 +51,7 @@ class ManufacturingOrder(models.Model):
             old = mo._origin.move_raw_ids.analytic_ids # | mo._origin.workorder_ids.workcenter_id.costs_hour_account_id
             print('new', new)
             print('old', old)
-            to_add = new - new & old
+            to_add = new.filtered('is_project_budget') & project_budgets
             to_remove = old - new & old
             print('to_add', to_add)
             print('to_remove', to_remove)

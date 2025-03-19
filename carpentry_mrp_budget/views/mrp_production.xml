@@ -59,7 +59,7 @@
             <!-- Add `Budget (components)` notebook tab -->
             <page name="components" position="after">
                 <page name="budget" string="Budget (components)" attrs="{
-                    'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]
+                    'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]
                 }">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="warning_banner" role="alert" colspan="2" class="alert alert-warning"
