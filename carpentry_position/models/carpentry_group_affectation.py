@@ -144,7 +144,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     section_ref = fields.Reference(
         selection='_selection_section_res_model',
-        compute='_compute_section_ref',
+        compute='_compute_fields_ref',
         search='_search_section_ref',
     )
     seq_section = fields.Integer()
