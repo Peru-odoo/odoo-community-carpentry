@@ -92,13 +92,13 @@
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve components budget">
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
+                                attrs="{'invisible': [('affectation_ids_components', '!=', [])]}"
                             >
                                 Please select launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"
-                                attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
+                                attrs="{'invisible': ['|', ('affectation_ids_components', '=', []), ('id', '=', False)]}"
                             >
                                 Total expense amount affected to the project:
                                 <strong><field name="amount_budgetable" class="oe_inline" /></strong>.
@@ -115,10 +115,10 @@
                                 Recorded loss: <strong><field name="amount_loss" class="oe_inline" /></strong>.
                             </p>
                             
-                            <field name="affectation_ids"
+                            <field name="affectation_ids_components"
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}" widget="one2many"
-                                attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
+                                attrs="{'invisible': [('affectation_ids_components', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
                         </group>
@@ -134,7 +134,7 @@
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose work order budgets">
-                            <field name="budget_analytic_ids_production"
+                            <field name="budget_analytic_ids_workorder"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
                                 context="{
@@ -148,22 +148,22 @@
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve work order budget">
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
+                                attrs="{'invisible': [('affectation_ids_workorder', '!=', [])]}"
                             >
-                                Please select launch(es) for placing a reservation.
+                                Please select budget(s) and launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"
-                                attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('id', '=', False)]}"
+                                attrs="{'invisible': ['|', ('affectation_ids_workorder', '=', []), ('id', '=', False)]}"
                             >
                                 Total expected hours:
                                 <strong><field name="production_duration_hours_expected" class="oe_inline" /> h</strong>.
                             </p>
                             
-                            <field name="affectation_ids_production"
+                            <field name="affectation_ids_workorder"
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}" widget="one2many"
-                                attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
+                                attrs="{'invisible': [('affectation_ids_workorder', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
                         </group>

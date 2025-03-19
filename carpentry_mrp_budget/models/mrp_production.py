@@ -10,16 +10,16 @@ class ManufacturingOrder(models.Model):
 
     #====== Fields ======#
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    affectation_ids_production = fields.One2many(
+    affectation_ids_components = fields.One2many(
+        comodel_name='carpentry.group.affectation',
+        inverse_name='section_id',
+        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['goods', 'project_global_cost'])]
+    )
+    affectation_ids_workorder = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='section_id',
         domain=[('section_res_model', '=', _name), ('budget_type', '=', 'production')]
     )
-    # affectation_ids_production = fields.One2many(
-    #     comodel_name='carpentry.group.affectation',
-    #     compute='_compute_affectation_ids_production',
-    #     inverse='_inverse_affectation_ids_production',
-    # )
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
         column1='production_id',
@@ -28,7 +28,7 @@ class ManufacturingOrder(models.Model):
         store=True,
         readonly=False,
     )
-    budget_analytic_ids_production = fields.Many2many(
+    budget_analytic_ids_workorder = fields.Many2many(
         related='budget_analytic_ids',
         string='Budget (production)',
         readonly=False,
