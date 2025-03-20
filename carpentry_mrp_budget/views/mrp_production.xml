@@ -126,7 +126,7 @@
                 </page>
             </page>
 
-            <!-- Add `Budget (hours)` notebook tab -->
+            <!-- Add `Budget (work orders)` notebook tab -->
             <page name="operations" position="after">
                 <page name="operations_budget" string="Budget (work orders)" attrs="{
                     'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]
@@ -156,7 +156,7 @@
                             <p colspan="2"
                                 attrs="{'invisible': ['|', ('affectation_ids_workorder', '=', []), ('id', '=', False)]}"
                             >
-                                Total expected hours:
+                                Total expected:
                                 <strong><field name="production_duration_hours_expected" class="oe_inline" /> h</strong>.
                             </p>
                             

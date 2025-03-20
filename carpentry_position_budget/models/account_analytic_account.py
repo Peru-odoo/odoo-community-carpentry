@@ -96,9 +96,7 @@ class AccountAnalyticAccount(models.Model):
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
-        print('=== _get_quantities_available ===')
         mode = self._context.get('budget_mode')
-        print('mode', mode)
         section = fields.first(affectations).section_ref
         launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
@@ -130,35 +128,14 @@ class AccountAnalyticAccount(models.Model):
         brut, valued = self._get_available_budget_initial(launchs, section)
         reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
 
-        domain = [('timesheetable', '=', True)]
-        timesheetable_analytics_ids = self.env['account.analytic.account'].search(domain).ids
-
         # careful: browse all keys and all rows of both `brut-or-valued` and `reserved`
         # since they might be budget without reservation *or* reservation without budget
         remaining = reserved.copy() # are values are negative (`sign=-1`)
-
-        def __add_available_budget(remaining, budget_dict, add_mode):
-            if mode and add_mode != mode:
-                return remaining
-            
-            for (model, record_id), budgets in budget_dict.items():
-                for analytic_id, amount_available in budgets.items():
-                    timesheetable = analytic_id in timesheetable_analytics_ids
-                    if (
-                        # either a specific mode is wanted
-                        mode and add_mode == mode or not mode and (
-                            # or computation mixes both mode: add `h` or `€` depending
-                            # analytic type (timesheetable or not)
-                            timesheetable and add_mode == 'brut' or # h
-                            not timesheetable and add_mode == 'valued' # €
-                        )
-                    ):
-                        key = (model, record_id, analytic_id)
-                        remaining[key] = remaining.get(key, 0.0) + amount_available
-            return remaining
-        
-        # remaining = __add_available_budget(remaining, brut, 'brut')
-        remaining = __add_available_budget(remaining, valued, 'valued')
+        budget_dict = brut if mode == 'brut' else valued
+        for (model, record_id), budgets in budget_dict.items():
+            for analytic_id, amount_available in budgets.items():
+                key = (model, record_id, analytic_id)
+                remaining[key] = remaining.get(key, 0.0) + amount_available
         
         return remaining
     

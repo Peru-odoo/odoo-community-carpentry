@@ -333,8 +333,8 @@ msgstr "Coût total"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
-msgid "Total expected hours:"
-msgstr "Durée prévue (h):"
+msgid "Total expected:"
+msgstr "Durée prévue:"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
