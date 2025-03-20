@@ -335,6 +335,8 @@ class CarpentryGroupAffectation(models.Model):
 
     @api.depends('record_id', 'group_id', 'section_id', 'active')
     def _compute_quantity_available(self):
+        print('=== _compute_quantity_available ===')
+        print('self._context', self._context)
         # Technically check if computation is relevant/possible
         self.group_model_id.ensure_one()
         group_res_model = fields.first(self).group_res_model

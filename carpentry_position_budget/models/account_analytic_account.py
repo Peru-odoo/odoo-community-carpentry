@@ -96,7 +96,9 @@ class AccountAnalyticAccount(models.Model):
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
+        print('=== _get_quantities_available ===')
         mode = self._context.get('budget_mode')
+        print('mode', mode)
         section = fields.first(affectations).section_ref
         launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
