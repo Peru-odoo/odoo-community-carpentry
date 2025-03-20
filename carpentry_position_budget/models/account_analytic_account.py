@@ -96,10 +96,11 @@ class AccountAnalyticAccount(models.Model):
             - the Budget type (affectation.group_ref) *and*
             - the PO or MO (affectation.section_ref)
         """
+        mode = self._context.get('budget_mode')
         section = fields.first(affectations).section_ref
         launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
         launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
-        remaining_budget = self._get_remaining_budget(launchs, section)
+        remaining_budget = self._get_remaining_budget(launchs, section, mode)
         return remaining_budget
 
     def _get_remaining_budget_groupped(self, launchs, section=None, mode=None):
@@ -154,7 +155,7 @@ class AccountAnalyticAccount(models.Model):
                         remaining[key] = remaining.get(key, 0.0) + amount_available
             return remaining
         
-        remaining = __add_available_budget(remaining, brut, 'brut')
+        # remaining = __add_available_budget(remaining, brut, 'brut')
         remaining = __add_available_budget(remaining, valued, 'valued')
         
         return remaining

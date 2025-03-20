@@ -164,7 +164,10 @@
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}" widget="one2many"
                                 attrs="{'invisible': [('affectation_ids_workorder', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
-                                context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
+                                context="{
+                                    'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',
+                                    'budget_mode': 'brut',
+                                }"
                             />
                         </group>
                     </group>
