@@ -22,20 +22,6 @@ class ProductProduct(models.Model):
         
         return res
 
-
-
-
-    # def _get_domain_locations(self):
-    #     """ Do not count `Consumed` qties in `virtual_available` (Forecast)
-    #         To switch back to standard computation, pass `qties_raw_material_included` in context
-    #     """
-    #     domain_quant_loc, domain_move_in_loc, domain_move_out_loc = super()._get_domain_locations()
-
-    #     if not self._context.get('qties_raw_material_included'):
-    #         domain_move_out_loc = [('raw_material_production_id', '=', False)] + domain_move_out_loc
-
-    #     return domain_quant_loc, domain_move_in_loc, domain_move_out_loc
-
     def _get_qties_outgoing_raw_material(self, owner_id=None, from_date=False, to_date=False):
         """ Inspired from native `_compute_quantities_dict()`
             Returns `quantity_done` of pending moves of MO's raw materials (components)
