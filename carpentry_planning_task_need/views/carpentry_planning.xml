@@ -14,16 +14,17 @@
 
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'project.task'">
+                    <button title="Activate" name="action_plan_need" type="object"
+                        class="btn btn-primary btn-sm"
+                    >
+                        Plan
+                    </button>
+
                     <span t-attf-class="o_kanban_inline_block badge fs-6 fw-normal text-bg-{{record.planning_card_color_class.raw_value}}">
-                        <span class="fa fa-calendar me-1" title="Calendar" />
+                        <span class="fa fa-calendar mx-1" title="Calendar" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
                     </span>
                     
-                    <button title="Activate" name="action_plan_need" type="object"
-                        class="btn btn-primary"
-                    >
-                        <span class="fa fa-paper-plane me-1" title="Calendar" />
-                    </button>
                 </t>
             </t>
         </field>
