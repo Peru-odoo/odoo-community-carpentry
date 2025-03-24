@@ -79,7 +79,7 @@ class PlanRelease(models.Model):
         compute='_compute_sequence',
         store=True
     )
-    planning_card_state = fields.Selection(
+    planning_card_color_class = fields.Selection(
         related='state'
     )
     

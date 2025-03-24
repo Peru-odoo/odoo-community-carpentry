@@ -61,7 +61,10 @@ class CarpentryPlanningCard(models.Model):
     )
 
     # color of body's template (button)
-    planning_card_color_class = fields.Char(compute='_compute_fields')
+    planning_card_color_class = fields.Char(
+        string='Planning Card Color Class',
+        compute='_compute_fields',
+    )
     # color of card's left bar
     planning_card_color_is_auto = fields.Boolean(compute='_compute_fields')
     planning_card_color_int = fields.Integer(

@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.tools import date_utils
-from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
+from odoo.addons.carpentry_planning.models.carpentry_planning_mixin import PLANNING_CARD_COLOR
 
 XML_ID_NEED = 'carpentry_planning_task_need.task_type_need'
 
