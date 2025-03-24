@@ -79,9 +79,6 @@ class PlanRelease(models.Model):
         compute='_compute_sequence',
         store=True
     )
-    planning_card_color_class = fields.Char(
-        compute='_compute_planning_card_color_class'
-    )
     
     #===== Constraints =====#
     _sql_constraints = [(

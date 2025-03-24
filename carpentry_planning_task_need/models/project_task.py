@@ -61,9 +61,6 @@ class Task(models.Model):
         ondelete='set null',
         recursive=True
     )
-    planning_card_color_class = fields.Selection(
-        compute='_compute_planning_card_color_class'
-    )
     launch_ids = fields.One2many(
         comodel_name='carpentry.group.launch',
         string='Launches',
@@ -101,12 +98,6 @@ class Task(models.Model):
     def _search_launch_ids(self, operator, value):
         return [('launch_id', operator, value)]
     
-    # PLANNING_CARD_COLOR = {
-    #     'muted': 0, # info: 4
-    #     'warning': 2,
-    #     'success': 10, # 20
-    #     'danger': 9, # 23
-    # }
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):
         for task in self:

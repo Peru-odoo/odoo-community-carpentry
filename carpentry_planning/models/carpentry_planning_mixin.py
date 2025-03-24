@@ -25,9 +25,8 @@ class CarpentryPlanningMixin(models.AbstractModel):
     planning_card_color_class = fields.Char(
         # Card Text color. CSS class of "text-bg-xxxxx"
         # Values should be 'muted', 'success', 'warning' or 'danger'
-        # Should be overwritten with a `compute` or `related`
         string='Planning Card Color (class)',
-        store=False,
+        compute='_compute_planning_card_color_class',
     )
     planning_card_color_int = fields.Integer(
         # Card Left-Bar color. CSS class of "oe_kanban_color_xxxxx"
@@ -60,6 +59,10 @@ class CarpentryPlanningMixin(models.AbstractModel):
         return {}
 
     #===== Compute =====#
+    def _compute_planning_card_color_class(self):
+        """ [TO BE OVERWITTEN] """
+        pass
+    
     def _compute_planning_card_color_int(self):
         """ Computes `planning_card_color_int` from `planning_card_color_class` as per
             dict `PLANNING_CARD_COLOR`
