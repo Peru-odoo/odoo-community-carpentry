@@ -12,6 +12,7 @@ import csv, os
 class CarpentryPlanningCard(models.Model):
     _name = 'carpentry.planning.card'
     _description = 'Planning Cards'
+    _auto = False
     _order = 'sequence'
 
     #===== Fields methods =====#
