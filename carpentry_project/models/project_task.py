@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, api, _
+from odoo.tools import html2plaintext, plaintext2html
 
 class ProjectTask(models.Model):
     _inherit = ["project.task"]

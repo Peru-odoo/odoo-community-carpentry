@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _, exceptions, Command
-
 from datetime import timedelta
-from odoo.tools import html2plaintext, plaintext2html
 
 class Task(models.Model):
     _inherit = ["project.task"]
