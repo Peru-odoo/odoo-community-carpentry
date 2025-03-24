@@ -84,8 +84,8 @@ class Task(models.Model):
     @api.constrains('type_id')
     def _constrain_no_change_type_id(self):
         """ Cannot change `type_id` for Task of `type=need` """
-        
-        if self.exists()._filter_needs().ids:
+        needs = self.exists()._filter_needs()
+        if needs.filtered(lambda self: self.type_id != self._origin.type_id):
             raise exceptions.ValidationError(
                 _("Cannot change a Need Category of the Task once it is created.")
             )
