@@ -69,7 +69,7 @@
             <!-- Lines color -->
             <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
                 <attribute name="decoration-success">
-                    state != 'draft' and
+                    state != 'draft' &amp;&amp;
                     quantity_done == product_uom_qty
                 </attribute>
             </xpath>

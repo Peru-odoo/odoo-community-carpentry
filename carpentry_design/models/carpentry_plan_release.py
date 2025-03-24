@@ -79,8 +79,8 @@ class PlanRelease(models.Model):
         compute='_compute_sequence',
         store=True
     )
-    planning_card_color_class = fields.Selection(
-        related='state'
+    planning_card_color_class = fields.Char(
+        compute='_compute_planning_card_color_class'
     )
     
     #===== Constraints =====#
@@ -91,6 +91,11 @@ class PlanRelease(models.Model):
     )]
 
     #===== Compute =====#
+    @api.depends('state')
+    def _compute_planning_card_color_class(self):
+        for plan in self:
+            plan.planning_card_color_class = plan.state
+    
     @api.depends('date_plan_publish', 'date_visa_feedback')
     def _compute_weeks(self):
         for release in self:

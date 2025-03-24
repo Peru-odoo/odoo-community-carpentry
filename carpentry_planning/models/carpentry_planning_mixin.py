@@ -22,17 +22,12 @@ class CarpentryPlanningMixin(models.AbstractModel):
         default=True,
         store=False
     )
-    planning_card_color_class = fields.Selection(
+    planning_card_color_class = fields.Char(
         # Card Text color. CSS class of "text-bg-xxxxx"
+        # Values should be 'muted', 'success', 'warning' or 'danger'
         # Should be overwritten with a `compute` or `related`
         string='Planning Card Color (class)',
-        selection=[
-            ('muted', 'Grey'),
-            ('success', 'Green'),
-            ('warning', 'Orange'),
-            ('danger', 'Red')
-        ],
-        store=False
+        store=False,
     )
     planning_card_color_int = fields.Integer(
         # Card Left-Bar color. CSS class of "oe_kanban_color_xxxxx"

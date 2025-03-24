@@ -66,6 +66,7 @@ class Task(models.Model):
     )
     launch_ids = fields.One2many(
         comodel_name='carpentry.group.launch',
+        string='Launches',
         compute='_compute_launch_ids',
         search='_search_launch_ids',
     )
