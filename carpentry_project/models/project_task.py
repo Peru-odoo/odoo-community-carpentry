@@ -44,7 +44,7 @@ class ProjectTask(models.Model):
     def _compute_create_date_week(self):
         for task in self:
             date = task.create_date
-            task.create_date_week = bool(date) and _('W%s', % str(date.isocalendar()[1]))
+            task.create_date_week = bool(date) and _('W%s', str(date.isocalendar()[1]))
     
     #===== Compute `stage_id` depending `date_end` =====#
     @api.depends('date_end')
