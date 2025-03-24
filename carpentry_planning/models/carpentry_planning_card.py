@@ -211,7 +211,7 @@ class CarpentryPlanningCard(models.Model):
         for card in self:
             model_to_ids[card.res_model].append(card.res_id)
         for model, ids in model_to_ids.items():
-            env = self.env.with_context(active_test=self.env[model]._carpentry_planning_active_test)
+            env = self.with_context(active_test=self.env[model]._carpentry_planning_active_test).env
             model_to_recordset[model] = env[model].browse(ids)
         
         return {
@@ -261,8 +261,6 @@ class CarpentryPlanningCard(models.Model):
         #     [(field, operator, value) for field in fields]
         # ])
         domain = expression.OR([[(field, operator, value)] for field in fields])
-        print('=== _search_launch_ids ===')
-        print('domain', domain)
         return domain
 
     #===== Planning Features =====#
