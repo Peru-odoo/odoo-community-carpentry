@@ -20,7 +20,7 @@
                         Plan
                     </button>
 
-                    <span t-attf-class="o_kanban_inline_block badge fs-6 fw-normal text-bg-{{record.planning_card_color_class.raw_value}}">
+                    <span t-attf-class="o_kanban_inline_block fs-6 btn btn-{{record.planning_card_color_class.raw_value}}">
                         <span class="fa fa-calendar mx-1" title="Calendar" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
                     </span>
