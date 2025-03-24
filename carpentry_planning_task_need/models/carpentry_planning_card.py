@@ -20,6 +20,6 @@ class CarpentryPlanningCard(models.Model):
         return super()._get_fields() + ['week_deadline', 'type_name']
 
     #===== Button =====#
-    def action_plan_need(self):
+    def action_activate_need(self):
         task = self.env['project.task'].browse(self.res_id)
         return task.action_plan_need()

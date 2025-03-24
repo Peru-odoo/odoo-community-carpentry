@@ -34,11 +34,11 @@
 
                 <t t-if="!record.active.raw_value">
                     <br />
-                    <button name="action_plan_need" type="object"
-                        class="badge fs-6 text-bg-primary mt-1"
+                    <button name="action_activate_need" type="object"
+                        class="fs-6 fw-normal text-bg-primary mt-1"
                         title="Add this task to assignee's 'My Tasks' page"
                     >
-                        Plan
+                        Activate
                     </button>
                 </t>
             </t>

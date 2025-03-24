@@ -194,7 +194,7 @@ class Task(models.Model):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
     #===== Planning =====#
-    def action_plan_need(self):
+    def action_activate_need(self):
         self.write({
             'active': True,
             'stage_id': self._get_default_stage_id().id,
