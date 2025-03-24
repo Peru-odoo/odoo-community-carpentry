@@ -89,7 +89,7 @@
                                         <t t-call="card_body" />
                                     </div>
                                 </div>
-                                <div class="o_kanban_record_bottom">
+                                <!-- <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
                                         <t t-call="card_bottom" />
                                     </div>
@@ -103,15 +103,6 @@
                                                     <span class="fa fa-ellipsis-v"/>
                                                 </a>
                                                 <div class="dropdown-menu" role="menu">
-                                                    <!-- Open buttons -->
-                                                    <!-- <div>
-                                                        <a role="menuitem" type="object" name="action_name_12345" class="dropdown-item">
-                                                            <span class="fa fa-icon" /> Menu line
-                                                        </a>
-                                                    </div> -->
-                                                    
-                                                    <!-- <a role="menuitem" type="bbbbbbbbb" class="dropdown-item">bbbbbbbbb</a> -->
-                                                    <!-- <div role="separator" class="dropdown-divider"></div> -->
                                                     <t t-if="!record.planning_card_color_is_auto.raw_value">
                                                         <ul class="oe_kanban_colorpicker" data-field="planning_card_color_int" />
                                                     </t>
@@ -119,7 +110,7 @@
                                             </div>
                                         </t>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="clearfix" />
                         </div>
