@@ -35,7 +35,7 @@
                 <t t-if="!record.active.raw_value">
                     <br />
                     <button name="action_plan_need" type="object"
-                        class="badge fw-normal text-bg-primary"
+                        class="badge fw-normal text-bg-primary mt-1"
                         title="Add this task to assignee's 'My Tasks' page"
                     >
                         Plan

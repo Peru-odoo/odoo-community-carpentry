@@ -162,6 +162,7 @@
         <field name="name">Create and affect needs</field>
         <field name="res_model">carpentry.need.family</field>
         <field name="view_mode">tree,form</field>
+        <field name="contexte">{'active_test': False}</field>
     </record>
 
     <menuitem id="menu_project_need_section"
