@@ -13,6 +13,7 @@ class CarpentryPlanningMixin(models.AbstractModel):
     """ To be inherited of models that can be Carpentry Planning's columns """
     _name = "carpentry.planning.mixin"
     _description = 'Planning Mixin'
+    _carpentry_planning_active_test = True # False on `project.task`
 
     active = fields.Boolean(default=True)
     planning_card_color_is_auto = fields.Boolean(

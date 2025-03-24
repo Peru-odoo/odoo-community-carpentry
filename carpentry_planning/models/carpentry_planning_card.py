@@ -211,12 +211,14 @@ class CarpentryPlanningCard(models.Model):
         for card in self:
             model_to_ids[card.res_model].append(card.res_id)
         for model, ids in model_to_ids.items():
-            model_to_recordset[model] = self.env[model].browse(ids)
+            env = self.env.with_context(active_test=self.env[model]._carpentry_planning_active_test)
+            model_to_recordset[model] = env[model].browse(ids)
         
         return {
             card.id: model_to_recordset.get(
                 card.res_model, self.env[card.res_model]
-            ).browse(card.res_id)
+            ).with_context(active_test=self.env[card.res_model]._carpentry_planning_active_test)
+            .browse(card.res_id)
             for card in self
         }
     
