@@ -19,7 +19,7 @@
 
             <!-- Add `planning_task` sub-template -->
             <templates position="inside">
-                <t t-name="planning_tasks">
+                <t t-name="card_bottom" position="inside">
                     <t t-set="fw" t-value="'fw-bold'" t-if="record.task_state.raw_value == 'warning' or record.task_state.raw_value == 'danger'" />
 
                     <!-- Content & title -->
@@ -47,11 +47,6 @@
                     </a>
                 </t>
             </templates>
-
-            <!-- Call `planning_tasks` -->
-            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
-                <t t-call="planning_tasks" />
-            </xpath>
         </field>
     </record>
 </odoo>
