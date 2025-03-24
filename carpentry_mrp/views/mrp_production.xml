@@ -69,8 +69,7 @@
             <!-- Lines color -->
             <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
                 <attribute name="decoration-success">
-                    state != 'draft' &amp;&amp;
-                    quantity_done == product_uom_qty
+                    state != 'draft' and quantity_done == product_uom_qty
                 </attribute>
             </xpath>
             <!-- To consume: without widget -->

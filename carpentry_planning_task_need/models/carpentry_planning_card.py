@@ -10,7 +10,7 @@ class CarpentryPlanningCard(models.Model):
     project_task_id = fields.Many2one(
         # for research by launches
         comodel_name='project.task',
-        string='Task'
+        string='Task',
     )
 
     week_deadline = fields.Integer(compute='_compute_fields')

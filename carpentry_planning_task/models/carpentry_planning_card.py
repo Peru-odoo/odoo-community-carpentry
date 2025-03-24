@@ -18,7 +18,8 @@ class CarpentryPlanningCard(models.Model):
     # /!\ not computed by ORM, manually called from overwritten `search_read`
     task_ids = fields.One2many(
         comodel_name='project.task',
-        compute='_compute_task_ids'
+        compute='_compute_task_ids',
+        string='Related Tasks',
     )
     task_week = fields.Integer(compute='_compute_task_fields')
     task_state = fields.Selection(
