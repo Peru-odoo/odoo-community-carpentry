@@ -39,6 +39,10 @@ class CarpentryPlanningColumn(models.Model):
         default=False,
         help='If the card is displayed whatever domain filter on Planning view (e.g. Needs Categories).'
     )
+    active_test = fields.Boolean(
+        default=True,
+        help='Whether only the active cards should be shown (and the archived hidden).'
+    )
 
     # Identifier value to route/discrepencies records of same model towards 2 or more columns
     identifier_ref = fields.Reference(

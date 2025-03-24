@@ -10,7 +10,6 @@ class Task(models.Model):
     _name = "project.task"
     _inherit = ['project.task', 'carpentry.planning.mixin']
     _rec_name = "display_name"
-    _carpentry_planning_active_test = False
 
     #===== Fields's methods =====#
     def _filter_needs(self, only_populated=False):

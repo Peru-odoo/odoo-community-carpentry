@@ -184,6 +184,19 @@ class CarpentryPlanningCard(models.Model):
         domain = expression.OR([domain, domain_sticky])
         return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
     
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None, **read_kwargs):
+        """ Manage which column should be `active_test` = True or False """
+        column_id_ = self._get_domain_part(domain, 'column_id')
+        column = self.env['carpentry.planning.column'].browse(column_id_)
+        if not column:
+            return []
+        
+        return (
+            super(CarpentryPlanningCard, self.with_context(active_test=column.active_test))
+            .search_read(domain, fields, offset, limit, order, **read_kwargs)
+        )
+    
     def _get_domain_part(self, domain, field):
         """ Search and return a tuple (i.e. `domain_part`) in a `domain`
             according to tuples' 1st item (i.e. `field`)
@@ -211,14 +224,12 @@ class CarpentryPlanningCard(models.Model):
         for card in self:
             model_to_ids[card.res_model].append(card.res_id)
         for model, ids in model_to_ids.items():
-            env = self.with_context(active_test=self.env[model]._carpentry_planning_active_test).env
-            model_to_recordset[model] = env[model].browse(ids)
+            model_to_recordset[model] = self.env[model].browse(ids)
         
         return {
             card.id: model_to_recordset.get(
                 card.res_model, self.env[card.res_model]
-            ).with_context(active_test=self.env[card.res_model]._carpentry_planning_active_test)
-            .browse(card.res_id)
+            ).browse(card.res_id)
             for card in self
         }
     

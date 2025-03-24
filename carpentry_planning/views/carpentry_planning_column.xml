@@ -14,6 +14,7 @@
                 <field name="res_model_id" />
                 <field name="identifier_ref" attrs="{'required': [('identifier_required', '=', True)]}" />
                 <field name="sticky" widget="boolean_toggle" />
+                <field name="active_test" widget="boolean_toggle" />
                 <field name="fold" widget="boolean_toggle" />
                 <field name="can_open" widget="boolean_toggle" />
                 <field name="icon" />
@@ -36,6 +37,7 @@
                         <field name="name" />
                         <field name="identifier_ref" attrs="{'required': [('identifier_required', '=', True)]}" />
                         <field name="sticky" widget="boolean_toggle" />
+                        <field name="active_test" widget="boolean_toggle" />
                         <field name="fold" widget="boolean_toggle" />
                         <field name="can_open" widget="boolean_toggle" />
                         <field name="icon" />
