@@ -35,7 +35,7 @@
                 <t t-if="!record.active.raw_value">
                     <br />
                     <button name="action_activate_need" type="object"
-                        class="fs-6 fw-normal text-bg-primary mt-1"
+                        class="fs-6 badge fw-normal text-primary mt-1"
                         title="Add this task to assignee's 'My Tasks' page"
                     >
                         Activate
