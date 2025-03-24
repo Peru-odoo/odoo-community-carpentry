@@ -36,11 +36,11 @@
                         </div>
                     </t>
                 </t>
-            </templates>
 
-            <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
-                <t t-call="planning_tasks_timesheet" />
-            </xpath>
+                <t t-name="card_bottom" position="inside">
+                    <t t-call="planning_tasks_timesheet" />
+                </t>
+            </templates>
         </field>
     </record>
 </odoo>
