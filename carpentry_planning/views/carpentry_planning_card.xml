@@ -69,6 +69,10 @@
                         <!-- To be customized in sub-modules -->
                     </t>
 
+                    <t t-name="card_bottom">
+                        <!-- To be customized in sub-modules -->
+                    </t>
+
                     <t t-name="kanban-box">
                         <t t-set="launchId" t-value="props.record.model.launchId" />
                         
@@ -79,7 +83,7 @@
                             <div class="oe_kanban_content" t-att-data-tooltip="tooltip">
                                 <div class="o_kanban_record_top mb-0">
                                     <div class="o_kanban_record_headings">
-                                        <t t-esc="record.shortname.raw_value ? record.shortname.raw_value : record.display_name.raw_value" />
+                                        <t name="display_name" t-esc="record.shortname.raw_value ? record.shortname.raw_value : record.display_name.raw_value" />
                                     </div>
                                     <div>
                                         <t t-call="card_body" />
@@ -87,7 +91,7 @@
                                 </div>
                                 <div class="o_kanban_record_bottom">
                                     <div class="oe_kanban_bottom_left">
-                                        <!-- for tasks -->
+                                        <t t-call="card_bottom" />
                                     </div>
                                     <div class="oe_kanban_bottom_right">
                                         <t t-set="show_dropdown" t-value="!selection_mode and (!record.planning_card_color_is_auto.raw_value)" />

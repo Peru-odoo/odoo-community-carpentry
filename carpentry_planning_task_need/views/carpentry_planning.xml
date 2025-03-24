@@ -12,18 +12,26 @@
                 <field name="week_deadline" />
             </templates>
 
+            <t name="display_name" position="before">
+                <div t-if="record.res_model.raw_value == 'project.task'"
+                    t-field="type_name"
+                    class="fw-bold"
+                />
+            </t>
+            <t name="display_name" position="after">
+                <button name="action_plan_need" type="object"
+                    class="btn btn-sm btn-primary me-2" title="Activate"
+                >
+                    Plan
+                </button>
+            </t>
+
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'project.task'">
-                    <button name="action_plan_need" type="object"
-                        class="btn btn-sm btn-primary me-2" title="Activate"
-                    >
-                        Plan
-                    </button>
-
                     <span t-attf-class="o_kanban_inline_block fs-6 btn btn-sm btn-{{record.planning_card_color_class.raw_value}}"
                         title="Deadline"
                     >
-                        <span class="fa fa-calendar mx-1" title="Calendar" />
+                        <span class="fa fa-calendar mx-1" title="Deadline" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
                     </span>
                     

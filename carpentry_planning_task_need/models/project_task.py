@@ -21,13 +21,6 @@ class Task(models.Model):
             self.filtered('need_id') if only_populated
             else self.filtered(lambda x: x.root_type_id.id == self.env.ref(XML_ID_NEED).id)
         )
-    
-    def _compute_display_name(self):
-        if not self._context.get('carpentry_planning'):
-            return super()._compute_display_name()
-        
-        for task in self:
-            task.display_name = f"[{task.type_id.name}] {task.name}"
 
     #===== Fields =====#
     # card_res_id = fields.Many2oneReference(
@@ -49,6 +42,9 @@ class Task(models.Model):
         compute='_compute_date_deadline',
         store=True,
         readonly=False
+    )
+    type_name = fields.Char(
+        related='type_id.name'
     )
     week_deadline = fields.Integer(
         compute='_compute_week_deadline',
