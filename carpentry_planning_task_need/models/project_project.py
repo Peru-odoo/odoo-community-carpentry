@@ -15,6 +15,7 @@ class Project(models.Model):
             context={
                 'search_default_filter_my_role': 1,
                 'display_with_prefix': False,
+                'active_test': False,
             }
         ) | {
             'search_view_id': [self.env.ref('carpentry_planning_task_need.view_task_search_form').id, 'search'],
