@@ -20,8 +20,9 @@
                 />
             </t>
             <t name="display_name" position="after">
+                <br />
                 <button name="action_plan_need" type="object"
-                    class="btn btn-sm btn-primary me-2" title="Activate"
+                    class="btn btn-sm btn-primary p-1" title="Add this task to assignee's 'My Tasks' page"
                 >
                     Plan
                 </button>
@@ -29,8 +30,9 @@
 
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'project.task'">
-                    <a t-attf-class="o_kanban_inline_block fs-6 btn btn-sm btn-{{record.planning_card_color_class.raw_value}}"
+                    <a t-attf-class="o_kanban_inline_block fs-6 badge fw-normal text-bg-{{record.planning_card_color_class.raw_value}}"
                         title="Deadline"
+                        role="button"
                     >
                         <span class="fa fa-calendar mx-1" title="Deadline" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
