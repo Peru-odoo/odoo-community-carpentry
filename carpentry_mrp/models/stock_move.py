@@ -16,7 +16,8 @@ class StockMove(models.Model):
     #===== CRUD =====#
     def write(self, vals):
         """ For MO's components, ensure `product_uom_qty` is >= `quantity_done`
-            Because `product_uom_qty` is used for for stock forecast 
+            Because `product_uom_qty` is used for for stock forecast
+            (just do like when the `stock.move` is validated)
         """
         res = super().write(vals)
         raw_material_ids = self.filtered('raw_material_production_id')

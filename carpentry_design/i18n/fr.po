@@ -357,7 +357,7 @@ msgid "Plan sets"
 msgstr "Jeux de plans"
 
 #. module: carpentry_design
-#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_body_color
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__planning_card_color_class
 msgid "Planning Card Body Color"
 msgstr "Couleur du corps de la carte planning"
 

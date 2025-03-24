@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _
-from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
 
 import calendar
 
@@ -69,9 +68,6 @@ class PlanRelease(models.Model):
         default='muted',
         required=True
     )
-    state_color = fields.Integer(
-        compute='_compute_state_color'
-    )
     active = fields.Boolean(
         string='Active?',
         default=True
@@ -83,14 +79,7 @@ class PlanRelease(models.Model):
         compute='_compute_sequence',
         store=True
     )
-    planning_card_color_is_auto = fields.Boolean(
-        default=True, store=False
-    )
-    planning_card_color = fields.Integer(
-        compute='_compute_state_color'
-    )
-    planning_card_body_color = fields.Selection(
-        string='Planning Card Body Color',
+    planning_card_state = fields.Selection(
         related='state'
     )
     
@@ -109,12 +98,6 @@ class PlanRelease(models.Model):
             release.week_visa_feedback = bool(release.date_visa_feedback) and release.date_visa_feedback.isocalendar()[1]
     
     #===== Planning =====#
-    @api.depends('state')
-    def _compute_state_color(self):
-        for release in self:
-            release.state_color = PLANNING_CARD_COLOR[release.state]
-            release.planning_card_color = release.state_color
-    
     @api.depends('date_plan_publish')
     def _compute_sequence(self):
         for release in self:

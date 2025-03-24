@@ -9,13 +9,6 @@ from psycopg2 import sql
 from ast import literal_eval
 import csv, os
 
-PLANNING_CARD_COLOR = {
-    'muted': 0, # info: 4
-    'warning': 2,
-    'success': 10, # 20
-    'danger': 9, # 23
-}
-
 class CarpentryPlanningCard(models.Model):
     _name = 'carpentry.planning.card'
     _description = 'Planning Cards'
@@ -68,12 +61,12 @@ class CarpentryPlanningCard(models.Model):
     )
 
     # color of body's template (button)
-    planning_card_body_color = fields.Char(compute='_compute_fields')
+    planning_card_color_class = fields.Char(compute='_compute_fields')
     # color of card's left bar
     planning_card_color_is_auto = fields.Boolean(compute='_compute_fields')
-    planning_card_color = fields.Integer(
+    planning_card_color_int = fields.Integer(
         compute='_compute_fields',
-        inverse='_inverse_planning_card_color'
+        inverse='planning_card_color_int'
     )
     
     #===== View build =====#
@@ -234,7 +227,7 @@ class CarpentryPlanningCard(models.Model):
         return [
             'display_name',
             'state', 'description', 'shortname',
-            'planning_card_body_color', 'planning_card_color_is_auto', 'planning_card_color',
+            'planning_card_color_class', 'planning_card_color_is_auto', 'planning_card_color_int',
         ]
     def _compute_fields(self):
         mapped_record_ids = self._get_real_records()
@@ -265,17 +258,17 @@ class CarpentryPlanningCard(models.Model):
         return domain
 
     #===== Planning Features =====#
-    def _inverse_planning_card_color(self):
-        """ `planning_card_color` may be:
+    def planning_card_color_int(self):
+        """ `planning_card_color_int` may be:
             1. auto:
                 (a) if value from card's real record, use it
                 (b) else, compute from task status (will backward to (a) if set on real record afterward)
             2. not auto (by default):
-                (c) real record field `planning_card_color` stores the data (real model must inheriting from `carpentry.planning.mixin`)
+                (c) real record field `planning_card_color_int` stores the data (real model must inheriting from `carpentry.planning.mixin`)
         """
         mapped_record_ids = self._get_real_records()
         for card in self.filtered(lambda x: not x.planning_card_color_is_auto):
             record = card._real_record_one(mapped_record_ids)
-            if 'planning_card_color' in record:
-                record.planning_card_color = card.planning_card_color
+            if 'planning_card_color_int' in record:
+                record.planning_card_color_int = card.planning_card_color_int
     

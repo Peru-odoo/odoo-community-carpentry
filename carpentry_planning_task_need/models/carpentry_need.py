@@ -77,6 +77,9 @@ class CarpentryNeed(models.Model):
 
     #===== Business methods =====#
     def _convert_to_task_vals(self, launch):
+        """ By default, Task of type `need` are archived, and planned manually by the
+            project manager from the carpentry planning
+        """
         self.ensure_one()
         return {
             'project_id': self.project_id.id,
@@ -85,4 +88,5 @@ class CarpentryNeed(models.Model):
             'need_id': self.id,
             'user_ids': self.user_ids.ids,
             'launch_id': launch.id,
+            'active': False,
         }

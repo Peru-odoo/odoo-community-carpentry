@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _, Command, exceptions
-from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
+from odoo.addons.carpentry_planning.models.carpentry_planning_mixin import PLANNING_CARD_COLOR
 
 class CarpentryPlanningCard(models.Model):
     _inherit = ['carpentry.planning.card']
     _description = 'Planning Card'
+
+    #===== Config =====#
+    def _get_setting_planning_tasks(self):
+        """ Whether to compute `task_ids` on Carpentry Planning
+            Hard-coded yet to stop the computing. Could be move to a company config
+        """
+        return False
 
     #===== Fields =====#
     # /!\ not computed by ORM, manually called from overwritten `search_read`
@@ -43,20 +50,21 @@ class CarpentryPlanningCard(models.Model):
             of those fields depends of `launch_ids` in domain's search filter, which is not
             available in ORM's standard `compute_...` methods
         """
-        launch_id = self._get_domain_part(domain, 'launch_ids')
+        if self._get_setting_planning_tasks():
+            launch_id = self._get_domain_part(domain, 'launch_ids')
 
-        # fake-compute the fields
-        card_ids = self.browse([vals['id'] for vals in vals_list])
-        card_ids._compute_task_ids(launch_id, should_compute=True)
-        card_ids._compute_task_fields(should_compute=True)
-        mapped_card_ids = {card.id: card for card in card_ids}
+            # fake-compute the fields
+            card_ids = self.browse([vals['id'] for vals in vals_list])
+            card_ids._compute_task_ids(launch_id, should_compute=True)
+            card_ids._compute_task_fields(should_compute=True)
+            mapped_card_ids = {card.id: card for card in card_ids}
 
-        # append the *fake* fields for tasks (which depend on `launch_id`)
-        for vals in vals_list:
-            vals |= {
-                field: mapped_card_ids.get(vals['id'])[field]
-                for field in self._get_task_fields_list()
-            }
+            # append the *fake* fields for tasks (which depend on `launch_id`)
+            for vals in vals_list:
+                vals |= {
+                    field: mapped_card_ids.get(vals['id'])[field]
+                    for field in self._get_task_fields_list()
+                }
         
         return vals_list
 
@@ -107,7 +115,7 @@ class CarpentryPlanningCard(models.Model):
             'task_count_total', 'task_count_done',
             'task_is_all_done', 'task_has_late',
             'task_min_deadline_open', 'task_max_deadline_done',
-            'task_state', 'task_state_color', 'planning_card_body_color', 'planning_card_color',
+            'task_state', 'task_state_color', 'planning_card_color_class', 'planning_card_color_int',
             'task_week'
         ]
     def _compute_task_fields_one(self):
@@ -115,7 +123,7 @@ class CarpentryPlanningCard(models.Model):
 
         # count
         self.task_count_total = len(self.task_ids.ids)
-        task_ids_done = self.task_ids.filtered(lambda x: x.kanban_state == 'done')
+        task_ids_done = self.task_ids._search([('is_closed', '=', True)])
         self.task_count_done = len(task_ids_done)
 
         # dates
@@ -126,13 +134,13 @@ class CarpentryPlanningCard(models.Model):
         self.task_min_deadline_open = bool(dates_deadline) and min(dates_deadline)
         self.task_max_deadline_done = bool(dates_done) and max(dates_done)
 
-        # task_state -> state & planning_card_color (if not set)
+        # task_state -> state & planning_card_color_int (if not set)
         self.task_state = self._get_task_state()
         self.task_state_color = PLANNING_CARD_COLOR[self.task_state]
-        if not self.planning_card_body_color:
-            self.planning_card_body_color = self.task_state
-        if not self.planning_card_color:
-            self.planning_card_color = self.task_state_color
+        if not self.planning_card_color_class:
+            self.planning_card_color_class = self.task_state
+        if not self.planning_card_color_int:
+            self.planning_card_color_int = self.task_state_color
 
         # task_week
         displayed_date = self.task_max_deadline_done if self.task_is_all_done else self.task_min_deadline_open
@@ -159,6 +167,7 @@ class CarpentryPlanningCard(models.Model):
     
     #===== Actions & Buttons on Planning View =====#
     def action_open_tasks(self):
+        """ Open tasks filtered on a specific planning's card (and launch) """
         self.ensure_one()
 
         project_id_ = self.env['project.default.mixin']._get_project_id(self._context, self)

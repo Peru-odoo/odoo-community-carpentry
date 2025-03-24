@@ -60,9 +60,9 @@
                 <field name="description" />
                 <field name="display_name" />
                 <field name="shortname" />
-                <field name="planning_card_body_color" />
                 <field name="planning_card_color_is_auto" />
-                <field name="planning_card_color" />
+                <field name="planning_card_color_class" />
+                <field name="planning_card_color_int" />
 
                 <templates>
                     <t t-name="card_body">
@@ -75,7 +75,7 @@
                         <t t-set="tooltip" t-value="record.description.raw_value" t-if="record.description" />
                         <t t-set="tooltip" t-value="record.shortname ? record.name.raw_value : false" t-else="" />
 
-                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.planning_card_color.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
+                        <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.planning_card_color_int.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content" t-att-data-tooltip="tooltip">
                                 <div class="o_kanban_record_top mb-0">
                                     <div class="o_kanban_record_headings">
@@ -109,7 +109,7 @@
                                                     <!-- <a role="menuitem" type="bbbbbbbbb" class="dropdown-item">bbbbbbbbb</a> -->
                                                     <!-- <div role="separator" class="dropdown-divider"></div> -->
                                                     <t t-if="!record.planning_card_color_is_auto.raw_value">
-                                                        <ul class="oe_kanban_colorpicker" data-field="planning_card_color" />
+                                                        <ul class="oe_kanban_colorpicker" data-field="planning_card_color_int" />
                                                     </t>
                                                 </div>
                                             </div>

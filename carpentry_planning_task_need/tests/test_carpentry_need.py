@@ -39,10 +39,10 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         cls.PlanningColumn = cls.PlanningColumn.with_context(no_test_mirroring_column_id=False)
         cls.column_need = cls.PlanningColumn.create({
             'name': 'Column Need Test 1',
-            'res_model_id': cls.mapped_model_ids.get('project.type').id,
+            'res_model_id': cls.mapped_model_ids['project.task'].id,
             'identifier_res_id': cls.type_need_section.id,
-            'identifier_res_model_id': cls.mapped_model_ids['project.type'].id,
-            'sticky': True,
+            'identifier_res_model_id': cls.mapped_model_ids['project.task'].id,
+            'sticky': False,
             'column_id_need_date': cls.column.id
         })
 

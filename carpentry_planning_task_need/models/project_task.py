@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.tools import date_utils
+from odoo.addons.carpentry_planning.models.carpentry_planning_card import PLANNING_CARD_COLOR
 
 XML_ID_NEED = 'carpentry_planning_task_need.task_type_need'
 
@@ -42,6 +43,9 @@ class Task(models.Model):
         store=True,
         readonly=False
     )
+    week_deadline = fields.Integer(
+        compute='_compute_week_deadline',
+    )
     deadline_week_offset = fields.Integer(
         related='need_id.deadline_week_offset', 
     )
@@ -57,9 +61,14 @@ class Task(models.Model):
         ondelete='set null',
         recursive=True
     )
-    planning_card_color_is_auto = fields.Boolean(default=True, store=False)
-    # don't set field `planning_card_color`, so that Planning Card's color follows `task_state_color`
-
+    planning_card_color_class = fields.Selection(
+        compute='_compute_planning_card_color_class'
+    )
+    launch_ids = fields.One2many(
+        comodel_name='carpentry.group.launch',
+        compute='_compute_launch_ids',
+        search='_search_launch_ids',
+    )
 
     #===== Constrains =====#
     @api.ondelete(at_uninstall=False)
@@ -74,13 +83,55 @@ class Task(models.Model):
                   " To really delete it, remove it Needs menu.")
             )
 
-    @api.depends('type_id')
+    @api.constrains('type_id')
     def _constrain_no_change_type_id(self):
         """ Cannot change `type_id` for Task of `type=need` """
-        if self._filter_needs().ids:
+        
+        if self.exists()._filter_needs().ids:
             raise exceptions.ValidationError(
                 _("Cannot change a Need Category of the Task once it is created.")
             )
+
+    #===== Compute =====#
+    @api.depends('launch_id')
+    def _compute_launch_ids(self):
+        for task in self:
+            task.launch_ids = task.launch_id
+    def _search_launch_ids(self, operator, value):
+        return [('launch_id', operator, value)]
+    
+    # PLANNING_CARD_COLOR = {
+    #     'muted': 0, # info: 4
+    #     'warning': 2,
+    #     'success': 10, # 20
+    #     'danger': 9, # 23
+    # }
+    #===== Compute: planning card color =====#
+    def _compute_planning_card_color_class(self):
+        for task in self:
+            task.planning_card_color_class = task._get_task_state_color()
+
+    def _get_task_state_color(self):
+        """ 1. If task is done
+                (a) 'success' if satisfied on time -> displayed week: last done's date
+                (b) 'warning' elsewise
+            2. If task is still to statisfy (in progress) -> displayed week: first to-come deadline
+                (c) 'danger' if taskis  overdue
+                (d) 'muted' elsewise
+        """
+        self.ensure_one()
+        if not self.date_deadline:
+            return 'muted'
+        else:
+            if self.is_closed:
+                color_warning, color_success = 'warning', 'success'
+            else: # 2.
+                color_warning, color_success = 'danger', 'muted'
+            color = color_warning if self.is_late else color_success
+        return color
+
+    def _get_state_planning(self):
+        """ [TODO ARNAUD] logique vert/orange/rouge... selon date """
 
     #===== Compute `res_id` and `res_model_id` ======#
     # @api.depends('type_id', 'need_id')
@@ -127,7 +178,7 @@ class Task(models.Model):
         for task in self:
             key = (
                 task.launch_id.id, # only 1 launch allowed for task of type need
-                task.type_id.column_id.column_id_need_date.id or task.type_id.column_id.id
+                task.column_id.column_id_need_date.id or task.column_id.id
             )
             date_start = mapped_date_start.get(key) # start date of Production or Installation
 
@@ -137,12 +188,23 @@ class Task(models.Model):
                     weeks = task.deadline_week_offset
                 )
             )
+    
+    @api.depends('date_deadline')
+    def _compute_week_deadline(self):
+        for task in self:
+            task.week_deadline = bool(task.date_deadline) and task.date_deadline.isocalendar()[1]
 
     #===== Task copy =====#
     def _fields_to_copy(self):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
     #===== Planning =====#
+    def action_plan_need(self):
+        self.write({
+            'active': True,
+            'stage_id': self._get_default_stage_id().id,
+        })
+
     def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
         """ Called from planning cards
             For need, add additional `default_xx` keys and context

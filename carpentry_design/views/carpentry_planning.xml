@@ -20,7 +20,7 @@
                     </span>
 
                     <span t-attf-title="{{ record.state_value.raw_value }} (Week Visa Feedback)"
-                        t-attf-class="o_kanban_inline_block badge fs-6 fw-bold text-bg-{{record.planning_card_body_color.raw_value}}"    
+                        t-attf-class="o_kanban_inline_block badge fs-6 fw-bold text-bg-{{record.planning_card_color_class.raw_value}}"    
                     >
                         <t t-if="record.week_visa_feedback.raw_value">W<t t-out="record.week_visa_feedback.raw_value" /></t>
                         <t t-else="">?</t>

@@ -330,7 +330,7 @@ msgid "Planning"
 msgstr ""
 
 #. module: carpentry_planning
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_body_color
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__planning_card_color_class
 msgid "Planning Card Body Color"
 msgstr "Couleur du corps de la carte du planning"
 

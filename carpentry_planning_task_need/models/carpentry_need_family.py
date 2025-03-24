@@ -12,7 +12,7 @@ class CarpentryNeedFamily(models.Model):
     def _get_domain_parent_type_id(self):
         return [
             ('root_type_id', '=', self.env.ref(XML_ID_NEED).id),
-            ('task_ok', '=', False)
+            ('task_ok', '=', False), # so that `Need` parent-type is not selectable
         ]
     def _get_default_parent_type_id(self):
         """ Return a default `parent_type_id` following user role(s) on

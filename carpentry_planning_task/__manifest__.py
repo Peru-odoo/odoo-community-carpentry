@@ -18,8 +18,8 @@
     ],
     'data': [
         # views
-        'views/carpentry_planning.xml',
-        'views/project_task_planning.xml',
+        # 'views/carpentry_planning.xml', # [2025-03-24 - ALY] disabled feature
+        # 'views/project_task_planning.xml',
     ],
     'assets': {
         'web.assets_backend': [

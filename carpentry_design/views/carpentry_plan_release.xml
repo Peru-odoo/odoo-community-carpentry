@@ -7,8 +7,6 @@
 
         <field name="arch" type="xml">
             <tree editable="bottom">
-                <field name="state_color" invisible="1" />
-
                 <field name="state"
                     decoration-bf="True"
                     decoration-warning="state == 'warning'"

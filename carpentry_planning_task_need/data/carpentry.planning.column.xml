@@ -3,27 +3,27 @@
     <data noupdate="1">
         <record id="planning_column_need_method" model="carpentry.planning.column">
             <field name="name">Needs (Method)</field>
-            <field name="sticky">True</field>
-            <field name="res_model_id" ref="project_type.model_project_type" />
+            <field name="sticky">False</field>
+            <field name="res_model_id" ref="project_task.model_project_task" />
             <field name="identifier_res_model_id" ref="project_type.model_project_type" />
             <field name="identifier_res_id" ref="carpentry_planning_task_need.task_type_need_method" />
             <field name="sequence">20</field>
             <field name="fold">False</field>
             <field name="icon">fa fa-eye</field>
-            <field name="can_open">False</field>
+            <field name="can_open">True</field>
             <!-- <field name="column_id_need_date" ref="carpentry_planning_task_need.planning_column_production" /> -->
         </record>
 
         <record id="planning_column_need_construction" model="carpentry.planning.column">
             <field name="name">Needs (Construction site)</field>
-            <field name="sticky">True</field>
-            <field name="res_model_id" ref="project_type.model_project_type" />
+            <field name="sticky">False</field>
+            <field name="res_model_id" ref="project_task.model_project_task" />
             <field name="identifier_res_model_id" ref="project_type.model_project_type" />
             <field name="identifier_res_id" ref="carpentry_planning_task_need.task_type_need_construction" />
             <field name="sequence">60</field>
             <field name="fold">False</field>
             <field name="icon">fa fa-building-o</field>
-            <field name="can_open">False</field>
+            <field name="can_open">True</field>
         </record>
     </data>
 </odoo>
