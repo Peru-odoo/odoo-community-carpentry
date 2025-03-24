@@ -10,11 +10,12 @@
         <field name="arch" type="xml">
             <templates position="before">
                 <field name="week_deadline" />
+                <field name="type_name" />
             </templates>
 
             <t name="display_name" position="before">
                 <div t-if="record.res_model.raw_value == 'project.task'"
-                    t-field="type_name"
+                    t-esc="record.type_name.raw_value"
                     class="fw-bold"
                 />
             </t>
@@ -28,13 +29,12 @@
 
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'project.task'">
-                    <span t-attf-class="o_kanban_inline_block fs-6 btn btn-sm btn-{{record.planning_card_color_class.raw_value}}"
+                    <a t-attf-class="o_kanban_inline_block fs-6 btn btn-sm btn-{{record.planning_card_color_class.raw_value}}"
                         title="Deadline"
                     >
                         <span class="fa fa-calendar mx-1" title="Deadline" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
-                    </span>
-                    
+                    </a>
                 </t>
             </t>
         </field>
