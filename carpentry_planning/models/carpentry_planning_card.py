@@ -66,7 +66,7 @@ class CarpentryPlanningCard(models.Model):
     planning_card_color_is_auto = fields.Boolean(compute='_compute_fields')
     planning_card_color_int = fields.Integer(
         compute='_compute_fields',
-        inverse='planning_card_color_int'
+        inverse='_inverse_planning_card_color_int'
     )
     
     #===== View build =====#
@@ -258,7 +258,7 @@ class CarpentryPlanningCard(models.Model):
         return domain
 
     #===== Planning Features =====#
-    def planning_card_color_int(self):
+    def _inverse_planning_card_color_int(self):
         """ `planning_card_color_int` may be:
             1. auto:
                 (a) if value from card's real record, use it
