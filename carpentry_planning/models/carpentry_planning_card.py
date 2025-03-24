@@ -254,10 +254,13 @@ class CarpentryPlanningCard(models.Model):
             if rel_field in self:
                 fields.append(rel_field + '.launch_ids')
         
-        domain = expression.OR([
-            [('project_id', '=', False)], # sticky, for Needs (independant of filtered launch)
-            [(field, operator, value) for field in fields]
-        ])
+        # domain = expression.OR([
+        #     [('project_id', '=', False)], # sticky, for Needs (independant of filtered launch)
+        #     [(field, operator, value) for field in fields]
+        # ])
+        domain = expression.OR([[(field, operator, value)] for field in fields])
+        print('=== _search_launch_ids ===')
+        print('domain', domain)
         return domain
 
     #===== Planning Features =====#
