@@ -11,6 +11,7 @@
             <templates position="before">
                 <field name="week_deadline" />
                 <field name="type_name" />
+                <field name="active" />
             </templates>
 
             <t name="display_name" position="before">
@@ -18,14 +19,6 @@
                     t-esc="record.type_name.raw_value"
                     class="fw-bold"
                 />
-            </t>
-            <t name="display_name" position="after">
-                <br />
-                <button name="action_plan_need" type="object"
-                    class="btn btn-sm btn-primary p-1" title="Add this task to assignee's 'My Tasks' page"
-                >
-                    Plan
-                </button>
             </t>
 
             <t t-name="card_body" position="inside">
@@ -37,6 +30,16 @@
                         <span class="fa fa-calendar mx-1" title="Deadline" />
                         W<t t-esc="record.week_deadline.raw_value || '?'" />
                     </a>
+                </t>
+
+                <t t-if="!record.active.raw_value">
+                    <br />
+                    <button name="action_plan_need" type="object"
+                        class="badge fw-normal text-bg-primary"
+                        title="Add this task to assignee's 'My Tasks' page"
+                    >
+                        Plan
+                    </button>
                 </t>
             </t>
         </field>
@@ -55,7 +58,7 @@
                         t-attf-context="{'launch_id': {{launchId}}}"
                         t-attf-class="o_kanban_inline_block badge fs-6 fw-normal text-bg-{{record.planning_card_color_class.raw_value}}"
                     >
-                        <span class="fa fa-calendar me-1" title="Calendar" />
+                        <span class="fa fa-calendar me-1" title="Deadline" />
                         W<t t-esc="record.task_week.raw_value || '?'" />
                     </a>
                 </t>
