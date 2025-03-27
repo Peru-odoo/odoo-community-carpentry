@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 14:01+0000\n"
-"PO-Revision-Date: 2025-03-06 15:06+0100\n"
+"POT-Creation-Date: 2025-03-27 15:07+0000\n"
+"PO-Revision-Date: 2025-03-27 16:08+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -18,21 +18,11 @@ msgstr ""
 "X-Generator: Poedit 3.5\n"
 
 #. module: carpentry_mrp
-#: model:ir.model.fields,help:carpentry_mrp.field_stock_move__raw_material_production_id_state
-msgid ""
-" * Draft: The MO is not confirmed yet.\n"
-" * Confirmed: The MO is confirmed, the stock rules and the reordering of the components are trigerred.\n"
-" * In Progress: The production has started (on the MO or on the WO).\n"
-" * To Close: The production is done, the MO has to be closed.\n"
-" * Done: The MO is closed, the stock moves are posted. \n"
-" * Cancelled: The MO has been cancelled, can't be confirmed anymore."
+#. odoo-python
+#: code:addons/carpentry_mrp/models/stock_quant.py:0
+#, python-format
+msgid " lot {}"
 msgstr ""
-" * Brouillon : L'OF n'est pas encore confirmé.\n"
-"* Confirmé : L'OF est confirmé, les règles de stock et la réorganisation des composants sont déclenchées.\n"
-"* En cours : La production a commencé (sur l'OF ou sur l'OT).\n"
-"* À fermer : La production est terminée, l'OF doit être fermé.\n"
-"* Terminé : L'OF est fermé, les mouvements de stock sont enregistrés. \n"
-"* Annulé : L'OF a été annulé, il ne peut plus être confirmé."
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__active
@@ -44,6 +34,16 @@ msgstr "Actif ?"
 #: model:ir.model.fields,field_description:carpentry_mrp.field_product_template__production_ok
 msgid "Can be manufactured"
 msgstr "Peut être fabriqué"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_stock_inventory_conflict
+msgid "Conflict in Inventory"
+msgstr "Conflit dans l'inventaire"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__purchase_order_count
+msgid "Count of linked PO"
+msgstr "Nombre de bons de commande générés"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__description
@@ -70,11 +70,7 @@ msgid "Manufacturing Orders"
 msgstr "Ordres de Fabrication"
 
 #. module: carpentry_mrp
-#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_picking__mrp_production_ids
-msgid "Mrp Production"
-msgstr "Fabrication"
-
-#. module: carpentry_mrp
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp.stock_inventory_conflict_form_view
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.view_stock_quant_tree
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.view_stock_quant_tree_inventory_editable
 msgid "On Hand Quantity"
@@ -117,7 +113,6 @@ msgstr "Quantités"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__purchase_ids
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp.mrp_production_form_view
 msgid "Related Purchase Orders"
 msgstr "Commandes liées"
 
@@ -125,11 +120,6 @@ msgstr "Commandes liées"
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__sequence
 msgid "Sequence"
 msgstr "Séquence"
-
-#. module: carpentry_mrp
-#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__raw_material_production_id_state
-msgid "State"
-msgstr "Etat"
 
 #. module: carpentry_mrp
 #: model:ir.model,name:carpentry_mrp.model_stock_move
@@ -165,3 +155,18 @@ msgstr "Ordre de travail"
 #: model:ir.model,name:carpentry_mrp.model_mrp_workcenter_productivity
 msgid "Workcenter Productivity Log"
 msgstr "Journal de productivité du poste de travail"
+
+#. module: carpentry_mrp
+#. odoo-python
+#: code:addons/carpentry_mrp/models/stock_quant.py:0
+#, python-format
+msgid ""
+"You cannot validate this stock operation because the stock level of the "
+"product '{name}'{name_lot} would become negative ({q_quantity}) on the "
+"stock location '{complete_name}' and negative stock is not allowed for this "
+"product and/or location."
+msgstr ""
+"Vous ne pouvez pas valider cette opération de stock car le niveau de stock "
+"du produit '{name}'{name_lot} deviendrait négatif ({q_quantity}) sur "
+"l'emplacement de stock '{complete_name}' et le stock négatif n'est pas "
+"autorisé pour ce produit et/ou cet emplacement."
