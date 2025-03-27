@@ -111,7 +111,7 @@ class Task(models.Model):
         """ Synchronize task users with need's users, if task has not been customized """
         for task in self:
             print('task._origin.user_ids', task._origin.user_ids)
-            print('task._origin.need_id.user_ids', task._origin.need_id.user_ids)
+            print('task.need_id._origin.user_ids', task.need_id._origin.user_ids)
             if task.user_ids == task.need_id._origin.user_ids:
                 task.user_ids = [Command.set(task.need_id.user_ids.ids)]
     
