@@ -12,6 +12,7 @@
                 <field name="week_deadline" />
                 <field name="type_name" />
                 <field name="active" />
+                <field name="user_ids" />
             </templates>
 
             <t name="display_name" position="before">
