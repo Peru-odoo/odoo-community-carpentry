@@ -210,7 +210,7 @@
 
             <!-- Different tree view for launches' affectations -->
             <field name="affectation_ids" position="attributes">
-                <attribute name="options">options="{'create': 1}"</attribute>
+                <attribute name="options">{'create': 1}</attribute>
             </field>
             <field name="affectation_ids" position="inside">
                 <tree limit="200">
