@@ -41,6 +41,7 @@ class StockQuant(models.Model):
                 quant.is_outdated = True
 
 
+    @api.constrains("product_id", "quantity", "product_id.stock_move_ids")
     def check_negative_qty(self):
         """ This part is copied from the module `stock_no_negative`,
             from the OCA project `stock-logistics-workflow`,
