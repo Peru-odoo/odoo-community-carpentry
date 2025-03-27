@@ -9,7 +9,6 @@ class StockQuant(models.Model):
     quantity_without_outgoing_raw_material = fields.Float(
         string='Quantity (with real-time production)',
         compute='_compute_quantity_without_outgoing_raw_material',
-        store=True,
     )
 
     @api.depends('quantity', 'product_id.stock_move_ids')
