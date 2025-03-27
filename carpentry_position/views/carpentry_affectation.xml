@@ -6,7 +6,7 @@
         <field name="model">carpentry.group.affectation</field>
 
         <field name="arch" type="xml">
-            <tree editable="bottom" limit="200">
+            <tree editable="bottom" delete="False" limit="200">
                 <field name="project_id" invisible="1" />
 
                 <field name="section_ref"
