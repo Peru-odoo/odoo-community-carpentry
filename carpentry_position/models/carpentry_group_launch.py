@@ -12,7 +12,10 @@ class Launch(models.Model):
     
     #===== Fields (from `affectation.mixin`) =====#
     affectation_ids = fields.One2many(
-        domain=[('group_res_model', '=', _name), ('quantity_affected_parent', '>', 0)]
+        domain=[('group_res_model', '=', _name)],
+        compute='_compute_affectations_ids',
+        store=True,
+        readonly=False,
     )
     section_ids = fields.One2many(
         comodel_name='carpentry.group.phase',
@@ -30,3 +33,19 @@ class Launch(models.Model):
             (for `_compute_sum_quantity_affected`)
         """
         return record_ref.quantity_affected
+
+
+class CarpentryGroupAffectation(models.Model):
+    _inherit = ['carpentry.group.affectation']
+
+    def write(self, vals):
+        """ When a phase's affectation `quantity_affected` is changed to 0,
+            *cascade-delete* the child(ren) launch-to-position affectations
+        """
+        if (
+            self.group_res_model == 'carpentry.group.phase'
+            and 'quantity_affected' in vals
+            and vals['quantity_affected'] == 0.0
+        ):
+            self.affectation_ids.unlink()
+        return super().write(vals)
