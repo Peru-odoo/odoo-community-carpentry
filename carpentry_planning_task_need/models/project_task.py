@@ -110,8 +110,10 @@ class Task(models.Model):
     def _compute_user_ids(self):
         """ Synchronize task users with need's users, if task has not been customized """
         for task in self:
+            print('task._origin.user_ids', task._origin.user_ids)
+            print('task._origin.need_id.user_ids', task._origin.need_id.user_ids)
             if task._origin.user_ids == task._origin.need_id.user_ids:
-                task.user_ids = task.need_id.user_ids
+                task.user_ids = [Command.set(task.need_id.user_ids.ids)]
     
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):
