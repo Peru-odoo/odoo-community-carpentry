@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record model="ir.ui.view" id="carpentry_planning_kanban">
-        <field name="name">carpentry.planning.card.kanban</field>
+        <field name="name">carpentry.planning.card.kanban.planning_task</field>
         <field name="model">carpentry.planning.card</field>
         <field name="inherit_id" ref="carpentry_planning.carpentry_planning_kanban" />
 

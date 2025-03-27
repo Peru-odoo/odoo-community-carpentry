@@ -22,4 +22,4 @@ class CarpentryPlanningCard(models.Model):
     #===== Button =====#
     def action_activate_need(self):
         task = self.env['project.task'].browse(self.res_id)
-        return task.action_plan_need()
+        return task.action_activate_need()
