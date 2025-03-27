@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-31 15:53+0000\n"
-"PO-Revision-Date: 2025-01-31 16:58+0100\n"
+"POT-Creation-Date: 2025-03-27 16:09+0000\n"
+"PO-Revision-Date: 2025-03-27 17:13+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,7 +20,7 @@ msgstr ""
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
 msgid ""
-"<span class=\"fa fa-calendar me-1\" title=\"Calendar\"/>\n"
+"<span class=\"fa fa-calendar mx-1\" title=\"Deadline\"/>\n"
 "                        W"
 msgstr ""
 "<span class=\"fa fa-calendar me-1\" title=\"Calendar\"/>\n"
@@ -52,9 +52,20 @@ msgstr ""
 "\"Besoins\"."
 
 #. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
+msgid "Activate"
+msgstr "Activer"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__active
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__active
 msgid "Active"
 msgstr "Actif"
+
+#. module: carpentry_planning_task_need
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
+msgid "Add this task to assignee's 'My Tasks' page"
+msgstr "Ajouter cette tâche à la page \"Mes tâches\" des assignés"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
@@ -74,13 +85,6 @@ msgstr ""
 #: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_column
 msgid "Carpentry Planning Column"
 msgstr "Colonne du planning de menuiserie"
-
-#. module: carpentry_planning_task_need
-#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
-msgid "Closest next objective (or last, if all tasks are done)"
-msgstr ""
-"Objectif suivant le plus proche (ou dernier, si toutes les tâches sont "
-"accomplies)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_planning_column__column_id_need_date
@@ -113,9 +117,9 @@ msgid "Created on"
 msgstr "Créé le"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__date_deadline
-msgid "Date Deadline"
-msgstr "Date limite"
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
+msgid "Deadline"
+msgstr "Date objectif"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
@@ -174,10 +178,12 @@ msgstr "Dernière mise à jour le"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__launch_ids
 msgid "Launches"
 msgstr "Lancements"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__type_name
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_search
 msgid "Name"
 msgstr "Nom"
@@ -261,14 +267,24 @@ msgstr ""
 "ou de la pose)"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color
-msgid "Planning Card Color"
-msgstr ""
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_class
+msgid "Planning Card Color (class)"
+msgstr "Carte de la couleur dans le planning (class)"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_int
+msgid "Planning Card Color (number)"
+msgstr "Carte de la couleur dans le planning (numéro)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_is_auto
 msgid "Planning Card Color Is Auto"
-msgstr ""
+msgstr "Si la couleur de la carte dans le planning est automatique"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__column_id
@@ -303,7 +319,7 @@ msgid "Role"
 msgstr "Rôle"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_project_task
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__project_task_id
 msgid "Task"
 msgstr "Tâche"
 
@@ -338,6 +354,11 @@ msgstr ""
 "de besoins."
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__type_name
+msgid "Type Name"
+msgstr "Type"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__parent_type_id
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.view_task_search_form
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.view_task_tree_need
@@ -347,7 +368,7 @@ msgstr "Type de besoin"
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__user_ids
 msgid "Users"
-msgstr ""
+msgstr "Utilisateurs"
 
 #. module: carpentry_planning_task_need
 #. odoo-python
@@ -357,6 +378,12 @@ msgstr ""
 #, python-format
 msgid "View and adapt needs"
 msgstr "Voir et ajuster les besoins"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__week_deadline
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__week_deadline
+msgid "Week Deadline"
+msgstr "Objectif (semaine)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__deadline_week_offset

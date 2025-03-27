@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-08 16:24+0000\n"
-"PO-Revision-Date: 2025-02-08 17:25+0100\n"
+"POT-Creation-Date: 2025-03-27 16:09+0000\n"
+"PO-Revision-Date: 2025-03-27 17:14+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -25,9 +25,46 @@ msgid " (copy)"
 msgstr " (copie)"
 
 #. module: carpentry_project
+#: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_tree2
+msgid "Click to close the task"
+msgstr "Cliquez pour fermer la tâche"
+
+#. module: carpentry_project
+#: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_form2
+msgid "Click to mark as done"
+msgstr "Cliquez pour marquer comme fait"
+
+#. module: carpentry_project
+#: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_form2
+msgid "Close"
+msgstr "Fermer"
+
+#. module: carpentry_project
 #: model:ir.model.fields,help:carpentry_project.field_project_project__project_template_id
-msgid "Copy project type, dates, tasks, budgets and roles assignations."
-msgstr "Copier depuis un autre projet : le type, les dates, les tâches et les attributions de rôles."
+msgid "Copy project type, dates, tasks and roles assignations."
+msgstr ""
+"Copier depuis un autre projet : le type, les dates, les tâches et les "
+"attributions de rôles."
+
+#. module: carpentry_project
+#: model:ir.model.fields,field_description:carpentry_project.field_project_task__create_date_week
+msgid "Create Week"
+msgstr "Semaine de création"
+
+#. module: carpentry_project
+#: model:ir.model.fields,field_description:carpentry_project.field_project_task__date_deadline
+msgid "Date Deadline"
+msgstr "Date limite"
+
+#. module: carpentry_project
+#: model:ir.model.fields,field_description:carpentry_project.field_project_task__description_text
+msgid "Description Text"
+msgstr "Description"
+
+#. module: carpentry_project
+#: model:ir.model.fields,field_description:carpentry_project.field_project_task__date_end
+msgid "Finish Date"
+msgstr "Date de fin"
 
 #. module: carpentry_project
 #: model:ir.model.fields,field_description:carpentry_project.field_project_role__fold
@@ -84,9 +121,31 @@ msgid "Sequence"
 msgstr "Séquence"
 
 #. module: carpentry_project
+#: model:ir.model.fields,field_description:carpentry_project.field_project_task__kanban_state
+msgid "Status"
+msgstr "Statut"
+
+#. module: carpentry_project
+#: model:ir.model,name:carpentry_project.model_project_task
+msgid "Task"
+msgstr "Tâche"
+
+#. module: carpentry_project
+#: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_tree2
+msgid "Task is closed, click to re-open it"
+msgstr "La tâche est fermée, cliquez pour la ré-ouvrir"
+
+#. module: carpentry_project
 #: model:ir.model.fields,field_description:carpentry_project.field_project_project__project_template_id
 msgid "Template Project"
 msgstr "Modèle de projet"
+
+#. module: carpentry_project
+#. odoo-python
+#: code:addons/carpentry_project/models/project_task.py:0
+#, python-format
+msgid "W%s"
+msgstr "S%s"
 
 #. module: carpentry_project
 #: model:ir.model.fields,field_description:carpentry_project.field_project_project__warning_banner
