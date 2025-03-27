@@ -82,22 +82,22 @@ class CarpentryNeedFamily(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         result = super().create(vals_list)
-        self._reconcile_with_tasks(self.project_id.ids) # after .create()
+        self._synch_families_to_tasks(self.project_id.ids) # after .create()
         return result
 
     def unlink(self):
         project_ids = self.project_id.ids
         result = super().unlink()
-        self._reconcile_with_tasks(project_ids) # after unlink()
+        self._synch_families_to_tasks(project_ids) # after unlink()
         return result
     
     def write(self, vals):
         result = super().write(vals)
-        self._reconcile_with_tasks(self.project_id.ids) # after .write()
+        self._synch_families_to_tasks(self.project_id.ids) # after .write()
         return result
 
     #===== Logics =====#
-    def _reconcile_with_tasks(self, project_ids_):
+    def _synch_families_to_tasks(self, project_ids_):
         """ Assess differences between existing tasks of type 'need' *and* needs in launches (via needs family),
             and create any missing tasks or delete any tasks from removed needs
             

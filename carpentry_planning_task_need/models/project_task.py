@@ -46,6 +46,11 @@ class Task(models.Model):
     type_name = fields.Char(
         related='type_id.name'
     )
+    user_ids = fields.Many2many(
+        compute='_compute_user_ids',
+        store=True,
+        reaonly=False,
+    )
     week_deadline = fields.Integer(
         compute='_compute_week_deadline',
     )
@@ -101,6 +106,13 @@ class Task(models.Model):
     def _search_launch_ids(self, operator, value):
         return [('launch_id', operator, value)]
     
+    @api.depends('need_id.user_ids')
+    def _compute_user_ids(self):
+        """ Synchronize task users with need's users, if task has not been customized """
+        for task in self:
+            if task._origin.user_ids == task._origin.need_id.user_ids
+                task.user_ids = task.need_id.user_ids
+    
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):
         for task in self:
@@ -124,9 +136,6 @@ class Task(models.Model):
                 color_warning, color_success = 'danger', 'muted'
             color = color_warning if self.is_late else color_success
         return color
-
-    def _get_state_planning(self):
-        """ [TODO ARNAUD] logique vert/orange/rouge... selon date """
 
     #===== Compute `res_id` and `res_model_id` ======#
     # @api.depends('type_id', 'need_id')
