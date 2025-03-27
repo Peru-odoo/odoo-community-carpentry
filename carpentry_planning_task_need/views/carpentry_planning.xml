@@ -43,7 +43,9 @@
                     </button>
                 </t>
                 <t t-elif="record.user_ids.raw_value">
-                    <field name="user_ids" widget="many2many_avatar_user"/>
+                    <field name="user_ids" widget="many2many_avatar_user"
+                        class="mt-1 text-end"
+                    />
                 </t>
             </t>
         </field>
