@@ -73,6 +73,23 @@ class CarpentryNeed(models.Model):
             raise exceptions.ValidationError(
                 _("This need cannot be deleted since used in a Need Family.")
             )
+    
+    #===== CRUD =====#
+    def write(self, vals):
+        self._synch_needs_users_to_tasks(vals.get('user_ids'))
+        return super().write(vals)
+    
+    def _synch_needs_users_to_tasks(self, new_user_ids):
+        """ Synchronize need's users to task's user,
+            for tasks still aligned with their needs
+        """
+        if not new_user_ids:
+            return
+        
+        for need in self:
+            for task in need.task_ids:
+                if task.user_ids == need.user_ids:
+                    task.user_ids = new_user_ids
 
     #===== Business methods =====#
     def _convert_to_task_vals(self, launch):
