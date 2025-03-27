@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.exceptions import ValidationError
-from odoo.tools import confnig, float_compare
+from odoo.tools import config, float_compare
 
 class StockQuant(models.Model):
     _inherit = ['stock.quant']
