@@ -12,7 +12,7 @@ class Launch(models.Model):
     
     #===== Fields (from `affectation.mixin`) =====#
     affectation_ids = fields.One2many(
-        domain=[('group_res_model', '=', _name)]
+        domain=[('group_res_model', '=', _name), ('quantity_affected', '>', 0)]
     )
     section_ids = fields.One2many(
         comodel_name='carpentry.group.phase',
@@ -21,7 +21,9 @@ class Launch(models.Model):
     #====== Affectation matrix ======#
     def _get_record_refs(self):
         """ Lines of Launches affectation matrix are Phases' affectations """
-        return self.project_id.phase_ids.affectation_ids
+        return self.project_id.phase_ids.affectation_ids.filtered(
+            lambda x: x.quantity_affected > 0
+        )
     
     def _default_quantity(self, record_ref, group_ref):
         """ Copy `quantity_affected` of phase affectation
