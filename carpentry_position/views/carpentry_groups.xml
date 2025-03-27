@@ -214,16 +214,10 @@
             </field>
             <field name="affectation_ids" position="inside">
                 <tree limit="200">
-                    <field name="project_id" />
-                    <!-- <field name="section_ref" string="Phase" />
+                    <field name="section_ref" string="Phase" />
                     <field name="position_id" decoration-bf="True" options="{'no_create': 1, 'no_open': 1}" />
-                    <field name="quantity_affected_parent" string="Quantity" digits="[10,0]" /> -->
+                    <field name="quantity_affected_parent" string="Quantity" digits="[10,0]" />
                 </tree>
-                <form>
-                    <group>
-                        <field name="project_id" />
-                    </group>
-                </form>
             </field>
         </field>
     </record>

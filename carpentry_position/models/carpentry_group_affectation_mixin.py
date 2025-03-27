@@ -26,7 +26,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         comodel_name='carpentry.group.affectation',
         inverse_name='group_id',
         string='Affectations',
-        # domain=[('group_res_model', '=', _name)], # this line must be overriten/copied with `_name` of heriting models
+        domain=[('group_res_model', '=', _name)], # this line must be overriten/copied with `_name` of heriting models
     )
     section_ids = fields.One2many(
         comodel_name=_name, # this line must be overriten/copied in heriting models

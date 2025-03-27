@@ -12,7 +12,7 @@ class Launch(models.Model):
     
     #===== Fields (from `affectation.mixin`) =====#
     affectation_ids = fields.One2many(
-        # domain=[('group_res_model', '=', _name)],
+        domain=[('group_res_model', '=', _name)],
     )
     section_ids = fields.One2many(
         comodel_name='carpentry.group.phase',
