@@ -49,7 +49,7 @@ class Task(models.Model):
     user_ids = fields.Many2many(
         compute='_compute_user_ids',
         store=True,
-        reaonly=False,
+        readonly=False,
     )
     week_deadline = fields.Integer(
         compute='_compute_week_deadline',

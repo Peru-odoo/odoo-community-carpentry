@@ -21,7 +21,6 @@ class CarpentryNeed(models.Model):
     user_ids = fields.Many2many(
         comodel_name='res.users',
         string='Users',
-        required=True
     )
     deadline_week_offset = fields.Integer(
         string='Weeks offset',
