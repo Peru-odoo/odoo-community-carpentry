@@ -145,7 +145,7 @@
                                 name="affectation_ids"
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}"
-                                widget="many2many"
+                                widget="one2many"
                                 attrs="{'readonly': [('readonly_affectation', '=', True)]}"
                             />
                         </group>
