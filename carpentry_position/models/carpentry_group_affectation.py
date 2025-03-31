@@ -217,6 +217,7 @@ class CarpentryGroupAffectation(models.Model):
         record_display = self.record_ref.with_context(display_with_suffix=False).display_name
         return prefix + record_display + suffix
     
+    @api.depends('group_id', 'record_id', 'section_id')
     def _compute_fields_ref(self):
         for affectation in self:
             affectation.group_ref = '%s,%s' % (affectation.group_res_model, affectation.group_id)
