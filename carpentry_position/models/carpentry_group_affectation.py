@@ -311,7 +311,10 @@ class CarpentryGroupAffectation(models.Model):
             return
         
         for affectation in self:
-            if not affectation.group_ref._carpentry_affectation_quantity:
+            if (
+                not affectation.group_ref or
+                not affectation.group_ref._carpentry_affectation_quantity
+            ):
                 continue
 
             # 2024-11 - ALY: disabled to allow `qty == 0` via affectation shortcut
