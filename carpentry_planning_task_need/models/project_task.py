@@ -199,7 +199,7 @@ class Task(models.Model):
     def action_activate_need(self):
         self.write({
             'active': True,
-            'stage_id': self._get_default_stage_id().id,
+            'stage_id': self._get_default_stage_id(),
         })
 
     def action_open_planning_tree(self, domain=[], context={}, record_id=False, project_id_=False):
