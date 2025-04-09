@@ -11,8 +11,11 @@ class StockQuant(models.Model):
         string='Quantity (with real-time production)',
         compute='_compute_quantity_without_outgoing_raw_material',
     )
+    stock_move_ids = fields.One2many(
+        related='product_id.stock_move_ids'
+    )
 
-    @api.depends('quantity', 'product_id.stock_move_ids')
+    @api.depends('quantity', 'stock_move_ids')
     def _compute_quantity_without_outgoing_raw_material(self):
         """ Consider outgoing qties of MRP raw_material (`Consumed` column in MO) as already *out* """
         qties_outgoing_raw_material = self.product_id._get_qties_outgoing_raw_material()
@@ -42,12 +45,13 @@ class StockQuant(models.Model):
                 quant.is_outdated = True
 
 
-    @api.constrains("product_id", "quantity", "product_id.stock_move_ids")
+    @api.constrains("product_id", "quantity", "stock_move_ids")
     def check_negative_qty(self):
         """ This part is copied from the module `stock_no_negative`,
             from the OCA project `stock-logistics-workflow`,
             adapted for the field `quantity_without_outgoing_raw_material` 
         """
+        print('=== check_negative_qty (start) ===')
 
         # To provide an option to skip the check when necessary.
         # e.g. mrp_subcontracting_skip_no_negative - passes the context
@@ -92,3 +96,4 @@ class StockQuant(models.Model):
                         complete_name=quant.location_id.complete_name,
                     )
                 )
+        print('=== (end) check_negative_qty ===')
