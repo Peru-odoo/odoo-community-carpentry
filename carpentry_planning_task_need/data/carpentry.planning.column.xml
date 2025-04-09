@@ -5,7 +5,7 @@
             <field name="name">Needs (Method)</field>
             <field name="sticky">False</field>
             <field name="active_test">False</field>
-            <field name="res_model_id" ref="project_task.model_project_task" />
+            <field name="res_model_id" ref="project.model_project_task" />
             <field name="identifier_res_model_id" ref="project_type.model_project_type" />
             <field name="identifier_res_id" ref="carpentry_planning_task_need.task_type_need_method" />
             <field name="sequence">20</field>
@@ -19,7 +19,7 @@
             <field name="name">Needs (Construction site)</field>
             <field name="sticky">False</field>
             <field name="active_test">False</field>
-            <field name="res_model_id" ref="project_task.model_project_task" />
+            <field name="res_model_id" ref="project.model_project_task" />
             <field name="identifier_res_model_id" ref="project_type.model_project_type" />
             <field name="identifier_res_id" ref="carpentry_planning_task_need.task_type_need_construction" />
             <field name="sequence">60</field>
