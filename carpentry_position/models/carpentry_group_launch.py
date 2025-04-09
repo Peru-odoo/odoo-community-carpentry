@@ -39,10 +39,11 @@ class CarpentryGroupAffectation(models.Model):
         """ When a phase's affectation `quantity_affected` is changed to 0,
             *cascade-delete* the child(ren) launch-to-position affectations
         """
+        phase_affectations = self.filtered(lambda x: x.group_res_model == 'carpentry.group.phase')
         if (
-            self.group_res_model == 'carpentry.group.phase'
-            and 'quantity_affected' in vals
-            and vals['quantity_affected'] == 0.0
+            phase_affectations and
+            'quantity_affected' in vals and
+            vals['quantity_affected'] == 0.0
         ):
             self.affectation_ids.unlink()
         return super().write(vals)
