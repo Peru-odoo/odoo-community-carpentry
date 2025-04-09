@@ -16,9 +16,6 @@ class CarpentryGroupAffectation(models.Model):
              carpentry.group.phase    phase_id            position_id (M2M)              lot_id
              carpentry.group.launch   launch_id           affectation_id of phase (O2m)  phase_id
              purchase.order           analytic_id         launch_id (M2M)                po_id
-             (
-             mrp.workorder            mrp_workorder_id    affectation_id of launch       wo_id
-             )
 
         ==== Affectations patterns ====
             - [VERY SIMPLE] Standard O2m (like `launch_ids`) from the model to `carpentry.group.launch`

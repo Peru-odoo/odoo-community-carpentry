@@ -4,7 +4,7 @@ from odoo import models, fields, api, exceptions, _
 
 import datetime
 
-class PlanningMilestoneWizard(models.Model):
+class PlanningMilestoneWizard(models.TransientModel):
     _name = "carpentry.planning.milestone.wizard"
     _description = "Planning Milestone Wizard"
 
