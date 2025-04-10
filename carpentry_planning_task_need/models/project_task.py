@@ -52,7 +52,10 @@ class Task(models.Model):
         readonly=False,
     )
     week_deadline = fields.Integer(
-        compute='_compute_week_deadline',
+        compute='_compute_week_deadline_end',
+    )
+    week_end = fields.Integer(
+        compute='_compute_week_deadline_end'
     )
     deadline_week_offset = fields.Integer(
         related='need_id.deadline_week_offset', 
@@ -186,10 +189,11 @@ class Task(models.Model):
                 )
             )
     
-    @api.depends('date_deadline')
-    def _compute_week_deadline(self):
+    @api.depends('date_deadline', 'date_end')
+    def _compute_week_deadline_end(self):
         for task in self:
             task.week_deadline = bool(task.date_deadline) and task.date_deadline.isocalendar()[1]
+            task.week_end = bool(task.date_end) and task.date_end.isocalendar()[1]
 
     #===== Task copy =====#
     def _fields_to_copy(self):

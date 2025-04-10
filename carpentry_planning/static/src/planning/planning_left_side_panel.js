@@ -45,7 +45,7 @@ export class PlanningLeftSidePanel extends Component {
     
     // Pre-Select 1st opened launch
     get launchIds() {
-        return this.props.model.data.launchIds;
+        return this.props.model.data.launchIds || {};
     }
     // Filtering by launch
     selectLaunch(launch) {
@@ -73,5 +73,5 @@ export class PlanningLeftSidePanel extends Component {
 PlanningLeftSidePanel.template = "carpentry_planning.PlanningLeftSidePanel";
 PlanningLeftSidePanel.components = { PlanningLeftSidePanel_LaunchItem };
 PlanningLeftSidePanel.props = {
-    model: true
+    model: {}
 };

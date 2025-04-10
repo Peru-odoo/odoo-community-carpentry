@@ -14,7 +14,7 @@ export class PlanningModel extends KanbanModel {
     // We need to ensure ORM is called only with both `project_id` and `launch_ids` in domain
     async load(searchParams) {
         this.projectId = searchParams.context['default_project_id'];
-        if (!this.projectId) {
+        if (!this.projectId && false) {
             this.action.doAction('carpentry_planning.action_srv_open_planning');
         } else {
             await this.loadLaunchIds();

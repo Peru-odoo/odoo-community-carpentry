@@ -27,7 +27,7 @@
     </t>
 
     <!-- Column's header, in place of `progressbar` -->
-    <t t-name="carpentry_planning.PlanningKanbanRenderer" t-inherit="web.KanbanRenderer" owl="1">
+    <t t-name="carpentry_planning.PlanningRendered" t-inherit="web.KanbanRenderer" owl="1">
         <xpath expr="//span[hasclass('o_column_title')]" position="before">
             <t t-set="header" t-value="group.model.data.headers[group.resId]" />
             <i t-attf-class="me-2 {{ header.icon }}" />

@@ -18,10 +18,11 @@ class CarpentryPlanningCard(models.Model):
         compute='_compute_fields'
     )
     week_deadline = fields.Integer(compute='_compute_fields')
+    week_end = fields.Integer(compute='_compute_fields')
     type_name = fields.Char(compute='_compute_fields')
     
     def _get_fields(self):
-        return super()._get_fields() + ['user_ids', 'week_deadline', 'type_name']
+        return super()._get_fields() + ['user_ids', 'week_deadline', 'week_end', 'type_name']
 
     #===== Button =====#
     def action_activate_need(self):

@@ -78,6 +78,6 @@ export class PlanningDashboard extends Component {
 PlanningDashboard.template = "carpentry_planning.PlanningDashboard";
 PlanningDashboard.components = { PlanningDashboardCard };
 PlanningDashboard.props = {
-    model: true
+    model: {}
 };
 

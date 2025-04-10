@@ -9,6 +9,7 @@
         
         <field name="arch" type="xml">
             <templates position="before">
+                <field name="week_end" />
                 <field name="week_deadline" />
                 <field name="type_name" />
                 <field name="active" />
@@ -25,27 +26,29 @@
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'project.task'">
                     <a t-attf-class="o_kanban_inline_block fs-6 badge fw-normal text-bg-{{record.planning_card_color_class.raw_value}}"
-                        title="Deadline"
+                        title="Deadline or Date done"
                         role="button"
                     >
-                        <span class="fa fa-calendar mx-1" title="Deadline" />
-                        W<t t-esc="record.week_deadline.raw_value || '?'" />
+                        <span class="fa fa-calendar mx-1" title="Deadline or Date done" />
+                        W<t t-esc="record.week_end.raw_value || record.week_deadline.raw_value || '?'" />
                     </a>
-                </t>
-
-                <t t-if="!record.active.raw_value">
-                    <br />
-                    <button name="action_activate_need" type="object"
-                        class="fs-6 badge fw-normal text-primary mt-1"
-                        title="Add this task to assignee's 'My Tasks' page"
-                    >
-                        Activate
-                    </button>
-                </t>
-                <t t-elif="record.user_ids.raw_value">
-                    <field name="user_ids" widget="many2many_avatar_user"
-                        class="mt-1 text-end"
-                    />
+                    
+                    <!-- Button Activate -->
+                    <t t-if="!record.active.raw_value">
+                        <br />
+                        <button name="action_activate_need" type="object"
+                            class="fs-6 badge fw-normal text-primary mt-1"
+                            title="Add this task to assignee's 'My Tasks' page"
+                        >
+                            Activate
+                        </button>
+                    </t>
+                    <!-- Users icon -->
+                    <t t-elif="record.user_ids.raw_value">
+                        <field name="user_ids" widget="many2many_avatar_user"
+                            class="mt-1"
+                        />
+                    </t>
                 </t>
             </t>
         </field>

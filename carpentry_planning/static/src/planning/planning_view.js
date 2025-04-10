@@ -11,7 +11,7 @@ import { PlanningDashboard } from "./planning_dashboard";
 import { PlanningLeftSidePanel } from "./planning_left_side_panel";
 
 // ===== Renderer =====
-export class PlanningKanbanRenderer extends KanbanRenderer {
+export class PlanningRendered extends KanbanRenderer {
     setup() {
         super.setup();
         this.actionService = useService('action');
@@ -29,7 +29,7 @@ export class PlanningKanbanRenderer extends KanbanRenderer {
         });
     }
 }
-PlanningKanbanRenderer.template = "carpentry_planning.PlanningKanbanRenderer";
+PlanningRendered.template = "carpentry_planning.PlanningRendered";
 
 // ===== Controller =====
 export class PlanningController extends KanbanController {
@@ -70,7 +70,7 @@ export class PlanningController extends KanbanController {
 PlanningController.template = "carpentry_planning.CarpentryPlanningKanbanView"
 PlanningController.components = {
     ...KanbanController.components,
-    PlanningKanbanRenderer,
+    PlanningRendered,
     PlanningDashboard,
     PlanningLeftSidePanel,
 };
@@ -78,7 +78,7 @@ PlanningController.components = {
 // ===== View =====
 export const carpentryPlanningKanbanView = {
     ...kanbanView,
-    Renderer: PlanningKanbanRenderer,
+    Renderer: PlanningRendered,
     Controller: PlanningController,
     Model: PlanningModel
 };

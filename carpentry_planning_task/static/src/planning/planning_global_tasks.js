@@ -9,7 +9,7 @@ export class PlanningGlobalTasks extends Component {
         this.state = useState({visible: true});
     }
     get projectId() {
-        return this.props.model.projectId;
+        return this.props.model.projectId || 0;
     }
 
     toggleVisible() {
