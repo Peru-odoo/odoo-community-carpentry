@@ -196,6 +196,7 @@ class AccountAnalyticAccount(models.Model):
                 - `quantity_affected`: the reserved budget
             
         """
+        # 1. Prepare search domain
         project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
         domain_launch = launchs._get_domain_affect('record')
         domain_project = [
@@ -210,10 +211,12 @@ class AccountAnalyticAccount(models.Model):
                 ('section_id', '!=', section.id),
             ]])
         
+        # 2. Fetch budget reservation (consumption)
         rg_result = self.env['carpentry.group.affectation'].read_group(
             domain=domain,
             groupby=['record_model_id', 'record_id', 'group_id'],
-            fields=['quantity_affected:sum', 'record_id', 'group_id']
+            fields=['quantity_affected:sum', 'record_id', 'group_id'],
+            lazy=False
         )
         domain = [('id', 'in', [x['record_model_id'][0] for x in rg_result])]
         mapped_model_name = {

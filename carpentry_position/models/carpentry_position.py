@@ -9,6 +9,7 @@ class Position(models.Model):
     _inherit = ['carpentry.group.mixin']
     _order = "seq_group, lot_id, sequence"
     _rec_name = "display_name"
+    _rec_names_search = ['name']
 
     #===== Fields methods =====#
     @api.depends('name')
@@ -25,11 +26,6 @@ class Position(models.Model):
             prefix = "[%s] " % (self.lot_id.name or '')
             suffix = " (%s)" % (self.quantity)
         return prefix + self.name + suffix
-
-    @api.model
-    def _search_display_name(self, operator, value):
-        """ For import """
-        return [('name', operator, value)]
     
     #===== Fields =====#
     lot_id = fields.Many2one('carpentry.group.lot',
