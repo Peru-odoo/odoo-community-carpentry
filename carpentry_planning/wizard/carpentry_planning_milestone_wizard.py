@@ -65,7 +65,7 @@ class PlanningMilestoneWizard(models.TransientModel):
         for wizard in self:
             if not wizard.date_origin:
                 continue
-                
+            
             wizard.date_new = wizard.date_origin + datetime.timedelta(days = 7 * wizard.offset)
 
     #===== Action =====#

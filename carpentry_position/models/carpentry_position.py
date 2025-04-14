@@ -129,9 +129,22 @@ class Position(models.Model):
     
     # Cf. unlink() of carpentry_group_affectation_mixin.py => need to CASCADE the unlink to the affectations
     def _clean_affectations(self):
-        domain = self._get_domain_affect('record')
-        affectations = self.env['carpentry.group.affectation'].search(domain)
-        affectations.unlink()
+        Affectation = self.env['carpentry.group.affectation']
+        
+        # delete before the position its affectations with phases
+        phase_domain = self._get_domain_affect('record')
+        phase_affectations = Affectation.search(phase_domain)
+        
+        # ...but even 1st delete position-to-launch affectation that could be empty
+        empty_affectations = phase_affectations.filtered(lambda x: x.quantity_affected == 0.0)
+        domain_launch = [
+            ('record_res_model', '=', Affectation._name),
+            ('record_id', 'in', empty_affectations.ids),
+        ]
+        launch_affectations = Affectation.search(domain_launch)
+        
+        launch_affectations.unlink()
+        phase_affectations.unlink()
     
     def unlink(self):
         self._clean_lots()
