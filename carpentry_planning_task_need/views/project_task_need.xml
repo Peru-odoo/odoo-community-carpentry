@@ -32,33 +32,43 @@
         </field>
     </record>
 
-    <!-- Form tasks -->
-    <record id="view_task_form_need" model="ir.ui.view">
-        <field name="name">project.task.form.carpentry.need</field>
+    <!-- Task Kanban -->
+    <record id="view_task_kanban" model="ir.ui.view">
+        <field name="name">project.task.kanban.carpentry_task_need</field>
         <field name="model">project.task</field>
-        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
-        <field name="mode">primary</field>
-        <field name="priority">10000</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_kanban" />
 
         <field name="arch" type="xml">
-            <!-- Replace `Root Type ID` by `Parent Type ID` -->
-            <field name="parent_type_id" position="attributes">
-                <attribute name="invisible">1</attribute>
+            <!-- `launch_id` instead of `root_type_id` -->
+            <field name="root_type_id" position="after">
+                <field name="need_id" invisible="1" />
+                <field name="launch_id" widget="badge" attrs="{
+                    'invisible': [('launch_id', '=', False)]
+                }" />
             </field>
-            <field name="root_type_id" position="replace">
-                <field name="root_type_id" invisible="1" />
-                <field name="parent_type_id" widget="badge" />
-                <field name="launch_id" widget="badge" />
+            <field name="root_type_id" position="attributes">
+                <attribute name="attrs">{'invisible': [
+                    '|', ('root_type_id', '=', False), ('need_id', '!=', False)
+                ]}</attribute>
             </field>
-            
-            <!-- `deadline_week_offset` -->
-            <field name="date_deadline" position="attributes">
-                <attribute name="attrs">{'readonly': [('deadline_week_offset', '!=', False)]}</attribute>
+        </field>
+    </record>
+
+    <!-- Form tasks -->
+    <record id="view_task_form_need" model="ir.ui.view">
+        <field name="name">project.task.form.carpentry_task_need</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_form2" />
+        <field name="arch" type="xml">
+            <!-- Replace `Root Type ID` by `Parent Type ID` & Launch -->
+            <field name="root_type_id" position="before">
+                <field name="need_id" invisible="1" />
+                <field name="parent_type_id" widget="badge" attrs="{'invisible': [('need_id', '=', False)]}" />
             </field>
-            <field name="date_deadline" position="before">
-                <field name="deadline_week_offset" attrs="{'invisible': [('deadline_week_offset', '=', False)]}" />
+            <field name="project_id" position="after">
+                <field name="launch_id" attrs="{'invisible': [('launch_id', '=', False)]}" readonly="1" />
             </field>
-            
+
             <!-- planning card -->
             <!-- <field name="card_ref" position="attributes">
                 <attribute name="invisible">1</attribute>

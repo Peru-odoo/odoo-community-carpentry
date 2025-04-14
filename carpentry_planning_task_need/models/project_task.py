@@ -9,7 +9,6 @@ XML_ID_NEED = 'carpentry_planning_task_need.task_type_need'
 class Task(models.Model):
     _name = "project.task"
     _inherit = ['project.task', 'carpentry.planning.mixin']
-    _rec_name = "display_name"
 
     #===== Fields's methods =====#
     def _filter_needs(self, only_populated=False):
@@ -21,6 +20,17 @@ class Task(models.Model):
             self.filtered('need_id') if only_populated
             else self.filtered(lambda x: x.root_type_id.id == self.env.ref(XML_ID_NEED).id)
         )
+
+    @api.depends('need_id')
+    def _compute_display_name(self):
+        """ Prefix needs' `display_name` with `type_id` """
+        if self._context.get('carpentry_planning'):
+            return super()._compute_display_name()
+        
+        needs = self._filter_needs()
+        for need in needs:
+            need.display_name = '[{}] {}' . format(need.type_id.display_name, need.name)
+        super(Task, self - needs)._compute_display_name()
 
     #===== Fields =====#
     # card_res_id = fields.Many2oneReference(
