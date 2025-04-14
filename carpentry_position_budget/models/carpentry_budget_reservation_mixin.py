@@ -77,7 +77,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     @api.onchange('launch_ids', 'budget_analytic_ids')
     def _set_readonly_affectation(self):
         """ Way to inform users the budget matrix must be re-computed """
-        self.readonly_affectation = True
+        self.sudo().readonly_affectation = True
     
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
         """ Appends *Global Cost* (on the *project*) to the matrix """
