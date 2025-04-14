@@ -78,9 +78,6 @@
             <xpath expr="//field[@name='move_raw_ids']//field[@name='product_uom_qty']" position="attributes">
                 <attribute name="widget" />
             </xpath>
-            <xpath expr="//field[@name='move_raw_ids']//field[@name='product_uom_qty']" position="after">
-                <field name="is_done" />
-            </xpath>
 
 
             <!-- MAIN PRODUCT -> SEVERAL PRODUCTS -->
