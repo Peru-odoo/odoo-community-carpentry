@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _
 from collections import defaultdict
+from odoo.tools import float_compare
 
 class StockMoveLine(models.Model):
     _inherit = ['stock.move.line']
@@ -50,3 +51,13 @@ class StockMove(models.Model):
             # If components can be canceled: cancel & delete
             (to_cancel - to_zero)._action_cancel()
             super(StockMove, to_cancel - to_zero).unlink()
+
+    #===== Compute =====#
+    @api.depends('quantity_done')
+    def _compute_is_done(self):
+        """ Overrwrite native field to order move_raw_ids by `done` """
+        super()._compute_is_done()
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+        for move in self:
+            comp = float_compare(move.quantity_done, move.product_uom_qty, precision_digits=prec)
+            move.is_done = bool(comp >= 0)

@@ -4,7 +4,7 @@ from odoo import exceptions, fields, Command
 from odoo.tests import common, tagged, Form
 
 @tagged('post_install', '-at_install')
-class TestCarpentryPurchase(common.SingleTransactionCase):
+class TestCarpentryPurchase_Base(common.SingleTransactionCase):
 
     @classmethod
     def setUpClass(cls):
@@ -66,6 +66,13 @@ class TestCarpentryPurchase(common.SingleTransactionCase):
         cls.line_stock, cls.line_consu = cls.order.order_line
     
 
+
+class TestCarpentryPurchase(TestCarpentryPurchase_Base):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+    
     #===== project.project =====#
     # def test_01_project_partner(self):
     #     with Form(self.project) as f:

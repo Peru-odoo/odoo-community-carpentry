@@ -68,13 +68,18 @@
             </field>
             <!-- Lines color -->
             <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
-                <attribute name="decoration-success">
-                    state != 'draft' and quantity_done == product_uom_qty
-                </attribute>
+                <attribute name="decoration-success">is_done</attribute>
+            </xpath>
+            <xpath expr="//field[@name='move_raw_ids']//field[@name='quantity_done']" position="attributes">
+                <attribute name="decoration-success">is_done</attribute>
+                <attribute name="decoration-warning">not is_done and quantity_done != product_uom_qty</attribute>
             </xpath>
             <!-- To consume: without widget -->
             <xpath expr="//field[@name='move_raw_ids']//field[@name='product_uom_qty']" position="attributes">
                 <attribute name="widget" />
+            </xpath>
+            <xpath expr="//field[@name='move_raw_ids']//field[@name='product_uom_qty']" position="after">
+                <field name="is_done" />
             </xpath>
 
 
