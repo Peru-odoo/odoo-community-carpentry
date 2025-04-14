@@ -50,6 +50,9 @@ class PlanningMilestone(models.Model):
 
     @api.constrains('date', 'milestone_type_id', 'launch_id')
     def _start_end_constraint(self):
+        if self._context.get('planning_milestone_no_start_end_constrain'):
+            return
+
         self = self.filtered(lambda x: x.milestone_type_id.type in ['start', 'end'])
         mapped_dates = {
             (x.launch_id.id, x.column_id.id, x.type): x.date

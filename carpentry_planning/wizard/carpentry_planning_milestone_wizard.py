@@ -78,6 +78,9 @@ class PlanningMilestoneWizard(models.TransientModel):
             If changed date is `shift=True`, changes are synched only with dates
              also having `shift=True`
         """
+        # to silence constrain ensuring start < end, just for the shift operation
+        self = self.with_context(planning_milestone_no_start_end_constrain=True)
+        
         for wizard in self:
             # calculate `should_shift` before setting date
             should_shift = wizard.shift and wizard.date_origin and wizard.date_new
