@@ -182,7 +182,9 @@ class CarpentryPlanningCard(models.Model):
         
         domain_sticky = [('project_id', '=', False)]
         domain = expression.OR([domain, domain_sticky])
-        return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
+        return super(
+            CarpentryPlanningCard, self.with_context(active_test=False)
+        ).read_group(domain, fields, groupby, offset, limit, orderby, lazy)
     
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None, **read_kwargs):
@@ -192,10 +194,9 @@ class CarpentryPlanningCard(models.Model):
         if not column:
             return []
         
-        return (
-            super(CarpentryPlanningCard, self.with_context(active_test=column.active_test))
-            .search_read(domain, fields, offset, limit, order, **read_kwargs)
-        )
+        return super(
+            CarpentryPlanningCard, self.with_context(active_test=column.active_test)
+        ).search_read(domain, fields, offset, limit, order, **read_kwargs)
     
     def _get_domain_part(self, domain, field):
         """ Search and return a tuple (i.e. `domain_part`) in a `domain`
