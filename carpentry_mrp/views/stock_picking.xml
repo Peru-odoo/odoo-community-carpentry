@@ -40,7 +40,9 @@
                     context="{'default_project_id': project_id}"
                     attrs="{'readonly': ['|', ('mrp_production_ids', '!=', []), ('purchase_id', '!=', False)]}"
                 />
+            </field>
 
+            <field name="origin" position="after">
                 <!-- Many2many tags: TO BE TESTED (because O2m) -->
                 <field name="mrp_production_ids" widget="many2many_tags" />
             </field>

@@ -62,6 +62,10 @@
             </field>
 
             <!-- === Components === -->
+            <!-- `comment` field -->
+            <button name="action_show_details" position="before">
+                <field name="comment" />
+            </button>
             <!-- Delete button -->
             <field name="move_raw_ids" position="attributes">
                 <attribute name="options">{'delete': True}</attribute>

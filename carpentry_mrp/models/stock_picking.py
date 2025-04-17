@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, models, fields, exceptions, _
+from odoo import api, models, fields, exceptions, _, Command
 
 class StockPicking(models.Model):
     _inherit = ['stock.picking']
@@ -17,14 +17,14 @@ class StockPicking(models.Model):
         comodel_name='carpentry.group.launch',
         compute='_compute_launch_ids_description',
         store=True,
-        readonly=False
+        readonly=False,
+        domain="[('project_id', '=', project_id)]"
     )
-    # mrp_production_ids = fields.One2many(
-    #     # related from procurement group
-    #     # when modified, we link the picking to the MO's procurement group
-    #     inverse='_inverse_mrp_production_ids',
-    #     domain="[('launch_ids', 'in', launch_ids)]"
-    # )
+    mrp_production_ids = fields.One2many(
+        # remove related so when modified, we link the picking to the MO's procurement group
+        inverse='_inverse_mrp_production_ids',
+        domain="[('project_id', '=', project_id)]"
+    )
 
     #===== Compute =====#
     @api.depends('mrp_production_ids', 'purchase_id')
@@ -33,7 +33,7 @@ class StockPicking(models.Model):
             po = picking.purchase_id
             mo = picking.mrp_production_ids
 
-            # picking.launch_ids = po.launch_ids | mo.launch_ids
+            picking.launch_ids = po.launch_ids | mo.launch_ids
             if po or len(mo) == 1:
                 picking.description = po.description if po else mo.description
 
@@ -44,9 +44,10 @@ class StockPicking(models.Model):
             ('purchase_id.launch_ids', operator, value),
         ]
 
-    # !!!!!!!! TO BE TESTED !!!!!!!!
-    # def _inverse_mrp_production_ids(self):
-    #     for picking in self:
-    #         mo = picking.production_ids
-    #         if len(mo) == 1:
-    #             picking.group_id = mo.procurement_group_id
+    # TO BE TESTED : inverse of related
+    def _inverse_mrp_production_ids(self):
+        """ Allow update of `mrp_production_ids` from the picking """
+        for picking in self:
+            group = fields.first(picking.mrp_production_ids.procurement_group_id)
+            group.mrp_production_ids = [Command.link(x.id) for x in picking.mrp_production_ids]
+            picking.group_id = group

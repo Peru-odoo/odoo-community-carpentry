@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Timesheet sheet kanban -->
+    <record id="view_hr_timesheet_sheet_kanban" model="ir.ui.view">
+        <field name="name">hr_timesheet.sheet.kanban.carpentry</field>
+        <field name="model">hr_timesheet.sheet</field>
+        <field name="inherit_id" ref="hr_timesheet_sheet.view_hr_timesheet_sheet_kanban"/>
+
+        <field name="arch" type="xml">
+            <kanban position="attributes">
+                <attribute name="create">1</attribute>
+            </kanban>
+        </field>
+    </record>
+
     <!-- Timesheet sheet form -->
     <record id="hr_timesheet_sheet_form" model="ir.ui.view">
         <field name="name">hr.timesheet.sheet.tree.carpentry</field>
