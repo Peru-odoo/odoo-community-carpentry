@@ -12,20 +12,20 @@ export class GroupListController extends ListController {
     }
 
 
-    async actionQuickCreate() {
-        const actionReload = async () => await this.actionService.doAction({
-            'type': 'ir.actions.client',
-            'tag': 'soft_reload'
-        });
+    // async actionQuickCreate() {
+    //     const actionReload = async () => await this.actionService.doAction({
+    //         'type': 'ir.actions.client',
+    //         'tag': 'soft_reload'
+    //     });
 
-        this.actionService.doActionButton({
-            type: 'object',
-            name: 'button_group_quick_create',
-            resModel: this.env.model.root.resModel,
-            onClose: actionReload,
-            context: this.env.model.root.context,
-        });
-    }
+    //     this.actionService.doActionButton({
+    //         type: 'object',
+    //         name: 'button_group_quick_create',
+    //         resModel: this.env.model.root.resModel,
+    //         onClose: actionReload,
+    //         context: this.env.model.root.context,
+    //     });
+    // }
 
     async openAffectationMatrix() {
         this.actionService.doActionButton({

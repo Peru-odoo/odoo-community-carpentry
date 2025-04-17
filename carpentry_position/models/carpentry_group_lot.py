@@ -7,6 +7,7 @@ class Lot(models.Model):
     _description = "Lots"
     _inherit = ['carpentry.group.mixin', 'carpentry.group.affectation.mixin']
     _order = 'sequence, id'
+    _carpentry_affectation_section_of = 'phase'
     
     #===== Fields (from `affectation.mixin`) =====#
     # `affectation_ids` should be named `position_ids`, but it's a cheat for `_inverse_section_ids`

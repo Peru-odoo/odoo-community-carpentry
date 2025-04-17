@@ -65,6 +65,10 @@
 
         <field name="arch" type="xml">
             <tree js_class="carpentry_position_group">
+                <header>
+                    <button name="create_groups_from_sections" type="object" string="Convert to launch" icon="fa-files-o" class="mx-2" />
+                </header>
+
                 <field name="sequence" widget="handle" />
 
                 <field name="project_id_domain" invisible="1" />
@@ -140,7 +144,15 @@
                         
                         <!-- Right: real affectations -->
                         <group name="right" colspan="7">
-                            <label for="affectation_ids" colspan="2" />
+                            <label for="affectation_ids" />
+                            <button name="refresh_from_sections"
+                                type="object"
+                                class="btn btn-success mt-4 oe_right text-uppercase"
+                                icon="fa-hand-o-down"
+                                string="Refresh from Linked Lots"
+                                help="Add any non-affected positions of the linked lots to the current phase"
+                            />
+
                             <field
                                 name="affectation_ids"
                                 nolabel="1" colspan="2"
@@ -186,6 +198,8 @@
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
+            <header position="replace" />
+
             <!-- `section_ids` string -->
             <field name="section_ids" position="attributes">
                 <attribute name="string">Related Phases</attribute>
@@ -208,10 +222,12 @@
                 <attribute name="string">Related Phases</attribute>
             </label>
 
+            <button name="refresh_from_sections" position="attributes">
+                <attribute name="string">Refresh from Phases</attribute>
+                <attribute name="help">Add any non-affected positions of the linked phases to the current launch</attribute>
+            </button>
+
             <!-- Different tree view for launches' affectations -->
-            <field name="affectation_ids" position="attributes">
-                <attribute name="options">{'create': [(1, '=', 1)]}</attribute>
-            </field>
             <field name="affectation_ids" position="inside">
                 <tree limit="200">
                     <field name="section_ref" string="Phase" />
@@ -276,4 +292,14 @@
     <!-- Menu-item: make `Projects` a drop-down -->
     <menuitem id="menu_carpentry_phase" sequence="21" action="action_open_phase_srv" parent="carpentry_project.menu_projects_carpentry" />
     <menuitem id="menu_carpentry_launch" sequence="22" action="action_open_launch_srv" parent="carpentry_project.menu_projects_carpentry" />
+
+    <!-- Actions: convert phase to launch -->
+    <record id="action_phase_convert_to_launch" model="ir.actions.server"> 
+        <field name="name">Convert to launch</field>
+        <field name="model_id" ref="carpentry_position.model_carpentry_group_phase" />
+        <field name="binding_model_id" ref="carpentry_position.model_carpentry_group_phase"/>
+        <field name="binding_view_types">tree,form</field>
+        <field name="state">code</field>
+        <field name="code">action = record.create_groups_from_sections()</field>
+    </record> 
 </odoo>

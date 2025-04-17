@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-12 09:33+0000\n"
-"PO-Revision-Date: 2025-03-12 11:08+0100\n"
+"POT-Creation-Date: 2025-04-17 14:53+0000\n"
+"PO-Revision-Date: 2025-04-17 16:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_position
 #. odoo-python
@@ -56,6 +56,16 @@ msgstr "Actif"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__active
 msgid "Active?"
 msgstr "Actif ?"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
+msgid "Add any non-affected positions of the linked lots to the current phase"
+msgstr "Ajouter tous les repères non pleinement affectés des lots liés à cette phase"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
+msgid "Add any non-affected positions of the linked phases to the current launch"
+msgstr "Ajouter tous les repères non affectés des phases liées à ce lancement"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_search
@@ -143,11 +153,10 @@ msgid "Company"
 msgstr "Société"
 
 #. module: carpentry_position
-#. odoo-javascript
-#: code:addons/carpentry_position/static/src/carpentry_group/carpentry_group_tree_button.xml:0
-#, python-format
-msgid "Create Phases from Lots, or Launches from Phases."
-msgstr "Créer des Phases depuis les Lots, ou des Lancements depuis les Phases."
+#: model:ir.actions.server,name:carpentry_position.action_phase_convert_to_launch
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_tree
+msgid "Convert to launch"
+msgstr "Convertir en un lancement"
 
 #. module: carpentry_position
 #: model_terms:ir.actions.act_window,help:carpentry_position.action_open_launch
@@ -498,13 +507,6 @@ msgid "Quantity remaining for affection in phases"
 msgstr "Quantité restante pour l'affection dans les phases"
 
 #. module: carpentry_position
-#. odoo-javascript
-#: code:addons/carpentry_position/static/src/carpentry_group/carpentry_group_tree_button.xml:0
-#, python-format
-msgid "Quick-create"
-msgstr "Affectation rapide"
-
-#. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__range
 msgid "Range"
 msgstr "Gamme"
@@ -540,6 +542,16 @@ msgstr "ID du modèle"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__record_ref
 msgid "Record Ref"
 msgstr "Réf de l'enregistrement"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
+msgid "Refresh from Linked Lots"
+msgstr "Rafraîchir depuis les lots liés"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
+msgid "Refresh from Phases"
+msgstr "Rafraîchir depuis les phases liées"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_tree

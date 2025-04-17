@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.osv import expression
-
+from odoo.tools import float_round
 from collections import defaultdict
 
 class CarpentryGroupAffectation(models.Model):
@@ -165,7 +165,7 @@ class CarpentryGroupAffectation(models.Model):
     quantity_affected = fields.Float(
         string="Affected quantity",
         default=False,
-        digits=(16,2),
+        digits='Product Unit of Measure',
         group_operator='sum'
     )
     quantity_affected_parent = fields.Float(
@@ -345,6 +345,8 @@ class CarpentryGroupAffectation(models.Model):
     
     @api.depends('record_id', 'group_id', 'section_id', 'active')
     def _compute_quantity_available(self):
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+
         # Technically check if computation is relevant/possible
         self.group_model_id.ensure_one()
         group_res_model = fields.first(self).group_res_model
@@ -356,7 +358,9 @@ class CarpentryGroupAffectation(models.Model):
         mapped_quantities = groups_ids._get_quantities_available(self._origin)
         for affectation in self:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
-            affectation.quantity_available = mapped_quantities.get(key)
+            affectation.quantity_available = float_round(
+                mapped_quantities.get(key, 0.0), precision_digits=prec, rounding_method='DOWN'
+            )
     
     @api.depends('record_id', 'quantity_affected')
     def _compute_quantity_remaining_to_affect(self):
@@ -367,6 +371,8 @@ class CarpentryGroupAffectation(models.Model):
             Note: we cannot use `search()` because we need real-time display of remaining_qty
             (2 affectation can be modified in `x2m_2d_matrix`)
         """
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+
         for affectation in self:
             sum_affected_siblings = 0
             if affectation.record_ref:
@@ -375,11 +381,11 @@ class CarpentryGroupAffectation(models.Model):
                 sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
             
             # exclude current affectation from the sum
-            affectation.quantity_remaining_to_affect = (
+            affectation.quantity_remaining_to_affect = float_round(
                 affectation.quantity_available
                 - sum_affected_siblings
                 - affectation.quantity_affected
-            )
+            , precision_digits=prec, rounding_method='UP')
 
 
 class CarpentryAffectationTemp(models.TransientModel):

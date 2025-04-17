@@ -427,39 +427,93 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             for x in group._origin.affectation_ids:
                 new_section_ids -= x.record_ref.group_ref
 
-            # 2b. Of these new sections, filter to their remaining available affectations,
-            #     i.e. quantity_remaining_to_affect > 0 (qty) or not already affected (bool)
-            _filter = lambda x: True
-            if group._carpentry_affectation_quantity: # eg. phases
-                # affectations with remaining qty to affect
-                _filter = lambda affectation: affectation.quantity_remaining_to_affect > 0
-            elif not group._carpentry_affectation_allow_m2m:
-                # affectations not already affected to another group
-                _filter = lambda affectation: not affectation.affectation_ids.ids
-            new_affectation_ids = new_section_ids.affectation_ids.filtered(_filter)
+            # 2b. Of these new sections, get their remaining available affectations
+            section_affectations = group._get_remaining_affectations_from_sections(new_section_ids)
 
-            # prepare vals & write
-            vals_list = [
-                group._get_affect_vals(mapped_model_ids, record_ref=affectation, group_ref=group)
-                for affectation in new_affectation_ids
-            ]
-            group.affectation_ids = [Command.create(vals) for vals in vals_list]
+            # 3. Add new affectations
+            group._add_affectations_from_sections(section_affectations, mapped_model_ids)
 
-    #====== Buttons for Affectation shortcuts ======#
-    def _populate_group_from_section(self):
-        """ Populate a kind of group (e.g. phase or launch)
-            from its section (e.g. lots or phases)
+    def refresh_from_sections(self):
+        """ Button to allow refreshing affectations from linked sections.
+            This is useful if section's affectations changes **after** the group affectations
         """
-        project_id_ = self._get_project_id(raise_if_not_found=True)
-        project = self.env['project.project'].browse(project_id_)
-        section_ids = project[self._carpentry_affectation_section + '_ids']
+        if not self._carpentry_affectation_section:
+            return
+        
+        mapped_model_ids = self._get_mapped_model_ids()
+        for group in self:
+            # 1. Of current sections, get their positions (for lots) or affectations (for phases)
+            #    still affectable (qty_remaining > 0 or not affected) and not already present in the group
+            current_record_ids = group.affectation_ids.mapped('record_id')
+            section_affectations = (
+                group._get_remaining_affectations_from_sections(group._origin.section_ids)
+                .filtered(lambda x: x.id not in current_record_ids)
+            )
 
-        self.create([{
-            'name': section.name,
-            'project_id': project_id_,
-            'section_ids': [Command.set(section.ids)]
-        } for section in section_ids])
+            # 2. Add them to group's affectations
+            group._add_affectations_from_sections(section_affectations, mapped_model_ids)
 
+    def _get_remaining_affectations_from_sections(self, sections):
+        """ For given `sections`, return positions (for lots) or affectations (for phases)
+            with remaining quantity to affect, i.e.:
+             * quantity_remaining_to_affect > 0 (qty), or
+             * not already affected (bool)
+        """
+        _filter = lambda x: True
+        if self._carpentry_affectation_quantity: # eg. phases
+            # affectations with remaining qty to affect
+            _filter = lambda affectation: affectation.quantity_remaining_to_affect > 0
+        elif not self._carpentry_affectation_allow_m2m:
+            # affectations not already affected to another group
+            _filter = lambda affectation: not affectation.affectation_ids.ids
+        return sections.affectation_ids.filtered(_filter)
+    
+    def _add_affectations_from_sections(self, section_affectations, mapped_model_ids):
+        """ 1. Convert section's affectations to group's affectation vals_list
+            2. Write them in group's `affectation_ids`
+        """
+        self.ensure_one()
+        vals_list = [
+            self._get_affect_vals(mapped_model_ids, record_ref=affectation, group_ref=self)
+            for affectation in section_affectations
+        ]
+        self.affectation_ids = [Command.create(vals) for vals in vals_list]
+    
+    #====== Buttons for Affectation shortcuts ======#
+    def create_groups_from_sections(self):
+        """ Create a kind of group (e.g. phase or launch)
+            from its section (e.g. lots or phases)
+
+            The section's model Class must define `_carpentry_affectation_section_of` attr
+
+            :return: Redirect to create groups (tree view)
+        """
+        Group = self.env['carpentry.group.' + self._carpentry_affectation_section_of]
+        groups = Group.create([
+            section._get_group_vals_from_section()
+            for section in self
+        ])
+
+        action = {
+            'type': 'ir.actions.act_window',
+            'res_model': Group._name,
+            'name': _(Group._description),
+            'view_mode': 'tree',
+            'domain': [('id', 'in', groups.ids)]
+        }
+        print(action)
+        return action
+    
+    def _get_group_vals_from_section(self):
+        """ :arg:    `self` is the section
+            :return: group's vals
+        """
+        self.ensure_one()
+        return {
+            'name': self.name,
+            'project_id': self.project_id.id,
+            'section_ids': [Command.set([self.id])]
+        }
 
     #====== Affectations counters ======#
     @api.depends('affectation_ids')
@@ -495,7 +549,10 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     #===== Button =====#
     def button_group_quick_create(self):
-        self._populate_group_from_section()
+        project_id_ = self._get_project_id(raise_if_not_found=True)
+        project = self.env['project.project'].browse(project_id_)
+        section_ids = project[self._carpentry_affectation_section + '_ids']
+        return section_ids.create_groups_from_sections()
     
 
     def toggle_readonly_affectation(self):
