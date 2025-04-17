@@ -191,11 +191,6 @@ class CarpentryGroupAffectation(models.Model):
         "Integrity error (unicity of 1 group and 1 record per cell)."
     )]
 
-    #===== CRUD =====#
-    def unlink(self):
-        self._unlink_empty_children_affectations()
-        return super().unlink()
-
     #===== Global compute =====#
     def _compute_display_name(self):
         for affectation in self:
