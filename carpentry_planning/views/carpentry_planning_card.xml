@@ -81,7 +81,7 @@
 
                         <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.planning_card_color_int.raw_value) : ''}} oe_kanban_card oe_kanban_global_click">
                             <div class="oe_kanban_content" t-att-data-tooltip="tooltip">
-                                <div class="o_kanban_record_top mb-0 text-end">
+                                <div class="o_kanban_record_top mb-0">
                                     <div class="o_kanban_record_headings">
                                         <t name="display_name" t-esc="record.shortname.raw_value ? record.shortname.raw_value : record.display_name.raw_value" />
                                     </div>
