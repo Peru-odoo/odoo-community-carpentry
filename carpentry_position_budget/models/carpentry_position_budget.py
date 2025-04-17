@@ -52,7 +52,9 @@ class CarpentryPositionBudget(models.Model):
     )
     quantity = fields.Integer(
         related='position_id.quantity',
-        string='Position quantity',
+        readonly=False, # so it's exportable with *Importable field only*
+                        # but XML view restore it with attr readonly="1"
+        help="Position's quantity in the project",
     )
     value = fields.Monetary(
         string='Unit Value',
@@ -101,7 +103,6 @@ class CarpentryPositionBudget(models.Model):
             return self.analytic_account_id._value_workforce(amount, budget_id)
         else:
             return amount
-
 
     #===== Helpers: add or erase budget of a position =====#
     def _add_budget(self, vals_list_budget):

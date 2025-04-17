@@ -54,6 +54,7 @@
             <pivot string="Positions budget" disable_linking="0">
                 <field name="position_id" type="row" />
                 <field name="analytic_account_id" type="col" />
+                <field name="quantity" type="measure" />
                 <field name="amount" type="measure" />
             </pivot>
         </field>
@@ -73,7 +74,7 @@
                 <field name="position_id" />
                 <field name="analytic_account_id" options="{'no_create_edit': 1}" />
                 <field name="amount" />
-                <field name="quantity" optional="hide" />
+                <field name="quantity" optional="hide" readonly="1" />
                 <field name="value" optional="hide" />
             </tree>
         </field>
@@ -97,6 +98,7 @@
                         </group>
                         <group name="right">
                             <field name="amount" />
+                            <field name="quantity" readonly="1" />
                             <field name="value" />
                             <field name="budget_type" />
                         </group>
