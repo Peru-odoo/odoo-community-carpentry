@@ -5,6 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 from odoo.tools import float_round
 import calendar
+import math
 
 class CarpentryBudgetReservationMixin(models.AbstractModel):
     """ Budget reservation from Affectations
@@ -182,7 +183,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
             auto_reservation = budget_distribution.get(key, None)
             if auto_reservation != None:
-                affectation.quantity_affected = min(auto_reservation, affectation.quantity_remaining_to_affect)
+                affectation.quantity_affected = math.floor(
+                    min(auto_reservation, affectation.quantity_remaining_to_affect) * 100
+                ) / 100.0
     
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of a PO or MO, considering:

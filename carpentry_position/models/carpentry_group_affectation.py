@@ -165,6 +165,7 @@ class CarpentryGroupAffectation(models.Model):
     quantity_affected = fields.Float(
         string="Affected quantity",
         default=False,
+        digits=(16,2),
         group_operator='sum'
     )
     quantity_affected_parent = fields.Float(
@@ -189,6 +190,11 @@ class CarpentryGroupAffectation(models.Model):
         "UNIQUE (group_id, group_model_id, record_id, record_model_id, section_id, section_model_id)",
         "Integrity error (unicity of 1 group and 1 record per cell)."
     )]
+
+    #===== CRUD =====#
+    def unlink(self):
+        self._unlink_empty_children_affectations()
+        return super().unlink()
 
     #===== Global compute =====#
     def _compute_display_name(self):
@@ -302,7 +308,7 @@ class CarpentryGroupAffectation(models.Model):
 
     #===== Quantities & M2o: constrain & compute =====#
     @api.onchange('quantity_affected')
-    @api.constrains('quantity_affected', 'active')
+    @api.constrains('quantity_affected')
     def _constrain_quantity(self):
         # only for groups using qties for affectation
         if self._context.get('constrain_quantity_affected_silent'):
@@ -334,6 +340,14 @@ class CarpentryGroupAffectation(models.Model):
                     affectation.quantity_remaining_to_affect,
                 ))
 
+    def toggle_active(self):
+        """ Do not put `active` field in @api.constrains, else it
+            runs constrain check at PO form loading
+        """
+        res = super().toggle_active()
+        self._constrain_quantity()
+        return res
+    
     @api.depends('record_id', 'group_id', 'section_id', 'active')
     def _compute_quantity_available(self):
         # Technically check if computation is relevant/possible
