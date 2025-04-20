@@ -68,6 +68,13 @@
         <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited" />
 
         <field name="arch" type="xml">
+            <!-- Launch ids -->
+            <field name="project_id" position="after">
+                <field name="launch_ids_budget" widget="many2many_tags" attrs="{
+                    'invisible': [('allow_timesheets', '=', False)]
+                }" />
+            </field>
+
             <!-- Allow user to manually choose on tasks if Timesheetable (page "other info") -->
             <field name="analytic_account_id" position="before">
                 <field name="allow_timesheets" widget="boolean_toggle" />

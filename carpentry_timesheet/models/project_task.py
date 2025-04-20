@@ -17,6 +17,15 @@ class Task(models.Model):
         store=True,
         readonly=False
     )
+    launch_ids_budget = fields.Many2many(
+        string='Launch(s)',
+        comodel_name='carpentry.group.launch',
+        relation='carpentry_group_launch_task_budget_rel',
+        column1='task_id',
+        column2='launch_id',
+        domain="[('project_id', '=', project_id)]",
+        help='For budget & times distribution and follow-up per launch on the planning',
+    )
 
     # -- Planning --
     progress_reviewed = fields.Float(

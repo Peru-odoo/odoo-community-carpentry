@@ -68,14 +68,6 @@
             <field name="project_id" position="after">
                 <field name="launch_id" attrs="{'invisible': [('launch_id', '=', False)]}" readonly="1" />
             </field>
-
-            <!-- planning card -->
-            <!-- <field name="card_ref" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </field>
-            <field name="launch_id" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </field> -->
         </field>
     </record>
 
