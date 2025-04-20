@@ -15,7 +15,7 @@
     'depends': [
         'mrp', # Odoo CE
         'project_role_visibility', # for access rules
-        'mrp_project_link', 'mrp_attendance', 'mrp_productivity_qty', # other
+        'mrp_project_link', 'mrp_attendance', 'mrp_productivity_qty', 'stock_move_comment', # other
         'carpentry_purchase', # carpentry
     ],
     'data': [

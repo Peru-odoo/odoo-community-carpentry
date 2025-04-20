@@ -13,7 +13,6 @@ class StockMove(models.Model):
     _inherit = ['stock.move']
 
     launch_ids = fields.Many2many(related='picking_id.launch_ids')
-    comment = fields.Char(string='Comment')
 
     #===== CRUD =====#
     def write(self, vals):
