@@ -11,3 +11,5 @@ from . import stock_picking
 
 from . import product_product
 from . import stock_quant
+
+from . import carpentry_planning_card

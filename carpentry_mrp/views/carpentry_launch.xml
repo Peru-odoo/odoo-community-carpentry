@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Launch (form) -->
+    <record id="carpentry_group_launch_form" model="ir.ui.view">
+        <field name="name">carpentry.group.launch.form.mrp</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_purchase.carpentry_group_launch_form" />
+        
+        <field name="arch" type="xml">
+            <h4 name="linked_purchase" position="before">
+                <h4 name="pending_move">Pending Stock Moves</h4>
+
+                <field name="pending_move_ids" options="{'unlink': False}" />
+            </h4>
+        </field>
+    </record>
+</odoo>

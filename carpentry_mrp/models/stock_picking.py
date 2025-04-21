@@ -15,15 +15,16 @@ class StockPicking(models.Model):
     launch_ids = fields.Many2many(
         string='Launches',
         comodel_name='carpentry.group.launch',
+        relation='stock_picking_launch_rel',
         compute='_compute_launch_ids_description',
         store=True,
         readonly=False,
         domain="[('project_id', '=', project_id)]"
     )
     mrp_production_ids = fields.One2many(
-        # remove related so when modified, we link the picking to the MO's procurement group
+        # field from module `mrp_project_link`
         inverse='_inverse_mrp_production_ids',
-        domain="[('project_id', '=', project_id)]"
+        domain="[('project_id', '=', project_id), ('state', 'not in', ['done', 'cancel'])]"
     )
 
     #===== Compute =====#
@@ -44,10 +45,15 @@ class StockPicking(models.Model):
             ('purchase_id.launch_ids', operator, value),
         ]
 
-    # TO BE TESTED : inverse of related
     def _inverse_mrp_production_ids(self):
-        """ Allow update of `mrp_production_ids` from the picking """
+        """ 1. Allow update of `mrp_production_ids` from the picking
+            2. and update Manufacturing Orders' `delivery_picking_id` when relevant
+        """
+        # 1.
         for picking in self:
             group = fields.first(picking.mrp_production_ids.procurement_group_id)
             group.mrp_production_ids = [Command.link(x.id) for x in picking.mrp_production_ids]
             picking.group_id = group
+
+        # 2.
+        self.mrp_production_ids._set_delivery_picking_id(self)

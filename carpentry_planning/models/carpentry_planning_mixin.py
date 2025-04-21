@@ -35,6 +35,11 @@ class CarpentryPlanningMixin(models.AbstractModel):
     )
 
     @api.model
+    def _get_planning_domain(self):
+        """ Returns the domain to filter the records to be displayed in the planning view """
+        return [('active', '=', True)]
+
+    @api.model
     def _synch_mirroring_column_id(self, column_id):
         """ Must be overwritten for heriting model sourcing 2 columns or more,
             and hold the logic setting `column_id` field on relevant model's records
@@ -61,7 +66,7 @@ class CarpentryPlanningMixin(models.AbstractModel):
     #===== Compute =====#
     def _compute_planning_card_color_class(self):
         """ [TO BE OVERWITTEN] """
-        pass
+        self.planning_card_color_class = False
     
     def _compute_planning_card_color_int(self):
         """ Computes `planning_card_color_int` from `planning_card_color_class` as per
@@ -71,3 +76,15 @@ class CarpentryPlanningMixin(models.AbstractModel):
             if record.planning_card_color_is_auto:
                 color_int = PLANNING_CARD_COLOR.get(record.planning_card_color_class)
                 record.planning_card_color_int = color_int
+
+    #===== Button =====#
+    def action_open_planning_card(self):
+        """ Returns the action to open the planning card view """
+        return {
+            'type': 'ir.actions.act_window',
+            'name': self.display_name,
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }

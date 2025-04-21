@@ -21,7 +21,7 @@
     'data': [
         # data
         'views/project_project.xml',
-        'views/carpentry_group_launch.xml',
+        'views/carpentry_launch.xml',
         'views/project_purchase_link.xml',
         'views/purchase_order.xml',
     ]

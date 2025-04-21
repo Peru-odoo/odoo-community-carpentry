@@ -71,7 +71,7 @@
         id="menu_project_instruction"
         parent="carpentry_planning.menu_project_followup"
         action="action_open_task_instruction_srv"
-        sequence="50"
+        sequence="60"
     />
 
 </odoo>

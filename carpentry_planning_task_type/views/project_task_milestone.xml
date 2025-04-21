@@ -42,7 +42,7 @@
         id="menu_project_milestone"
         parent="carpentry_planning.menu_project_followup"
         action="action_open_task_milestone_srv"
-        sequence="20"
+        sequence="30"
     />
 
 </odoo>

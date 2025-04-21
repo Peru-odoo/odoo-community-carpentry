@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Milestone (backup form) -->
+    <!-- Milestone (tree) -->
+    <record model="ir.ui.view" id="carpentry_planning_milestone_tree">
+        <field name="name">carpentry.planning.milestone.tree</field>
+        <field name="model">carpentry.planning.milestone</field>
+        
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="launch_id" options="{'no_create': True}" />
+                <field name="column_id" options="{'no_create': True}" />
+                <field name="date" />
+                <field name="type" />
+            </tree>
+        </field>
+    </record>
+    <!-- Milestone (form) -->
     <record model="ir.ui.view" id="carpentry_planning_milestone_form">
         <field name="name">carpentry.planning.milestone.form</field>
         <field name="model">carpentry.planning.milestone</field>
@@ -8,9 +22,28 @@
         <field name="arch" type="xml">
             <form>
                 <group>
+                    <field name="launch_id" options="{'no_create': True}" />
+                    <field name="column_id" options="{'no_create': True}" />
                     <field name="date" />
+                    <field name="type" />
                 </group>
             </form>
+        </field>
+    </record>
+    <!-- Milestone (search) -->
+    <record model="ir.ui.view" id="carpentry_planning_milestone_search">
+        <field name="name">carpentry.planning.milestone.search</field>
+        <field name="model">carpentry.planning.milestone</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="launch_id" />
+                <field name="column_id" />
+                <field name="type" />
+
+                <filter name="Start" domain="[('type', '=', 'start')]" />
+                <filter name="End" domain="[('type', '=', 'end')]" />
+            </search>
         </field>
     </record>
 
@@ -30,9 +63,30 @@
         </field>
     </record>
 
-    <!-- Milestone actions & config menu-item -->
-    <record id="action_carpentry_planning_milestone_type" model="ir.actions.act_window">
+    <!-- Milestone actions & menu-item -->
+    <!-- Date list -->
+    <record id="action_srv_open_planning_milestone_dates" model="ir.actions.server">
         <field name="name">Planning Milestones</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_planning.action_open_planning_milestone_dates')
+        </field>
+    </record>
+    <record id="action_open_planning_milestone_dates" model="ir.actions.act_window">
+        <field name="name">Planning Milestones</field>
+        <field name="res_model">carpentry.planning.milestone</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_project_planning_milestone_dates"
+        action="action_srv_open_planning_milestone_dates"
+        parent="menu_project_followup"
+        sequence="20"
+    />
+
+    <!-- Config -->
+    <record id="action_carpentry_planning_milestone_type" model="ir.actions.act_window">
+        <field name="name">Planning Milestones (types)</field>
         <field name="res_model">carpentry.planning.milestone.type</field>
         <field name="view_mode">tree</field>
     </record>

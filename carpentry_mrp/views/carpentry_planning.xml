@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="carpentry_planning_kanban">
+        <field name="name">carpentry.planning.card.kanban</field>
+        <field name="model">carpentry.planning.card</field>
+        <field name="inherit_id" ref="carpentry_planning.carpentry_planning_kanban" />
+        
+        <field name="arch" type="xml">
+            <templates position="before">
+                <field name="product_uom_qty" />
+                <field name="availability" />
+            </templates>
+
+            <t t-name="card_body" position="inside">
+                <t t-if="record.res_model.raw_value == 'stock.move'">
+                    <span class="o_kanban_inline_block badge fs-6 fw-bold">
+                        <span t-out="record.product_uom_qty.raw_value" /> / <span t-out="record.availability.raw_value" />
+                    </span>
+                </t>
+            </t>
+        </field>
+    </record>
+</odoo>

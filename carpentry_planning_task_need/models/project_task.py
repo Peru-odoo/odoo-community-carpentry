@@ -210,6 +210,10 @@ class Task(models.Model):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
     #===== Planning =====#
+    def _get_planning_domain(self):
+        """ Returns the domain to filter the records to be displayed in the planning view """
+        return [('active', 'in', [True, False])]
+
     def action_activate_need(self):
         self.write({
             'active': True,

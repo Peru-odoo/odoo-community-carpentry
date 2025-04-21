@@ -47,7 +47,7 @@ class Project(models.Model):
         ]
         milestones_data = self.env['project.task'].search_read(domain, fields, order='type_sequence')
 
-        __week = lambda date: bool(date) and date.isocalendar()[1]
+        __week = lambda date: bool(date) and _('W%s', date.isocalendar()[1])
         mapped_milestone_data = defaultdict(list)
         for x in milestones_data:
             parent_type_id = x['parent_type_id'][0]

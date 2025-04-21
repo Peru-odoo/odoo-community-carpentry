@@ -50,20 +50,14 @@ export class PlanningController extends KanbanController {
 
     // Kanban (planning) - overwrites card opening
     async openRecord (record) {
-        // Open card's form if specified
-        if (!record._values.can_open) {
-            return false
-        }
         const actionReload = async () => await this.model.load(this.model.root);
 
-        // Specific form related to the card's model
-        this.actionService.doAction({
-            type: 'ir.actions.act_window',
-            res_model: record._values.res_model,
-            res_id: record._values.res_id,
-            name: record._values.display_name,
-            views: [[false, 'form']],
-            target: 'new',
+        this.actionService.doActionButton({
+            type: 'object',
+            name: 'action_open_planning_card',
+            resModel: record._values.res_model,
+            resId: record._values.res_id,
+            context: record.model.root.context,
         }, {onClose: actionReload});
     }
 }

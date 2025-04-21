@@ -22,7 +22,7 @@
         id="menu_project_followup"
         name="Follow-up"
         parent="project.menu_main_pm"
-        sequence="40"
+        sequence="50"
         groups="project.group_project_user"
     >
         <menuitem id="menu_project_planning"
@@ -53,7 +53,6 @@
                 <!-- kanban -->
                 <field name="res_model" />
                 <field name="res_id" />
-                <field name="can_open" />
                 <!-- state & colors -->
                 <field name="state" />
                 <field name="state_value" />

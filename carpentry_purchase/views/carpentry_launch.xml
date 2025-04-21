@@ -2,7 +2,7 @@
 <odoo>
     <!-- Launch (form) -->
     <record id="carpentry_group_launch_form" model="ir.ui.view">
-        <field name="name">carpentry.group.launch.form</field>
+        <field name="name">carpentry.group.launch.form.purchase</field>
         <field name="model">carpentry.group.launch</field>
         <field name="inherit_id" ref="carpentry_position.carpentry_group_launch_form" />
         
@@ -10,7 +10,7 @@
             <sheet position="inside">
                 <div name="carpentry_planning" invisible="not context.get('carpentry_planning')">
                 
-                    <h4>Linked purchases</h4>
+                    <h4 name="linked_purchase">Linked purchases</h4>
 
                     <field name="purchase_ids" context="{
                         'default_project_id': project_id,

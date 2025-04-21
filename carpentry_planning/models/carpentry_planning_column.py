@@ -35,14 +35,14 @@ class CarpentryPlanningColumn(models.Model):
     sequence = fields.Integer(
         default=1
     )
-    sticky = fields.Boolean(
-        default=False,
-        help='If the card is displayed whatever domain filter on Planning view (e.g. Needs Categories).'
-    )
-    active_test = fields.Boolean(
-        default=True,
-        help='Whether only the active cards should be shown (and the archived hidden).'
-    )
+    # sticky = fields.Boolean(
+    #     default=False,
+    #     help='If the card is displayed whatever domain filter on Planning view (e.g. Needs Categories).'
+    # )
+    # active_test = fields.Boolean(
+    #     default=True,
+    #     help='Whether only the active cards should be shown (and the archived hidden).'
+    # )
 
     # Identifier value to route/discrepencies records of same model towards 2 or more columns
     identifier_ref = fields.Reference(
@@ -81,10 +81,6 @@ class CarpentryPlanningColumn(models.Model):
     icon = fields.Char(
         string='Icon',
         help='fa fa-xxxx'
-    )
-    can_open = fields.Boolean(
-        default=True,
-        string='Kanban Card is clickable'
     )
 
     #===== Constrains =====#
@@ -212,7 +208,7 @@ class CarpentryPlanningColumn(models.Model):
             column_id = data['column_id'][0]
             del(data['column_id'])
 
-            data['week'] = bool(data['date']) and data['date'].isocalendar()[1]
+            data['week'] = bool(data['date']) and _('W%s', data['date'].isocalendar()[1])
             mapped_milestone_data[column_id].append(data)
         
         

@@ -6,16 +6,22 @@ class PlanningMilestone(models.Model):
     """ Is filled-in by end-users on Carpentry Planning, per Launch """ 
     _name = "carpentry.planning.milestone"
     _description = "Planning Milestone"
+    _order = "launch_id, column_id, milestone_type_id"
 
     #===== Fields =====#
+    project_id = fields.Many2one(
+        comodel_name='project.project',
+        string='Project',
+        related='launch_id.project_id',
+    )
     launch_id = fields.Many2one(
-        'carpentry.group.launch',
+        comodel_name='carpentry.group.launch',
         string='Launch',
         required=True,
         ondelete='cascade'
     )
     milestone_type_id = fields.Many2one(
-        'carpentry.planning.milestone.type',
+        comodel_name='carpentry.planning.milestone.type',
         string='Milestone type',
         required=True,
         ondelete='cascade'

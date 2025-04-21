@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
-from odoo.osv import expression
-
-from collections import defaultdict
-import datetime
+from odoo import models, fields, _
 
 class Project(models.Model):
     _inherit = ["project.project"]

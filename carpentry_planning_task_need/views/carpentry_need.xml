@@ -166,7 +166,7 @@
 
     <menuitem id="menu_project_need_section"
         parent="carpentry_planning.menu_project_followup"
-        sequence="60"
+        sequence="70"
         name="Needs"
     >
         <menuitem id="menu_project_need_create" action="action_open_need_family_srv" />

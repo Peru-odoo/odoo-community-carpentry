@@ -5,7 +5,8 @@ from odoo.tools.misc import groupby as tools_groupby
 from collections import defaultdict
 
 class ManufacturingOrder(models.Model):
-    _inherit = ['mrp.production']
+    _name = 'mrp.production'
+    _inherit = ['mrp.production', 'carpentry.planning.mixin']
     _rec_name = 'display_name'
     _rec_names_search = ['name', 'description']
 
@@ -22,6 +23,15 @@ class ManufacturingOrder(models.Model):
         string='Launches',
         domain="[('project_id', '=', project_id)]",
     )
+    delivery_picking_id = fields.Many2one(
+        comodel_name='stock.picking',
+        string='On-Site Delivery',
+        domain="[('project_id', '=', project_id), ('picking_type_code', '=', 'outgoing'), ('state', 'not in', ['done', 'cancel'])]",
+        help='Shortcut to quickly move components from the Manufacturing Order '
+             'to the On-Site Delivery picking. Note: this one must be open to be able '
+             'to move components to it.'
+    )
+    # -- related POs --
     purchase_ids = fields.Many2many(
         string='Related Purchase Orders',
         related='launch_ids.purchase_ids'
@@ -51,6 +61,24 @@ class ManufacturingOrder(models.Model):
         return super().action_view_purchase_orders() | {
             'domain': [('id', 'in', self._get_purchase_ids().ids)]
         }
+    
+    #===== Delivery picking =====#
+    def _set_delivery_picking_id(self, pickings):
+        """ Automatically set `delivery_picking_id` if defining
+            from the picking the `mrp_production_ids`
+        """
+        mapped_mo_to_pickings = defaultdict(list)
+        for picking in pickings:
+            for production_id in picking.mrp_production_ids:
+                mapped_mo_to_pickings[production_id.id].append(picking.id)
+
+        for mo in self:
+            if mo.delivery_picking_id:
+                continue
+            
+            picking_ids_ = mapped_mo_to_pickings.get(mo.id, [])
+            if len(picking_ids_) == 1:
+                mo.delivery_picking_id = picking_ids_[0]
 
     #===== Logics =====#
     def _action_cancel(self):

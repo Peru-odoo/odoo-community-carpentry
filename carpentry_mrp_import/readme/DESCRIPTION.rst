@@ -3,15 +3,13 @@
 Main features
 =============
 
-
 **Products price**
 All product prices are added in supplier info (in top), before adding the products
 to the MO's components so they have the correct pricing in replenishment order.
 
-**Substitution products**
-On Product Template form, a substitution product may be defined. Field is visible
-only if *Can be purchased* is `False`. This information is used when importing
-components from external database.
+**Substitution references**
+On Product Template form, alternative references may be listed. This is used when
+importing components from external database.
 
 **Storable or Consummable products**
 Mostly storable products are expected to be found in an external database. Such

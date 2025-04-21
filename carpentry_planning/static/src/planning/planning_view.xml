@@ -54,8 +54,7 @@
                     t-attf-class="{{ milestone.type ? 'ms-1' : 'ms-4'}}"
                 >
                     <i t-attf-class="me-1 {{ milestone.icon }}" />
-                    <t t-if="milestone.week">W<t t-esc="milestone.week" /></t>
-                    <t t-else="">?</t>
+                    <t t-esc="milestone.week || '?'" />
                 </div>
             </div>
         </xpath>

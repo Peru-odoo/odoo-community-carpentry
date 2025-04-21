@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from psycopg2 import sql
 from ast import literal_eval
 import csv, os
+from odoo.tools.safe_eval import safe_eval
 
 class CarpentryPlanningCard(models.Model):
     _name = 'carpentry.planning.card'
@@ -45,7 +46,6 @@ class CarpentryPlanningCard(models.Model):
     # column related
     res_model = fields.Char(related='column_id.res_model_id.model')
     res_model_shortname = fields.Char(related='column_id.res_model_shortname')
-    can_open = fields.Boolean(related='column_id.can_open')
 
     # real record infos
     display_name = fields.Char(compute='_compute_fields')
@@ -138,7 +138,7 @@ class CarpentryPlanningCard(models.Model):
                 {column.id} AS column_id,
                 card.active AS active,
                 card.sequence AS sequence,
-                {'NULL::integer' if column.sticky else 'card.project_id'} AS project_id,
+                card.project_id AS project_id,
                 {','.join(rel_fields.values())}
         """
     
@@ -173,30 +173,44 @@ class CarpentryPlanningCard(models.Model):
 
     #===== ORM overwrite =====#
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
-        """ Optimization & domain trick:
-            - don't load any data if `launch_ids` is not in domain filter
-            - always display *static* cards without `project_id` (use-case: needs)
+        """ 1. **Optimization**
+                - don't load any data if `launch_ids` is not in domain filter
+            2. **Column filtering with specific domain**
+                - ensure correct count of record per column
         """
+        # 1.
         if not self._get_domain_part(domain, 'launch_ids'):
             return []
-        
-        domain_sticky = [('project_id', '=', False)]
-        domain = expression.OR([domain, domain_sticky])
-        return super(
-            CarpentryPlanningCard, self.with_context(active_test=False)
-        ).read_group(domain, fields, groupby, offset, limit, orderby, lazy)
+
+        # 2.
+        columns = self.env['carpentry.planning.column'].search([('fold', '=', False)])
+        for column in columns:
+            column_domain = self.env[column.res_model]._get_planning_domain()
+            
+            # Add specific domain per column
+            if column_domain:
+                domain = expression.AND([
+                    domain,
+                    expression.OR([[('column_id', '!=', column.id)], column_domain])
+                ])
+
+        return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
     
     @api.model
-    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None, **read_kwargs):
-        """ Manage which column should be `active_test` = True or False """
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None, **search_read_kwargs):
+        """ Allow specific domain to filter the column's cards """
+        # 1. Retrieve the column_id from the domain
         column_id_ = self._get_domain_part(domain, 'column_id')
         column = self.env['carpentry.planning.column'].browse(column_id_)
         if not column:
             return []
         
-        return super(
-            CarpentryPlanningCard, self.with_context(active_test=column.active_test)
-        ).search_read(domain, fields, offset, limit, order, **read_kwargs)
+        # 2. Get the column's domain (if any) and add it to the current domain
+        column_domain = self.env[column.res_model]._get_planning_domain()
+        if column_domain:
+            domain = expression.AND([domain, column_domain])
+        
+        return super().search_read(domain, fields, offset, limit, order, **search_read_kwargs)
     
     def _get_domain_part(self, domain, field):
         """ Search and return a tuple (i.e. `domain_part`) in a `domain`
@@ -256,24 +270,30 @@ class CarpentryPlanningCard(models.Model):
 
     @api.model
     def _search_launch_ids(self, operator, value):
+        return self._search_by_field('launch_ids', operator, value)
+
+    def _search_by_field(self, field, operator, value):
         """ Replace `launch_ids` by `[related_field]_id.launch_ids` (see `_select()` method)
             example: `plan_set_id.launch_ids`
             (except for *Needs*, which ignores project & launch filters)
         """
         # Calculate list of the related fields, from active columns `res_model_shortname`
-        models_shortname = self.search([('column_id.fold', '=', False)]).mapped('res_model_shortname')
+        columns = self.env['carpentry.planning.column'].search([('fold', '=', False)])
         fields = [] # e.g. `plan_set_id`, ...
-        for model in set(models_shortname):
-            rel_field = model + '_id'
-            if rel_field in self:
-                fields.append(rel_field + '.launch_ids')
-        
-        # domain = expression.OR([
-        #     [('project_id', '=', False)], # sticky, for Needs (independant of filtered launch)
-        #     [(field, operator, value) for field in fields]
-        # ])
-        domain = expression.OR([[(field, operator, value)] for field in fields])
-        return domain
+        for column in columns:
+            model_shortname = column.res_model_shortname
+            m2o_field = model_shortname + '_id'
+            rel_field = m2o_field + '.' + field
+
+            if (
+                m2o_field in self and
+                field in self.env[column.res_model] and
+                not rel_field in fields
+            ):
+                fields.append(rel_field)
+            
+        return expression.OR([[(field, operator, value)] for field in fields])
+
 
     #===== Planning Features =====#
     def _inverse_planning_card_color_int(self):

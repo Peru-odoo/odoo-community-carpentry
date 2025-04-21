@@ -80,7 +80,7 @@
         id="menu_project_meeting"
         parent="carpentry_planning.menu_project_followup"
         action="action_open_task_meeting_srv"
-        sequence="40"
+        sequence="50"
     />
 
 </odoo>

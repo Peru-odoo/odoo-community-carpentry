@@ -27,6 +27,8 @@
         'views/product_template.xml',
         'views/stock_picking.xml',
         'views/stock_quant.xml',
+        'views/carpentry_planning.xml',
+        'views/carpentry_launch.xml',
         # wizard
         'wizard/stock_inventory_conflict.xml',
     ]

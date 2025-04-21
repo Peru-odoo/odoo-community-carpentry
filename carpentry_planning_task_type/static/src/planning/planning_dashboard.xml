@@ -38,12 +38,8 @@
                                 t-attf-class="px-1 py-0 mb-1 btn {{ btnColor(milestone) }}"
                                 t-on-click="() => this.openDashboardRecord('project.task', milestone.id)"
                                 t-att-data-tooltip="milestone.display_name"
-                            >
-                                <t t-set="week_display" t-value="milestone.week_deadline or milestone.week_done" />
-                                
-                                <t t-if="week_display">W<t t-esc="week_display" /></t>
-                                <t t-else="">?</t>
-                            </button>
+                                t-esc="milestone.week_deadline || milestone.week_done || '?'"
+                            />
                             <br />
                         </t>
                     </td>
