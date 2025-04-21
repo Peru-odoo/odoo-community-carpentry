@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 16:09+0000\n"
-"PO-Revision-Date: 2025-03-27 17:12+0100\n"
+"POT-Creation-Date: 2025-04-21 11:10+0000\n"
+"PO-Revision-Date: 2025-04-21 13:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_planning
 #. odoo-python
@@ -31,11 +31,6 @@ msgid "Active"
 msgstr "Actif"
 
 #. module: carpentry_planning
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__active_test
-msgid "Active Test"
-msgstr "Test si actif"
-
-#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model
 msgid "Card Model"
 msgstr "Modèle de carte"
@@ -49,6 +44,11 @@ msgstr "Modèle de carte"
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_group_launch__carpentry_planning
 msgid "Carpentry Planning"
 msgstr "Planning de menuiserie"
+
+#. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_column
+msgid "Carpentry Planning Column"
+msgstr "Colonne du planning de menuiserie"
 
 #. module: carpentry_planning
 #. odoo-javascript
@@ -199,21 +199,6 @@ msgstr ""
 "décalées d'autant."
 
 #. module: carpentry_planning
-#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__sticky
-msgid ""
-"If the card is displayed whatever domain filter on Planning view (e.g. "
-"Needs Categories)."
-msgstr ""
-"Si la carte est affichée quel que soit le filtre de recherche dans le "
-"Planning (par exemple, Catégories de besoins)."
-
-#. module: carpentry_planning
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__can_open
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__can_open
-msgid "Kanban Card is clickable"
-msgstr "Carte du Kanban cliquable"
-
-#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card____last_update
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column____last_update
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone____last_update
@@ -336,6 +321,11 @@ msgid "Planning"
 msgstr ""
 
 #. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_mixin__planning_card_color_class
 msgid "Planning Card Color (class)"
 msgstr "Couleur de la carte dans le planning (class)"
@@ -377,10 +367,17 @@ msgid "Planning Milestone Wizard"
 msgstr "Assistant de date du planning"
 
 #. module: carpentry_planning
+#: model:ir.actions.act_window,name:carpentry_planning.action_open_planning_milestone_dates
+#: model:ir.actions.server,name:carpentry_planning.action_srv_open_planning_milestone_dates
+#: model:ir.ui.menu,name:carpentry_planning.menu_project_planning_milestone_dates
+msgid "Planning Milestones"
+msgstr "Dates du planning"
+
+#. module: carpentry_planning
 #: model:ir.actions.act_window,name:carpentry_planning.action_carpentry_planning_milestone_type
 #: model:ir.ui.menu,name:carpentry_planning.menu_carpentry_planning_milestone_type
-msgid "Planning Milestones"
-msgstr "Jalons"
+msgid "Planning Milestones (types)"
+msgstr "Dates du planning (types)"
 
 #. module: carpentry_planning
 #: model:ir.model,name:carpentry_planning.model_carpentry_planning_mixin
@@ -408,7 +405,9 @@ msgid "Previous"
 msgstr "Précédent"
 
 #. module: carpentry_planning
+#: model:ir.model,name:carpentry_planning.model_project_project
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__project_id
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__project_id
 #: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_search
 msgid "Project"
 msgstr "Projet"
@@ -462,11 +461,6 @@ msgid "State Value"
 msgstr "Valeur de l'état"
 
 #. module: carpentry_planning
-#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__sticky
-msgid "Sticky"
-msgstr "Toujours affiché"
-
-#. module: carpentry_planning
 #: model:ir.model.constraint,message:carpentry_planning.constraint_carpentry_planning_column_uniq_column
 msgid "This identifier is already used in another column."
 msgstr "Cet identifiant est déjà utilisé pour une autre colonne."
@@ -483,18 +477,22 @@ msgid "Type"
 msgstr ""
 
 #. module: carpentry_planning
-#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__active_test
-msgid ""
-"Whether only the active cards should be shown (and the archived hidden)."
-msgstr ""
-"Si uniquement les cartes actives (non-archivées) devraient être affichées "
-"dans le planning."
+#. odoo-python
+#: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#, python-format
+msgid "W%s"
+msgstr "S%s"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__fold
 msgid "Whether the column is hidden in the planning (for all users)."
 msgstr ""
 "Si la colonne est cachée dans le planning (pour tous les utilisateurs)."
+
+#. module: carpentry_planning
+#: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_milestone__project_id
+msgid "Within your favorite projects"
+msgstr "Parmis vos projets favoris"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__icon
