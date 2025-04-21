@@ -48,6 +48,18 @@ export class PlanningController extends KanbanController {
         };
     }
 
+    // Title (planning) - view milestones dates
+    async openPlanningMilestones () {
+        this.actionService.doActionButton({
+            type: 'object',
+            name: 'open_planning_milestone_table',
+            resModel: 'project.project',
+            resId: this.model.projectId,
+        }, {
+            clearBreadcrumbs: true,
+        });
+    }
+
     // Kanban (planning) - overwrites card opening
     async openRecord (record) {
         const actionReload = async () => await this.model.load(this.model.root);

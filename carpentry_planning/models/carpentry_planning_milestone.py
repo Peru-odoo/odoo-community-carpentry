@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _
+from lxml import etree
 
 class PlanningMilestone(models.Model):
     """ Is filled-in by end-users on Carpentry Planning, per Launch """ 
@@ -29,6 +30,10 @@ class PlanningMilestone(models.Model):
     date = fields.Date(
         string='Date',
         default=False
+    )
+    date_week = fields.Char(
+        string='Week',
+        compute='_compute_date_week',
     )
 
     # related fields
@@ -75,5 +80,13 @@ class PlanningMilestone(models.Model):
             if end_date < start_date:
                 raise exceptions.ValidationError(_('End date must be after the start date.'))
 
+    #===== Compute =====#
+    @api.depends('date')
+    def _compute_date_week(self):
+        """ Compute the week of the date """
+        for milestone in self:
+            milestone.date_week = milestone.date and _('W%s', milestone.date.isocalendar()[1])
+
+    #===== Logics =====#
     def _should_shift(self):
         return self.type in ['start', 'end']

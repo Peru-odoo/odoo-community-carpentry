@@ -15,7 +15,16 @@
             <div class="o_carpentry_planning">
                 <PlanningDashboard model="model" />
                 
-                <h2 class="p-4 pb-2 mb-0 bg-white">Launches planning</h2>
+                <h2 class="p-4 pb-2 mb-0 bg-white">
+                    Launches planning
+
+                    <button type="button" class="btn btn-primary btn-sm mx-2"
+                        t-on-click.prevent="openPlanningMilestones"
+                    >
+                        <span class="fa fa-calendar" />
+                        View dates
+                    </button>
+                </h2>
                 <div name="sub-root" class="d-flex">
                     <PlanningLeftSidePanel model="model" />
                 </div>

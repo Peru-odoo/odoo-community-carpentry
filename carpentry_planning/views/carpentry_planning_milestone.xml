@@ -7,10 +7,11 @@
         
         <field name="arch" type="xml">
             <tree editable="bottom" multi_edit="1">
-                <field name="launch_id" options="{'no_create': True}" />
-                <field name="column_id" options="{'no_create': True}" />
+                <field name="project_id" invisible="context.get('default_project_id')" />
+                <field name="launch_id" readonly="1" options="{'no_create': True, 'no_open': True}" />
+                <field name="name" readonly="1" />
                 <field name="date" />
-                <field name="type" />
+                <field name="type" optional="hide" />
             </tree>
         </field>
     </record>
@@ -22,10 +23,10 @@
         <field name="arch" type="xml">
             <form>
                 <group>
+                    <field name="project_id" />
                     <field name="launch_id" options="{'no_create': True}" />
-                    <field name="column_id" options="{'no_create': True}" />
+                    <field name="name" />
                     <field name="date" />
-                    <field name="type" />
                 </group>
             </form>
         </field>
@@ -47,6 +48,55 @@
         </field>
     </record>
 
+    <!-- `project.project` milestone form (x2many_2d_matrix) -->
+    <record id="carpentry_planning_project_milestone_table" model="ir.ui.view">
+        <field name="name">project.project.form.carpentry.planning</field>
+        <field name="model">project.project</field>
+        <field name="priority">9999</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <h3>Launches planning's milestones</h3>
+                <field
+                    name="planning_milestone_ids"
+                    widget="x2many_2d_matrix"
+                    field_x_axis="name"
+                    field_y_axis="launch_id"
+                    field_value="date_week"
+                    readonly="1"
+                >
+                    <tree limit="999999">
+                        <field name="launch_id"/>
+                        <field name="name" />
+                        <field name="date_week" />
+                    </tree>
+                </field>
+
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Milestone actions & menu-item -->
+    <!-- Date list wizard -->
+    <record id="action_srv_open_project_planning_milestone_table" model="ir.actions.server">
+        <field name="name">Planning's Milestones</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('open_planning_milestone_table')
+        </field>
+    </record>
+    <menuitem id="menu_project_planning_milestone_table"
+        action="action_srv_open_project_planning_milestone_table"
+        parent="menu_project_followup"
+        sequence="20"
+    />
+
+
+
     <!-- Milestone type (tree) - for config -->
     <record id="carpentry_planning_milestone_type_tree" model="ir.ui.view">
         <field name="name">carpentry.planning.milestone.type.tree</field>
@@ -63,32 +113,11 @@
         </field>
     </record>
 
-    <!-- Milestone actions & menu-item -->
-    <!-- Date list -->
-    <record id="action_srv_open_planning_milestone_dates" model="ir.actions.server">
-        <field name="name">Planning Milestones</field>
-        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
-        <field name="state">code</field>
-        <field name="code">
-            action = model.action_choose_project_and_redirect('carpentry_planning.action_open_planning_milestone_dates')
-        </field>
-    </record>
-    <record id="action_open_planning_milestone_dates" model="ir.actions.act_window">
-        <field name="name">Planning Milestones</field>
-        <field name="res_model">carpentry.planning.milestone</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-    <menuitem id="menu_project_planning_milestone_dates"
-        action="action_srv_open_planning_milestone_dates"
-        parent="menu_project_followup"
-        sequence="20"
-    />
-
     <!-- Config -->
     <record id="action_carpentry_planning_milestone_type" model="ir.actions.act_window">
         <field name="name">Planning Milestones (types)</field>
         <field name="res_model">carpentry.planning.milestone.type</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">tree,form</field>
     </record>
     <menuitem
         action="action_carpentry_planning_milestone_type"

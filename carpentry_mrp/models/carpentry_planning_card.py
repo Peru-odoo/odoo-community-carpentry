@@ -17,17 +17,18 @@ class CarpentryPlanningCard(models.Model):
         comodel_name='stock.move',
         string='Stock Move',
     )
-    
-    #===== Fields for `stock.move` =====#
     state = fields.Char(
         # for `stock.move` column, filtering by state
         search='_search_state'
     )
+    
+    #===== Mirror fields =====#
+    components_availability = fields.Char(compute='_compute_fields')
     product_uom_qty = fields.Float(compute='_compute_fields')
     availability = fields.Float(compute='_compute_fields')
     
     def _get_fields(self):
-        return super()._get_fields() + ['product_uom_qty', 'availability']
+        return super()._get_fields() + ['components_availability', 'product_uom_qty', 'availability']
 
     #===== Compute =====#
     @api.model

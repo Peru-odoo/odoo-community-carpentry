@@ -86,3 +86,18 @@ class ManufacturingOrder(models.Model):
         super()._action_cancel()
         move_done = self.move_raw_ids.filtered(lambda x: x.state in ('done'))
         move_done.quantity_done = 0.0
+
+    #===== Planning =====#
+    @api.depends('reservation_state', 'components_availability_state')
+    def _compute_planning_card_color_class(self):
+        for mo in self:
+            if mo.reservation_state == 'assigned' or mo.components_availability_state == 'available':
+                color = 'success'
+            elif mo.reservation_state != 'assigned' and mo.components_availability_state in ('expected', 'available'):
+                color = 'warning'
+            elif mo.reservation_state != 'assigned' and mo.components_availability_state == 'late':
+                color = 'danger'
+            else:
+                color = 'muted'
+            
+            mo.planning_card_color_class = color
