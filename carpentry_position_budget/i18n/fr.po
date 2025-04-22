@@ -6,14 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-09 14:30+0000\n"
-"PO-Revision-Date: 2025-04-09 14:30+0000\n"
+"POT-Creation-Date: 2025-04-22 17:54+0000\n"
+"PO-Revision-Date: 2025-04-22 20:03+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
@@ -42,11 +44,8 @@ msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_position_analytic
-msgid ""
-"A position cannot receive twice a budget from the same analytic account."
-msgstr ""
-"Un repère ne peut pas recevoir deux fois un budget du même compte "
-"analytique."
+msgid "A position cannot receive twice a budget from the same analytic account."
+msgstr "Un repère ne peut pas recevoir deux fois un budget du même compte analytique."
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_account_move_budget_line
@@ -99,7 +98,6 @@ msgid "Amount of reserved budget"
 msgstr "Montant budget réservé"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_account_analytic_account
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid "Analytic Account"
 msgstr "Compte analytique"
@@ -125,9 +123,7 @@ msgstr "Êtes-vous sûr ?"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Are you sure? This will keep positions, but empty their budgets."
-msgstr ""
-"Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budgets "
-"seront vidés."
+msgstr "Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budgets seront vidés."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
@@ -159,6 +155,7 @@ msgstr "Fournitures"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation_temp__budget_type
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_planning_column__budget_type
 msgid "Budget Type"
 msgstr "Type de budget"
 
@@ -191,9 +188,7 @@ msgstr "Interface base de données externe (budget)"
 #: code:addons/carpentry_position_budget/models/account_move_budget_line.py:0
 #, python-format
 msgid "Budget lines computed from Positions cannot be removed (%s)"
-msgstr ""
-"Les lignes de budgets calculées depuis les Repères ne peuvent pas être "
-"supprimées (%s)"
+msgstr "Les lignes de budgets calculées depuis les Repères ne peuvent pas être supprimées (%s)"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
@@ -223,6 +218,11 @@ msgid "Carpentry Group Budget Mixin"
 msgstr "Assistant de Réservation de budget pour les groupes de menuiserie"
 
 #. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_carpentry_planning_column
+msgid "Carpentry Planning Column"
+msgstr "Colonne du planning de menuiserie"
+
+#. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position_budget_import_wizard
 msgid "Carpentry Position Budget Import Wizard"
 msgstr "Assistant d'import de budget des repères"
@@ -231,12 +231,8 @@ msgstr "Assistant d'import de budget des repères"
 #. odoo-python
 #: code:addons/carpentry_position_budget/models/carpentry_position_budget_interface.py:0
 #, python-format
-msgid ""
-"Column %s was added to the import interface with External Database as "
-"ignored by default."
-msgstr ""
-"La colonne %s a été ajoutée à l'interface d'import en mode ignorée par "
-"défaut."
+msgid "Column %s was added to the import interface with External Database as ignored by default."
+msgstr "La colonne %s a été ajoutée à l'interface d'import en mode ignorée par défaut."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__company_id
@@ -255,12 +251,8 @@ msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_reservation_mixin__amount_budgetable
-msgid ""
-"Cost amount imputed on the project. Gain = 'Amount of reserved budget' - "
-"this amount"
-msgstr ""
-"Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce "
-"montant"
+msgid "Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
+msgstr "Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce montant"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__create_uid
@@ -381,12 +373,8 @@ msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__active
-msgid ""
-"If archived, any budget from external source of this column will be ignored "
-"at during import."
-msgstr ""
-"Si archivé, tout budget provenant d'une base de donnée externe de cette "
-"colonne sera ignoré lors de l'import."
+msgid "If archived, any budget from external source of this column will be ignored at during import."
+msgstr "Si archivé, tout budget provenant d'une base de donnée externe de cette colonne sera ignoré lors de l'import."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -400,8 +388,7 @@ msgstr ""
 
 #. module: carpentry_position_budget
 #. odoo-javascript
-#: code:addons/carpentry_position_budget/static/src/position/position_tree_button.xml:0
-#: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
+#: code:addons/carpentry_position_budget/static/src/position/position_tree_button.xml:0 model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 #, python-format
 msgid "Import budget"
 msgstr "Importer un budget"
@@ -504,12 +491,9 @@ msgstr "Lots (appelés \"phases\" dans Orgadata)"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid ""
-"Make the link between budget, income and charges. Must have a \"Budget "
-"Type\" (for Type of Budget Line) and \"Template Lines\" rules (for General "
-"Account)."
+"Make the link between budget, income and charges. Must have a \"Budget Type\" (for Type of Budget Line) and \"Template Lines\" rules (for General Account)."
 msgstr ""
-"Fait le lien entre le budget, les revenus et les charges. Doit avoir un "
-"\"Type de budget\" (pour le type de ligne de budget) et des \"Modèles de "
+"Fait le lien entre le budget, les revenus et les charges. Doit avoir un \"Type de budget\" (pour le type de ligne de budget) et des \"Modèles de "
 "lignes\" (pour la comptabilité générale)."
 
 #. module: carpentry_position_budget
@@ -525,18 +509,15 @@ msgstr "Fusionner les repères"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_position_tree
-msgid ""
-"Merge to resolve the conflict with other position(s) with the same name"
-msgstr ""
-"Fusionner pour résoudre le conflit avec d'autres repères portant le même nom"
+msgid "Merge to resolve the conflict with other position(s) with the same name"
+msgstr "Fusionner pour résoudre le conflit avec d'autres repères portant le même nom"
 
 #. module: carpentry_position_budget
 #. odoo-python
 #: code:addons/carpentry_position_budget/models/carpentry_position_budget.py:0
 #, python-format
 msgid "Missing the configuration of %s to compute the position's budget."
-msgstr ""
-"Il manque la configuration de %s pour calculer le budget de ce repère."
+msgstr "Il manque la configuration de %s pour calculer le budget de ce repère."
 
 #. module: carpentry_position_budget
 #. odoo-python
@@ -592,12 +573,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/carpentry_position_budget/wizard/carpentry_position_merge_wizard.py:0
 #, python-format
-msgid ""
-"Please remove all the affectations to phases and launches of the positions "
-"to merge before merging."
-msgstr ""
-"Veuillez supprimer toutes les affectations aux phases et lancements des "
-"repères à fusionner avant de les fusionner."
+msgid "Please remove all the affectations to phases and launches of the positions to merge before merging."
+msgstr "Veuillez supprimer toutes les affectations aux phases et lancements des repères à fusionner avant de les fusionner."
 
 #. module: carpentry_position_budget
 #. odoo-python
@@ -630,11 +607,6 @@ msgid "Position Merge"
 msgstr "Fusion de repère"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__quantity
-msgid "Position quantity"
-msgstr "Quantité"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_merge_wizard__position_id_target
 msgid "Position to keep"
 msgstr "Repère à garder"
@@ -643,6 +615,11 @@ msgstr "Repère à garder"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Position's budgets"
 msgstr "Budgets du repère"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__quantity
+msgid "Position's quantity in the project"
+msgstr "Quantité du repère dans le projet"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -680,7 +657,6 @@ msgid "Production"
 msgstr "Fabrication"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__project_id
@@ -704,6 +680,7 @@ msgid "Projects"
 msgstr "Par projet"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__quantity
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Quantity"
 msgstr "Quantité"
@@ -801,11 +778,8 @@ msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_interface_unique_col
-msgid ""
-"This 'External column' already exists for this type of external database."
-msgstr ""
-"Cette \"Colonne externe\" existe déjà pour ce type de base de données "
-"externe."
+msgid "This 'External column' already exists for this type of external database."
+msgstr "Cette \"Colonne externe\" existe déjà pour ce type de base de données externe."
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
@@ -818,19 +792,18 @@ msgid ""
 "                                aim, please import a budget sub-part to avoid loosing any previous work done\n"
 "                                in Odoo after the first import."
 msgstr ""
-"Cet import se comporte en mode <strong>création ou une mise à jour</strong>: si un autre budget est importé après un premier budget, les données du premier budget seront remplacées (c'est-à-dire mises à jour), y compris les quantités.\n"
-"Toute nouvelle donnée du second import sera bien créée. Les données existantes dans Odoo provenant du premier important et qui ne sont pas dans le second import seront conservées.\n"
+"Cet import se comporte en mode <strong>création ou une mise à jour</strong>: si un autre budget est importé après un premier budget, les données du "
+"premier budget seront remplacées (c'est-à-dire mises à jour), y compris les quantités.\n"
+"Toute nouvelle donnée du second import sera bien créée. Les données existantes dans Odoo provenant du premier important et qui ne sont pas dans le second "
+"import seront conservées.\n"
 "En fonction de ce que vous recherchez, importez une sous-partie du budget pour éviter de perdre tout le travail effectué dans Odoo après le premier import."
 
 #. module: carpentry_position_budget
 #. odoo-python
 #: code:addons/carpentry_position_budget/models/carpentry_group_launch.py:0
 #, python-format
-msgid ""
-"This launch is already used in a budget reservation like a Purchase Order,  "
-"Manufacturing Order or Picking."
-msgstr "Ce lancement est déjà utilisé dans une réservation de budget, par exemple dans une commande, un ordre de fabrication "
-"ou bien un transfert."
+msgid "This launch is already used in a budget reservation like a Purchase Order,  Manufacturing Order or Picking."
+msgstr "Ce lancement est déjà utilisé dans une réservation de budget, par exemple dans une commande, un ordre de fabrication ou bien un transfert."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__active
@@ -886,9 +859,7 @@ msgstr "Montant"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id
 msgid "Used to rapproach incomes, charges and budget in accounting reports."
-msgstr ""
-"Utilisé pour rapprocher les revenus, les charges et le budget dans les "
-"rapports comptables."
+msgstr "Utilisé pour rapprocher les revenus, les charges et le budget dans les rapports comptables."
 
 #. module: carpentry_position_budget
 #. odoo-javascript

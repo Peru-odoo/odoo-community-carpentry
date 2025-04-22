@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 16:09+0000\n"
-"PO-Revision-Date: 2025-03-27 17:13+0100\n"
+"POT-Creation-Date: 2025-04-22 17:54+0000\n"
+"PO-Revision-Date: 2025-04-22 20:02+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,15 +15,16 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
 msgid ""
-"<span class=\"fa fa-calendar mx-1\" title=\"Deadline\"/>\n"
+"<span class=\"fa fa-calendar mx-1\" title=\"Deadline or Date done\"/>\n"
 "                        W"
 msgstr ""
-"<span class=\"fa fa-calendar me-1\" title=\"Calendar\"/>\n"
+"<span class=\"fa fa-calendar mx-1\" title=\"Date objectif ou Date terminé\"/"
+">\n"
 "                        S"
 
 #. module: carpentry_planning_task_need
@@ -82,11 +83,6 @@ msgstr ""
 "tâche."
 
 #. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_column
-msgid "Carpentry Planning Column"
-msgstr "Colonne du planning de menuiserie"
-
-#. module: carpentry_planning_task_need
 #: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_planning_column__column_id_need_date
 msgid ""
 "Column whose `start` milestone will be used as reference to compute needs "
@@ -117,9 +113,14 @@ msgid "Created on"
 msgstr "Créé le"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__date_deadline
+msgid "Date Deadline"
+msgstr "Date limite"
+
+#. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
-msgid "Deadline"
-msgstr "Date objectif"
+msgid "Deadline or Date done"
+msgstr "Date objectif ou Date terminé"
 
 #. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
@@ -135,12 +136,12 @@ msgstr "Nom affiché"
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_output
 msgid "Go for Output"
-msgstr "Accord débit"
+msgstr "Débit (accord)"
 
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_buy
 msgid "Go for Purchase"
-msgstr "Accord achat"
+msgstr "Achat (accord)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__id
@@ -151,12 +152,12 @@ msgstr ""
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_install_end
 msgid "Installation End"
-msgstr "Fin de la pose"
+msgstr "Pose (fin)"
 
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_install_start
 msgid "Installation Start"
-msgstr "Début de la pose"
+msgstr "Pose (début)"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need____last_update
@@ -267,11 +268,6 @@ msgstr ""
 "ou de la pose)"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_card
-msgid "Planning Card"
-msgstr "Cartes du planning"
-
-#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_class
 msgid "Planning Card Color (class)"
 msgstr "Carte de la couleur dans le planning (class)"
@@ -307,11 +303,6 @@ msgstr "Projet"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__project_id_domain
 msgid "Project Id Domain"
 msgstr ""
-
-#. module: carpentry_planning_task_need
-#: model:ir.model,name:carpentry_planning_task_need.model_project_type
-msgid "Project Type"
-msgstr "Type de projet"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__role_id
@@ -366,6 +357,11 @@ msgid "Type of Need"
 msgstr "Type de besoin"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__user_ids
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__user_ids
 msgid "Users"
 msgstr "Utilisateurs"
@@ -384,6 +380,12 @@ msgstr "Voir et ajuster les besoins"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__week_deadline
 msgid "Week Deadline"
 msgstr "Objectif (semaine)"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__week_end
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__week_end
+msgid "Week End"
+msgstr "Date de fin"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__deadline_week_offset

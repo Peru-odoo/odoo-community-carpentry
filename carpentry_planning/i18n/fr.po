@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-21 11:10+0000\n"
-"PO-Revision-Date: 2025-04-21 13:11+0200\n"
+"POT-Creation-Date: 2025-04-22 17:54+0000\n"
+"PO-Revision-Date: 2025-04-22 20:01+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -46,16 +46,16 @@ msgid "Carpentry Planning"
 msgstr "Planning de menuiserie"
 
 #. module: carpentry_planning
-#: model:ir.model,name:carpentry_planning.model_carpentry_planning_column
-msgid "Carpentry Planning Column"
-msgstr "Colonne du planning de menuiserie"
-
-#. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "Click to toggle status"
 msgstr "Cliquez pour basculer l'état"
+
+#. module: carpentry_planning
+#: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_project_milestone_table
+msgid "Close"
+msgstr "Fermer"
 
 #. module: carpentry_planning
 #. odoo-python
@@ -222,7 +222,6 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_planning
-#: model:ir.model,name:carpentry_planning.model_carpentry_group_launch
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__launch_id
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_wizard__launch_id
 #: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_search
@@ -243,6 +242,11 @@ msgstr "Lancements"
 #, python-format
 msgid "Launches planning"
 msgstr "Planning par lancement"
+
+#. module: carpentry_planning
+#: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_project_milestone_table
+msgid "Launches planning's milestones"
+msgstr "Dates du planning par lancement"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone_wizard__milestone_id
@@ -321,11 +325,6 @@ msgid "Planning"
 msgstr ""
 
 #. module: carpentry_planning
-#: model:ir.model,name:carpentry_planning.model_carpentry_planning_card
-msgid "Planning Card"
-msgstr "Cartes du planning"
-
-#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_mixin__planning_card_color_class
 msgid "Planning Card Color (class)"
 msgstr "Couleur de la carte dans le planning (class)"
@@ -367,9 +366,7 @@ msgid "Planning Milestone Wizard"
 msgstr "Assistant de date du planning"
 
 #. module: carpentry_planning
-#: model:ir.actions.act_window,name:carpentry_planning.action_open_planning_milestone_dates
-#: model:ir.actions.server,name:carpentry_planning.action_srv_open_planning_milestone_dates
-#: model:ir.ui.menu,name:carpentry_planning.menu_project_planning_milestone_dates
+#: model:ir.model.fields,field_description:carpentry_planning.field_project_project__planning_milestone_ids
 msgid "Planning Milestones"
 msgstr "Dates du planning"
 
@@ -398,6 +395,12 @@ msgid "Planning columns"
 msgstr "Colonnes du planning"
 
 #. module: carpentry_planning
+#: model:ir.actions.server,name:carpentry_planning.action_srv_open_project_planning_milestone_table
+#: model:ir.ui.menu,name:carpentry_planning.menu_project_planning_milestone_table
+msgid "Planning's Milestones"
+msgstr "Dates du planning"
+
+#. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
@@ -405,7 +408,6 @@ msgid "Previous"
 msgstr "Précédent"
 
 #. module: carpentry_planning
-#: model:ir.model,name:carpentry_planning.model_project_project
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__project_id
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__project_id
 #: model_terms:ir.ui.view,arch_db:carpentry_planning.carpentry_planning_search
@@ -477,11 +479,24 @@ msgid "Type"
 msgstr ""
 
 #. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#, python-format
+msgid "View dates"
+msgstr "Voir les dates"
+
+#. module: carpentry_planning
 #. odoo-python
 #: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
 #, python-format
 msgid "W%s"
 msgstr "S%s"
+
+#. module: carpentry_planning
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_milestone__date_week
+msgid "Week"
+msgstr "Semaine"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,help:carpentry_planning.field_carpentry_planning_column__fold
