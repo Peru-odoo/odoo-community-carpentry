@@ -104,10 +104,3 @@ class PlanRelease(models.Model):
     def _compute_sequence(self):
         for release in self:
             release.sequence = calendar.timegm(release.date_plan_publish.timetuple())
-
-    @api.model
-    def _get_planning_subheaders(self, column_id, launch_id):
-        return {
-            'description': launch_id.plan_set_id.name,
-            # 'budgets': [] # todo
-        }

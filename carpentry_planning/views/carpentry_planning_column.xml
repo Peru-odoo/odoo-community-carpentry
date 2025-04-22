@@ -13,7 +13,6 @@
                 <field name="name" />
                 <field name="res_model_id" />
                 <field name="identifier_ref" attrs="{'required': [('identifier_required', '=', True)]}" />
-                <field name="fold" widget="boolean_toggle" />
                 <field name="icon" />
             </tree>
         </field>
@@ -33,7 +32,6 @@
                         <field name="res_model_id" />
                         <field name="name" />
                         <field name="identifier_ref" attrs="{'required': [('identifier_required', '=', True)]}" />
-                        <field name="fold" widget="boolean_toggle" />
                         <field name="icon" />
                     </group>
                 </sheet>

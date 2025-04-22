@@ -233,9 +233,3 @@ class Task(models.Model):
                 'display_standard_form': False
             }
         return super().action_open_planning_tree(domain, context, record_id, project_id_)
-
-    @api.model
-    def _get_planning_subheaders(self, column_id, launch_id):
-        """ No deadlines nor budgets in Need columns headers """
-        return {}
-    

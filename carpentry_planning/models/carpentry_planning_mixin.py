@@ -47,22 +47,6 @@ class CarpentryPlanningMixin(models.AbstractModel):
         """
         pass
     
-    # for column headers (in place of <progressbar />)
-    @api.model
-    def _get_planning_subheaders(self, column_id, launch_id):
-        """ Returns short text and budget infos (spent / available), to display in planning column header
-            Output example:
-                'description': 'something',
-                'budgets': [{
-                    'icon': 'fa fa-clock-o',
-                    'tooltip': 'Hello',
-                    'unit': 'h',
-                    'spent': 5.0,
-                    'available': 10.0,
-                }]
-        """
-        return {}
-
     #===== Compute =====#
     def _compute_planning_card_color_class(self):
         """ [TO BE OVERWITTEN] """

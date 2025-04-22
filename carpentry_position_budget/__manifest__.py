@@ -32,6 +32,7 @@
         'views/carpentry_position_budget_interface.xml',
         'views/carpentry_position_budget.xml',
         'views/carpentry_position.xml',
+        'views/carpentry_planning_column.xml',
         'views/project_project.xml',
         'views/account_move_budget_line.xml',
         'views/carpentry_affectation_budget.xml',

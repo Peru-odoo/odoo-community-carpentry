@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _, Command, exceptions
+from odoo.osv import expression
 from collections import defaultdict
 
 class CarpentryAffectation_Mixin(models.AbstractModel):
@@ -56,8 +57,15 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ `ondelete='cascade'` does not exist on Many2oneReference fields
             of `carpentry.group.affectation` => just replay it
         """
-        self.env['carpentry.group.affectation'].search(self._get_domain_affect()).unlink()
+        domain = self._get_unlink_domain()
+        self.env['carpentry.group.affectation'].search(domain).unlink()
         return super().unlink()
+    
+    def _get_unlink_domain(self):
+        return expression.OR([
+            self._get_domain_affect('record'),
+            self._get_domain_affect('group'),
+        ])
     
     def write(self, vals):
         """ Manually update affectation's fields, because @api.depends('record_ref.any_field')

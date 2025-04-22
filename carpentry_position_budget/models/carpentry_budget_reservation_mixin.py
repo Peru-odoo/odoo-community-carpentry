@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _
+from odoo.osv import expression
 from collections import defaultdict
 from datetime import datetime
 from odoo.tools import float_round
@@ -70,6 +71,15 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         if any(field in vals for field in fields):
             self._compute_affectation_ids()
         return res
+    
+    def _get_unlink_domain(self):
+        """ When deleting a PO/MO/picking,
+            delete the related the affectation
+        """
+        return expression.OR([
+            super()._get_unlink_domain(),
+            self._get_domain_affect('section'),
+        ])
     
     #====== Affectation refresh ======#
     def _get_fields_affectation_refresh(self):

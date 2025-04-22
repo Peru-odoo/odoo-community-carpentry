@@ -198,6 +198,9 @@ class CarpentryPlanningColumn(models.Model):
     def get_headers_data(self, launch_id_):
         """ Return data like icon, milestone and budgets that appears
             in place of kanban's <progressbar />
+
+            :return: dict of dicts like:
+                {column_id: ...}
         """
         launch_id = self.env['carpentry.group.launch'].browse(launch_id_)
 
@@ -211,17 +214,11 @@ class CarpentryPlanningColumn(models.Model):
             data['week'] = bool(data['date']) and _('W%s', data['date'].isocalendar()[1])
             mapped_milestone_data[column_id].append(data)
         
-        
         # json return
         return {
             column.id: {
                 'icon': column.icon,
                 'milestones': mapped_milestone_data.get(column.id, []),
-                'budgets': []
-            } | (
-                # specific custom other headers data per columns
-                self.env[column.res_model]._get_planning_subheaders(self, launch_id)
-                if '_get_planning_subheaders' in self.env[column.res_model] else {}
-            )
+            }
             for column in self
         }

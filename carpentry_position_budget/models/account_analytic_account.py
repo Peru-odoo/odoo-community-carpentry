@@ -139,11 +139,29 @@ class AccountAnalyticAccount(models.Model):
         
         return remaining
     
-    def _get_available_budget_initial(self, launchs, section=None):
-        """ :return: (brut, valued) where each item is a dict-of-dict like:
+    def _get_available_budget_initial(self,
+                                        launchs,
+                                        project_budgets=True,
+                                        section=None,
+                                        groupby_budget='analytic_account_id'
+                                        ):
+        """ :arg launchs:
+                explicit
+            :option project_budgets:
+                if `False`, don't compute and add global-cost budget
+                (useful from carpentry planning)
+            :option section:
+                `section_ref` record (like PO, MO, picking) to be excluded from
+                the sum. Useful to compute *remaining budgets* on POs and MOs
+            :option groupby_budget:
+                field to group budget by
+                 - 'analytic_account_id' (default)
+                 - 'budget_type' (e.g. production, installation, ...)
+                 - 'group_id' (e.g. carpentry.group.launch)
+            :return: Dict like (brut, valued) where each item is a dict-of-dict like:
             {
-                ('launch',  launch.id): {analytic.id: amount, ...}, # per-position budget
-                ('project', project.id): {analytic.id: amount, ...}, # global budget (per project)
+                ('carpentry.group.launch',  launch.id): {analytic.id: amount, ...}, # per-position budget
+                ('project.project', project.id): {analytic.id: amount, ...}, # global budget (per project)
                 ...
             }
         """
@@ -158,27 +176,32 @@ class AccountAnalyticAccount(models.Model):
         brut, valued = __adapt_key(self.env['carpentry.position.budget'].sudo().sum(
             quantities=launchs._get_quantities(),
             groupby_group=['group_id'],
-            groupby_budget='analytic_account_id',
-            domain_budget=[('analytic_account_id', 'in', self.ids)]
+            groupby_budget=groupby_budget,
+            domain_budget=[('analytic_account_id', 'in', self.ids)] if self.ids else [],
         ))
 
         # Budget from the project (not computed)
-        project_ids = (section.project_id or launchs.project_id)._origin
-        rg_result = self.env['account.move.budget.line'].sudo().read_group(
-            domain=[('project_id', 'in', project_ids.ids), ('is_computed_carpentry', '=', False)],
-            groupby=['project_id', 'analytic_account_id'],
-            fields=['balance:sum', 'qty_balance:sum'],
-            lazy=False
-        )
-        for x in rg_result:
-            # Add global-cost budget to `brut` & `valued`
-            key = ('project.project', x['project_id'][0])
-            brut[key]   = brut.get(key, {})   | {x['analytic_account_id'][0]: x['qty_balance']}
-            valued[key] = valued.get(key, {}) | {x['analytic_account_id'][0]: x['balance']}
+        if project_budgets:
+            project_ids = (section.project_id if section else launchs.project_id)._origin
+            rg_result = self.env['account.move.budget.line'].sudo().read_group(
+                domain=[('project_id', 'in', project_ids.ids), ('is_computed_carpentry', '=', False)],
+                groupby=['project_id'] + ([groupby_budget] if groupby_budget else []),
+                fields=['balance:sum', 'qty_balance:sum'],
+                lazy=False
+            )
+            for item in rg_result:
+                # Add global-cost budget to `brut` & `valued`
+                key = ('project.project', item['project_id'][0])
+                key_budget = (
+                    item[groupby_budget][0] if hasattr(item[groupby_budget], '__iter__')
+                    else item[groupby_budget]
+                )
+                brut[key]   = brut.get(key, {})   | {key_budget: item['qty_balance']}
+                valued[key] = valued.get(key, {}) | {key_budget: item['balance']}
         
         return brut, valued
     
-    def _get_sum_reserved_budget(self, launchs, section=None, sign=1):
+    def _get_sum_reserved_budget(self, launchs, section=None, sign=1, groupby_budget='group_id'):
         """ Sum all budget reservation on project & launches
              and return it by project-or-launches & analytics
             
@@ -214,17 +237,18 @@ class AccountAnalyticAccount(models.Model):
         # 2. Fetch budget reservation (consumption)
         rg_result = self.env['carpentry.group.affectation'].read_group(
             domain=domain,
-            groupby=['record_model_id', 'record_id', 'group_id'],
-            fields=['quantity_affected:sum', 'record_id', 'group_id'],
+            groupby=['record_model_id', 'record_id', groupby_budget],
+            fields=['quantity_affected:sum'],
             lazy=False
         )
         domain = [('id', 'in', [x['record_model_id'][0] for x in rg_result])]
         mapped_model_name = {
+            # 'project.project' or 'carpentry.group.launch'
             model['id']: model['model']
             for model in self.env['ir.model'].sudo().search_read(domain, ['model'])
         }
         return {
-            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x['group_id']):
+            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x[groupby_budget]):
             x['quantity_affected'] * sign
             for x in rg_result
         }

@@ -96,7 +96,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     group_ref = fields.Reference(
         selection='_selection_group_res_model',
-        compute='_compute_fields_ref',
+        compute='_compute_group_ref',
     )
     seq_group = fields.Integer()
 
@@ -119,7 +119,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     record_ref = fields.Reference(
         selection='_selection_record_res_model',
-        compute='_compute_fields_ref',
+        compute='_compute_record_ref',
     )
     sequence = fields.Integer()
 
@@ -141,7 +141,7 @@ class CarpentryGroupAffectation(models.Model):
     )
     section_ref = fields.Reference(
         selection='_selection_section_res_model',
-        compute='_compute_fields_ref',
+        compute='_compute_section_ref',
         search='_search_section_ref',
     )
     seq_section = fields.Integer()
@@ -215,12 +215,21 @@ class CarpentryGroupAffectation(models.Model):
         record_display = self.record_ref.with_context(display_with_suffix=False).display_name
         return prefix + record_display + suffix
     
-    @api.depends('group_id', 'record_id', 'section_id')
-    def _compute_fields_ref(self):
+    @api.depends('group_id', 'group_model_id')
+    def _compute_group_ref(self):
         for affectation in self:
             affectation.group_ref = '%s,%s' % (affectation.group_res_model, affectation.group_id)
+    @api.depends('record_id', 'record_model_id')
+    def _compute_record_ref(self):
+        for affectation in self:
             affectation.record_ref = '%s,%s' % (affectation.record_res_model, affectation.record_id)
-            affectation.section_ref = '%s,%s' % (affectation.section_res_model, affectation.section_id) if affectation.section_id else False
+    @api.depends('section_id', 'section_model_id')
+    def _compute_section_ref(self):
+        for affectation in self:
+            affectation.section_ref = (
+                '%s,%s' % (affectation.section_res_model, affectation.section_id)
+                if affectation.section_id else False
+            )
     
     def _compute_quantity_affected_parent(self):
         for affectation in self:

@@ -16,3 +16,4 @@ from . import project_project
 from . import carpentry_position
 from . import carpentry_position_budget
 
+from . import carpentry_planning_column
