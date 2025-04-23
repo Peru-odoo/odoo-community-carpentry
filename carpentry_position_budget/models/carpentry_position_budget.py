@@ -158,60 +158,13 @@ class CarpentryPositionBudget(models.Model):
 
 
     #===== Helpers: budget computation =====#
-    def _get_position_unitary_budget(self, groupby_budget='analytic_account_id'): 
-        """ Gets unitary budget per position as per 'groupby_budget' details
-            
-            :option self: is a recordset of `carpentry.position.budget` that should be filtered before on only wanted `groupby_budget`
-            :option groupby_budget: any relevant field for this model to be groupped on, like: `analytic_account_id`, `budget_type`
-
-            :return: 2 dicts of unitary budget per `position_id`
-             - 1st dict: brut, ie. `amount` fields (currency for *goods* and a quantity for *service*)
-             - 2nd dict: valued amounts, ie. money for both
-             
-             Dicts' format:
-              - keys: `position_id`
-              - values:
-                > `Float` if groupby_budget=None (and both dicts are the same) --> valued amounts only
-                > dict like {id_ of groupby_budget field, like analytic_account_id: groupped sum of `amount` or `value` depending the dict}
-        """
-        # 1. Prepare output format
-        if not groupby_budget:
-            default_value = 0.0
-        else:
-            # get possible values of `groupby_budget` in self
-            # this is why `self` should be filtered on only wanted `groupby_budget` field
-            # /!\ values can be int (ids_) or str (like for `budget_type`, which is a selection field)
-            key_ids = self.mapped(groupby_budget)
-            try:
-                default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
-            except:
-                raise exceptions.ValidationError(_(
-                    "Missing the configuration of %s to compute the position's budget.",
-                    groupby_budget
-                ))
-        
-        # 2. Sum-group unitary budgets by position, by `groupby_budget`
-        unitary_budgets_brut, unitary_budgets_valued = {}, {}
-        for budget in self:
-            # Create key or get it
-            brut = unitary_budgets_brut.setdefault(budget.position_id.id, default_value.copy())
-            valued = unitary_budgets_valued.setdefault(budget.position_id.id, default_value.copy())
-
-            if not groupby_budget: # if we don't want any details of budget (just 1 amount per position) => value the services
-                brut += budget.value
-                valued += budget.value
-            else:
-                # manage M2n field (e.g. `analytic_account_id` (.id) vs `budget_type` (str))
-                field_value = budget[groupby_budget]
-                key = field_value.id if hasattr(field_value, '_name') else field_value
-
-                brut[key] += budget.amount
-                valued[key] += budget.value
-        
-        return unitary_budgets_brut, unitary_budgets_valued
-    
-    
-    def sum(self, quantities={}, groupby_budget='analytic_account_id', domain_budget=[], groupby_group=['position_id']):
+    def sum(self,
+            quantities={},
+            groupby_budget='analytic_account_id',
+            domain_budget=[],
+            groupby_group=['position_id'],
+            brut_or_valued='both'
+        ):
         """ Multiplies each items' value in `quantities` by the its position's unitary budget
 
             :option quantities:
@@ -236,15 +189,75 @@ class CarpentryPositionBudget(models.Model):
             position_ids = [dict(key)['position_id'] for key in quantities.keys()]
             self = self.search([('position_id', 'in', position_ids)] + domain_budget)
 
-        # Get unitary budget
-        brut_unitary, valued_unitary = self._get_position_unitary_budget(groupby_budget)
+        # If no groupby, return only valued budget
+        if not groupby_group:
+            brut_or_valued = 'valued'
 
-        # Sumprod unitary_budget * quantities, per item of `quantities` (~affectation) and group the result per `groupby_group`
-        brut_subtotal = self._compute_subtotal_and_group(brut_unitary, quantities, groupby_group)
-        valued_subtotal = self._compute_subtotal_and_group(valued_unitary, quantities, groupby_group)
-        return valued_subtotal if not groupby_budget else brut_subtotal, valued_subtotal
+        # Get unitary budget
+        unitary_budgets = self._get_position_unitary_budget(groupby_budget, brut_or_valued)
+        subtotal = self._compute_subtotal_and_group(unitary_budgets, quantities, groupby_group, brut_or_valued)
+        return subtotal
+    
+    def _get_position_unitary_budget(self, groupby_budget='analytic_account_id', brut_or_valued='both'): 
+        """ Gets unitary budget per position as per 'groupby_budget' details
+            
+            :option self: is a recordset of `carpentry.position.budget` that should be filtered before on only wanted `groupby_budget`
+            :option groupby_budget: any relevant field for this model to be groupped on, like: `analytic_account_id`, `budget_type`
+
+            :return: 2 dicts of unitary budget per `position_id`
+             - 1st dict: brut, ie. `amount` fields (currency for *goods* and a quantity for *service*)
+             - 2nd dict: valued amounts, ie. money for both
+             
+             Dicts' format:
+              - keys: `position_id`
+              - values:
+                > `Float` if groupby_budget=None (and both dicts are the same) --> valued amounts only
+                > dict like {id_ of groupby_budget field, like analytic_account_id: groupped sum of `amount` or `value` depending the dict}
+        """
+        # 1. Prepare output format
+        if not groupby_budget:
+            default_value = 0.0
+            brut_or_valued = 'valued'
+        else:
+            # get possible values of `groupby_budget` in self
+            # this is why `self` should be filtered on only wanted `groupby_budget` field
+            # /!\ values can be int (ids_) or str (like for `budget_type`, which is a selection field)
+            key_ids = self.mapped(groupby_budget)
+            try:
+                default_value = {(key if isinstance(key, str) else key.id): 0.0 for key in key_ids}
+            except:
+                raise exceptions.ValidationError(_(
+                    "Missing the configuration of %s to compute the position's budget.",
+                    groupby_budget
+                ))
         
-    def _compute_subtotal_and_group(self, unitary_budgets, quantities, groupby_group):
+        # 2. If no groupby_budget, sum all (valuted) budgets by `position_id`
+        if not groupby_budget:
+            unitary_budgets = defaultdict(float)
+            for budget in self:
+                unitary_budgets[budget.position_id.id] += budget.value
+            return unitary_budgets
+        # 3. Sum-group unitary budgets by position, by `groupby_budget`
+        else:
+            compute_value = brut_or_valued in ['valued', 'both']
+            unitary_budgets = {'brut': {}, 'valued': {}}
+            for budget in self:
+                # manage M2n field (e.g. `analytic_account_id` (.id) vs `budget_type` (str))
+                field_value = budget[groupby_budget]
+                key = field_value.id if hasattr(field_value, '_name') else field_value
+
+                # Create key or get it
+                brut = unitary_budgets['brut'].setdefault(budget.position_id.id, default_value.copy())
+                brut[key] += budget.amount
+                
+                # performance: don't value hours if not needed
+                if compute_value:
+                    valued = unitary_budgets['valued'].setdefault(budget.position_id.id, default_value.copy())
+                    valued[key] += budget.value
+        
+        return unitary_budgets if brut_or_valued == 'both' else unitary_budgets[brut_or_valued]
+    
+    def _compute_subtotal_and_group(self, unitary_budgets, quantities, groupby_group, brut_or_valued):
         """ Calculate subtotal budgets for each items of `quantities`, by multipling items' qty by position's unitary budget
              *and* groupby the items according to `groupby_group` fields
             
@@ -254,10 +267,18 @@ class CarpentryPositionBudget(models.Model):
                 {{'position_id': x, 'grouping_id1': y, ...}: qty}
             
             :return:
+                dict of 2 items if brut_or_valued == 'both', or direcly a dict like:
                 {new_key: values of `unitary_budgets` * qty value in `quantities`} where `new_key`:
                  - if `groupby_group` has only 1 item, `new_key` is the id of this record (eg. a project_id, phase_id, ...)
                  - else, `new_key` follows the same format than `quantities` keys (frozenset)
         """
+        if brut_or_valued == 'both':
+            brut, valued = unitary_budgets
+            return (
+                self._compute_subtotal_and_group(brut, quantities, groupby_group, brut_or_valued='brut'),
+                self._compute_subtotal_and_group(valued, quantities, groupby_group, brut_or_valued='valued'),
+            )
+
         subtotals = {}
         for key, qty in quantities.items():
             # Prepare the key (c.f. return format)

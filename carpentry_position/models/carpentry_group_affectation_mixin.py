@@ -509,7 +509,6 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'view_mode': 'tree',
             'domain': [('id', 'in', groups.ids)]
         }
-        print(action)
         return action
     
     def _get_group_vals_from_section(self):

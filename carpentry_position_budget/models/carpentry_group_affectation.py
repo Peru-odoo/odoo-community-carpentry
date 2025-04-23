@@ -26,10 +26,14 @@ class CarpentryGroupAffectation(models.Model):
     #===== Compute =====#
     @api.depends('group_id', 'group_res_model')
     def _compute_budget_unit_type(self):
-        for affectation in self:
-            is_budget = affectation.group_res_model == 'account.analytic.account'
-            affectation.budget_unit = is_budget and affectation.group_ref.budget_unit
-            affectation.budget_type = is_budget and affectation.group_ref.budget_type
+        affectation_budget = self.filtered(lambda x: x.group_res_model == 'account.analytic.account')
+        (self - affectation_budget).write({'budget_unit': False, 'budget_type': False})
+        
+        budget_unit_forced = '€' if self._context.get('brut_or_valued') == 'valued' else None
+        
+        for affectation in affectation_budget:
+            affectation.budget_unit = budget_unit_forced or affectation.group_ref.budget_unit
+            affectation.budget_type = affectation.group_ref.budget_type
     
     # def _search_budget_type(self, operator, value):
     #     domain = [('budget_type', operator, value)]
@@ -44,5 +48,7 @@ class CarpentryGroupAffectation(models.Model):
         """
         domain = super()._get_domain_siblings()
         if all(x.budget_type for x in self):
-            domain = expression.AND([domain, [('group_id', 'in', self.mapped('group_id'))]])
+            domain = expression.AND([domain, [
+                ('group_id', 'in', self.mapped('group_id'))
+            ]])
         return domain

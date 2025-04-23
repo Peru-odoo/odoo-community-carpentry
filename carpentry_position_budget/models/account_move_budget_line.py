@@ -73,10 +73,11 @@ class AccountMoveBudgetLine(models.Model):
             return
         
         # Get budget project's groupped by analytic account
-        budget_brut, _ = self.project_id.position_budget_ids._origin.sum(
+        budget_brut = self.project_id.position_budget_ids._origin.sum(
             quantities=self.project_id._origin._get_quantities(),
             groupby_budget='analytic_account_id',
-            groupby_group=['group_id']
+            groupby_group=['group_id'],
+            brut_or_valued='brut',
         )
 
         # Write in budget lines

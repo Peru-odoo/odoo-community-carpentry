@@ -31,21 +31,14 @@ class CarpentryPlanningColumn(models.Model):
         budget_types_descr = dict(analytics._fields['budget_type']._description_selection(self.env))
 
         # 1. Retrieve all `available` and `reserved` budget for this launch
+        #    budget_dict: format like {('carpentry.group.launch', launch.id, budget_type): amount}
         launch = self.env['carpentry.group.launch'].browse(launch_id_)
-        key = ('carpentry.group.launch', launch.id)
-
-        # brut & valued: format like {('carpentry.group.launch', launch.id): {budget_type: amount}}
-        brut, valued = analytics._get_available_budget_initial(launch, groupby_budget='budget_type')
-        brut, valued = brut.get(key, {}), valued.get(key, {})
-        # reserved: format like {('carpentry.group.launch', launch.id, budget_type): amount}
-        reserved_dict = analytics._get_sum_reserved_budget(launch, groupby_budget='budget_type')
-        reserved = defaultdict(float)
-        for (model, _, budget_type), amount in reserved_dict.items():
-            if model == 'carpentry.group.launch':
-                reserved[budget_type] += amount
+        brut = analytics._get_available_budget_initial(launch, groupby_budget='budget_type', brut_or_valued='brut')
+        reserved = analytics._get_sum_reserved_budget(launch, groupby_budget='budget_type')
 
         def __format(budget_dict, column):
-            return human_readable(budget_dict.get(column.budget_type, 0.0))
+            key = ('carpentry.group.launch', launch.id, column.budget_type)
+            return human_readable(budget_dict.get(key, 0.0))
 
         # 2. Compute data per column
         for column in self:
@@ -61,7 +54,7 @@ class CarpentryPlanningColumn(models.Model):
                     ', ' . join(column_analytics.mapped('name'))
                 ),
                 'unit': 'h' if is_hour else '€',
-                'available': __format(brut if is_hour else valued, column),
+                'available': __format(brut, column),
                 'reserved': __format(reserved, column),
             }
 

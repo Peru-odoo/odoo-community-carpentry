@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-17 14:53+0000\n"
-"PO-Revision-Date: 2025-04-17 16:53+0200\n"
+"POT-Creation-Date: 2025-04-23 17:34+0000\n"
+"PO-Revision-Date: 2025-04-23 19:36+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -640,6 +640,12 @@ msgid "Sum of affected quantities"
 msgstr "Somme des quantités affectées"
 
 #. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__sum_affected_siblings
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__sum_affected_siblings
+msgid "Sum of affected to neighbors"
+msgstr ""
+
+#. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__surface
 msgid "Surface"
 msgstr ""
@@ -651,15 +657,17 @@ msgstr ""
 msgid ""
 "The affected quantity is higher than the one available in the project:\n"
 "- Records: '%s' and '%s'\n"
-"- Available quantity: %s\n"
-"- Affected quantity: %s\n"
-"- Remaining: %s"
+"- Total available quantity in the project: %s\n"
+"- Affected quantity in the current item: %s\n"
+"- Affected quantity on neighbors: %s\n"
+"- Overconsumption: %s"
 msgstr ""
-"La quantité affectée est supérieure à celle disponible dans le projet. Détails :\n"
-"- Enregistrements : '%s' et '%s'\n"
-"- Disponible : %s\n"
-"- Affectée : %s\n"
-"- Restant : %s"
+"La quantité affectée est supérieure à celle disponible dans le projet :\n"
+"- Enregistrements concernés : '%s' et '%s'\n"
+"- Quantité totale initialement disponible dans le projet : %s\n"
+"- Tentative d'affectation : %s\n"
+"- Quantité déjà affectées dans les objets voisins : %s\n"
+"- Sur-consommation : %s"
 
 #. module: carpentry_position
 #. odoo-python

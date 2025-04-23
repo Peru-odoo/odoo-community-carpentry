@@ -184,6 +184,11 @@ class CarpentryGroupAffectation(models.Model):
         group_operator='sum',
         help="[Available quantity in the project] - [Sum of quantities already affected]",
     )
+    sum_affected_siblings = fields.Float(
+        string='Sum of affected to neighbors',
+        compute='_compute_sum_affected_siblings',
+        group_operator='sum',
+    )
     
     _sql_constraints = [(
         "group_record",
@@ -334,14 +339,16 @@ class CarpentryGroupAffectation(models.Model):
                 raise exceptions.ValidationError(_(
                     "The affected quantity is higher than the one available in the project:\n"
                     "- Records: '%s' and '%s'\n"
-                    "- Available quantity: %s\n"
-                    "- Affected quantity: %s\n"
-                    "- Remaining: %s",
+                    "- Total available quantity in the project: %s\n"
+                    "- Affected quantity in the current item: %s\n"
+                    "- Affected quantity on neighbors: %s\n"
+                    "- Overconsumption: %s",
                     affectation.record_ref.name,
                     affectation.group_ref.name,
                     affectation.quantity_available,
                     affectation.quantity_affected,
-                    affectation.quantity_remaining_to_affect,
+                    affectation.sum_affected_siblings,
+                    -1.0 * affectation.quantity_remaining_to_affect,
                 ))
 
     def toggle_active(self):
@@ -368,7 +375,7 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id)
             affectation.quantity_available = float_round(
-                mapped_quantities.get(key, 0.0), precision_digits=prec, rounding_method='DOWN'
+                mapped_quantities.get(key, 0.0), precision_digits=prec
             )
     
     @api.depends('record_id', 'quantity_affected')
@@ -383,20 +390,28 @@ class CarpentryGroupAffectation(models.Model):
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
 
         for affectation in self:
-            sum_affected_siblings = 0
+            # exclude current affectation from the sum
+            affectation.quantity_remaining_to_affect = float_round(
+                affectation.quantity_available
+                - affectation.sum_affected_siblings
+                - affectation.quantity_affected
+            , precision_digits=prec)
+
+    @api.depends('record_id', 'record_model_id')
+    def _compute_sum_affected_siblings(self):
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+
+        for affectation in self:
+            sum_affected_siblings = 0.0
             if affectation.record_ref:
                 domain = affectation._get_domain_siblings()
                 sibling_ids = affectation._origin.record_ref.affectation_ids.filtered_domain(domain) - affectation._origin
                 sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
             
-            # exclude current affectation from the sum
-            affectation.quantity_remaining_to_affect = float_round(
-                affectation.quantity_available
-                - sum_affected_siblings
-                - affectation.quantity_affected
-            , precision_digits=prec, rounding_method='UP')
-
-
+            affectation.sum_affected_siblings = float_round(
+                sum_affected_siblings, precision_digits=prec
+            )
+            
 class CarpentryAffectationTemp(models.TransientModel):
     """
         * This model holds temporary data in right format for 'x2many_2d_matrix' widget (x_field, y_field, value_field)

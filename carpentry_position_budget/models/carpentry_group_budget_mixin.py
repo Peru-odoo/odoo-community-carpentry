@@ -28,7 +28,8 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
             quantities=self._get_quantities(),
             groupby_group=['group_id'],
             groupby_budget='budget_type',
-            domain_budget=self._get_domain_budget_ids()
+            domain_budget=self._get_domain_budget_ids(),
+            brut_or_valued='both', # for `total` valuation
         )
     
     def _get_domain_budget_ids(self):
