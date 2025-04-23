@@ -41,6 +41,10 @@ class CarpentryGroupAffectation(models.Model):
     #     return [('group_id', 'in', analytics.ids)]
 
     #===== Logic methods =====#
+    def _get_siblings_parent(self):
+        """ Siblings of budget reservation share the same `group_id` (analytics)"""
+        return self.group_ref if self.budget_type else super()._get_siblings_parent()
+    
     def _get_domain_siblings(self):
         """ Budget reservation are 3d-matrix:
             one needs to filter by `group_id` (analytics) to find siblings

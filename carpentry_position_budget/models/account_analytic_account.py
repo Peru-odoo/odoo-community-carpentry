@@ -5,8 +5,10 @@ from odoo.osv import expression
 from odoo.tools.misc import format_amount
 from odoo.tools import float_is_zero
 from collections import defaultdict
+from pprint import pprint
 
 class AccountAnalyticAccount(models.Model):
+    _name = 'account.analytic.account'
     _inherit = ['account.analytic.account']
     # for Purchase & Manufacturing Orders
     _carpentry_affectation = True # to allow affectation (as `group_ref`)
@@ -29,7 +31,7 @@ class AccountAnalyticAccount(models.Model):
         remaining_budget = {}
         if section_res_model and section_id:
             section = self.env[section_res_model].sudo().browse(section_id)
-            remaining_budget = analytics._get_remaining_budget_groupped(section.launch_ids, section)
+            remaining_budget = analytics._get_remaining_budget_by_analytic(section.launch_ids, section)
         
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
         res_updated = []
@@ -53,6 +55,11 @@ class AccountAnalyticAccount(models.Model):
         return res_updated
 
     #===== Fields =====#
+    affectation_ids = fields.One2many(
+        comodel_name='carpentry.group.affectation',
+        inverse_name='group_id',
+        domain=[('group_res_model', '=', _name)]
+    )
     budget_type = fields.Selection(
         selection_add=[
             ('production', 'Production'),
@@ -106,7 +113,7 @@ class AccountAnalyticAccount(models.Model):
         # remaining = self._get_remaining_budget(launchs, section, brut_or_valued)
         # return remaining
 
-    def _get_remaining_budget_groupped(self, launchs, section, brut_or_valued=None):
+    def _get_remaining_budget_by_analytic(self, launchs, section, brut_or_valued=None):
         """ Group remaining budget by `analytic`,
             according to required `launchs` & `section`
         """

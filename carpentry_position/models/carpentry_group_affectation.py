@@ -299,12 +299,18 @@ class CarpentryGroupAffectation(models.Model):
         # check constrain per row
         for affectation in self:
             key = (affectation.group_model_id.id, affectation.record_model_id.id, affectation.record_id)
-            sibling_ids = set(mapped_siblings_ids.get(key, [])) - set([affectation.id])
+            siblings = set(mapped_siblings_ids.get(key, [])) - set([affectation.id])
 
-            if len(sibling_ids) > 0:
+            if len(siblings) > 0:
                 raise exceptions.ValidationError(
                     _('One line cannot be affected to several columns (%s).', affectation.display_name)
                 )
+    
+    def _get_siblings_parent(self):
+        """ Siblings position-to-phase or affectation-to-launch
+            share the same `record_ref` (i.e. `position_id` or `affectation_id`)
+        """
+        return self.record_ref
     
     def _get_domain_siblings(self):
         return [
@@ -405,8 +411,9 @@ class CarpentryGroupAffectation(models.Model):
             sum_affected_siblings = 0.0
             if affectation.record_ref:
                 domain = affectation._get_domain_siblings()
-                sibling_ids = affectation._origin.record_ref.affectation_ids.filtered_domain(domain) - affectation._origin
-                sum_affected_siblings = sum(sibling_ids.mapped('quantity_affected'))
+                sibling_parent = affectation._origin._get_siblings_parent()
+                siblings = sibling_parent.affectation_ids.filtered_domain(domain) - affectation._origin
+                sum_affected_siblings = sum(siblings.mapped('quantity_affected'))
             
             affectation.sum_affected_siblings = float_round(
                 sum_affected_siblings, precision_digits=prec
