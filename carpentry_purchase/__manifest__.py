@@ -24,5 +24,7 @@
         'views/carpentry_launch.xml',
         'views/project_purchase_link.xml',
         'views/purchase_order.xml',
+        # security
+        'security/purchase_order.xml',
     ]
 }

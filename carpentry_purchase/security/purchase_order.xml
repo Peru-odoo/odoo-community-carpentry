@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rules: restrict po depending user-role assignments on projects -->
+    <!-- Purchase Order -->
+    <record id="rule_po_show_only_assigned_project" model="ir.rule">
+        <field name="name">Project's Purchase Order: show only if user is assigned to the project</field>
+        <field name="model_id" ref="model_purchase_order" />
+        <field name="groups" eval="[(4, ref('project.group_project_user'))]" />
+        <field name="domain_force">[('project_id.assignment_ids.user_id', '=', user.id)]</field>
+    </record>
+    <!-- Global User see all (cancel previous rule) -->
+    <record id="rule_po_show_all_project" model="ir.rule">
+        <field name="name">Project's Purchase Order: User (all projects) see all purchase orders</field>
+        <field name="model_id" ref="model_purchase_order" />
+        <field name="groups" eval="[(4, ref('project_role_visibility.group_project_user_global'))]" />
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>
