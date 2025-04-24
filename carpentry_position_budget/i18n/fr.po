@@ -635,8 +635,8 @@ msgstr "Budgets des repères"
 #. module: carpentry_position_budget
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_position_budget_srv
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_position_budget
-msgid "Positions details"
-msgstr "Par repères (détails)"
+msgid "Positions"
+msgstr "Repères"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_prod
@@ -673,8 +673,8 @@ msgstr ""
 #. module: carpentry_position_budget
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_project_budget_lines
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_lines
-msgid "Projects"
-msgstr "Par projet"
+msgid "Project"
+msgstr "Projet"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__quantity

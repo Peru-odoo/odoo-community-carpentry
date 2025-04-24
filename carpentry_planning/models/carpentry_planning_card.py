@@ -4,11 +4,6 @@ from odoo import models, fields, api, _, Command, tools, exceptions
 from odoo.osv import expression
 
 from collections import defaultdict
-from datetime import date, timedelta
-from psycopg2 import sql
-from ast import literal_eval
-import csv, os
-from odoo.tools.safe_eval import safe_eval
 
 class CarpentryPlanningCard(models.Model):
     _name = 'carpentry.planning.card'
