@@ -66,7 +66,7 @@ class CarpentryPosition(models.Model):
         return self.position_budget_ids._get_position_unitary_budget(
             groupby_budget='budget_type',
             brut_or_valued='both', # for `subtotal` valuation
-        )
+        ).values()
 
     @api.depends(
         # 1a. products template/variants price & dates

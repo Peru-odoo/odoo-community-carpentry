@@ -70,7 +70,7 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets(self):
         if self._context.get('import_budget_no_compute'):
             return
-        
+    
         brut, valued = self._get_budgets_brut_valued()
         for group in self:
             group.sudo()._compute_budgets_one(brut, valued)
