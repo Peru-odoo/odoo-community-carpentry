@@ -273,10 +273,10 @@ class CarpentryPositionBudget(models.Model):
                  - else, `new_key` follows the same format than `quantities` keys (frozenset)
         """
         if brut_or_valued == 'both':
-            brut, valued = unitary_budgets
+            brut, valued = unitary_budgets.values()
             return (
-                self._compute_subtotal_and_group(brut, quantities, groupby_group, brut_or_valued='brut'),
-                self._compute_subtotal_and_group(valued, quantities, groupby_group, brut_or_valued='valued'),
+                self._compute_subtotal_and_group(brut, quantities, groupby_group, 'brut'),
+                self._compute_subtotal_and_group(valued, quantities, groupby_group, 'valued'),
             )
 
         subtotals = {}
