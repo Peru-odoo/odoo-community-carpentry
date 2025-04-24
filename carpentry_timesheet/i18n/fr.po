@@ -203,7 +203,7 @@ msgstr "Heures restantes"
 #: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
 #: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
 msgid "Tasks"
-msgstr "Par tâches"
+msgstr "Tâches"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search

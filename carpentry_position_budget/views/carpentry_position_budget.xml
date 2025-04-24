@@ -11,7 +11,7 @@
     </record>
     <!-- Pre-select project before opening Positions detailed budgets (tasks) -->
     <record id="action_open_position_budget_srv" model="ir.actions.server">
-        <field name="name">Positions details</field>
+        <field name="name">Positions</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
@@ -54,7 +54,6 @@
             <pivot string="Positions budget" disable_linking="0">
                 <field name="position_id" type="row" />
                 <field name="analytic_account_id" type="col" />
-                <field name="quantity" type="measure" />
                 <field name="amount" type="measure" />
             </pivot>
         </field>
