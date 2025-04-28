@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- ==== PROJECT REPORT ==== -->
+
+    <!-- Project report (pre-select project before opening) -->
+    <record id="action_open_budget_report_project_srv" model="ir.actions.server">
+        <field name="name">Project report</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_project')
+        </field>
+    </record>
+    <!-- Project report (real action) -->
+    <record id="action_open_budget_report_project" model="ir.actions.act_window">
+        <field name="name">Project report</field>
+        <field name="res_model">carpentry.budget.available</field> <!-- (!!!!!!!!!!!!!!!!) TO UPDATE -->
+        <field name="view_mode">pivot,tree</field>
+    </record>
+
+
+
+
+
+    <!-- ==== AVAILABLE BUDGET ==== -->
+
+    <!-- Available budget (pre-select project before opening) -->
+    <record id="action_open_budget_report_available_srv" model="ir.actions.server">
+        <field name="name">Available</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_available')
+        </field>
+    </record>
+    <!-- Available budget (real action) -->
+    <record id="action_open_budget_report_available" model="ir.actions.act_window">
+        <field name="name">Available</field>
+        <field name="res_model">carpentry.budget.available</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="context">{
+            'search_default_filter_project': 1,
+            'search_default_filter_launch': 1,
+        }</field>
+    </record>
+
+    <!-- Pivot -->
+    <record id="carpentry_budget_report_available_pivot" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.pivot</field>
+        <field name="model">carpentry.budget.available</field>
+
+        <field name="arch" type="xml">
+            <pivot string="Available budget" disable_linking="0">
+                <field name="seq_group" invisible="1" />
+                <field name="seq_analytic_account" invisible="1" />
+                <field name="group_res_model" invisible="1" />
+
+                <field name="budget_type" type="col" />
+                <field name="analytic_account_id" type="col" />
+                <field name="group_res_model_name" type="row" />
+                <field name="display_name" type="row" />
+                <field name="subtotal" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Tree -->
+    <record id="carpentry_budget_report_available_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.tree</field>
+        <field name="model">carpentry.budget.available</field>
+        
+        <field name="arch" type="xml">
+            <tree editable="bottom" multi_edit="1">
+                <field name="project_id" invisible="1" />
+
+                <field name="analytic_account_id" options="{'no_create_edit': 1}" />
+                <field name="position_id" />
+                <field name="quantity_affected" optional="hide" sum="1" />
+                <field name="amount" />
+                <field name="subtotal" sum="1" />
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Search -->
+    <record id="carpentry_budget_report_available_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.search</field>
+        <field name="model">carpentry.budget.available</field>
+        
+        <field name="arch" type="xml">
+            <search>
+                <field name="analytic_account_id" />
+                <field name="budget_type" />
+
+                <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
+                <separator />
+                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
+                <filter string="Phases"   name="filter_phase"   domain="[('group_res_model', '=', 'carpentry.group.phase')]" />
+                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
+                <!-- Group by -->
+                <filter string="Models"      name="filter_groupby_model" context="{'group_by': 'group_res_model_name'}" />
+                <filter string="Groups"      name="filter_groupby_group" context="{'group_by': 'display_name'}" />
+                <filter string="Budget type" name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
+                <filter string="Budget"      name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
+
+                <searchpanel view_type="tree">
+                    <field name="project_id" select="multi" invisible="context.get('_default_project_id')" />
+                    <field name="budget_type" />
+                    <field name="analytic_account_id" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+
+
+
+    
+    <!-- ==== REMAINING BUDGET ==== -->
+
+    <!-- Remaining budget (pre-select project before opening) -->
+    <record id="action_open_budget_report_remaining_srv" model="ir.actions.server">
+        <field name="name">Remaining</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_remaining')
+        </field>
+    </record>
+    <!-- Remaining budget (real action) -->
+    <record id="action_open_budget_report_remaining" model="ir.actions.act_window">
+        <field name="name">Remaining</field>
+        <field name="res_model">carpentry.budget.available</field> <!-- (!!!!!!!!!!!!!!!!) TO UPDATE -->
+        <field name="view_mode">pivot,tree</field>
+    </record>
+
+
+    <!-- Menu-items : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
+    <menuitem id="menu_project_budget_report"
+        parent="menu_project_main_budget"
+        sequence="20"
+        name="Budget reports"
+    >
+        <!-- <menuitem id="menu_project_budget_report_project"   action="action_open_budget_report_project_srv"   sequence="10" /> -->
+        <menuitem id="menu_project_budget_report_available" action="action_open_budget_report_available_srv" sequence="20" />
+        <!-- <menuitem id="menu_project_budget_report_remaining" action="action_open_budget_report_remaining_srv" sequence="30" /> -->
+    </menuitem>
+
+</odoo>

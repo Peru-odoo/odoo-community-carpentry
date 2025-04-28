@@ -15,9 +15,6 @@ importing components from external database.
 Mostly storable products are expected to be found in an external database. Such
 products are added in Manufacturing Order's component (as per below logics).
 
-Any non-storable products found in components list of an external database are added
-in draft order(s) (i.e. quotation(s)) automatically created at this occasion, per supplier.
-
 **Ignored products**
 If an external database contains products archived or configured as not purchasable in Odoo,
 they are ignored for Manufacturing Order's components.

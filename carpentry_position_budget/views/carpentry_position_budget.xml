@@ -20,7 +20,7 @@
     </record>
     <!-- Real action -->
     <record id="action_open_position_budget" model="ir.actions.act_window">
-        <field name="name">Positions budgets</field>
+        <field name="name">Positions</field>
         <field name="res_model">carpentry.position.budget</field>
         <field name="view_mode">pivot,tree,form</field>
     </record>
@@ -38,10 +38,15 @@
     <menuitem id="menu_project_main_budget"
         parent="project.menu_main_pm"
         sequence="50"
-        name="Budget"
+        name="Budgets"
     >
-        <menuitem id="menu_project_budget_lines" action="action_open_project_budget_lines" sequence="20" />
-        <menuitem id="menu_project_budget_position_budget" action="action_open_position_budget_srv" sequence="30" />
+        <menuitem id="menu_project_budget_update"
+            sequence="10"
+            name="Budget updates"
+        >
+            <menuitem id="menu_project_budget_lines" action="action_open_project_budget_lines" sequence="20" />
+            <menuitem id="menu_project_budget_position_budget" action="action_open_position_budget_srv" sequence="30" />
+        </menuitem>
     </menuitem>
 
 

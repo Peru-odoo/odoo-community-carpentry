@@ -10,7 +10,7 @@ class Project(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'project.task',
-            'name': _("Timesheet's budgets"),
+            'name': _("Timesheet's follow-up"),
             'views': [
                 (self.env.ref('carpentry_timesheet.view_task_kanban_timesheet').id, 'kanban'),
                 (False, 'tree'), # native tree view

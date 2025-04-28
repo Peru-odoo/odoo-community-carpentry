@@ -10,7 +10,7 @@
     </record>
     <menuitem
         id="menu_project_task_budget_timesheet"
-        parent="carpentry_position_budget.menu_project_main_budget"
+        parent="carpentry_position_budget.menu_project_budget_update"
         action="action_open_task_budget_timesheet_srv"
         sequence="10"
         groups="hr_timesheet.group_hr_timesheet_user"
