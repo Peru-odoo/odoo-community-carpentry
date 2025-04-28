@@ -60,7 +60,7 @@ class ManufacturingOrder(models.Model):
     def _compute_budget_analytic_ids(self):
         """ MO's budgets are updated automatically from:
             - component's analytic distribution model
-            (- workcenter's analytics [STOPPED - ALY 2025-03-12]) -> now only manual
+            (- workcenter's analytics [STOPPED - ALY 2025-03-12] -> now only manual)
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
@@ -82,14 +82,19 @@ class ManufacturingOrder(models.Model):
                 mo.budget_analytic_ids -= to_remove
 
     def _get_total_by_analytic(self):
-        """ Group-sum real cost of components (& workcenter)
+        """ Group-sum real cost of components for automated budget reservation
+            Component's cost is `qty * move._get_price_unit()`
+            => At reservation's time, the OF is not validated (draft or in progress)
+               thus the move most likely not valuated, so `_get_price_unit()` will return
+               `product.standard_cost`
+
             :return: Dict like {analytic_id: charged amount}
         """
         self.ensure_one()
         to_compute_move_raw = self.filtered(lambda x: x._should_move_raw_reserve_budget())
         if not to_compute_move_raw:
             return {}
-        
+
         mapped_analytics = to_compute_move_raw._get_mapped_project_analytics()
         mapped_cost = defaultdict(float)
 
@@ -108,7 +113,8 @@ class ManufacturingOrder(models.Model):
                 qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
                 mapped_cost[analytic_id] += qty * move.sudo()._get_price_unit() * percentage / 100
         
-        # Workcenter: fully manual, no cost automation (0,00h by default)
+        # [STOPPED - ALY 2025-03-12] -> Workcenter budget reservation is
+        #  now only manual for workcenter and 0,00h by default
         # for wo in self.workorder_ids:
         #     analytic = wo.workcenter_id.costs_hour_account_id
         #     # Ignore cost if analytic not in project's budget
