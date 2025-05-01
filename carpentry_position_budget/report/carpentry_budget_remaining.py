@@ -51,7 +51,7 @@ class CarpentryBudgetRemaining(models.Model):
         return f"""
             SELECT
                 available.id AS id_origin,
-                'available' AS state,
+                'budget' AS state,
                 
                 -- project & launch
             	available.project_id,

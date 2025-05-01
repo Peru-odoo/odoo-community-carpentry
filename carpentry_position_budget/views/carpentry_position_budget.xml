@@ -42,7 +42,7 @@
     >
         <menuitem id="menu_project_budget_update"
             sequence="10"
-            name="Budget updates"
+            name="Budgets update"
         >
             <menuitem id="menu_project_budget_lines" action="action_open_project_budget_lines" sequence="20" />
             <menuitem id="menu_project_budget_position_budget" action="action_open_position_budget_srv" sequence="30" />

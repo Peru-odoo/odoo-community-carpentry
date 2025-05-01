@@ -234,8 +234,8 @@ msgstr "Type de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_update
-msgid "Budget updates"
-msgstr "Mises à jour des budgets"
+msgid "Budgets update"
+msgstr "Mise à jour des budgets"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__amount_budgetable
