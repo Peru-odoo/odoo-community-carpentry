@@ -21,12 +21,17 @@ class StockPicking(models.Model):
     amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
 
+    #===== Affectations configuration =====#
+    def _get_budget_types(self):
+        return ['goods', 'project_global_cost']
+
     def _should_reserve_budget(self):
         return self._is_to_external_location() and self.state not in ['draft', 'cancel']
     
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_ids']
 
+    #===== Affectations: compute =====#
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """

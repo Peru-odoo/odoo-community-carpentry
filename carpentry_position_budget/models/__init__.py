@@ -17,3 +17,5 @@ from . import carpentry_position
 from . import carpentry_position_budget
 
 from . import carpentry_planning_column
+
+from . import ir_model

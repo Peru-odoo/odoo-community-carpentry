@@ -29,6 +29,17 @@
         
         <field name="arch" type="xml">
 
+            <!-- Smart Button -->
+            <div name="button_box" position="inside">
+                <button name="open_remaining_budget" type="object"
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    attrs="{'invisible': [('launch_ids', '=', [])]}"
+                    string="Budget"
+                    title="Remaining budget"
+                />
+            </div>
+
             <!-- Banners -->
             <xpath expr="//div[hasclass('oe_title')]" position="before">
                 <!-- Save -->

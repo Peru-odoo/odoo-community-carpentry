@@ -2,7 +2,7 @@
 <odoo>
     <!-- Pre-select project before opening Budget lines (account.move.budget.line) -->
     <record id="action_open_project_budget_lines" model="ir.actions.server">
-        <field name="name">Projects</field>
+        <field name="name">By projects</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
@@ -11,7 +11,7 @@
     </record>
     <!-- Pre-select project before opening Positions detailed budgets (tasks) -->
     <record id="action_open_position_budget_srv" model="ir.actions.server">
-        <field name="name">Positions</field>
+        <field name="name">Unitary (positions)</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
@@ -20,7 +20,7 @@
     </record>
     <!-- Real action -->
     <record id="action_open_position_budget" model="ir.actions.act_window">
-        <field name="name">Positions</field>
+        <field name="name">Unitary (positions)</field>
         <field name="res_model">carpentry.position.budget</field>
         <field name="view_mode">pivot,tree,form</field>
     </record>

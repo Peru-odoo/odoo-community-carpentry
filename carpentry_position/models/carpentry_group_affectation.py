@@ -156,7 +156,8 @@ class CarpentryGroupAffectation(models.Model):
     position_id = fields.Many2one(
         comodel_name='carpentry.position',
         string='Position',
-        compute='_compute_position_id'
+        compute='_compute_position_id',
+        store=True,
     )
     
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
@@ -248,8 +249,8 @@ class CarpentryGroupAffectation(models.Model):
     def _compute_position_id(self):
         """ Recursively find `position_id` from `record_ref` """
         for affectation in self:
-            position_id = affectation.record_ref
-            while position_id and position_id._name != 'carpentry.position' and 'record_ref' in position_id:
+            position_id = affectation._origin.record_ref
+            while position_id and position_id._name != 'carpentry.position' and hasattr(position_id, 'record_ref'):
                 position_id = position_id.record_ref
             affectation.position_id = position_id if position_id._name == 'carpentry.position' else False
 

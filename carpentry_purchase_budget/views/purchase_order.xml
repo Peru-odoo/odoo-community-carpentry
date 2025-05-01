@@ -26,6 +26,16 @@
         
         <field name="arch" type="xml">
 
+            <!-- Smart Button -->
+            <button name="action_view_invoice" position="before">
+                <button name="open_remaining_budget" type="object"
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    string="Budget"
+                    title="Remaining budget"
+                />
+            </button>
+
             <!-- Budget info banner -->
             <field name="products_type" position="before">
                 <field name="amount_budgetable" invisible="1" />

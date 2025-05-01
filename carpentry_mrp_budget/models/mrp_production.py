@@ -46,6 +46,9 @@ class ManufacturingOrder(models.Model):
     currency_id = fields.Many2one(related='project_id.currency_id')
 
     #===== Affectations configuration =====#
+    def _get_budget_types(self):
+        return ['production'] + self._get_component_budget_types()
+    
     def _should_move_raw_reserve_budget(self):
         return self.state not in ['cancel']
     

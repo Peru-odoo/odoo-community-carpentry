@@ -11,6 +11,9 @@ class PurchaseOrder(models.Model):
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
 
     #====== Affectation refresh ======#
+    def _get_budget_types(self):
+        return ['goods', 'project_global_cost']
+    
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['order_line']
     

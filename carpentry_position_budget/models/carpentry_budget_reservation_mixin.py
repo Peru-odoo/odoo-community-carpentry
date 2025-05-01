@@ -2,6 +2,8 @@
 
 from odoo import models, fields, api, exceptions, _
 from odoo.osv import expression
+from odoo.tools.safe_eval import safe_eval
+
 from collections import defaultdict
 from datetime import datetime
 from odoo.tools import float_round
@@ -253,3 +255,23 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                 > workcenter hours
         """
         # to be inherited
+
+    #===== Button =====#
+    def open_remaining_budget(self):
+        """ From the document (PO, MO, picking),
+            open *Remaining budget* pivot view
+        """
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'carpentry_position_budget.action_open_budget_report_remaining'
+        )
+
+        budget_types = self._get_budget_types()
+        action['context'] = safe_eval(action['context'] or '{}') | {
+            f'search_default_filter_{budget_type}': 1
+            for budget_type in budget_types
+        }
+        action['domain'] = [
+            ('project_id', '=', self.project_id.id),
+            ('launch_id', 'in', [False] + self.launch_ids._origin.ids)
+        ]
+        return action

@@ -35,12 +35,15 @@
     </record>
     <!-- Available budget (real action) -->
     <record id="action_open_budget_report_available" model="ir.actions.act_window">
-        <field name="name">Available</field>
+        <field name="name">Available budget</field>
         <field name="res_model">carpentry.budget.available</field>
         <field name="view_mode">pivot,tree</field>
         <field name="context">{
             'search_default_filter_project': 1,
             'search_default_filter_launch': 1,
+            'search_default_filter_groupby_model': 1,
+            'search_default_filter_groupby_launch': 1,
+            'display_model_shortname': 1,
         }</field>
     </record>
 
@@ -50,15 +53,12 @@
         <field name="model">carpentry.budget.available</field>
 
         <field name="arch" type="xml">
-            <pivot string="Available budget" disable_linking="0">
-                <field name="seq_group" invisible="1" />
-                <field name="seq_analytic_account" invisible="1" />
-                <field name="group_res_model" invisible="1" />
-
+            <pivot disable_linking="0">
                 <field name="budget_type" type="col" />
                 <field name="analytic_account_id" type="col" />
-                <field name="group_res_model_name" type="row" />
-                <field name="display_name" type="row" />
+
+                <field name="group_model_id" type="row" />
+                
                 <field name="subtotal" type="measure" />
             </pivot>
         </field>
@@ -70,45 +70,20 @@
         <field name="model">carpentry.budget.available</field>
         
         <field name="arch" type="xml">
-            <tree editable="bottom" multi_edit="1">
+            <tree>
                 <field name="project_id" invisible="1" />
 
-                <field name="analytic_account_id" options="{'no_create_edit': 1}" />
+                <field name="analytic_account_id" />
                 <field name="position_id" />
                 <field name="quantity_affected" optional="hide" sum="1" />
                 <field name="amount" />
                 <field name="subtotal" sum="1" />
+
+                <button name="open_position_budget"
+                    type="object"
+                    string="Add budget"
+                />
             </tree>
-        </field>
-    </record>
-    
-    <!-- Search -->
-    <record id="carpentry_budget_report_available_search" model="ir.ui.view">
-        <field name="name">carpentry.budget.available.search</field>
-        <field name="model">carpentry.budget.available</field>
-        
-        <field name="arch" type="xml">
-            <search>
-                <field name="analytic_account_id" />
-                <field name="budget_type" />
-
-                <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
-                <separator />
-                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
-                <filter string="Phases"   name="filter_phase"   domain="[('group_res_model', '=', 'carpentry.group.phase')]" />
-                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
-                <!-- Group by -->
-                <filter string="Models"      name="filter_groupby_model" context="{'group_by': 'group_res_model_name'}" />
-                <filter string="Groups"      name="filter_groupby_group" context="{'group_by': 'display_name'}" />
-                <filter string="Budget type" name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
-                <filter string="Budget"      name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
-
-                <searchpanel view_type="tree">
-                    <field name="project_id" select="multi" invisible="context.get('_default_project_id')" />
-                    <field name="budget_type" />
-                    <field name="analytic_account_id" />
-                </searchpanel>
-            </search>
         </field>
     </record>
 
@@ -129,21 +104,134 @@
     </record>
     <!-- Remaining budget (real action) -->
     <record id="action_open_budget_report_remaining" model="ir.actions.act_window">
-        <field name="name">Remaining</field>
-        <field name="res_model">carpentry.budget.available</field> <!-- (!!!!!!!!!!!!!!!!) TO UPDATE -->
+        <field name="name">Remaining budget</field>
+        <field name="res_model">carpentry.budget.remaining</field>
         <field name="view_mode">pivot,tree</field>
+        <field name="context">{'display_model_shortname': 1}</field>
     </record>
+
+    <!-- Pivot -->
+    <record id="carpentry_budget_report_remaining_pivot" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.pivot</field>
+        <field name="model">carpentry.budget.remaining</field>
+
+        <field name="arch" type="xml">
+            <pivot disable_linking="0">
+                <field name="budget_type" type="col" />
+                <field name="analytic_account_id" type="col" />
+
+                <field name="group_model_id" type="row" />
+                <field name="launch_id" type="row" />
+                
+                <field name="quantity_affected" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Tree -->
+    <record id="carpentry_budget_report_remaining_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.tree</field>
+        <field name="model">carpentry.budget.remaining</field>
+        
+        <field name="arch" type="xml">
+            <tree
+                decoration-success="state == 'available'"
+                decoration-danger="state == 'reservation'"
+            >
+                <field name="project_id" invisible="1" />
+
+                <field name="state" widget="badge"
+                    decoration-success="state == 'available'"
+                    decoration-danger="state == 'reservation'"
+                />
+                <field name="analytic_account_id" />
+                <field name="launch_id" />
+                <field name="section_model_name" />
+                <field name="section_ref" />
+                <field name="quantity_affected" string="Budget reservation" sum="1" />
+
+                <button name="open_section_ref"
+                    type="object"
+                    string="Open document"
+                    attrs="{'invisible': [('section_ref', '=', False)]}"
+                />
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Search -->
+    <record id="carpentry_budget_report_remaining_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.search</field>
+        <field name="model">carpentry.budget.remaining</field>
+        
+        <field name="arch" type="xml">
+            <search>
+                <field name="budget_type" />
+                <field name="analytic_account_id" />
+
+                <!-- Filters -->
+                <filter string="★ Projects"   name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
+                <separator />
+                <filter string="Goods"        name="filter_goods"   domain="[('budget_type', '=', 'goods')]" />
+                <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
+                <filter string="Production"   name="filter_production" domain="[('budget_type', '=', 'production')]" />
+                <filter string="Installation" name="filter_installation" domain="[('budget_type', '=', 'installation')]" />
+                <filter string="Other costs"  name="filter_project_global_cost" domain="[('budget_type', '=', 'project_global_cost')]" />
+                
+                <!-- Group by -->
+                <filter string="Group"        name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
+                <filter string="Launchs"      name="filter_groupby_launch" context="{'group_by': 'launch_id'}" />
+                <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
+                <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
+
+                <searchpanel view_type="tree">
+                    <field name="project_id" select="multi" invisible="context.get('default_project_id')" />
+                    <field name="budget_type" />
+                    <field name="analytic_account_id" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+    <!-- Search: `carpentry.budget.available` from `carpentry.budget.remaining` -->
+    <record id="carpentry_budget_report_available_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.search</field>
+        <field name="model">carpentry.budget.available</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_remaining_search" />
+        <field name="mode">primary</field>
+        
+        <field name="arch" type="xml">
+            <filter name="filter_project_global_cost" position="before">
+                <separator />
+                <filter string="Phases"   name="filter_phase"   domain="[('group_res_model', '=', 'carpentry.group.phase')]" />
+                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
+                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
+            </filter>
+                
+            <filter name="filter_groupby_launch" position="before">
+                <filter string="Phases"   name="filter_groupby_phase" context="{'group_by': 'phase_id'}" />
+            </filter>
+        </field>
+    </record>
+
+
+
+
+
+
+
+
+
 
 
     <!-- Menu-items : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
     <menuitem id="menu_project_budget_report"
         parent="menu_project_main_budget"
         sequence="20"
-        name="Budget reports"
+        name="Reports"
     >
         <!-- <menuitem id="menu_project_budget_report_project"   action="action_open_budget_report_project_srv"   sequence="10" /> -->
         <menuitem id="menu_project_budget_report_available" action="action_open_budget_report_available_srv" sequence="20" />
-        <!-- <menuitem id="menu_project_budget_report_remaining" action="action_open_budget_report_remaining_srv" sequence="30" /> -->
+        <menuitem id="menu_project_budget_report_remaining" action="action_open_budget_report_remaining_srv" sequence="30" />
     </menuitem>
 
 </odoo>
