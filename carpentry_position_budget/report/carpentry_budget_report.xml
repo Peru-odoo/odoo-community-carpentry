@@ -87,6 +87,61 @@
         </field>
     </record>
 
+    <!-- Search (common) -->
+    <record id="carpentry_budget_report_search_common" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.search</field>
+        <field name="model">carpentry.budget.available</field>
+        <field name="priority">999</field>
+        
+        <field name="arch" type="xml">
+            <search>
+                <field name="budget_type" />
+                <field name="analytic_account_id" />
+
+                <!-- Filters -->
+                <filter string="★ Projects"   name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
+                <separator />
+                <filter string="Goods"        name="filter_goods"   domain="[('budget_type', '=', 'goods')]" />
+                <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
+                <filter string="Production"   name="filter_production" domain="[('budget_type', '=', 'production')]" />
+                <filter string="Installation" name="filter_installation" domain="[('budget_type', '=', 'installation')]" />
+                <filter string="Other costs"  name="filter_project_global_cost" domain="[('budget_type', '=', 'project_global_cost')]" />
+                
+                <!-- Group by -->
+                <filter string="Group"        name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
+                <filter string="Launchs"      name="filter_groupby_launch" context="{'group_by': 'launch_id'}" />
+                <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
+                <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
+
+                <searchpanel view_type="tree">
+                    <field name="project_id" select="multi" invisible="context.get('default_project_id')" />
+                    <field name="budget_type" />
+                    <field name="analytic_account_id" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+    <!-- Search: `carpentry.budget.available` from common -->
+    <record id="carpentry_budget_report_available_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.search</field>
+        <field name="model">carpentry.budget.available</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="mode">primary</field>
+        <field name="priority">10</field>
+        
+        <field name="arch" type="xml">
+            <filter name="filter_project_global_cost" position="before">
+                <separator />
+                <filter string="Phases"   name="filter_phase"   domain="[('group_res_model', '=', 'carpentry.group.phase')]" />
+                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
+                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
+            </filter>
+                
+            <filter name="filter_groupby_launch" position="before">
+                <filter string="Phases"   name="filter_groupby_phase" context="{'group_by': 'phase_id'}" />
+            </filter>
+        </field>
+    </record>
 
 
 
@@ -135,13 +190,13 @@
         
         <field name="arch" type="xml">
             <tree
-                decoration-success="state == 'available'"
+                decoration-success="state == 'budget'"
                 decoration-danger="state == 'reservation'"
             >
                 <field name="project_id" invisible="1" />
 
                 <field name="state" widget="badge"
-                    decoration-success="state == 'available'"
+                    decoration-success="state == 'budget'"
                     decoration-danger="state == 'reservation'"
                 />
                 <field name="analytic_account_id" />
@@ -159,56 +214,19 @@
         </field>
     </record>
     
-    <!-- Search -->
+    <!-- Search: `carpentry.budget.remaining` from common -->
     <record id="carpentry_budget_report_remaining_search" model="ir.ui.view">
         <field name="name">carpentry.budget.remaining.search</field>
         <field name="model">carpentry.budget.remaining</field>
-        
-        <field name="arch" type="xml">
-            <search>
-                <field name="budget_type" />
-                <field name="analytic_account_id" />
-
-                <!-- Filters -->
-                <filter string="★ Projects"   name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
-                <separator />
-                <filter string="Goods"        name="filter_goods"   domain="[('budget_type', '=', 'goods')]" />
-                <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
-                <filter string="Production"   name="filter_production" domain="[('budget_type', '=', 'production')]" />
-                <filter string="Installation" name="filter_installation" domain="[('budget_type', '=', 'installation')]" />
-                <filter string="Other costs"  name="filter_project_global_cost" domain="[('budget_type', '=', 'project_global_cost')]" />
-                
-                <!-- Group by -->
-                <filter string="Group"        name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
-                <filter string="Launchs"      name="filter_groupby_launch" context="{'group_by': 'launch_id'}" />
-                <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
-                <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
-
-                <searchpanel view_type="tree">
-                    <field name="project_id" select="multi" invisible="context.get('default_project_id')" />
-                    <field name="budget_type" />
-                    <field name="analytic_account_id" />
-                </searchpanel>
-            </search>
-        </field>
-    </record>
-    <!-- Search: `carpentry.budget.available` from `carpentry.budget.remaining` -->
-    <record id="carpentry_budget_report_available_search" model="ir.ui.view">
-        <field name="name">carpentry.budget.available.search</field>
-        <field name="model">carpentry.budget.available</field>
-        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_remaining_search" />
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
         <field name="mode">primary</field>
+        <field name="priority">10</field>
         
         <field name="arch" type="xml">
-            <filter name="filter_project_global_cost" position="before">
+            <filter name="filter_project_global_cost" position="after">
                 <separator />
-                <filter string="Phases"   name="filter_phase"   domain="[('group_res_model', '=', 'carpentry.group.phase')]" />
-                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
-                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
-            </filter>
-                
-            <filter name="filter_groupby_launch" position="before">
-                <filter string="Phases"   name="filter_groupby_phase" context="{'group_by': 'phase_id'}" />
+                <filter string="Budget"      name="filter_budget"      domain="[('state', '=', 'budget')]" />
+                <filter string="Reservation" name="filter_reservation" domain="[('state', '=', 'reservation')]" />
             </filter>
         </field>
     </record>

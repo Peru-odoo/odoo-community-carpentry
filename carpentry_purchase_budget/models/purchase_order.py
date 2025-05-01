@@ -25,11 +25,14 @@ class PurchaseOrder(models.Model):
             Also called from `_compute_amount_budgetable()` when cost of non-stored products changes
         """
         self._set_readonly_affectation()
+        mapped_analytics = self._get_mapped_project_analytics()
 
         for purchase in self:
-            project_budgets = purchase.project_id._origin.budget_line_ids.analytic_account_id
             lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
-            purchase.budget_analytic_ids = lines.analytic_ids._origin.filtered('is_project_budget') & project_budgets
+            purchase.budget_analytic_ids = list(
+                set(lines.analytic_ids._origin.filtered('is_project_budget').ids) &
+                set(mapped_analytics.get(purchase.project_id.id))
+            )
 
     def _get_total_by_analytic(self):
         """ Group-sum `price_subtotal` of purchase order_line by analytic account,

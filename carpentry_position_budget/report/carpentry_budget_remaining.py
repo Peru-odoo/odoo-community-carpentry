@@ -14,7 +14,7 @@ class CarpentryBudgetRemaining(models.Model):
 
     #===== Fields =====#
     state = fields.Selection(
-        selection=[('available', 'Available'), ('reservation', 'Reservation')],
+        selection=[('budget', 'Budget'), ('reservation', 'Reservation')],
         string='State',
         readonly=True,
     )

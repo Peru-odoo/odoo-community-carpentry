@@ -18,7 +18,7 @@
         'project_budget_timesheet', 'hr_timesheet_sheet_copy', 'project_task_analytic_hr', 'project_task_analytic_type',
         # carpentry
         'carpentry_base', 'carpentry_planning',
-        'carpentry_position_budget', # for 'Budget' menu
+        'carpentry_position_budget',
     ],
     'data': [
         # views

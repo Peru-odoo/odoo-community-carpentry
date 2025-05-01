@@ -134,8 +134,8 @@ msgstr "Êtes-vous sûr ? Les repères ne seront pas supprimés mais leurs budge
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_remaining__state__available
-msgid "Available"
-msgstr "Disponible"
+msgid "Budget"
+msgstr "Budget"
 
 #. module: carpentry_position_budget
 #: model:ir.actions.act_window,name:carpentry_position_budget.action_open_budget_report_available

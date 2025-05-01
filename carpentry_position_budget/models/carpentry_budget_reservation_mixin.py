@@ -93,7 +93,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         self.sudo().readonly_affectation = True
     
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
-        """ Appends *Global Cost* (on the *project*) to the matrix """
+        """ Appends *Global Budget* (on the *project*) to the matrix """
         _super = super()._get_affectation_ids_vals_list
         global_lines = self.project_id._origin.budget_line_ids.filtered(lambda x: not x.is_computed_carpentry)
         global_budgets = self.budget_analytic_ids._origin & global_lines.analytic_account_id
@@ -167,23 +167,24 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     @api.depends('affectation_ids')
     def _compute_amount_gain(self):
         prec = self.env['decimal.precision'].precision_get('Product Price')
-        for purchase in self:
-            gain = float_round(purchase.sum_quantity_affected - purchase.amount_budgetable, precision_digits=prec)
-            purchase.amount_gain = purchase.state != 'cancel' and gain
-            purchase.amount_loss = -1 * purchase.amount_gain
+        for section in self:
+            not_canceled = not hasattr(section, 'state') or section.state != 'cancel'
+            gain = float_round(section.sum_quantity_affected - section.amount_budgetable, precision_digits=prec)
+            section.amount_gain = not_canceled and gain
+            section.amount_loss = -1 * section.amount_gain
 
     #====== Compute/Inverse ======#
     def _inverse_budget_analytic_ids(self):
         """ Manual budget choice => update line's analytic distribution """
-        for purchase in self:
-            replaced_ids = purchase.order_line.analytic_ids._origin.filtered('is_project_budget')
-            project_budgets = purchase.project_id._origin.budget_line_ids.analytic_account_id
-            new_budgets = purchase.budget_analytic_ids & project_budgets # in the PO lines and the project
+        for section in self:
+            replaced_ids = section.order_line.analytic_ids._origin.filtered('is_project_budget')
+            project_budgets = section.project_id._origin.budget_line_ids.analytic_account_id
+            new_budgets = section.budget_analytic_ids & project_budgets # in the PO lines and the project
 
             nb_budgets = len(new_budgets)
             new_distrib = {x.id: 100/nb_budgets for x in new_budgets}
             
-            purchase.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
+            section.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
 
     #===== Business logics =====#
     def _auto_update_budget_distribution(self):

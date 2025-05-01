@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-03-19 16:34+0000\n"
-"PO-Revision-Date: 2025-03-19 17:42+0100\n"
+"PO-Revision-Date: 2025-05-01 18:46+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -35,7 +35,8 @@ msgid ""
 "                    If this is not on purpose, review the \"Budget reservation\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionel, réviser l'onglet \"Réservation de budget\"."
+"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation de "
+"budget\"."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form

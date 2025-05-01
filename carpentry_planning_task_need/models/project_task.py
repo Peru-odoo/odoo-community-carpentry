@@ -82,11 +82,13 @@ class Task(models.Model):
         ondelete='set null',
         recursive=True
     )
-    launch_ids = fields.One2many(
+    launch_ids = fields.Many2many(
         comodel_name='carpentry.group.launch',
         string='Launches',
         compute='_compute_launch_ids',
         search='_search_launch_ids',
+        store=True,
+        readonly=False,
     )
 
     #===== Constrains =====#
@@ -111,13 +113,23 @@ class Task(models.Model):
                 _("Cannot change a Need Category of the Task once it is created.")
             )
 
+    @api.constrains('launch_ids')
+    def _constrain_need_single_launch_ids(self):
+        """ Task of type `need` may only have 1 single launch_id
+            because of deadline synchronization with launch's planning date
+        """
+        needs = self._filter_needs()
+        if needs.filtered(lambda self: len(self.launch_ids) > 1):
+            raise exceptions.ValidationError(
+                _("A task created from a need may only have 1 single launch.")
+            )
+
     #===== Compute =====#
     @api.depends('launch_id')
     def _compute_launch_ids(self):
-        for task in self:
+        needs = self._filter_needs()
+        for task in needs:
             task.launch_ids = task.launch_id
-    def _search_launch_ids(self, operator, value):
-        return [('launch_id', operator, value)]
     
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):

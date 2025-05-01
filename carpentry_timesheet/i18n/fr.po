@@ -6,19 +6,82 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 17:54+0000\n"
-"PO-Revision-Date: 2025-04-22 17:54+0000\n"
+"POT-Creation-Date: 2025-05-01 16:44+0000\n"
+"PO-Revision-Date: 2025-05-01 18:48+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.6\n"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid ""
+")\n"
+"                    differs from the allocated hours\n"
+"                    ("
+msgstr ""
+")\n"
+"                    est différent des heures allouées\n"
+"                    ("
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid ""
+").\n"
+"                    If this is not on purpose, review the \"Budget reservation\" tab."
+msgstr ""
+").\n"
+"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation "
+"de budget\"."
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid ""
+"<span class=\"fa fa-floppy-o\"/>\n"
+"                    Please save before continuing."
+msgstr ""
+"<span class=\"fa fa-floppy-o\"/>\n"
+"                        Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    The budget reservation\n"
+"                    ("
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                    La réservation de budget\n"
+"                    ("
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__affectation_ids
+msgid "Affectations"
+msgstr ""
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__allow_timesheets
 msgid "Allow timesheets"
 msgstr "Autoriser les feuilles de temps"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__amount_gain
+msgid "Amount Gain"
+msgstr "Montant du gain"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__amount_loss
+msgid "Amount Loss"
+msgstr "Montant de la perte"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__sum_quantity_affected
+msgid "Amount of reserved budget"
+msgstr "Montant budget réservé"
 
 #. module: carpentry_timesheet
 #: model:ir.model,name:carpentry_timesheet.model_account_analytic_account
@@ -33,7 +96,23 @@ msgstr "Assignés"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_analytic_id
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
 msgid "Budget"
+msgstr ""
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid "Budget reservation"
+msgstr "Réservation de budget"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__amount_budgetable
+msgid "Budgetable Amount"
+msgstr "Potentiel de budget à réserver"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__budget_analytic_ids
+msgid "Budgets"
 msgstr ""
 
 #. module: carpentry_timesheet
@@ -42,30 +121,45 @@ msgid "By Project & Employee"
 msgstr "Par projet et par employé"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,help:carpentry_timesheet.field_project_type__analytic_account_id
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__amount_budgetable
 msgid ""
-"For Tasks only. Default Analytic on Tasks, replacing project's analytic "
-"account."
+"Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
 msgstr ""
-"Pour les tâches uniquement. Sera le compte analytique définit sur les "
-"tâches, en remplacement du compte analytique du projet."
+"Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce montant"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__launch_ids_budget
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__currency_id
+msgid "Currency"
+msgstr "Devise"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_type__analytic_account_id
 msgid ""
-"For budget & times distribution and follow-up per launch on the planning"
+"For Tasks only. Default Analytic on Tasks, replacing project's analytic account."
 msgstr ""
-"Pour la répartition et le suivi par lancement du budget et des temps saisis "
-"(dans le planning)"
+"Pour les tâches uniquement. Sera le compte analytique définit sur les tâches, en "
+"remplacement du compte analytique du projet."
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__launch_ids
+msgid "For budget & times distribution and follow-up per launch on the planning"
+msgstr ""
+"Pour la répartition et le suivi par lancement du budget et des temps saisis (dans le "
+"planning)"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__hide_affectations
+msgid "Hide Affectations"
+msgstr "Affectations cachées"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_hr_timesheet_sheet__add_line_project_id
 msgid ""
-"If selected, the associated project is added to the timesheet sheet when "
-"clicked the button."
+"If selected, the associated project is added to the timesheet sheet when clicked the "
+"button."
 msgstr ""
-"Si cette option est sélectionnée, le projet associé est ajouté à la feuille "
-"de temps lorsque l'on clique sur le bouton."
+"Si cette option est sélectionnée, le projet associé est ajouté à la feuille de temps "
+"lorsque l'on clique sur le bouton."
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours
@@ -83,9 +177,9 @@ msgid "Last Week"
 msgstr "La semaine dernière"
 
 #. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__launch_ids_budget
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__launch_ids
 msgid "Launch(s)"
-msgstr "Lancement(s)"
+msgstr "Lancements"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_hr_timesheet_sheet_filter
@@ -135,6 +229,11 @@ msgid "Please select both Project and Task to add a line."
 msgstr "Veuillez sélectionner un projet et une tâche pour ajouter une ligne."
 
 #. module: carpentry_timesheet
+#: model:ir.model,name:carpentry_timesheet.model_carpentry_group_affectation
+msgid "Position Affectation"
+msgstr "Affectation de repère"
+
+#. module: carpentry_timesheet
 #: model:ir.model,name:carpentry_timesheet.model_project_project
 msgid "Project"
 msgstr "Projet"
@@ -145,6 +244,16 @@ msgid "Project Type"
 msgstr "Type de projet"
 
 #. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__readonly_affectation
+msgid "Readonly Affectation"
+msgstr "Affectation en lecture seule"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+msgid "Remaining budget"
+msgstr "Budget restant"
+
+#. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.quick_create_task_form_timesheet
 msgid "Remaining budget:"
 msgstr "Budget restant:"
@@ -152,11 +261,11 @@ msgstr "Budget restant:"
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_planning_kanban
 msgid ""
-"Remaining hours and performance. Legend: (Black) not started; (Normal) "
-"started; (Red) Overrun; (Green) Finished before planned hours"
+"Remaining hours and performance. Legend: (Black) not started; (Normal) started; "
+"(Red) Overrun; (Green) Finished before planned hours"
 msgstr ""
-"Heures prévues et performance. Légende : (Noir) pas démarré; (Normal) "
-"démarré ; (Rouge) dépassement ; (Vert) terminé dans le budget"
+"Heures prévues et performance. Légende : (Noir) pas démarré; (Normal) démarré ; "
+"(Rouge) dépassement ; (Vert) terminé dans le budget"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__progress_reviewed
@@ -164,9 +273,24 @@ msgid "Reviewed Progress"
 msgstr "Avancement"
 
 #. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__section_ids
+msgid "Sections"
+msgstr ""
+
+#. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_project_id
 msgid "Select Project"
 msgstr "Sélectionner un projet"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__sequence
+msgid "Sequence"
+msgstr "Séquence"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__sum_quantity_affected
+msgid "Sum of budget reservation"
+msgstr "Total des budgets réservés"
 
 #. module: carpentry_timesheet
 #: model:ir.model,name:carpentry_timesheet.model_project_task
@@ -200,12 +324,6 @@ msgid "Task Remaining Hours"
 msgstr "Heures restantes"
 
 #. module: carpentry_timesheet
-#: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
-#: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
-msgid "Timesheet's follow-up"
-msgstr "Suivi des temps"
-
-#. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search
 msgid "This Week"
 msgstr "Cette semaine"
@@ -218,9 +336,11 @@ msgstr "Feuille de temps"
 #. module: carpentry_timesheet
 #. odoo-python
 #: code:addons/carpentry_timesheet/models/project_project.py:0
+#: model:ir.actions.server,name:carpentry_timesheet.action_open_task_budget_timesheet_srv
+#: model:ir.ui.menu,name:carpentry_timesheet.menu_project_task_budget_timesheet
 #, python-format
-msgid "Timesheet's budgets"
-msgstr "Budget des feuilles de temps"
+msgid "Timesheet's follow-up"
+msgstr "Tâches"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_timesheet_pivot
@@ -236,6 +356,11 @@ msgstr "Des feuilles de temps peuvent être encodées sur cette tâche."
 #: model:ir.actions.act_window,name:carpentry_timesheet.action_open_timesheet_report
 msgid "Timesheets of this Week"
 msgstr "Feuilles de temps de cette semaine"
+
+#. module: carpentry_timesheet
+#: model:ir.model.fields,help:carpentry_timesheet.field_project_task__section_ids
+msgid "With at least 1 position in commun"
+msgstr "Avec au moins 1 repère en commun"
 
 #. module: carpentry_timesheet
 #. odoo-javascript

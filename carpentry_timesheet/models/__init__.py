@@ -8,4 +8,5 @@ from . import project_task
 from . import project_type
 from . import project_project
 
+from . import carpentry_group_affectation
 from . import carpentry_planning_card

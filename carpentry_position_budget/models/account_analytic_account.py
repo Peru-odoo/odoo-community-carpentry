@@ -208,7 +208,7 @@ class AccountAnalyticAccount(models.Model):
             rg_result = self.env['account.move.budget.line'].sudo().read_group(
                 domain=[('project_id', 'in', project_ids.ids), ('is_computed_carpentry', '=', False)],
                 groupby=['type', 'project_id'] + ([groupby_budget] if groupby_budget else []),
-                fields=['balance:sum'], # don't use `qty_balance` because only in €
+                fields=['balance:sum'] + (['qty_balance:sum'] if brut_or_valued == 'brut' else []),
                 lazy=False
             )
             for item in rg_result:
@@ -221,7 +221,11 @@ class AccountAnalyticAccount(models.Model):
                 key = ('project.project', item['project_id'][0], groupby_value_)
                 if not key in available:
                     available[key] = 0.0
-                available[key] += item['balance']
+                budget_line_field = (
+                    'qty_balance' if item['type'] != 'amount' and brut_or_valued == 'brut'
+                    else 'balance'
+                )
+                available[key] += item[budget_line_field]
         
         return available
     

@@ -31,6 +31,7 @@ Customization of Odoo CE or OCA modules
 Carpentry Features
 ******************
 
+* Budget reservation on Task form, from Launches or Project (like Purchase Orders)
 * Entry menu *Project / Budget / Timesheet's Budget* displaying tasks filtered on those
   with budget or timesheets. This view helps:
     * creating budget-specific tasks (context key `default_planned_hours_required`)

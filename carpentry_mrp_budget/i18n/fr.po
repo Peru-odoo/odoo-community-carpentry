@@ -46,7 +46,7 @@ msgid ""
 "                    If this is not on purpose, review the \"Budget (components)\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionel, réviser l'onglet \"Budget (composants)\"."
+"                    Si cela n'est pas intentionnel, réviser l'onglet \"Budget (composants)\"."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
@@ -55,7 +55,7 @@ msgid ""
 "                    If this is not on purpose, review the \"Budget reservation\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionel, réviser l'onglet \"Réservation de budget\"."
+"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation de budget\"."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
-from odoo.osv import expression
-
-from collections import defaultdict
+from odoo import models, fields, api, Command
 
 
 class Task(models.Model):
-    _inherit = ['project.task']
+    _name = 'project.task'
+    _inherit = ['project.task', 'carpentry.budget.reservation.mixin']
 
     #===== Fields =====#
     allow_timesheets = fields.Boolean(
@@ -17,7 +15,8 @@ class Task(models.Model):
         store=True,
         readonly=False
     )
-    launch_ids_budget = fields.Many2many(
+    # budget reservation
+    launch_ids = fields.Many2many(
         string='Launch(s)',
         comodel_name='carpentry.group.launch',
         relation='carpentry_group_launch_task_budget_rel',
@@ -26,6 +25,8 @@ class Task(models.Model):
         domain="[('project_id', '=', project_id)]",
         help='For budget & times distribution and follow-up per launch on the planning',
     )
+    affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    hide_affectations = fields.Boolean(compute='_compute_hide_affectations')
 
     # -- Planning --
     progress_reviewed = fields.Float(
@@ -80,3 +81,59 @@ class Task(models.Model):
             return 100 * (self.planned_hours - self.effective_hours) / self.planned_hours
 
         return False
+
+
+    #====== Affectation / budget reservation ======#
+    def _get_budget_types(self):
+        return ['service', 'installation']
+    
+    def _get_fields_affectation_refresh(self):
+        return super()._get_fields_affectation_refresh() + ['analytic_account_id', 'planned_hours']
+
+    @api.onchange('planned_hours')
+    def _set_readonly_affectation(self):
+        """ Modifying `planned_hours` re-computes automatically
+            the budget matrix after saving the task
+        """
+        return super()._set_readonly_affectation()
+    
+    @api.depends('analytic_account_id')
+    def _compute_budget_analytic_ids(self):
+        """ Budget reservation for task is on the single task's analytic """
+        self._set_readonly_affectation()
+        mapped_analytics = self._get_mapped_project_analytics()
+
+        for task in self:
+            task.budget_analytic_ids = (
+                [Command.set([task.analytic_account_id.id])] if
+                task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
+                else False
+            )
+
+    def _get_total_by_analytic(self):
+        """ :return: Dict like {analytic_id: charged amount} """
+        self.ensure_one()
+
+        return {
+            task.analytic_account_id.id: task.planned_hours
+            for task in self.filtered('analytic_account_id')
+        }
+
+    @api.depends('affectation_ids', 'launch_ids')
+    def _compute_hide_affectations(self):
+        """ Remove the possibility of manual modification of budget reservation
+            to simplify user-experience when the budget reservation does not need
+            to be spread across several launches 
+        """
+        for task in self:
+            task.hide_affectations = len(task.launch_ids) <= 1 or len(task.affectation_ids) <= 1
+
+    #====== Compute amount ======#
+    @api.depends('planned_hours')
+    def _compute_amount_budgetable(self):
+        for task in self:
+            task.amount_budgetable = task.planned_hours
+
+    @api.depends('planned_hours')
+    def _compute_amount_gain(self):
+        return super()._compute_amount_gain()

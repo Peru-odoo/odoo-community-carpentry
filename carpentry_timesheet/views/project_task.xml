@@ -68,14 +68,46 @@
         <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited" />
 
         <field name="arch" type="xml">
+            <!-- Smart Button (Budgets) -->
+            <div name="button_box" position="inside">
+                <button name="open_remaining_budget" type="object"
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    string="Budget"
+                    title="Remaining budget"
+                    attrs="{'invisible': [('allow_timesheets', '=', False)]}"
+                />
+            </div>
+
+            <!-- Budget info banner -->
+            <div name="button_box" position="after">
+                <field name="amount_budgetable" invisible="1" />
+                <field name="amount_gain" invisible="1" />
+                <field name="hide_affectations" invisible="1" />
+
+                <div name="alert_banner" role="alert" class="alert alert-info"
+                    attrs="{'invisible': ['|', '|',
+                        ('amount_gain', '=', 0.0),
+                        ('allow_timesheets', '=', False),
+                        ('hide_affectations', '=', True)]}"
+                >
+                    <span class="fa fa-info-circle" />
+                    The budget reservation
+                    (<strong><field name="sum_quantity_affected" />h</strong>)
+                    differs from the allocated hours
+                    (<strong><field name="amount_budgetable" />h</strong>).
+                    If this is not on purpose, review the "Budget reservation" tab.
+                </div>
+            </div>
+
             <!-- Launch ids -->
             <field name="project_id" position="after">
-                <field name="launch_ids_budget" widget="many2many_tags" attrs="{
+                <field name="launch_ids" widget="many2many_tags" attrs="{
                     'invisible': [('allow_timesheets', '=', False)]
                 }" />
             </field>
 
-            <!-- Allow user to manually choose on tasks if Timesheetable (page "other info") -->
+            <!-- Allow (admin) user to manually choose on tasks if Timesheetable (page "other info") -->
             <field name="analytic_account_id" position="before">
                 <field name="allow_timesheets" widget="boolean_toggle" />
             </field>
@@ -95,6 +127,37 @@
             <field name="progress" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
+
+            <!-- Add budget reservation matrix below timesheets -->
+            <xpath expr="//page[@id='timesheets_tab']/group" position="before">
+                <!-- `Must-save` banner at top of timesheets page, if needed -->
+                <field name="readonly_affectation" invisible="1" />
+                <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
+                    attrs="{'invisible': ['|', '|',
+                        ('readonly_affectation', '=', False),
+                        ('id', '=', False),
+                        ('hide_affectations', '=', True)]}"
+                >
+                    <span class="fa fa-floppy-o" />
+                    Please save before continuing.
+                </div>
+            </xpath>
+            <page id="timesheets_tab" position="inside">
+                <label for="affectation_ids" string="Budget reservation"
+                    attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('hide_affectations', '=', True)]}"
+                />
+                <field name="affectation_ids"
+                    nolabel="1" colspan="2"
+                    options="{'create': 0}" widget="one2many"
+                    attrs="{
+                        'invisible': ['|', ('affectation_ids', '=', []), ('hide_affectations', '=', True)],
+                        'readonly': [('readonly_affectation', '=', True)]
+                    }" context="{
+                        'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',
+                        'brut_or_valued': 'brut',
+                    }"
+                />
+            </page>
         </field>
     </record>
 
