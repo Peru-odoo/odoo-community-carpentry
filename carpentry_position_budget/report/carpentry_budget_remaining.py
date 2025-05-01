@@ -46,6 +46,8 @@ class CarpentryBudgetRemaining(models.Model):
         return ('carpentry.budget.available', 'carpentry.group.affectation')
     
     def _select(self, model):
+        models = {x.model: x.id for x in self.env['ir.model'].sudo().search([])}
+
         return f"""
             SELECT
                 available.id AS id_origin,
@@ -77,7 +79,11 @@ class CarpentryBudgetRemaining(models.Model):
 
                 -- project & launch
                 affectation.project_id,
-                affectation.record_id AS launch_id,
+                CASE
+                    WHEN affectation.record_model_id = {models['carpentry.group.launch']}
+                    THEN affectation.record_id
+                    ELSE NULL
+                END AS launch_id,
                 affectation.record_model_id AS group_model_id,
 
                 -- section
