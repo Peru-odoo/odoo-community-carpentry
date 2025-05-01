@@ -64,7 +64,7 @@ class TestCarpentrySale(common.SingleTransactionCase):
         # validate 1 line =>  => standard total = 20.0 ; total validated = 10.0
         sol1 = fields.first(self.order.order_line)
         sol1.validated = True
-        self.assertEqual(self.order.lines_validated, 'not_validated')
+        self.assertEqual(self.order.lines_validated, 'partial_validated')
         # total not depending "validated" line boolean
         self.assertEqual(self.order.amount_untaxed, self.PRODUCT_PRICE*2)
         self.assertEqual(self.project.sale_order_sum, self.PRODUCT_PRICE*2)

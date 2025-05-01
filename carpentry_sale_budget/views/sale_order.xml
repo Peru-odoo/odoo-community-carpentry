@@ -12,7 +12,7 @@
                 <field name="lines_budget_updated"
                     widget="badge"
                     decoration-success="lines_budget_updated == 'all_updated'"
-                    decoration-warning="lines_budget_updated == 'not_updated'"
+                    decoration-warning="lines_budget_updated == 'partial_updated'"
                     decoration-muted="lines_budget_updated == 'none'"
                 />
             </field>
@@ -31,7 +31,7 @@
                     optional="show"
                     widget="badge"
                     decoration-success="lines_budget_updated == 'all_updated'"
-                    decoration-warning="lines_budget_updated == 'not_updated'"
+                    decoration-warning="lines_budget_updated == 'partial_updated'"
                     decoration-muted="lines_budget_updated == 'none'"
                 />
             </field>

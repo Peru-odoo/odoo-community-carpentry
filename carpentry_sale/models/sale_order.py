@@ -14,7 +14,7 @@ class SaleOrder(models.Model):
     lines_validated = fields.Selection(
         selection=[
             ('none', 'None'),
-            ('not_validated', 'Partial'),
+            ('partial_validated', 'Partial'),
             ('all_validated', 'OK')    
         ],
         string='Line state',
@@ -54,21 +54,23 @@ class SaleOrder(models.Model):
     @api.depends('order_line', 'order_line.validated')
     def _compute_lines_validated(self):
         for order in self:
-            if not order.order_line.ids:
-                order.lines_validated = 'none'
-            elif set(order.order_line.mapped('validated')) == {True}:
-                order.lines_validated = 'all_validated'
+            validated = set(order.order_line.mapped('validated'))
+            if validated == {True}:
+                state = 'all_validated'
+            elif validated == {True, False}:
+                state = 'partial_validated'
             else:
-                order.lines_validated = 'not_validated'
+                state = 'none'
+            order.lines_validated = state
     
     @api.model
     def _search_lines_validated(self, operator, value):
         if value == 'none':
-            return [('order_line', '=', False)]
+            return [('order_line.validated', '=', False)]
         elif value == 'all_validated':
             return [('order_line.validated', '=', True)]
-        elif value == 'not_validated':
-            return [('order_line.validated', '=', False)]
+        elif value == 'partial_validated':
+            return [('order_line.validated', 'not in', [True, False])]
 
     def action_confirm(self):
         """ When a user validates a quotation, validate all lines """

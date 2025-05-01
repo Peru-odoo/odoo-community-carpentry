@@ -8,7 +8,7 @@ class SaleOrder(models.Model):
     lines_budget_updated = fields.Selection(
         selection=[
             ('none', 'None'),
-            ('not_updated', 'Partial'),
+            ('partial_updated', 'Partial'),
             ('all_updated', 'OK')
         ],
         string='Budget state',
@@ -20,17 +20,19 @@ class SaleOrder(models.Model):
     @api.depends('order_line', 'order_line.budget_updated')
     def _compute_lines_budget_updated(self):
         for order in self:
-            if not order.order_line.ids:
-                order.lines_budget_updated = 'none'
-            elif set(order.order_line.mapped('budget_updated')) == {True}:
-                order.lines_budget_updated = 'all_updated'
+            updated = set(order.order_line.mapped('budget_updated'))
+            if updated == {True}:
+                state = 'all_updated'
+            elif updated == {True, False}:
+                state = 'partial_updated'
             else:
-                order.lines_budget_updated = 'not_updated'
+                state = 'none'
+            order.lines_budget_updated = state
     
     def _search_lines_budget_updated(self, operator, value):
         if value == 'none':
-            return [('order_line', '=', False)]
+            return [('order_line.budget_updated', '=', False)]
         elif value == 'all_updated':
             return [('order_line.budget_updated', '=', True)]
-        elif value == 'not_updated':
-            return [('order_line.budget_updated', '=', False)]
+        elif value == 'partial_updated':
+            return [('order_line.budget_updated', 'not in', [True, False])]

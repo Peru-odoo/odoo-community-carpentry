@@ -76,10 +76,10 @@ class Project(models.Model):
     @api.depends('sale_order_ids.order_line', 'sale_order_ids.order_line.budget_updated', 'sale_order_ids.state')
     def _compute_budget_up_to_date(self):
         domain = [('project_id', 'in', self.ids), ('budget_updated', '=', False), ('state', '!=', 'cancel')]
-        not_updated_project_ids_ = self.env['sale.order.line'].sudo().search(domain).project_id.ids
+        partial_updated_project_ids_ = self.env['sale.order.line'].sudo().search(domain).project_id.ids
         
         for project in self:
-            project.budget_up_to_date = not (project.id in not_updated_project_ids_)
+            project.budget_up_to_date = not (project.id in partial_updated_project_ids_)
 
 
     #===== Carpentry Planning =====#

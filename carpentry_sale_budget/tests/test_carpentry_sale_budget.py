@@ -20,7 +20,7 @@ class TestCarpentrySaleBudget(TestCarpentrySale):
         # Not fully updated yet
         sol1 = fields.first(self.order.order_line)
         sol1.budget_updated = True
-        self.assertEqual(self.order.lines_budget_updated, 'not_updated')
+        self.assertEqual(self.order.lines_budget_updated, 'partial_updated')
         self.assertFalse(self.project.budget_up_to_date)
 
         # Fully updated
