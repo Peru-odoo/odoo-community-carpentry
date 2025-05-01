@@ -47,8 +47,9 @@ class SaleOrder(models.Model):
     def _compute_display_name(self):
         """ Prefix SO's `display_name` with project's """
         for order in self:
-            order.display_name = f"[{order.name}] {order.project_id.name} - {order.description or ''}"
-
+            dash = ' - ' if order.project_id.name else ''
+            description = (order.project_id.name or '') + dash + (order.description or '')
+            order.display_name = f'[{order.name}] {description}' if description else order.name
 
     #====== Compute: line status =====#
     @api.depends('order_line', 'order_line.validated')
