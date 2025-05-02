@@ -38,6 +38,18 @@
         <field name="inherit_id" ref="purchase.purchase_order_form" />
         
         <field name="arch" type="xml">
+            <!-- Add `Tasks` (needs) smart buttons -->
+            <div name="button_box" position="inside">
+                <field name="needs_count" invisible="1" />
+                <button name="open_need_kanban" type="object"
+                    class="oe_stat_button"
+                    icon="fa-check-square-o"
+                    attrs="{'invisible': [('needs_count', '=', 0)]}"
+                >
+                    <field name="needs_count" widget="statinfo" string="Needs"/>
+                </button>
+            </div>
+
             <!-- Add `Description` -->
             <h1 position="inside">
                 <field name="description"
@@ -78,15 +90,25 @@
             <xpath expr="//field[@name='order_line']//field[@name='date_planned']" position="attributes">
                 <attribute name="widget">date</attribute>
             </xpath>
-
-            <!-- Add `Tasks` (needs) notebook tab -->
-            <page name="purchase_delivery_invoice" position="before">
-                <page name="needs" string="Needs">
-                    <field name="task_ids" context="{'default_project_id': project_id}" />
-                </page>
-            </page>
         </field>
     </record>
+    <!-- Purchase form from `purchase_stock` -->
+    <record id="purchase_order_view_form_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.carpentry</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit" />
+        
+        <field name="arch" type="xml">
+            <!-- Allow custom `dest_address_id` if purchase delivered to a supplier (drop-shippping) -->
+            <field name="dest_address_id" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': [('default_location_dest_id_usage', 'not in', ['customer', 'supplier'])],
+                    'required':  [('default_location_dest_id_usage', 'in',     ['customer', 'supplier'])],
+                }</attribute>
+            </field>
+        </field>
+    </record>
+
 
     <!-- PO Search (2 views: 1 for quotation, 1 for confirmed po) -->
     <record id="view_purchase_order_filter" model="ir.ui.view">

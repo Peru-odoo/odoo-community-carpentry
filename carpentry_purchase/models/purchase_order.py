@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-import base64
-from collections import defaultdict
+from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
 
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
@@ -23,7 +22,9 @@ class PurchaseOrder(models.Model):
         string='Launches',
         domain="[('project_id', '=', project_id)]",
     )
-    task_ids = fields.One2many(related='launch_ids.task_ids')
+    needs_count = fields.Integer(
+        compute='_compute_needs_count'
+    )
     # -- ui --
     products_type = fields.Selection(
         selection=[
@@ -40,6 +41,29 @@ class PurchaseOrder(models.Model):
         for mo in self:
             mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
 
+    @api.depends('launch_ids')
+    def _compute_needs_count(self):
+        """ Count number of needs, for Magic Button """
+        for task in self:
+            task.needs_count = len(task.launch_ids.task_ids.filtered(lambda x: not x.is_closed))
+
+    # See purchase_stock/models/purchase.py
+    @api.depends('project_id')
+    def _compute_dest_address_id(self):
+        """ Pre-fill `dest_address_id` when delivered to customer """
+        print('==_compute_dest_address_id==')
+        po_to_customer = self.filtered(lambda po: po.picking_type_id.default_location_dest_id.usage == 'customer')
+        print('self', self)
+        print('po.picking_type_id', self.picking_type_id)
+        print('po.picking_type_id.default_location_dest_id', self.picking_type_id.default_location_dest_id)
+        print('po.picking_type_id.default_location_dest_id.usage', self.picking_type_id.default_location_dest_id.usage)
+        print('po_to_customer', po_to_customer)
+        super(PurchaseOrder, self - po_to_customer)._compute_dest_address_id()
+
+        for po in po_to_customer:
+            print('po.project_id.delivery_address_id', po.project_id.delivery_address_id)
+            po.dest_address_id = po.project_id.delivery_address_id
+    
     #====== Compute ======#
     @api.depends('order_line', 'order_line.product_id', 'order_line.product_id.type')
     def _compute_products_type(self):
@@ -91,3 +115,10 @@ class PurchaseOrder(models.Model):
         return super()._prepare_invoice() | {
             'project_id': self.project_id.id
         }
+
+    #===== Button =====#
+    def open_need_kanban(self):
+        """ Open Tasks of type Needs related to the PO in kanban view """
+        return self.env['project.task'].open_need_kanban(
+            launchs=self.launch_ids
+        )

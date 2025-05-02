@@ -241,7 +241,26 @@ class Task(models.Model):
             context |= {
                 'default_parent_type_id': self.env.ref(XML_ID_NEED).id,
                 'default_type_id': record_id.res_id, # card is the need category
-                'display_with_prefix': 1,
-                'display_standard_form': False
+                'display_with_prefix': True,
             }
         return super().action_open_planning_tree(domain, context, record_id, project_id_)
+
+    def open_need_kanban(self, launchs):
+        """ Used in `carpentry_purchase` to open Tasks of type Needs in kanban,
+            like *My Tasks* page, filtered on specified launches
+        """
+        root_type_id_ = self.env.ref(XML_ID_NEED).id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Needs'),
+            'res_model': 'project.task',
+            'view_mode': 'kanban,form',
+            'domain': [
+                ('root_type_id', '=', root_type_id_),
+                ('launch_id', 'in', launchs.ids)
+            ],
+            'context': {
+                'default_project_id': fields.first(launchs.project_id).id,
+                'default_parent_type_id': root_type_id_,
+            }
+        }
