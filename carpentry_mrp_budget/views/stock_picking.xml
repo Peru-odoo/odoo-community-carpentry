@@ -29,6 +29,22 @@
         
         <field name="arch" type="xml">
 
+            <!-- Smart Button -->
+            <div name="button_box" position="inside">
+                <field name="currency_id" invisible="1" /> <!-- for `monetary` widget -->
+                <button name="open_remaining_budget" type="object"
+                    class="oe_stat_button" icon="fa-money"
+                    attrs="{'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]}"
+                >
+                    <div class="o_field_statinfo">
+                        <span class="o_stat_info o_stat_value">
+                            <field name="amount_remaining" widget="monetary" />
+                        </span>
+                        <span class="o_stat_text">Budget</span>
+                    </div>
+                </button>
+            </div>
+
             <!-- Budget info banner -->
             <xpath expr="//div[hasclass('oe_title')]" position="before">
                 <field name="currency_id" invisible="1" />

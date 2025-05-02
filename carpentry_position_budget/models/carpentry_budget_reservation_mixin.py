@@ -34,6 +34,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         compute='_compute_budget_analytic_ids',
         inverse='_inverse_budget_analytic_ids',
     )
+    amount_remaining = fields.Monetary(
+        string='Budget',
+        compute='_compute_amount_remaining',
+    )
     amount_budgetable = fields.Monetary(
         string='Budgetable Amount',
         compute='_compute_amount_budgetable',
@@ -46,10 +50,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         help='Sum of budget reservation'
     )
     amount_gain = fields.Monetary(
-        compute='_compute_amount_gain'
+        compute='_compute_amount_gain',
     )
     amount_loss = fields.Monetary(
-        compute='_compute_amount_gain'
+        compute='_compute_amount_gain',
     )
     currency_id = fields.Many2one(
         comodel_name='res.currency',
@@ -138,8 +142,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             'seq_section': calendar.timegm(date_seq.timetuple()),
         }
 
-    def _get_domain_affect(self):
-        return [
+    def _get_domain_affect(self, group='group', group2_ids=None, group2='record'):
+        return super()._get_domain_affect(group, group2_ids, group2) + [
             ('section_res_model', '=', self._name),
             ('section_id', 'in', self.ids)
         ]
@@ -160,6 +164,20 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         for record in self:
             record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
     
+    @api.depends('launch_ids')
+    def _compute_amount_remaining(self):
+        """ Also called from `_compute_budget_analytic_ids()`
+            Computes *valued* remaining budget at level of the
+            section (PO, MO, picking, task, ...)
+        """
+        for record in self:
+            budgets = self.budget_analytic_ids._get_remaining_budget(self.launch_ids, self)
+            record.amount_remaining = sum([
+                amount
+                for (_, _, analytic_id_), amount in budgets.items()
+                if analytic_id_ in self.budget_analytic_ids.ids
+            ])
+
     def _compute_amount_budgetable(self):
         """ To be inherited """
         return
@@ -174,6 +192,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             section.amount_loss = -1 * section.amount_gain
 
     #====== Compute/Inverse ======#
+    def _compute_budget_analytic_ids(self):
+        """ To be inherited """
+        self._set_readonly_affectation()
+        self._compute_amount_remaining()
+    
     def _inverse_budget_analytic_ids(self):
         """ Manual budget choice => update line's analytic distribution """
         for section in self:

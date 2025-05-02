@@ -100,7 +100,6 @@ class Task(models.Model):
     @api.depends('analytic_account_id')
     def _compute_budget_analytic_ids(self):
         """ Budget reservation for task is on the single task's analytic """
-        self._set_readonly_affectation()
         mapped_analytics = self._get_mapped_project_analytics()
 
         for task in self:
@@ -109,6 +108,8 @@ class Task(models.Model):
                 task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
                 else False
             )
+        
+        return super()._compute_budget_analytic_ids()
 
     def _get_total_by_analytic(self):
         """ :return: Dict like {analytic_id: charged amount} """

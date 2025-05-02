@@ -133,7 +133,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
                 active = active and arg['state'] not in ['cancel']
         return active
 
-
+    
     #====== Affectation Temp ======#
     # -- Generic methods to be / that can be overritten, for compute and/or inverse of `affectation.temp` --
     def _get_record_refs(self):
@@ -207,6 +207,15 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             else vals.get('affected')
         )
 
+    def _get_domain_affect(self, group='group', group2_ids=None, group2='record'):
+        """ Return domain for search on `carpentry.group.affectation[.temp]`
+            :arg self: recordset of `[field]_ids`, like `group_ids`, `section_ids`, ...
+        """
+        domain = [(group + '_res_model', '=', self._name), (group + '_id', 'in', self.ids)]
+        if group2_ids:
+            domain += [(group2 + '_res_model', '=', group2_ids._name), (group2 + '_id', 'in', group2_ids.ids)]
+        return domain
+    
 
     # -- Refresh *real* `affectation` (for PO and WO) --
     def _get_affectation_ids(self, vals_list=[]):

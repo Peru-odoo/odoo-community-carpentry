@@ -35,14 +35,18 @@ class StockPicking(models.Model):
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
-        self._set_readonly_affectation()
-        
+        mapped_analytics = self._get_mapped_project_analytics()
         to_compute = self.filtered(lambda x: x._should_reserve_budget())
         (self - to_compute).budget_analytic_ids = False
         
         for picking in to_compute:
-            project_budgets = picking.project_id._origin.budget_line_ids.analytic_account_id
-            picking.budget_analytic_ids = picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget') & project_budgets
+            project_budgets = set(mapped_analytics.get(picking.project_id.id))
+            picking.budget_analytic_ids = (
+                set(picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget').ids)
+                & project_budgets
+            )
+        
+        return super()._compute_budget_analytic_ids()
     
     def _get_total_by_analytic(self):
         """ Group-sum price of move

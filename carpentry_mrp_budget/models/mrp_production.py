@@ -67,23 +67,25 @@ class ManufacturingOrder(models.Model):
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
-        self._set_readonly_affectation()
+        mapped_analytics = self._get_mapped_project_analytics()
+        budget_types = self._get_component_budget_types()
 
         to_clean = self.filtered(lambda x: not x._should_move_raw_reserve_budget())
         to_clean.budget_analytic_ids = False
 
-        budget_types = self._get_component_budget_types()
         for mo in (self - to_clean):
-            project_budgets = mo.project_id.budget_line_ids.analytic_account_id
+            project_budgets = set(mapped_analytics.get(mo.project_id.id))
 
-            existing = mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin
-            to_add = mo.move_raw_ids.analytic_ids._origin & project_budgets
+            existing = set(mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin.ids)
+            to_add = set(mo.move_raw_ids.analytic_ids._origin.ids) & project_budgets
             to_remove = existing - to_add
             if to_add:
-                mo.budget_analytic_ids += to_add
+                mo.budget_analytic_ids = [Command.link(x) for x in to_add]
             if to_remove:
-                mo.budget_analytic_ids -= to_remove
+                mo.budget_analytic_ids = [Command.unlink(x) for x in to_remove]
 
+        return super()._compute_budget_analytic_ids()
+    
     def _get_total_by_analytic(self):
         """ Group-sum real cost of components for automated budget reservation
             Component's cost is `qty * move._get_price_unit()`

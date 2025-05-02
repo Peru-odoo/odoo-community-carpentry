@@ -73,10 +73,11 @@
                 <button name="open_remaining_budget" type="object"
                     class="oe_stat_button"
                     icon="fa-money"
-                    string="Budget"
                     title="Remaining budget"
                     attrs="{'invisible': [('allow_timesheets', '=', False)]}"
-                />
+                >
+                    <field name="amount_remaining" widget="statinfo" />
+                </button>
             </div>
 
             <!-- Budget info banner -->

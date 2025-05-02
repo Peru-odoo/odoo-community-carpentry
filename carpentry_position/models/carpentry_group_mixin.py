@@ -55,14 +55,3 @@ class CarpentryGroupMixin(models.AbstractModel):
         for group in self:
             group.sequence = mapped_data.get(group.project_id.id, 0) + 1
             mapped_data[group.project_id.id] = group.sequence
-
-    #===== Affectation method =====#
-    def _get_domain_affect(self, group='group', group2_ids=None, group2='record'):
-        """ Return domain for search on `carpentry.group.affectation[.temp]`
-            :arg self: recordset of `[field]_ids`, like `group_ids`, `section_ids`, ...
-        """
-        domain = [(group + '_res_model', '=', self._name), (group + '_id', 'in', self.ids)]
-        if group2_ids:
-            domain += [(group2 + '_res_model', '=', group2_ids._name), (group2 + '_id', 'in', group2_ids.ids)]
-        return domain
-    
