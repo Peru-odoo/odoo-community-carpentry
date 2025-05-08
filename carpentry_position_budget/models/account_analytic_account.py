@@ -256,10 +256,9 @@ class AccountAnalyticAccount(models.Model):
         ]
         domain = expression.OR([domain_launch, domain_project])
         if section:
-            section.ensure_one()
             domain = expression.AND([domain, ['|',
                 ('section_res_model', '!=', section._name),
-                ('section_id', '!=', section.id),
+                ('section_id', 'not in', section.ids),
             ]])
         
         # 2. Fetch budget reservation (consumption)
