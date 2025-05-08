@@ -45,7 +45,7 @@ __pycache__/
 *.jar
 *.rar
 *.tar
-*.zip
+# *.zip # we need it for some tests
 *.tar.gz
 
 # Logs and databases #

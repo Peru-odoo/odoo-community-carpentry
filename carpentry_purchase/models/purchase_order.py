@@ -51,17 +51,10 @@ class PurchaseOrder(models.Model):
     @api.depends('project_id')
     def _compute_dest_address_id(self):
         """ Pre-fill `dest_address_id` when delivered to customer """
-        print('==_compute_dest_address_id==')
         po_to_customer = self.filtered(lambda po: po.picking_type_id.default_location_dest_id.usage == 'customer')
-        print('self', self)
-        print('po.picking_type_id', self.picking_type_id)
-        print('po.picking_type_id.default_location_dest_id', self.picking_type_id.default_location_dest_id)
-        print('po.picking_type_id.default_location_dest_id.usage', self.picking_type_id.default_location_dest_id.usage)
-        print('po_to_customer', po_to_customer)
         super(PurchaseOrder, self - po_to_customer)._compute_dest_address_id()
 
         for po in po_to_customer:
-            print('po.project_id.delivery_address_id', po.project_id.delivery_address_id)
             po.dest_address_id = po.project_id.delivery_address_id
     
     #====== Compute ======#
