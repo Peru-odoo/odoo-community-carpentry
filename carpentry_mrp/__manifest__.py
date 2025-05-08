@@ -14,6 +14,7 @@
 
     'depends': [
         'mrp', # Odoo CE
+        'purchase_order_no_zero_price', # OCA
         'project_role_visibility', # for access rules
         'mrp_project_link', 'mrp_attendance', 'mrp_productivity_qty', 'stock_move_comment', # other
         'carpentry_purchase', # carpentry
