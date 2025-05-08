@@ -88,6 +88,12 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         ])
     
     #====== Affectation refresh ======#
+    def _get_domain_write_or_create(self, vals):
+        """ For budget affectation, also filter by section_id"""
+        return super()._get_domain_write_or_create(vals) + [
+            ('section_id', '=', vals.get('section_id'))
+        ]
+    
     def _get_fields_affectation_refresh(self):
         return ['launch_ids', 'budget_analytic_ids']
     
@@ -142,11 +148,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             'seq_section': calendar.timegm(date_seq.timetuple()),
         }
 
-    def _get_domain_affect(self, group='group', group2_ids=None, group2='record'):
-        return super()._get_domain_affect(group, group2_ids, group2) + [
-            ('section_res_model', '=', self._name),
-            ('section_id', 'in', self.ids)
-        ]
+    def _get_domain_affect(self, group='section', group2_ids=None, group2='group'):
+        """ Default `group` is `section` for budget reservation
+            Needed for `_write_or_create_affectations`
+        """
+        return super()._get_domain_affect(group, group2_ids, group2)
 
     def _raise_if_no_affectations(self):
         raise exceptions.UserError(_(
@@ -242,14 +248,14 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
 
         # Sums launch total available budget per analytic
         mapped_launch_budget = defaultdict(float)
-        for (model, launch_id, analytic_id), budget in remaining_budget.items():
+        for (model, _, analytic_id), budget in remaining_budget.items():
             if model == 'carpentry.group.launch':
                 mapped_launch_budget[analytic_id] += budget
         
         # Calculate automatic budget reservation (avg-weight)
         budget_distribution = {}
         for key, budget in remaining_budget.items():
-            model, record_id, analytic_id = key
+            model, _, analytic_id = key
             total_price = total_by_analytic.get(analytic_id, 0.0)
 
             if model == 'carpentry.group.launch':

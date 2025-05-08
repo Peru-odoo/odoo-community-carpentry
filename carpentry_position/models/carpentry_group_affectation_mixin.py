@@ -337,16 +337,23 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         
         vals_list_create = []
         for vals in vals_list:
-            domain_cell = [
-                ('record_id', '=', vals.get('record_id')),
-                ('group_id', '=', vals.get('group_id'))
-            ]
+            domain_cell = self._get_domain_write_or_create(vals)
             existing_id = affectation_ids.filtered_domain(domain_cell)
             if existing_id.ids:
                 existing_id.write(vals)
             else:
                 vals_list_create.append(vals)
-        return affectation_ids | affectation_ids.create(vals_list_create)
+        res = affectation_ids | affectation_ids.create(vals_list_create)
+        return res
+
+    def _get_domain_write_or_create(self, vals):
+        """ Over-writtable for budget, to add `section_id`
+            But we don't want `section_id` for position-to-phase/launch
+        """
+        return [
+            ('record_id', '=', vals.get('record_id')),
+            ('group_id', '=', vals.get('group_id')),
+        ]
     
     # -- Inverse of `affectation.temp` to `real` --
     @api.model
