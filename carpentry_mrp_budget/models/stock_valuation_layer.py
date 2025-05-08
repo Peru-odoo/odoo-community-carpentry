@@ -14,3 +14,9 @@ class StockValuationLayer(models.Model):
         related='stock_move_id.raw_material_production_id',
         store=True
     )
+
+    # for searchpanel
+    stock_picking_type_id = fields.Many2one(
+        related='stock_move_id.picking_id.picking_type_id',
+        store=True
+    )

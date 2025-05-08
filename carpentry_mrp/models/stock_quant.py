@@ -87,7 +87,7 @@ class StockQuant(models.Model):
                     ).format(
                         name=quant.product_id.display_name,
                         name_lot=msg_add,
-                        q_quantity=quant.quantity,
+                        q_quantity=quant.quantity_without_outgoing_raw_material,
                         complete_name=quant.location_id.complete_name,
                     )
                 )
