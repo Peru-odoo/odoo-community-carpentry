@@ -35,16 +35,19 @@ class StockPicking(models.Model):
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
-        mapped_analytics = self._get_mapped_project_analytics()
-        to_compute = self.filtered(lambda x: x._should_reserve_budget())
-        (self - to_compute).budget_analytic_ids = False
-        
-        for picking in to_compute:
-            project_budgets = set(mapped_analytics.get(picking.project_id.id))
-            picking.budget_analytic_ids = (
-                set(picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget').ids)
-                & project_budgets
-            )
+        to_clean = self.filtered(lambda x: not x._should_reserve_budget())
+        to_clean.budget_analytic_ids = False
+
+        to_compute = (self - to_clean).filtered('project_id')
+        if to_compute:
+            mapped_analytics = self._get_mapped_project_analytics()
+            
+            for picking in to_compute:
+                project_budgets = set(mapped_analytics.get(picking.project_id.id))
+                picking.budget_analytic_ids = (
+                    set(picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget').ids)
+                    & project_budgets
+                )
         
         return super()._compute_budget_analytic_ids()
     

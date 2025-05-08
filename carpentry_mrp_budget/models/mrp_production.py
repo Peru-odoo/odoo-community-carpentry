@@ -67,22 +67,24 @@ class ManufacturingOrder(models.Model):
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
-        mapped_analytics = self._get_mapped_project_analytics()
-        budget_types = self._get_component_budget_types()
-
         to_clean = self.filtered(lambda x: not x._should_move_raw_reserve_budget())
         to_clean.budget_analytic_ids = False
 
-        for mo in (self - to_clean):
-            project_budgets = set(mapped_analytics.get(mo.project_id.id))
+        to_compute = (self - to_clean).filtered('project_id')
+        if to_compute:
+            mapped_analytics = self._get_mapped_project_analytics()
+            budget_types = self._get_component_budget_types()
 
-            existing = set(mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin.ids)
-            to_add = set(mo.move_raw_ids.analytic_ids._origin.ids) & project_budgets
-            to_remove = existing - to_add
-            if to_add:
-                mo.budget_analytic_ids = [Command.link(x) for x in to_add]
-            if to_remove:
-                mo.budget_analytic_ids = [Command.unlink(x) for x in to_remove]
+            for mo in to_compute:
+                project_budgets = set(mapped_analytics.get(mo.project_id.id))
+
+                existing = set(mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin.ids)
+                to_add = set(mo.move_raw_ids.analytic_ids._origin.ids) & project_budgets
+                to_remove = existing - to_add
+                if to_add:
+                    mo.budget_analytic_ids = [Command.link(x) for x in to_add]
+                if to_remove:
+                    mo.budget_analytic_ids = [Command.unlink(x) for x in to_remove]
 
         return super()._compute_budget_analytic_ids()
     

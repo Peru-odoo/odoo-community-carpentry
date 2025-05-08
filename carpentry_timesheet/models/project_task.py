@@ -100,14 +100,16 @@ class Task(models.Model):
     @api.depends('analytic_account_id')
     def _compute_budget_analytic_ids(self):
         """ Budget reservation for task is on the single task's analytic """
-        mapped_analytics = self._get_mapped_project_analytics()
+        to_compute = self.filtered('project_id')
+        if to_compute:
+            mapped_analytics = self._get_mapped_project_analytics()
 
-        for task in self:
-            task.budget_analytic_ids = (
-                [Command.set([task.analytic_account_id.id])] if
-                task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
-                else False
-            )
+            for task in to_compute:
+                task.budget_analytic_ids = (
+                    [Command.set([task.analytic_account_id.id])] if
+                    task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
+                    else False
+                )
         
         return super()._compute_budget_analytic_ids()
 

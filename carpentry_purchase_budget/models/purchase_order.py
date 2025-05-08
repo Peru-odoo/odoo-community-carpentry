@@ -24,14 +24,16 @@ class PurchaseOrder(models.Model):
 
             Also called from `_compute_amount_budgetable()` when cost of non-stored products changes
         """
-        mapped_analytics = self._get_mapped_project_analytics()
+        to_compute = self.filtered('project_id')
+        if to_compute:
+            mapped_analytics = self._get_mapped_project_analytics()
 
-        for purchase in self:
-            lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
-            purchase.budget_analytic_ids = list(
-                set(lines.analytic_ids._origin.filtered('is_project_budget').ids) &
-                set(mapped_analytics.get(purchase.project_id.id))
-            )
+            for purchase in to_compute:
+                lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
+                purchase.budget_analytic_ids = list(
+                    set(lines.analytic_ids._origin.filtered('is_project_budget').ids) &
+                    set(mapped_analytics.get(purchase.project_id.id))
+                )
 
         return super()._compute_budget_analytic_ids()
     
