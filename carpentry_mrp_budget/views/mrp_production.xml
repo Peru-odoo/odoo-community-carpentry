@@ -29,6 +29,13 @@
         
         <field name="arch" type="xml">
 
+            <!-- Components: add price_unit -->
+            <xpath expr="//field[@name='move_raw_ids']//button[@name='action_show_details']" position="inside">
+                <field name="currency_id" invisible="1" />
+                <field name="price_unit" readonly="1" widget="monetary" optional="hide" groups="base.group_no_one" />
+                <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
+            </xpath>
+
             <!-- Smart Button -->
             <div name="button_box" position="inside">
                 <button name="open_remaining_budget" type="object"

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Move Tree -->
+    <record id="view_move_tree" model="ir.ui.view">
+        <field name="name">stock.move.tree.carpentry_mrp_budget</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree" />
+
+        <field name="arch" type="xml">
+            <tree position="inside">
+                <field name="currency_id" invisible="1" />
+                <field name="price_unit" readonly="1" widget="monetary" optional="hide" groups="base.group_no_one" />
+                <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
+            </tree>
+        </field>
+    </record>
+    <!-- Move Tree2 -->
+    <record id="view_move_tree_receipt_picking" model="ir.ui.view">
+        <field name="name">stock.move.tree2.carpentry_mrp_budget</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree_receipt_picking" />
+
+        <field name="arch" type="xml">
+            <tree position="inside">
+                <field name="currency_id" invisible="1" />
+                <field name="price_unit" readonly="1" widget="monetary" optional="hide" groups="base.group_no_one" />
+                <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
+            </tree>
+        </field>
+    </record>
+    <!-- Move Form -->
+    <record id="view_move_form" model="ir.ui.view">
+        <field name="name">stock.move.form.carpentry_mrp_budget</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_form" />
+
+        <field name="arch" type="xml">
+            <group name="main_grp_col2" position="inside">
+                <field name="currency_id" invisible="1" />
+                <field name="price_unit" readonly="1" widget="monetary" groups="base.group_no_one" />
+                <field name="standard_price" widget="monetary" groups="base.group_no_one" />
+            </group>
+        </field>
+    </record>
+</odoo>

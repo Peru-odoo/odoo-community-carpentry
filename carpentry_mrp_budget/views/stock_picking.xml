@@ -29,6 +29,12 @@
         
         <field name="arch" type="xml">
 
+            <!-- Add standard_price -->
+            <xpath expr="//field[@name='move_ids_without_package']//button[@name='action_show_details']" position="before">
+                <field name="currency_id" invisible="1" />
+                <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
+            </xpath>
+
             <!-- Smart Button -->
             <div name="button_box" position="inside">
                 <field name="currency_id" invisible="1" /> <!-- for `monetary` widget -->

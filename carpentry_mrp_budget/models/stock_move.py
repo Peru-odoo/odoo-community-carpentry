@@ -12,6 +12,17 @@ class StockMove(models.Model):
         compute='_compute_analytic_distribution',
         string='Analytic Accounts'
     )
+    price_unit = fields.Float(
+        help="For permanent valuation. Product cost at move's confirmation.",
+    )
+    standard_price = fields.Float(
+        related='product_id.standard_price',
+        string='Product Cost',
+        help='For temporary valuation. Current product cost.'
+    )
+    currency_id = fields.Many2one(
+        related='company_id.currency_id',
+    )
 
     @api.depends('product_id', 'partner_id')
     def _compute_analytic_distribution(self):

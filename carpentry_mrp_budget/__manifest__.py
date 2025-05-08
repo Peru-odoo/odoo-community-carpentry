@@ -28,6 +28,7 @@
         "views/mrp_workcenter.xml",
         "views/mrp_production.xml",
         "views/stock_picking.xml",
+        "views/stock_move.xml",
         "views/stock_valuation_layer.xml",
     ]
 }
