@@ -89,6 +89,15 @@
                 <page name="components_budget" string="Budget (components)" attrs="{
                     'invisible': ['|', ('state', '=', 'cancel'), ('id', '=', False)]
                 }">
+                    <p name="temporary" role="alert" colspan="2"
+                        class="alert alert-info" attrs="{'invisible': [('state', '=', 'done')]}"
+                    >
+                        <span class="fa fa-info-circle" />
+                        Expense, gain and loss amounts are temporarly estimated and may vary when
+                        closing the Manufacturing Order, related to any variations in the valuation
+                        of components costs.
+                    </p>
+                    
                     <group col="12">
                         <!-- Left: choice of budget (col) -->
                         <group name="left" colspan="5" string="Choose components budgets">

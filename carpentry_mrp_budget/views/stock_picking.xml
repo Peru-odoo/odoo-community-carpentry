@@ -12,10 +12,14 @@
             <field name="state" position="before">
                 <field name="amount_gain" invisible="1" />
                 <field name="currency_id" invisible="1" />
+                <field name="can_reserve_budget" invisible="1" />
 
-                <field name="amount_budgetable" optional="hide" />
+                <field name="amount_budgetable" optional="hide"
+                    attrs="{'invisible': [('can_reserve_budget', '=', False)]}"
+                />
                 <field name="sum_quantity_affected" optional="hide" sum="1"
                     decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
+                    attrs="{'invisible': [('can_reserve_budget', '=', False)]}"
                 />
             </field>
         </field>
@@ -37,10 +41,15 @@
 
             <!-- Smart Button -->
             <div name="button_box" position="inside">
+                <field name="can_reserve_budget" invisible="1" />
                 <field name="currency_id" invisible="1" /> <!-- for `monetary` widget -->
                 <button name="open_remaining_budget" type="object"
                     class="oe_stat_button" icon="fa-money"
-                    attrs="{'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]}"
+                    attrs="{'invisible': ['|', '|',
+                        ('state', 'in', ['draft', 'cancel']),
+                        ('id', '=', False),
+                        ('can_reserve_budget', '=', False),
+                    ]}"
                 >
                     <div class="o_field_statinfo">
                         <span class="o_stat_info o_stat_value">
@@ -58,7 +67,10 @@
                 <field name="amount_gain" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': [('amount_gain', '=', 0.0)]}"
+                    attrs="{'invisible': ['|',
+                        ('amount_gain', '=', 0.0),
+                        ('can_reserve_budget', '=', False),
+                    ]}"
                 >
                     <span class="fa fa-info-circle" />
                     The budget reservation
@@ -82,7 +94,11 @@
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
                 <page name="budget" string="Budget reservation" attrs="{
-                    'invisible': ['|', ('state', 'in', ['draft', 'cancel']), ('id', '=', False)]
+                    'invisible': ['|', '|',
+                        ('state', 'in', ['draft', 'cancel']),
+                        ('id', '=', False),
+                        ('can_reserve_budget', '=', False)
+                    ]
                 }">
                     <field name="readonly_affectation" invisible="1" />
                     <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
@@ -91,6 +107,15 @@
                         <span class="fa fa-floppy-o" />
                         Please save before continuing.
                     </div>
+
+                    <p name="temporary" role="alert" colspan="2"
+                        class="alert alert-info" attrs="{'invisible': [('state', '=', 'done')]}"
+                    >
+                        <span class="fa fa-info-circle" />
+                        Expense, gain and loss amounts are temporarly estimated and may vary when
+                        closing the Picking, related to any variations in the valuation
+                        of components costs.
+                    </p>
 
                     <group col="12">
                         <!-- Left: choice of budget (col) -->

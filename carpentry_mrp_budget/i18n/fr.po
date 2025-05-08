@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-28 13:25+0000\n"
-"PO-Revision-Date: 2025-04-28 15:26+0200\n"
+"POT-Creation-Date: 2025-05-08 18:46+0000\n"
+"PO-Revision-Date: 2025-05-08 20:47+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -71,14 +71,42 @@ msgstr ""
 msgid ""
 "<span class=\"fa fa-floppy-o\"/>\n"
 "                        Please save before continuing."
-msgstr "Veuillez sauvegarder avant de continuer."
+msgstr ""
+"<span class=\"fa fa-floppy-o\"/>\n"
+"Veuillez sauvegarder avant de continuer."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid ""
 "<span class=\"fa fa-floppy-o\"/>\n"
 "                    Please save before continuing."
-msgstr "Veuillez sauvegarder avant de continuer."
+msgstr ""
+"<span class=\"fa fa-floppy-o\"/>\n"
+"Veuillez sauvegarder avant de continuer."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                        Expense, gain and loss amounts are temporarly estimated and may vary when\n"
+"                        closing the Manufacturing Order, related to any variations in the valuation\n"
+"                        of components costs."
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                        Les montants tels que la dépense, le gain et la perte sont temporairement estimés et peuvent varier jusqu'à\n"
+"                        la fermeture de l'Ordre de Fabrication, en lien avec les changements possibles dans la valorisation des composants."
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                        Expense, gain and loss amounts are temporarly estimated and may vary when\n"
+"                        closing the Picking, related to any variations in the valuation\n"
+"                        of components costs."
+msgstr ""
+"<span class=\"fa fa-info-circle\"/>\n"
+"                        Les montants tels que la dépense, le gain et la perte sont temporairement estimés et peuvent varier jusqu'à\n"
+"                        la fermeture du transfert, en lien avec les changements possibles dans la valorisation des composants."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
@@ -101,6 +129,11 @@ msgstr ""
 "<span class=\"fa fa-info-circle\"/>\n"
 "                    La réservation de budget des composants\n"
 "                    ("
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
+msgid "<span class=\"o_stat_text\">Budget</span>"
+msgstr ""
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__affectation_ids_components
@@ -137,7 +170,7 @@ msgstr "Montant budget réservé"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
 msgid "Amount of reserved budget (components)"
-msgstr "Montant budget réservé"
+msgstr "Montant budget réservé (composants)"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_distribution
@@ -163,6 +196,13 @@ msgstr "Applicabilités du plan analytique"
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_precision
 msgid "Analytic Precision"
 msgstr "Précision analytique"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_remaining
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__amount_remaining
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid "Budget"
+msgstr ""
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
@@ -209,6 +249,7 @@ msgstr "Montant du coût imputé au projet. Gain = \"Montant budget réservé\" 
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__currency_id
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__currency_id
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__currency_id
 msgid "Currency"
 msgstr "Devise"
@@ -219,14 +260,36 @@ msgid "Domain"
 msgstr "Domaine"
 
 #. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_inventory_valuation_search
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_move_search
+msgid "Expense on project"
+msgstr "Dépense sur affaire"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_move__price_unit
+msgid "For permanent valuation. Product cost at move's confirmation."
+msgstr "Relatif à la valorisation permanente. Coût du produit à la confirmation du mouvement de produit."
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_move__standard_price
+msgid "For temporary valuation. Current product cost."
+msgstr "Relatif à la valorisation temporaire. Coût actuel du produit."
+
+#. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_gain
 msgid "Gain (components)"
-msgstr "Montant du gain"
+msgstr "Montant du gain (composants)"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields.selection,name:carpentry_mrp_budget.selection__account_analytic_applicability__business_domain__manufacturing_order
 msgid "Manufacturing Order"
 msgstr "Ordre de fabrication"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__stock_picking_type_id
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_inventory_valuation_search
+msgid "Operation Type"
+msgstr "Type d'opération"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields.selection,name:carpentry_mrp_budget.selection__account_analytic_applicability__business_domain__picking
@@ -236,9 +299,7 @@ msgstr "Transfert"
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid "Please select budget(s) and launch(es) for placing a reservation."
-msgstr ""
-"Veuillez sélectionner un(des) budget(s) et un(des) lancement(s) pour effectuer une "
-"réservation de budget."
+msgstr "Veuillez sélectionner un(des) budget(s) et un(des) lancement(s) pour effectuer une réservation de budget."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
@@ -252,6 +313,11 @@ msgid "Position Affectation"
 msgstr "Affectation de repère"
 
 #. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__standard_price
+msgid "Product Cost"
+msgstr "Coût du produit"
+
+#. module: carpentry_mrp_budget
 #: model:ir.model,name:carpentry_mrp_budget.model_mrp_production
 msgid "Production Order"
 msgstr "Ordre de fabrication"
@@ -260,6 +326,11 @@ msgstr "Ordre de fabrication"
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__raw_material_production_id
 msgid "Production Order for components"
 msgstr "Ordre de Fabrication des composants"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__can_reserve_budget
+msgid "Project-related expense"
+msgstr "Dépense sur affaire"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__readonly_affectation
@@ -278,6 +349,11 @@ msgstr "Gain enregistré :"
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
 msgid "Recorded loss:"
 msgstr "Perte enregistrée :"
+
+#. module: carpentry_mrp_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
+msgid "Remaining budget"
+msgstr "Budget restant"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
@@ -324,7 +400,7 @@ msgstr "Somme des quantités affectées"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
 msgid "Sum of budget reservation (for components only)"
-msgstr "Somme des quantités affectées"
+msgstr "Somme des quantités affectées (composants uniquement)"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_picking__amount_budgetable
@@ -352,6 +428,11 @@ msgstr "Montant total de la dépense affectée au projet :"
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__stock_picking_id
 msgid "Transfer"
 msgstr "Transfert"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__price_unit
+msgid "Unit Price"
+msgstr "Prix unitaire"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__section_ids

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 17:54+0000\n"
-"PO-Revision-Date: 2025-04-22 20:00+0200\n"
+"POT-Creation-Date: 2025-05-08 18:47+0000\n"
+"PO-Revision-Date: 2025-05-08 20:48+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -74,6 +74,11 @@ msgid "Description"
 msgstr ""
 
 #. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_carpentry_group_launch
+msgid "Launch"
+msgstr "Lancement"
+
+#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__launch_ids
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__launch_ids
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move_line__launch_ids
@@ -84,7 +89,6 @@ msgstr "Lancements"
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_group_launch__production_ids
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__mrp_production_id
-#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_picking__mrp_production_ids
 msgid "Manufacturing Orders"
 msgstr "Ordres de Fabrication"
 
@@ -117,6 +121,11 @@ msgid "Pickings"
 msgstr "Transferts"
 
 #. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__planning_card_color_class
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__planning_card_color_class
 msgid "Planning Card Color (class)"
@@ -140,29 +149,14 @@ msgid "Product"
 msgstr "Produit"
 
 #. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_stock_move_line
-msgid "Product Moves (Stock Move Line)"
-msgstr "Mouvements de produit (Ligne de mouvement de stock)"
-
-#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__product_uom_qty
 msgid "Product Uom Qty"
-msgstr ""
+msgstr "Quantité demandée"
 
 #. module: carpentry_mrp
 #: model:ir.model,name:carpentry_mrp.model_product_product
 msgid "Product Variant"
 msgstr "Variante de produit"
-
-#. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_mrp_production
-msgid "Production Order"
-msgstr "Ordre de fabrication"
-
-#. module: carpentry_mrp
-#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__project_id
-msgid "Project"
-msgstr "Projet"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_quant__quantity_without_outgoing_raw_material
@@ -196,7 +190,11 @@ msgstr ""
 "transfert doit être ouvert pour pouvoir y déplacer des composants."
 
 #. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_stock_move
+#: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__state
+msgid "State"
+msgstr "État"
+
+#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__stock_move_id
 msgid "Stock Move"
 msgstr "Mouvement de stock"
@@ -227,21 +225,6 @@ msgstr "Nom de l'ordre de fabrication"
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.view_picking_form
 msgid "Title of Picking"
 msgstr "Nom du transfert"
-
-#. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_stock_picking
-msgid "Transfer"
-msgstr "Transfert"
-
-#. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_mrp_workorder
-msgid "Work Order"
-msgstr "Ordre de travail"
-
-#. module: carpentry_mrp
-#: model:ir.model,name:carpentry_mrp.model_mrp_workcenter_productivity
-msgid "Workcenter Productivity Log"
-msgstr "Journal de productivité du poste de travail"
 
 #. module: carpentry_mrp
 #. odoo-python

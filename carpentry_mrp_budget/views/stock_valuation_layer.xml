@@ -7,6 +7,13 @@
         <field name="inherit_id" ref="mrp_project_link.view_inventory_valuation_search" />
 
         <field name="arch" type="xml">
+            <!-- Filter -->
+            <search position="inside">
+                <filter string="Expense on project" name="can_reserve_budget"
+                    domain="[('stock_move_id.picking_id.can_reserve_budget', '=', True)]"
+                />
+            </search>
+
             <!-- Groupping -->
             <group position="inside">
                 <filter

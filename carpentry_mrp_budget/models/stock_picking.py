@@ -20,13 +20,31 @@ class StockPicking(models.Model):
     )
     amount_budgetable = fields.Monetary(string='Total Cost')
     currency_id = fields.Many2one(related='project_id.currency_id')
+    can_reserve_budget = fields.Boolean(
+        string='Project-related expense',
+        compute='_compute_can_reserve_budget',
+        store=True,
+    )
 
+    #===== Compute =====#
+    @api.depends('state', 'picking_type_code', 'purchase_id', 'mrp_production_ids')
+    def _compute_can_reserve_budget(self):
+        for move in self:
+            move.can_reserve_budget = move._can_reserve_budget()
+
+    def _can_reserve_budget(self):
+        return (
+            self.state not in ['draft', 'cancel'] and
+            self.picking_type_code != 'internal' and
+            # don't allow budget reservation on picking coming from
+            # purchase orders or manufacturing orders
+            # since they can already reserve some
+            not self.purchase_id and not self.mrp_production_ids
+        )
+    
     #===== Affectations configuration =====#
     def _get_budget_types(self):
         return ['goods', 'project_global_cost']
-
-    def _should_reserve_budget(self):
-        return self._is_to_external_location() and self.state not in ['draft', 'cancel']
     
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_ids']
@@ -35,7 +53,7 @@ class StockPicking(models.Model):
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ Update budgets list when adding product in `Operations` tab """
-        to_clean = self.filtered(lambda x: not x._should_reserve_budget())
+        to_clean = self.filtered(lambda x: not x.can_reserve_budget)
         to_clean.budget_analytic_ids = False
 
         to_compute = (self - to_clean).filtered('project_id')
@@ -55,7 +73,7 @@ class StockPicking(models.Model):
         """ Group-sum price of move
             :return: Dict like {analytic_id: charged amount}
         """
-        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        to_compute = self.filtered(lambda x: x.can_reserve_budget)
         if not to_compute:
             return {}
         
@@ -83,7 +101,7 @@ class StockPicking(models.Model):
             - its moves valuation when valuated
             - else, estimation via products' prices
         """
-        to_compute = self.filtered(lambda x: x._should_reserve_budget())
+        to_compute = self.filtered(lambda x: x.can_reserve_budget)
         (self - to_compute).amount_budgetable = False
         if not to_compute:
             return
