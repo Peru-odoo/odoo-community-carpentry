@@ -92,11 +92,12 @@ class CarpentryNeed(models.Model):
                     task.user_ids = new_user_ids
 
     #===== Business methods =====#
-    def _convert_to_task_vals(self, launch):
-        """ By default, Task of type `need` are archived, and planned manually by the
-            project manager from the carpentry planning
+    def _convert_need_to_task_vals(self, launch):
+        """ Note: by default, Task of type `need` are idle (cf. `stage_id`),
+            and planned manually by the project manager in the planning page
         """
         self.ensure_one()
+        Task = self.env['project.task']
         return {
             'project_id': self.project_id.id,
             'name': self.name,
@@ -104,5 +105,5 @@ class CarpentryNeed(models.Model):
             'need_id': self.id,
             'user_ids': self.user_ids.ids,
             'launch_id': launch.id,
-            'active': False,
+            'stage_id': Task._get_stage_id_default_need().id,
         }

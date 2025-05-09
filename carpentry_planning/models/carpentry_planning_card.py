@@ -286,7 +286,7 @@ class CarpentryPlanningCard(models.Model):
                 not rel_field in fields
             ):
                 fields.append(rel_field)
-            
+        
         return expression.OR([[(field, operator, value)] for field in fields])
 
 

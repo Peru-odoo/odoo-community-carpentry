@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
+from odoo.osv import expression
 from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
 
 class CarpentryNeedFamily(models.Model):
@@ -61,6 +62,9 @@ class CarpentryNeedFamily(models.Model):
         comodel_name='project.role',
         related='parent_type_id.role_id',
     )
+    task_count = fields.Integer(
+        compute='_compute_task_count'
+    )
 
     _sql_constraints = [(
         'name_unique',
@@ -95,6 +99,15 @@ class CarpentryNeedFamily(models.Model):
         result = super().write(vals)
         self._synch_families_to_tasks(self.project_id.ids) # after .write()
         return result
+
+    #===== Compute =====#
+    @api.depends('need_ids')
+    def _compute_task_count(self):
+        """ For smart button to Tasks """
+        for family in self:
+            family.task_count = len(family.need_ids.task_ids.filtered(
+                lambda task: task.launch_id in family.launch_ids
+            ))
 
     #===== Logics =====#
     def _synch_families_to_tasks(self, project_ids_):
@@ -143,6 +156,15 @@ class CarpentryNeedFamily(models.Model):
 
         # 3. Create tasks from added need or launch to (a) family(ies)
         self.env['project.task'].sudo().create([
-            need._convert_to_task_vals(launch)
+            need._convert_need_to_task_vals(launch)
             for launch, need in (target_tuples - existing_tuples)
         ])
+
+    #===== Buttons =====#
+    def open_need_family_tasks(self):
+        action = self.env['project.project'].action_open_task_need()
+        action['domain'] = expression.AND([
+            action['domain'],
+            [('need_id', 'in', self.need_ids.ids), ('launch_id', 'in', self.launch_ids.ids)]
+        ])
+        return action

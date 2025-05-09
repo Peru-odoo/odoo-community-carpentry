@@ -12,7 +12,7 @@
                 <field name="week_end" />
                 <field name="week_deadline" />
                 <field name="type_name" />
-                <field name="active" />
+                <field name="need_default" />
                 <field name="user_ids" />
             </templates>
 
@@ -34,7 +34,7 @@
                     </a>
                     
                     <!-- Button Activate -->
-                    <t t-if="!record.active.raw_value">
+                    <t t-if="record.need_default.raw_value">
                         <br />
                         <button name="action_activate_need" type="object"
                             class="fs-6 badge fw-normal text-primary mt-1"

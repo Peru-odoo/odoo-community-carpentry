@@ -37,7 +37,7 @@ class CarpentryPlanningMixin(models.AbstractModel):
     @api.model
     def _get_planning_domain(self):
         """ Returns the domain to filter the records to be displayed in the planning view """
-        return [('active', '=', True)]
+        return []
 
     @api.model
     def _synch_mirroring_column_id(self, column_id):

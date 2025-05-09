@@ -26,6 +26,7 @@
         'views/carpentry_planning.xml',
         'views/project_type.xml',
         'views/project_task_need.xml',
+        'views/project_task_type.xml',
         'views/carpentry_planning_column.xml',
         # security
         'security/ir.model.access.csv',

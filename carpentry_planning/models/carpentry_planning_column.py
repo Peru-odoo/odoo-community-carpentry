@@ -39,10 +39,6 @@ class CarpentryPlanningColumn(models.Model):
     #     default=False,
     #     help='If the card is displayed whatever domain filter on Planning view (e.g. Needs Categories).'
     # )
-    # active_test = fields.Boolean(
-    #     default=True,
-    #     help='Whether only the active cards should be shown (and the archived hidden).'
-    # )
 
     # Identifier value to route/discrepencies records of same model towards 2 or more columns
     identifier_ref = fields.Reference(
@@ -179,7 +175,7 @@ class CarpentryPlanningColumn(models.Model):
             `identifier_ref` is `required` in view
         """
         # Get count of models occurence in the planning's column
-        all_column_ids = self.sudo().with_context(active_test=False).search([])
+        all_column_ids = self.sudo().search([])
         mapped_count = defaultdict(int)
         for column in all_column_ids:
             mapped_count[column.res_model_id.id] += 1
