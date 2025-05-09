@@ -62,7 +62,7 @@ class StockPicking(models.Model):
             
             for picking in to_compute:
                 project_budgets = set(mapped_analytics.get(picking.project_id.id, []))
-                picking.budget_analytic_ids = (
+                picking.budget_analytic_ids = list(
                     set(picking.move_ids._get_analytic_ids()._origin.filtered('is_project_budget').ids)
                     & project_budgets
                 )

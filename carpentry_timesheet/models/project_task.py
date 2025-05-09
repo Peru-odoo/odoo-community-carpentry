@@ -105,7 +105,7 @@ class Task(models.Model):
             mapped_analytics = self._get_mapped_project_analytics()
 
             for task in to_compute:
-                task.budget_analytic_ids = (
+                task.budget_analytic_ids = list(
                     [Command.set([task.analytic_account_id.id])] if
                     task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
                     else False
