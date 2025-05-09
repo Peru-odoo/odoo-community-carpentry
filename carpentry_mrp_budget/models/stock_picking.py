@@ -95,7 +95,10 @@ class StockPicking(models.Model):
         return mapped_price
 
     #====== Compute amount ======#
-    @api.depends('move_ids', 'move_ids.product_id', 'move_ids.stock_valuation_layer_ids')
+    @api.depends(
+        'move_ids', 'move_ids.product_id', 'move_ids.standard_price',
+        'move_ids.price_unit', 'move_ids.stock_valuation_layer_ids',
+    )
     def _compute_amount_budgetable(self):
         """ Picking's cost is:
             - its moves valuation when valuated

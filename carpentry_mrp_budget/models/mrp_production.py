@@ -131,7 +131,10 @@ class ManufacturingOrder(models.Model):
         return mapped_cost
 
     #====== Compute amount ======#
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids')
+    @api.depends(
+        'move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.product_id.standard_price',
+        'move_raw_ids.price_unit', 'move_raw_ids.stock_valuation_layer_ids',
+    )
     def _compute_amount_budgetable(self):
         """ MO's **COMPONENTS-ONLY** cost is like for picking:
             - its moves valuation when valuated
