@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 17:54+0000\n"
-"PO-Revision-Date: 2025-04-22 20:02+0200\n"
+"POT-Creation-Date: 2025-05-09 10:29+0000\n"
+"PO-Revision-Date: 2025-05-09 12:31+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -53,13 +53,19 @@ msgstr ""
 "\"Besoins\"."
 
 #. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_task.py:0
+#, python-format
+msgid "A task created from a need may only have 1 single launch."
+msgstr "Une tâche issue d'un besoin ne peut avoir qu'un unique lancement."
+
+#. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_planning_kanban
 msgid "Activate"
 msgstr "Activer"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__active
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_type__active
 msgid "Active"
 msgstr "Actif"
 
@@ -74,6 +80,11 @@ msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__user_ids
+msgid "Assignees"
+msgstr "Assignés"
+
+#. module: carpentry_planning_task_need
 #. odoo-python
 #: code:addons/carpentry_planning_task_need/models/project_task.py:0
 #, python-format
@@ -81,6 +92,11 @@ msgid "Cannot change a Need Category of the Task once it is created."
 msgstr ""
 "La catégorie de besoin ne peut pas être modifiée après la création de la "
 "tâche."
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_column
+msgid "Carpentry Planning Column"
+msgstr "Colonne du planning de menuiserie"
 
 #. module: carpentry_planning_task_need
 #: model:ir.model.fields,help:carpentry_planning_task_need.field_carpentry_planning_column__column_id_need_date
@@ -123,6 +139,22 @@ msgid "Deadline or Date done"
 msgstr "Date objectif ou Date terminé"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__need_default
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task_type__need_default
+msgid "Default for Needs"
+msgstr "Défaut pour les besoins"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_project_task__need_default
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_project_task_type__need_default
+msgid ""
+"Default stage for Needs creation before their activation from the planning "
+"page."
+msgstr ""
+"Etape par défaut pour les besoins à leur création et avant leur activation "
+"depuis la page du planning."
+
+#. module: carpentry_planning_task_need
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_tree
 msgid "Delete"
 msgstr "Supprimer"
@@ -132,6 +164,14 @@ msgstr "Supprimer"
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__display_name
 msgid "Display Name"
 msgstr "Nom affiché"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_project_task__launch_ids
+msgid ""
+"For budget & times distribution and follow-up per launch on the planning"
+msgstr ""
+"Pour la répartition et le suivi des temps et budget par lancement depuis le "
+"plannning"
 
 #. module: carpentry_planning_task_need
 #: model:carpentry.planning.milestone.type,name:carpentry_planning_task_need.launch_milestone_method_go_output
@@ -178,8 +218,12 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_planning_task_need
-#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__launch_ids
+msgid "Launch(s)"
+msgstr "Lancements"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__launch_ids
 msgid "Launches"
 msgstr "Lancements"
 
@@ -204,6 +248,11 @@ msgid "Need Category"
 msgstr "Catégorie de besoin"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__need_default
+msgid "Need Default"
+msgstr "Par défaut pour les besoins"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__parent_type_id
 msgid "Need Type"
 msgstr "Type de besoin"
@@ -226,7 +275,10 @@ msgid "Need template"
 msgstr "Modèle de besoin"
 
 #. module: carpentry_planning_task_need
+#. odoo-python
+#: code:addons/carpentry_planning_task_need/models/project_task.py:0
 #: model:ir.ui.menu,name:carpentry_planning_task_need.menu_project_need_section
+#, python-format
 msgid "Needs"
 msgstr "Besoins"
 
@@ -268,6 +320,16 @@ msgstr ""
 "ou de la pose)"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,help:carpentry_planning_task_need.field_project_task__user_ids
+msgid "Only Assignees can log timesheets on the Tasks"
+msgstr "Seuls les assignés d'une tâche peuvent y saisir du temps"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_carpentry_planning_card
+msgid "Planning Card"
+msgstr "Cartes du planning"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_project_task__planning_card_color_class
 msgid "Planning Card Color (class)"
 msgstr "Carte de la couleur dans le planning (class)"
@@ -294,6 +356,7 @@ msgid "Production"
 msgstr "Fabrication"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_project_project
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__project_id
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__project_id
 msgid "Project"
@@ -305,17 +368,34 @@ msgid "Project Id Domain"
 msgstr ""
 
 #. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_project_type
+msgid "Project Type"
+msgstr "Type de projet"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__role_id
 msgid "Role"
 msgstr "Rôle"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_project_task
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_planning_card__project_task_id
 msgid "Task"
 msgstr "Tâche"
 
 #. module: carpentry_planning_task_need
+#: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need_family__task_count
+msgid "Task Count"
+msgstr "Nombre de tâches"
+
+#. module: carpentry_planning_task_need
+#: model:ir.model,name:carpentry_planning_task_need.model_project_task_type
+msgid "Task Stage"
+msgstr "Étape de tâche"
+
+#. module: carpentry_planning_task_need
 #: model:ir.model.fields,field_description:carpentry_planning_task_need.field_carpentry_need__task_ids
+#: model_terms:ir.ui.view,arch_db:carpentry_planning_task_need.carpentry_need_family_form
 msgid "Tasks"
 msgstr "Tâches"
 
