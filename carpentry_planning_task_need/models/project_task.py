@@ -54,7 +54,7 @@ class Task(models.Model):
         readonly=False
     )
     type_name = fields.Char(
-        related='type_id.name'
+        related='type_id.code'
     )
     user_ids = fields.Many2many(
         compute='_compute_user_ids',
@@ -70,6 +70,13 @@ class Task(models.Model):
     deadline_week_offset = fields.Integer(
         related='need_id.deadline_week_offset', 
     )
+
+    need_default = fields.Boolean(
+        # whether the need is activated or not.
+        # `default==True` means *unactivated*
+        related='stage_id.need_default'
+    )
+
     #--- planning ---
     column_id = fields.Many2one(
         # `column_id` must be stored here because used in SQL view
@@ -86,7 +93,6 @@ class Task(models.Model):
         comodel_name='carpentry.group.launch',
         string='Launches',
         compute='_compute_launch_ids',
-        search='_search_launch_ids',
         store=True,
         readonly=False,
     )
@@ -130,7 +136,7 @@ class Task(models.Model):
         needs = self._filter_needs()
         for task in needs:
             task.launch_ids = task.launch_id
-    
+
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):
         for task in self:
@@ -224,11 +230,14 @@ class Task(models.Model):
     #===== Planning =====#
     def _get_planning_domain(self):
         """ Returns the domain to filter the records to be displayed in the planning view """
-        return [('active', 'in', [True, False])]
+        return []
 
+    def _get_stage_id_default_need(self):
+        domain = [('need_default', '=', True)]
+        return fields.first(self.env['project.task.type'].search(domain))
+    
     def action_activate_need(self):
         self.write({
-            'active': True,
             'stage_id': self._get_default_stage_id(),
         })
 
