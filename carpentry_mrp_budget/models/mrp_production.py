@@ -76,7 +76,7 @@ class ManufacturingOrder(models.Model):
             budget_types = self._get_component_budget_types()
 
             for mo in to_compute:
-                project_budgets = set(mapped_analytics.get(mo.project_id.id))
+                project_budgets = set(mapped_analytics.get(mo.project_id.id, []))
 
                 existing = set(mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin.ids)
                 to_add = set(mo.move_raw_ids.analytic_ids._origin.ids) & project_budgets

@@ -32,7 +32,7 @@ class PurchaseOrder(models.Model):
                 lines = purchase.order_line.filtered(lambda x: x.product_id.type != 'product')
                 purchase.budget_analytic_ids = list(
                     set(lines.analytic_ids._origin.filtered('is_project_budget').ids) &
-                    set(mapped_analytics.get(purchase.project_id.id))
+                    set(mapped_analytics.get(purchase.project_id.id, []))
                 )
 
         return super()._compute_budget_analytic_ids()
