@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-01 16:44+0000\n"
-"PO-Revision-Date: 2025-05-01 18:48+0200\n"
+"POT-Creation-Date: 2025-05-12 22:27+0000\n"
+"PO-Revision-Date: 2025-05-13 00:28+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -20,9 +20,8 @@ msgstr ""
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
 msgid ""
-")\n"
-"                    differs from the allocated hours\n"
-"                    ("
+") differs from the allocated\n"
+"                    hours ("
 msgstr ""
 ")\n"
 "                    est différent des heures allouées\n"
@@ -31,28 +30,22 @@ msgstr ""
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
 msgid ""
-").\n"
-"                    If this is not on purpose, review the \"Budget reservation\" tab."
+"). If this is not on\n"
+"                    purpose, review the \"Budget reservation\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation "
-"de budget\"."
+"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation de budget\"."
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid ""
-"<span class=\"fa fa-floppy-o\"/>\n"
-"                    Please save before continuing."
+msgid "<span class=\"fa fa-floppy-o\"/> Please save before continuing."
 msgstr ""
 "<span class=\"fa fa-floppy-o\"/>\n"
 "                        Veuillez sauvegarder avant de continuer."
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
-msgid ""
-"<span class=\"fa fa-info-circle\"/>\n"
-"                    The budget reservation\n"
-"                    ("
+msgid "<span class=\"fa fa-info-circle\"/> The budget reservation ("
 msgstr ""
 "<span class=\"fa fa-info-circle\"/>\n"
 "                    La réservation de budget\n"
@@ -96,7 +89,7 @@ msgstr "Assignés"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_hr_timesheet_sheet__add_line_analytic_id
-#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_form2_inherited
+#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__amount_remaining
 msgid "Budget"
 msgstr ""
 
@@ -122,10 +115,8 @@ msgstr "Par projet et par employé"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_project_task__amount_budgetable
-msgid ""
-"Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
-msgstr ""
-"Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce montant"
+msgid "Cost amount imputed on the project. Gain = 'Amount of reserved budget' - this amount"
+msgstr "Montant du coût imputé au projet. Gain = \"Réservation de budget\" - ce montant"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__currency_id
@@ -134,32 +125,24 @@ msgstr "Devise"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_project_type__analytic_account_id
-msgid ""
-"For Tasks only. Default Analytic on Tasks, replacing project's analytic account."
+msgid "For Tasks only. Default Analytic on Tasks, replacing project's analytic account."
 msgstr ""
-"Pour les tâches uniquement. Sera le compte analytique définit sur les tâches, en "
-"remplacement du compte analytique du projet."
+"Pour les tâches uniquement. Sera le compte analytique définit sur les tâches, en remplacement "
+"du compte analytique du projet."
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_project_task__launch_ids
 msgid "For budget & times distribution and follow-up per launch on the planning"
 msgstr ""
-"Pour la répartition et le suivi par lancement du budget et des temps saisis (dans le "
-"planning)"
-
-#. module: carpentry_timesheet
-#: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__hide_affectations
-msgid "Hide Affectations"
-msgstr "Affectations cachées"
+"Pour la répartition et le suivi par lancement du budget et des temps saisis (dans le planning)"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,help:carpentry_timesheet.field_hr_timesheet_sheet__add_line_project_id
 msgid ""
-"If selected, the associated project is added to the timesheet sheet when clicked the "
-"button."
+"If selected, the associated project is added to the timesheet sheet when clicked the button."
 msgstr ""
-"Si cette option est sélectionnée, le projet associé est ajouté à la feuille de temps "
-"lorsque l'on clique sur le bouton."
+"Si cette option est sélectionnée, le projet associé est ajouté à la feuille de temps lorsque "
+"l'on clique sur le bouton."
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__planned_hours
@@ -261,11 +244,16 @@ msgstr "Budget restant:"
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.carpentry_planning_kanban
 msgid ""
-"Remaining hours and performance. Legend: (Black) not started; (Normal) started; "
-"(Red) Overrun; (Green) Finished before planned hours"
+"Remaining hours and performance. Legend: (Black) not started; (Normal) started; (Red) Overrun; "
+"(Green) Finished before planned hours"
 msgstr ""
-"Heures prévues et performance. Légende : (Noir) pas démarré; (Normal) démarré ; "
-"(Rouge) dépassement ; (Vert) terminé dans le budget"
+"Heures prévues et performance. Légende : (Noir) pas démarré; (Normal) démarré ; (Rouge) "
+"dépassement ; (Vert) terminé dans le budget"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_kanban
+msgid "Remaining time"
+msgstr "Temps restant"
 
 #. module: carpentry_timesheet
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_project_task__progress_reviewed
@@ -322,6 +310,11 @@ msgstr "Avancement"
 #: model:ir.model.fields,field_description:carpentry_timesheet.field_carpentry_planning_card__task_remaining_hours
 msgid "Task Remaining Hours"
 msgstr "Heures restantes"
+
+#. module: carpentry_timesheet
+#: model_terms:ir.ui.view,arch_db:carpentry_timesheet.view_task_kanban
+msgid "Task done"
+msgstr "Tâche terminée"
 
 #. module: carpentry_timesheet
 #: model_terms:ir.ui.view,arch_db:carpentry_timesheet.hr_timesheet_report_search

@@ -31,9 +31,13 @@
         <field name="inherit_id" ref="hr_timesheet.view_task_kanban_inherited_progress" />
 
         <field name="arch" type="xml">
+            <templates position="before">
+                <field name="progress_reviewed" />
+            </templates>
+
             <t name="planned_hours" position="replace">
                 <t name="planned_hours"
-                    t-if="record.planned_hours.raw_value &gt; 0 or record.progress.raw_value"
+                    t-if="record.planned_hours.raw_value &gt; 0 or record.progress_reviewed.raw_value"
                     groups="hr_timesheet.group_hr_timesheet_user"
                 >
                     <!-- Modify `planned_hours` widget logic:
@@ -43,15 +47,12 @@
                     -->
                     <t t-set="badge" t-value="'border-success'" />
                     <t t-set="badge" t-value="'border-warning'"
-                        t-if="record.progress.raw_value &gt; 0" />
+                        t-if="record.progress_reviewed.raw_value &gt; 0" />
                     <t t-set="badge" t-value="'border-danger'"
                         t-if="record.remaining_hours.raw_value &lt; 0" />
-
-                    <div t-attf-class="oe_kanban_align badge {{ badge }}"
-                        t-att-title="record.encode_uom_in_days.raw_value ? 'Remaining days' : 'Remaining hours'"
-                    >
-                        <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h <!--
-                        widget="timesheet_uom" ??? -->
+                    
+                    <div t-attf-class="oe_kanban_align badge {{ badge }}" title="Remaining time">
+                        <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h
                     </div>
 
                     <!-- Add `performance` widget -->
@@ -62,7 +63,12 @@
                         t-attf-class="oe_kanban_align badge {{ badge }}" title="Performance">
                         <t t-esc="'+'" t-if="record.performance.raw_value &gt; 0" />
                         <field
-                            name="performance" digits="[2,0]" />% </div>
+                            name="performance" digits="[2,0]" />%
+                    </div>
+                    <!-- Add *done* card status -->
+                    <em class="fa fa-check text-success" t-if="record.progress_reviewed.raw_value == 100"
+                        title="Task done"
+                    />
                 </t>
             </t>
         </field>
@@ -216,6 +222,11 @@
                     sum_field="planned_hours"
                 />
             </progressbar>
+
+            <!-- Replace Kanban state by status -->
+            <field name="kanban_state" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
         </field>
     </record>
     <!-- Form tasks quick-create (kanban)
