@@ -116,14 +116,14 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _compute_affectation_ids(self):
         """ Refresh budget matrix and auto-reservation when:
             - (un)selecting launches
-            - (un)selecting budget analytic in order lines
+            - (un)selecting budget analytic in section lines
         """
-        for order in self:
-            vals_list = order._get_affectation_ids_vals_list(temp=False)
+        for section in self:
+            vals_list = section._get_affectation_ids_vals_list(temp=False)
 
-            if order._has_real_affectation_matrix_changed(vals_list):
-                order.affectation_ids = order._get_affectation_ids(vals_list) # create empty matrix
-                order._auto_update_budget_distribution() # fills in
+            if section._has_real_affectation_matrix_changed(vals_list):
+                section.affectation_ids = section._get_affectation_ids(vals_list) # create empty matrix
+                section._auto_update_budget_distribution() # fills in
 
     #====== Affectation mixin methods ======#
     def _get_record_refs(self):

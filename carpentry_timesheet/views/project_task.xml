@@ -23,7 +23,8 @@
 
 
     <!-- BASE TASK VIEWS (modified) -->
-    <!-- Task Kanban (view) -> **all** tasks, alter `planned_hours` widget and add `performance` widget -->
+    <!-- Task Kanban (view) -> **all** tasks, alter `planned_hours` widget and add `performance`
+    widget -->
     <record id="view_task_kanban" model="ir.ui.view">
         <field name="name">project.task.timesheet.kanban.carpentry</field>
         <field name="model">project.task</field>
@@ -40,23 +41,28 @@
                         * `warning` (orange): timesheets started on the task (native: progress in [80%-100%])
                         * `danger` (red): no more remaining hours (same)
                     -->
-                    <t t-set="badge" t-value="'border-success'"/>
-                    <t t-set="badge" t-value="'border-warning'" t-if="record.progress.raw_value &gt; 0"/>
-                    <t t-set="badge" t-value="'border-danger'" t-if="record.remaining_hours.raw_value &lt; 0"/>
-                    
+                    <t t-set="badge" t-value="'border-success'" />
+                    <t t-set="badge" t-value="'border-warning'"
+                        t-if="record.progress.raw_value &gt; 0" />
+                    <t t-set="badge" t-value="'border-danger'"
+                        t-if="record.remaining_hours.raw_value &lt; 0" />
+
                     <div t-attf-class="oe_kanban_align badge {{ badge }}"
                         t-att-title="record.encode_uom_in_days.raw_value ? 'Remaining days' : 'Remaining hours'"
                     >
-                        <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h <!-- widget="timesheet_uom" ??? -->
+                        <field name="remaining_hours" widget="timesheet_uom" digits="[10,0]" />h <!--
+                        widget="timesheet_uom" ??? -->
                     </div>
-                    
+
                     <!-- Add `performance` widget -->
                     <t t-set="badge" t-value="'border-danger'" />
-                    <t t-set="badge" t-value="'border-success'" t-if="record.performance.raw_value &gt; 0"/>
-                    <div t-if="record.performance.raw_value" t-attf-class="oe_kanban_align badge {{ badge }}" title="Performance">
-                        <t t-esc="'+'" t-if="record.performance.raw_value &gt; 0"/>
-                        <field name="performance" digits="[2,0]" />%
-                    </div>
+                    <t t-set="badge" t-value="'border-success'"
+                        t-if="record.performance.raw_value &gt; 0" />
+                    <div t-if="record.performance.raw_value"
+                        t-attf-class="oe_kanban_align badge {{ badge }}" title="Performance">
+                        <t t-esc="'+'" t-if="record.performance.raw_value &gt; 0" />
+                        <field
+                            name="performance" digits="[2,0]" />% </div>
                 </t>
             </t>
         </field>
@@ -84,26 +90,26 @@
             <div name="button_box" position="after">
                 <field name="amount_budgetable" invisible="1" />
                 <field name="amount_gain" invisible="1" />
-                <field name="hide_affectations" invisible="1" />
+                <field name="readonly_affectation" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': ['|', '|',
+                    attrs="{'invisible': ['|', '|', '|',
                         ('amount_gain', '=', 0.0),
                         ('allow_timesheets', '=', False),
-                        ('hide_affectations', '=', True)]}"
+                        ('launch_ids', '=', []),
+                        ('readonly_affectation', '=', True)
+                    ]}"
                 >
-                    <span class="fa fa-info-circle" />
-                    The budget reservation
-                    (<strong><field name="sum_quantity_affected" />h</strong>)
-                    differs from the allocated hours
-                    (<strong><field name="amount_budgetable" />h</strong>).
-                    If this is not on purpose, review the "Budget reservation" tab.
-                </div>
+                    <span class="fa fa-info-circle" /> The budget reservation (<strong><field
+                            name="sum_quantity_affected" />h</strong>) differs from the allocated
+                    hours (<strong><field name="amount_budgetable" />h</strong>). If this is not on
+                    purpose, review the "Budget reservation" tab. </div>
             </div>
 
             <!-- Launch ids -->
             <field name="project_id" position="after">
-                <field name="launch_ids" widget="many2many_tags" attrs="{
+                <field name="launch_ids" widget="many2many_tags"
+                    attrs="{
                     'invisible': [('allow_timesheets', '=', False)]
                 }" />
             </field>
@@ -112,6 +118,22 @@
             <field name="analytic_account_id" position="before">
                 <field name="allow_timesheets" widget="boolean_toggle" />
             </field>
+
+            <!-- Timesheets page -->
+            <page name="description_page" position="before">
+                <page id="timesheets_tab" position="move" />
+            </page>
+
+            <!-- `Must-save` banner at top of timesheets page, if needed -->
+            <xpath expr="//page[@id='timesheets_tab']/group" position="before">
+                <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
+                    attrs="{'invisible': ['|', '|',
+                        ('readonly_affectation', '=', False),
+                        ('id', '=', False),
+                        ('launch_ids', '=', [])]}"
+                >
+                    <span class="fa fa-floppy-o" /> Please save before continuing. </div>
+            </xpath>
 
             <!-- Make `planned_hours` required (depending context `default_planned_hours_required`) -->
             <field name="planned_hours" position="before">
@@ -129,36 +151,40 @@
                 <attribute name="invisible">1</attribute>
             </field>
 
+            <!-- Replace `available_budget` by `affectation_ids` if several launchs -->
+            <field name="available_budget" position="attributes">
+                <attribute name="attrs">{'invisible': [('launch_ids', '!=', [])]}</attribute>
+            </field>
+
+            <!-- Hide `timesheet_ids` if new -->
+            <field name="timesheet_ids" position="attributes">
+                <attribute name="attrs">{'invisible': ['|',
+                    ('analytic_account_active', '=', False),
+                    ('timesheet_ids', '=', [])
+                ]}</attribute>
+            </field>
+            <group name="project_hours" position="attributes">
+                <attribute name="attrs">{'invisible': [('timesheet_ids', '=', [])]}</attribute>
+            </group>
+
             <!-- Add budget reservation matrix below timesheets -->
-            <xpath expr="//page[@id='timesheets_tab']/group" position="before">
-                <!-- `Must-save` banner at top of timesheets page, if needed -->
-                <field name="readonly_affectation" invisible="1" />
-                <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
-                    attrs="{'invisible': ['|', '|',
-                        ('readonly_affectation', '=', False),
-                        ('id', '=', False),
-                        ('hide_affectations', '=', True)]}"
-                >
-                    <span class="fa fa-floppy-o" />
-                    Please save before continuing.
-                </div>
-            </xpath>
-            <page id="timesheets_tab" position="inside">
-                <label for="affectation_ids" string="Budget reservation"
-                    attrs="{'invisible': ['|', ('affectation_ids', '=', []), ('hide_affectations', '=', True)]}"
-                />
+            <field name="timesheet_ids" position="after">
+                <h4 class="mt-4" attrs="{'invisible': [('launch_ids', '=', [])]}">
+                    Budget reservation
+                </h4>
                 <field name="affectation_ids"
                     nolabel="1" colspan="2"
                     options="{'create': 0}" widget="one2many"
                     attrs="{
-                        'invisible': ['|', ('affectation_ids', '=', []), ('hide_affectations', '=', True)],
+                        'invisible': [('launch_ids', '=', [])],
                         'readonly': [('readonly_affectation', '=', True)]
-                    }" context="{
+                    }"
+                    context="{
                         'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',
                         'brut_or_valued': 'brut',
                     }"
                 />
-            </page>
+            </field>
         </field>
     </record>
 
@@ -175,7 +201,8 @@
         <field name="arch" type="xml">
             <kanban position="attributes">
                 <attribute name="default_group_by">analytic_account_id</attribute>
-                <attribute name="quick_create_view">carpentry_timesheet.quick_create_task_form_timesheet</attribute>
+                <attribute name="quick_create_view">
+                    carpentry_timesheet.quick_create_task_form_timesheet</attribute>
                 <attribute name="group_create">False</attribute>
                 <attribute name="group_edit">False</attribute>
                 <attribute name="group_delete">False</attribute>
@@ -199,16 +226,16 @@
         <field name="name">project.task.form.quick_create.carpentry.timesheet</field>
         <field name="model">project.task</field>
         <field name="priority">10000</field>
-        
+
         <field name="arch" type="xml">
             <form class="o_form_project_tasks">
-                <field name="company_id" invisible="1"/>
+                <field name="company_id" invisible="1" />
                 <field name="root_type_id" invisible="1" />
                 <field name="parent_type_id" invisible="1" />
                 <field name="type_id" invisible="1" />
                 <field name="analytic_account_id" invisible="1" />
                 <field name="parent_id" invisible="1" />
-                <field name="description" invisible="1"/>
+                <field name="description" invisible="1" />
                 <field name="allow_timesheets" invisible="1" />
                 <field name="planned_hours_required" invisible="1" />
                 <field name="priority" invisible="1" />
@@ -239,16 +266,12 @@
                         placeholder="Planned hours"
                         attrs="{'required': [('planned_hours_required', '=', True)]}"
                     />
-                    <div colspan="2">
-                        Remaining budget: 
-                        <field name="available_budget"
+                    <div colspan="2"> Remaining budget: <field name="available_budget"
                             nolabel="1"
                             class="oe_inline"
                             decoration-bf="available_budget &lt; 0"
                             decoration-danger="available_budget &lt; 0"
-                        />
-                        h
-                    </div>
+                        /> h </div>
 
                     <label for="user_ids" colspan="2" class="my-0" />
                     <field name="user_ids" widget="many2many_tags" nolabel="1" colspan="2" />

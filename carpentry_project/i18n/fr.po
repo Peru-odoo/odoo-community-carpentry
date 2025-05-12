@@ -27,7 +27,7 @@ msgstr " (copie)"
 #. module: carpentry_project
 #: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_tree2
 msgid "Click to close the task"
-msgstr "Cliquez pour fermer la tâche"
+msgstr "Cliquez pour terminer la tâche"
 
 #. module: carpentry_project
 #: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_form2
@@ -37,7 +37,7 @@ msgstr "Cliquez pour marquer comme fait"
 #. module: carpentry_project
 #: model_terms:ir.ui.view,arch_db:carpentry_project.view_task_form2
 msgid "Close"
-msgstr "Fermer"
+msgstr "Terminer"
 
 #. module: carpentry_project
 #: model:ir.model.fields,help:carpentry_project.field_project_project__project_template_id

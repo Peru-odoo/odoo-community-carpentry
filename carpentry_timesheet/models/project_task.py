@@ -26,7 +26,6 @@ class Task(models.Model):
         help='For budget & times distribution and follow-up per launch on the planning',
     )
     affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    hide_affectations = fields.Boolean(compute='_compute_hide_affectations')
 
     # -- Planning --
     progress_reviewed = fields.Float(
@@ -90,6 +89,10 @@ class Task(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['analytic_account_id', 'planned_hours']
 
+    def _has_real_affectation_matrix_changed(self, _):
+        """ Override so that any changes of `planned_hours` updates affectation table """
+        return True
+
     @api.onchange('planned_hours')
     def _set_readonly_affectation(self):
         """ Modifying `planned_hours` re-computes automatically
@@ -117,19 +120,12 @@ class Task(models.Model):
         """ :return: Dict like {analytic_id: charged amount} """
         self.ensure_one()
 
-        return {
+        res = {
             task.analytic_account_id.id: task.planned_hours
             for task in self.filtered('analytic_account_id')
         }
-
-    @api.depends('affectation_ids', 'launch_ids')
-    def _compute_hide_affectations(self):
-        """ Remove the possibility of manual modification of budget reservation
-            to simplify user-experience when the budget reservation does not need
-            to be spread across several launches 
-        """
-        for task in self:
-            task.hide_affectations = len(task.launch_ids) <= 1 or len(task.affectation_ids) <= 1
+        print('res', res)
+        return res
 
     #====== Compute amount ======#
     @api.depends('planned_hours')
