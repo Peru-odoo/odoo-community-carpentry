@@ -57,7 +57,8 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     # imported data
     product_ids = fields.One2many(comodel_name='product.product', store=False, readonly=True)
-    supplierinfo_ids = fields.One2many(comodel_name='product.supplierinfo', store=False, readonly=True)
+    # ALY, 2025-05-15 : don't import price from Orgadata
+    # supplierinfo_ids = fields.One2many(comodel_name='product.supplierinfo', store=False, readonly=True)
 
     # report
     move_raw_ids = fields.One2many(related='production_id.move_raw_ids')
@@ -285,22 +286,24 @@ class CarpentryMrpImportWizard(models.TransientModel):
         """ Update products prices (first)
             and add product materials as MO's components
         """
-        supplierinfo_vals_list, component_vals_list = [], []
+        component_vals_list = []
+        # supplierinfo_vals_list, component_vals_list = [], []
         for product in self.product_ids:
             data = mapped_components.get(product.default_code)
             if not data:
                 continue
         
+            # ALY, 2025-05-15 : don't import price from Orgadata
             # Update product price
-            if data.get('price') or data.get('discount'):
-                supplierinfo_vals_list.append({
-                    'product_id': product.id,
-                    'product_tmpl_id': product.product_tmpl_id.id,
-                    'partner_id': product.preferred_supplier_id.id,
-                    'price': data.get('price'),
-                    'discount': data.get('discount'),
-                    'sequence': max(product.seller_ids.mapped('sequence') + [0]) + 1,
-                })
+            # if data.get('price') or data.get('discount'):
+            #     supplierinfo_vals_list.append({
+            #         'product_id': product.id,
+            #         'product_tmpl_id': product.product_tmpl_id.id,
+            #         'partner_id': product.preferred_supplier_id.id,
+            #         'price': data.get('price'),
+            #         'discount': data.get('discount'),
+            #         'sequence': max(product.seller_ids.mapped('sequence') + [0]) + 1,
+            #     })
 
             # Create need (reservation)
             component_vals_list.append(Command.create(
@@ -316,9 +319,10 @@ class CarpentryMrpImportWizard(models.TransientModel):
                 })
             )
         
-        if supplierinfo_vals_list:
-            _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
-            self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
+        # ALY, 2025-05-15 : don't import price from Orgadata
+        # if supplierinfo_vals_list:
+        #     _logger.info(f'[_import_components] supplierinfo_vals_list: {supplierinfo_vals_list}')
+        #     self.supplierinfo_ids = self.env['product.supplierinfo'].sudo().create(supplierinfo_vals_list)
 
         if component_vals_list:
             _logger.info(f'[_import_components] component_vals_list: {component_vals_list}')

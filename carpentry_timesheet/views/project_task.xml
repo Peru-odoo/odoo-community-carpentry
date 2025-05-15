@@ -163,7 +163,7 @@
             </field>
 
             <!-- Hide `timesheet_ids` if new -->
-            <field name="timesheet_ids" position="attributes">
+            <!-- <field name="timesheet_ids" position="attributes">
                 <attribute name="attrs">{'invisible': ['|',
                     ('analytic_account_active', '=', False),
                     ('timesheet_ids', '=', [])
@@ -171,10 +171,10 @@
             </field>
             <group name="project_hours" position="attributes">
                 <attribute name="attrs">{'invisible': [('timesheet_ids', '=', [])]}</attribute>
-            </group>
+            </group> -->
 
             <!-- Add budget reservation matrix below timesheets -->
-            <field name="timesheet_ids" position="after">
+            <group name="project_hours" position="after">
                 <h4 class="mt-4" attrs="{'invisible': [('launch_ids', '=', [])]}">
                     Budget reservation
                 </h4>
@@ -190,7 +190,7 @@
                         'brut_or_valued': 'brut',
                     }"
                 />
-            </field>
+            </group>
         </field>
     </record>
 
