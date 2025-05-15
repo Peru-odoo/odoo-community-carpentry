@@ -68,6 +68,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         records = super().create(vals_list)
         records._compute_affectation_ids()
+        records.readonly_affectation = False
         return records
 
     def write(self, vals):
