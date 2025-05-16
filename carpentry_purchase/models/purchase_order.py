@@ -8,6 +8,19 @@ class PurchaseOrder(models.Model):
     _inherit = ['purchase.order', 'project.default.mixin']
     _rec_name = 'display_name'
 
+    #====== Fields' methods ======#
+    def name_get(self):
+        """ Force to follow `_compute_display_name`
+            required because of `section_ref` field in `carpentry.budget.remaining`
+        """
+        if not self._context.get('display_description'):
+            return super().name_get()
+        
+        return [
+            (po.id, "[{}] {}" . format(po.name, po.description))
+            for po in self
+        ]
+
     #====== Fields ======#
     project_id = fields.Many2one(
         # required on the view. Must not be in ORM because of replenishment (stock.warehouse.orderpoint)
