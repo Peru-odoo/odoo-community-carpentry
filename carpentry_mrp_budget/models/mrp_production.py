@@ -118,7 +118,12 @@ class ManufacturingOrder(models.Model):
                     continue
                 # qty in product.uom_id
                 qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
-                mapped_cost[analytic_id] += qty * move.sudo()._get_price_unit() * percentage / 100
+                unit_price = (
+                    move.product_id.standard_price
+                    if move.raw_material_production_id.state in ['confirm', 'progress', 'to_close']
+                    else move._get_price_unit()
+                )
+                mapped_cost[analytic_id] += qty * unit_price * percentage / 100
         
         # [STOPPED - ALY 2025-03-12] -> Workcenter budget reservation is
         #  now only manual for workcenter and 0,00h by default
