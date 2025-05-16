@@ -202,7 +202,7 @@
                 <field name="analytic_account_id" />
                 <field name="launch_id" />
                 <field name="section_model_name" />
-                <field name="section_ref" />
+                <field name="section_ref" context="{'display_description': 1}" />
                 <field name="quantity_affected" string="Budget reservation" sum="1" />
 
                 <button name="open_section_ref"
