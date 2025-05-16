@@ -62,8 +62,8 @@ msgstr ""
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__delivery_address_id
-msgid "Delivery address"
-msgstr "Adresse de livraison"
+msgid "Field site address"
+msgstr "Adresse du chantier"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,help:carpentry_purchase.field_project_project__delivery_address_id
