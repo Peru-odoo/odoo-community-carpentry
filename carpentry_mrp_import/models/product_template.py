@@ -10,10 +10,11 @@ class ProductTemplate(models.Model):
         readonly=False,
         domain="[('product_id', '=', product_variant_id)]",
     )
-    preferred_supplier_id = fields.Many2one(
-        comodel_name='res.partner',
-        compute='_compute_preferred_supplier',
-    )
+    # ALY - 2025-05-15
+    # preferred_supplier_id = fields.Many2one(
+    #     comodel_name='res.partner',
+    #     compute='_compute_preferred_supplier',
+    # )
     substitution_product_id = fields.Many2one(
         comodel_name='product.template',
         string='Substitution product',
@@ -48,12 +49,13 @@ class ProductTemplate(models.Model):
     #             template.product_variant_ids.substitution_ids = template.substitution_ids
     
     #===== Prefered supplier =====#
-    @api.depends('seller_ids')
-    def _compute_preferred_supplier(self):
-        """ Last supplier in supplierinfo, or company's (we need a default one) """
-        for product in self:
-            product.preferred_supplier_id = (
-                fields.first(product.seller_ids).partner_id
-                or self.env.company.partner_id
-            )
+    # ALY - 2025-05-15 : IMPROVE -> see product.product _select_seller()
+    # @api.depends('seller_ids')
+    # def _compute_preferred_supplier(self):
+    #     """ Last supplier in supplierinfo, or company's (we need a default one) """
+    #     for product in self:
+    #         product.preferred_supplier_id = (
+    #             fields.first(product.seller_ids).partner_id
+    #             or self.env.company.partner_id
+    #         )
     
