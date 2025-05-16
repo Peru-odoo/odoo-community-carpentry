@@ -104,6 +104,7 @@
                             <field name="budget_analytic_ids"
                                 nolabel="1" colspan="2"
                                 widget="many2many_checkboxes"
+                                options="{'always_reload': True}"
                                 context="{
                                     'analytic_display_budget': 1,
                                     'section_res_model': 'mrp.production',

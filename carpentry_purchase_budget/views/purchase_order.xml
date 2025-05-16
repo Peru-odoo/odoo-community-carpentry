@@ -81,6 +81,7 @@
                             <field name="budget_analytic_ids"
                                 widget="many2many_checkboxes"
                                 nolabel="1" colspan="2"
+                                options="{'always_reload': True}"
                                 attrs="{'readonly': [('amount_budgetable', '=', 0)]}"
                                 context="{
                                     'analytic_display_budget': 1,
