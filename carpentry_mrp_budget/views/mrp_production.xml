@@ -11,11 +11,17 @@
             <!-- Add `amount_gain` -->
             <field name="state" position="before">
                 <field name="amount_gain" invisible="1" />
+                <field name="amount_gain_workorders" invisible="1" />
                 <field name="currency_id" invisible="1" />
 
                 <field name="amount_budgetable" optional="hide" />
                 <field name="sum_quantity_affected" optional="hide" sum="1"
                     decoration-success="amount_gain &gt; 0" decoration-danger="amount_gain &lt; 0"
+                />
+                <field name="sum_quantity_affected_workorders" optional="hide" sum="1"
+                    widget="float_time"
+                    decoration-success="amount_gain_workorders &gt; 0"
+                    decoration-danger="amount_gain_workorders &lt; 0"
                 />
             </field>
         </field>
@@ -62,8 +68,9 @@
                 <field name="currency_id" invisible="1" />
                 <field name="amount_budgetable" invisible="1" />
                 <field name="amount_gain" invisible="1" />
+                <field name="difference_workorder_duration_budget" invisible="1" />
 
-                <div name="alert_banner" role="alert" class="alert alert-info"
+                <div name="alert_banner_workorder" role="alert" class="alert alert-info"
                     attrs="{'invisible': [('amount_gain', '=', 0.0)]}"
                 >
                     <span class="fa fa-info-circle" />
@@ -72,6 +79,16 @@
                     differs from the components cost affected to the project
                     (<strong><field name="amount_budgetable" /></strong>).
                     If this is not on purpose, review the "Budget (components)" tab.
+                </div>
+                <div name="alert_banner_operations" role="alert" class="alert alert-info"
+                    attrs="{'invisible': [('difference_workorder_duration_budget', '=', 0.0)]}"
+                >
+                    <span class="fa fa-info-circle" />
+                    The budget reservation of workorders
+                    (<strong><field name="sum_quantity_affected_workorders" widget="float_time" /> h:min</strong>)
+                    differs from the total expected duration for the production
+                    (<strong><field name="production_duration_hours_expected" widget="float_time" /> h:min</strong>).
+                    If this is not on purpose, review the "Budget (workorders)" and/or "Operations" tabs.
                 </div>
             </xpath>
 
@@ -94,7 +111,7 @@
                     >
                         <span class="fa fa-info-circle" />
                         Expense, gain and loss amounts are temporarly estimated and may vary when
-                        closing the Manufacturing Order, related to any variations in the valuation
+                        closing the Manufacturing Order, because of the variations in the valuation
                         of components costs.
                     </p>
                     
@@ -153,6 +170,25 @@
                 </page>
             </page>
 
+            <!-- Workorder : add total budget reservation below operations table -->
+            <page name="operations" position="inside">
+                <div name="budget_workorder" class="oe_right text-right">
+                    <div name="budget_workorder_total">
+                        Budget reservation total:
+                        <strong class="fs-4">
+                            <field name="sum_quantity_affected_workorders" widget="float_time" /> h:min
+                        </strong>
+                    </div>
+                    <div name="budget_workorder_difference"
+                        attrs="{'invisible': [('difference_workorder_duration_budget', '=', 0.0)]}"
+                    >
+                        Difference:
+                        <strong class="fs-4">
+                            <field name="difference_workorder_duration_budget" widget="float_time" /> h:min
+                        </strong>
+                    </div>
+                </div>
+            </page>
             <!-- Add `Budget (work orders)` notebook tab -->
             <page name="operations" position="after">
                 <page name="operations_budget" string="Budget (work orders)" attrs="{
@@ -175,13 +211,13 @@
                         <!-- Right: real affectations (budget reservation) -->
                         <group name="right" colspan="7" string="Reserve work order budget">
                             <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('affectation_ids_workorder', '!=', [])]}"
+                                attrs="{'invisible': [('affectation_ids_workorders', '!=', [])]}"
                             >
                                 Please select budget(s) and launch(es) for placing a reservation.
                             </div>
 
                             <p colspan="2"
-                                attrs="{'invisible': ['|', ('affectation_ids_workorder', '=', []), ('id', '=', False)]}"
+                                attrs="{'invisible': ['|', ('affectation_ids_workorders', '=', []), ('id', '=', False)]}"
                             >
                                 Total expected:
                                 <strong><field name="production_duration_hours_expected" class="oe_inline" widget="float_time" /> h</strong>.
@@ -189,10 +225,10 @@
                                 <strong><field name="production_real_duration_hours" class="oe_inline" widget="float_time" /> h</strong>.
                             </p>
                             
-                            <field name="affectation_ids_workorder"
+                            <field name="affectation_ids_workorders"
                                 nolabel="1" colspan="2"
                                 options="{'create': 0}" widget="one2many"
-                                attrs="{'invisible': [('affectation_ids_workorder', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
+                                attrs="{'invisible': [('affectation_ids_workorders', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{
                                     'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',
                                     'brut_or_valued': 'brut',

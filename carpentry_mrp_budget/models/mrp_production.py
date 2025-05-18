@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
+from odoo.tools import float_round
 from collections import defaultdict
 
 class ManufacturingOrder(models.Model):
@@ -15,7 +16,7 @@ class ManufacturingOrder(models.Model):
         inverse_name='section_id',
         domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['goods', 'project_global_cost'])]
     )
-    affectation_ids_workorder = fields.One2many(
+    affectation_ids_workorders = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='section_id',
         domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['production'])]
@@ -40,10 +41,21 @@ class ManufacturingOrder(models.Model):
     amount_budgetable = fields.Monetary(string='Total cost (components)')
     amount_gain = fields.Monetary(string='Gain (components)')
     sum_quantity_affected = fields.Float(
-        string='Amount of reserved budget (components)',
-        help='Sum of budget reservation (for components only)'
+        string='Budget (components)',
+        help='Sum of budget reservation for components only'
     )
     currency_id = fields.Many2one(related='project_id.currency_id')
+    sum_quantity_affected_workorders = fields.Float(
+        string='Budget (workorders)',
+        help='Sum of budget reservation in hours for workorders only',
+        compute='_compute_sum_quantity_affected_workorders'
+    )
+    difference_workorder_duration_budget = fields.Float(
+        compute='_compute_sum_quantity_affected_workorders'
+    )
+    amount_gain_workorders = fields.Monetary(
+        compute='_compute_sum_quantity_affected_workorders'
+    )
 
     #===== Affectations configuration =====#
     def _get_budget_types(self):
@@ -59,6 +71,22 @@ class ManufacturingOrder(models.Model):
         return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
 
     #===== Affectations: compute =====#
+    @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
+    def _compute_sum_quantity_affected_workorders(self):
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+        for mo in self:
+            mo.sum_quantity_affected_workorders = sum(mo.affectation_ids_workorders.mapped('quantity_affected'))
+            mo.difference_workorder_duration_budget = float_round(
+                mo.production_duration_hours_expected -
+                mo.sum_quantity_affected_workorders,
+                precision_digits = prec
+            )
+            mo.amount_gain_workorders = float_round(
+                mo.sum_quantity_affected_workorders -
+                mo.production_real_duration_hours,
+                precision_digits = prec
+            )
+
     @api.depends('move_raw_ids', 'move_raw_ids.product_id')
     def _compute_budget_analytic_ids(self):
         """ MO's budgets are updated automatically from:

@@ -106,7 +106,7 @@ msgid ""
 msgstr ""
 "<span class=\"fa fa-info-circle\"/>\n"
 "                        Les montants tels que la dépense, le gain et la perte sont temporairement estimés et peuvent varier jusqu'à\n"
-"                        la fermeture du transfert, en lien avec les changements possibles dans la valorisation des composants."
+"                        la clôture du transfert, du fait des changements possibles de valorisation des composants."
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form

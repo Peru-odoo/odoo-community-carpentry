@@ -11,4 +11,3 @@ class CarpentryGroupAffectation(models.Model):
             ('stock.picking', 'Pickings'),
             ('mrp.production', 'Manufacturing Orders')
         ]
-    
