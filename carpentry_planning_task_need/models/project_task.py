@@ -228,10 +228,6 @@ class Task(models.Model):
         return super()._fields_to_copy() | ['type_id', 'need_id']
 
     #===== Planning =====#
-    def _get_planning_domain(self):
-        """ Returns the domain to filter the records to be displayed in the planning view """
-        return []
-
     def _get_stage_id_default_need(self):
         domain = [('need_default', '=', True)]
         return fields.first(self.env['project.task.type'].search(domain))

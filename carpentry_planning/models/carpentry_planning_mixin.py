@@ -33,12 +33,13 @@ class CarpentryPlanningMixin(models.AbstractModel):
         compute='_compute_planning_card_color_int',
         string='Planning Card Color (number)',
     )
-
+    
     @api.model
     def _get_planning_domain(self):
-        """ Returns the domain to filter the records to be displayed in the planning view """
+        """ Returns the domain to filter the records to be displayed in the planning view
+            Also used in `carpentry.planning.column`.`read_group()`
+        """
         return []
-
     @api.model
     def _synch_mirroring_column_id(self, column_id):
         """ Must be overwritten for heriting model sourcing 2 columns or more,
