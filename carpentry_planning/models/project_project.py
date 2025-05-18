@@ -27,7 +27,7 @@ class Project(models.Model):
     )
 
     def open_planning_milestone_table(self):
-        project_id_ = self.env['project.default.mixin']._get_project_id()
+        project_id_ = self.id or self.env['project.default.mixin']._get_project_id()
         return {
             'type': 'ir.actions.act_window',
             'name': self.display_name,
