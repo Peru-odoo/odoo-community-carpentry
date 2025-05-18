@@ -70,7 +70,9 @@
         <field name="model">carpentry.budget.available</field>
         
         <field name="arch" type="xml">
-            <tree>
+            <tree action="open_position_budget" type="object"
+                create="0" import="0"
+            >
                 <field name="project_id" invisible="1" />
 
                 <field name="analytic_account_id" />
@@ -78,11 +80,6 @@
                 <field name="quantity_affected" optional="hide" sum="1" />
                 <field name="amount" />
                 <field name="subtotal" sum="1" />
-
-                <button name="open_position_budget"
-                    type="object"
-                    string="Add budget"
-                />
             </tree>
         </field>
     </record>
@@ -190,6 +187,8 @@
         
         <field name="arch" type="xml">
             <tree
+                action="open_section_ref" type="object"
+                import="0"
                 decoration-success="state == 'budget'"
                 decoration-danger="state == 'reservation'"
             >
