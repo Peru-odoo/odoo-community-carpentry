@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _
-from collections import defaultdict
 from odoo.tools import float_compare
 
 class StockMoveLine(models.Model):
@@ -12,6 +11,10 @@ class StockMoveLine(models.Model):
 class StockMove(models.Model):
     _name = 'stock.move'
     _inherit = ['stock.move', 'carpentry.planning.mixin']
+
+    # for planning
+    product_default_code = fields.Char(related='product_id.default_code')
+    product_name = fields.Char(related='product_id.name')
 
     #===== ORM methods =====#
     def _compute_display_name(self):
@@ -94,8 +97,8 @@ class StockMove(models.Model):
 
     #===== Planning =====#
     def _get_planning_domain(self):
-        """ Returns the domain to filter the records to be displayed in the planning view """
-        return [('state', 'in', ['waiting', 'confirmed', 'partially_available'])]
+        """ Filter the records displayed in the planning view """
+        return [('state', 'in', ['confirmed', 'partially_available'])]
     
     def action_open_planning_card(self):
         """ Opens conditionally the MO or the Picking """

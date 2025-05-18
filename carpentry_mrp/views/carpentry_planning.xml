@@ -7,23 +7,41 @@
         
         <field name="arch" type="xml">
             <templates position="before">
+                <field name="name" />
+                <field name="description" />
+                <field name="product_default_code" />
+                <field name="product_name" />
                 <field name="components_availability" />
                 <field name="product_uom_qty" />
                 <field name="availability" />
             </templates>
 
+            <t t-name="card_heading">
+                <!-- mrp.production -->
+                <t t-if="record.res_model.raw_value == 'mrp.production'">
+                    <strong t-esc="record.name.raw_value" />
+                    <div t-esc="record.description.raw_value || ''" />
+                </t>
+
+                <!-- stock.move -->
+                <t t-if="record.res_model.raw_value == 'stock.move'">
+                    <strong t-esc="record.product_default_code.raw_value" />
+                    <div t-esc="record.product_name.raw_value" />
+                </t>
+            </t>
+
             <t t-name="card_body" position="inside">
                 <!-- mrp.production -->
                 <t t-if="record.res_model.raw_value == 'mrp.production'">
                     <span t-attf-class="o_kanban_inline_block badge fs-6 fw-bold text-bg-{{record.planning_card_color_class.raw_value}}">
-                        <span t-out="record.components_availability.raw_value" />
+                        <span t-out="record.components_availability.raw_value || ''" />
                     </span>
                 </t>
 
                 <!-- stock.move -->
                 <t t-if="record.res_model.raw_value == 'stock.move'">
                     <span class="o_kanban_inline_block badge fs-6 fw-bold text-bg-danger">
-                        <span t-out="record.product_uom_qty.raw_value" /> / <span t-out="record.availability.raw_value" />
+                        <span t-out="record.availability.raw_value || 0" /> / <span t-out="record.product_uom_qty.raw_value || 0" />
                     </span>
                 </t>
             </t>

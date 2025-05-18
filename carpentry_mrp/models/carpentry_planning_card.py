@@ -23,12 +23,19 @@ class CarpentryPlanningCard(models.Model):
     )
     
     #===== Mirror fields =====#
+    name = fields.Char(compute='_compute_fields')
+    description = fields.Char(compute='_compute_fields')
+    product_default_code = fields.Char(compute='_compute_fields')
+    product_name = fields.Char(compute='_compute_fields')
     components_availability = fields.Char(compute='_compute_fields')
     product_uom_qty = fields.Float(compute='_compute_fields')
     availability = fields.Float(compute='_compute_fields')
     
     def _get_fields(self):
-        return super()._get_fields() + ['components_availability', 'product_uom_qty', 'availability']
+        return super()._get_fields() + [
+            'name', 'description', 'product_default_code', 'product_name',
+            'components_availability', 'product_uom_qty', 'availability'
+        ]
 
     #===== Compute =====#
     @api.model

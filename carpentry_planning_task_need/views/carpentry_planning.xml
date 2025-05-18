@@ -16,11 +16,11 @@
                 <field name="user_ids" />
             </templates>
 
-            <t name="display_name" position="before">
-                <div t-if="record.res_model.raw_value == 'project.task'"
-                    t-esc="record.type_name.raw_value"
-                    class="fw-bold"
-                />
+            <t t-name="card_heading">
+                <t t-if="record.res_model.raw_value == 'project.task'">
+                    <strong t-esc="record.type_name.raw_value" />
+                    <div t-esc="record.display_name.raw_value" />
+                </t>
             </t>
 
             <t t-name="card_body" position="inside">

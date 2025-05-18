@@ -8,16 +8,14 @@
         
         <field name="arch" type="xml">
             <sheet position="inside">
-                <div name="carpentry_planning" invisible="not context.get('carpentry_planning')">
-                
-                    <h4 name="linked_purchase">Linked purchases</h4>
-
-                    <field name="purchase_ids" context="{
-                        'default_project_id': project_id,
-                        'default_launch_ids': [id],
-                    }" />
-
-                </div>
+                <notebook name="carpentry_planning" invisible="not context.get('carpentry_planning')">
+                    <page name="linked_purchase" string="Purchase Orders">
+                        <field name="purchase_ids" context="{
+                            'default_project_id': project_id,
+                            'default_launch_ids': [id],
+                        }" />
+                    </page>
+                </notebook>
             </sheet>
         </field>
     </record>

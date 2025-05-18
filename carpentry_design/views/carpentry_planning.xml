@@ -11,6 +11,12 @@
                 <field name="week_visa_feedback" />
             </templates>
 
+            <t t-name="card_heading">
+                <t t-if="record.res_model.raw_value == 'carpentry.plan.release'">
+                    <strong t-esc="record.display_name.raw_value" />
+                </t>
+            </t>
+
             <t t-name="card_body" position="inside">
                 <t t-if="record.res_model.raw_value == 'carpentry.plan.release'">
                     <span title="Week Plan release" class="mx-0">
