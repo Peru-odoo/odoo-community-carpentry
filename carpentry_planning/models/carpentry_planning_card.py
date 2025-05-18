@@ -192,7 +192,7 @@ class CarpentryPlanningCard(models.Model):
         return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
     
     @api.model
-    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None, **search_read_kwargs):
+    def search(self, domain=None, offset=0, limit=None, order=None, **kwargs):
         """ Allow specific domain to filter the column's cards """
         # 1. Retrieve the column_id from the domain
         column_id_ = self._get_domain_part(domain, 'column_id')
@@ -201,11 +201,13 @@ class CarpentryPlanningCard(models.Model):
             return []
         
         # 2. Get the column's domain (if any) and add it to the current domain
-        column_domain = self.env[column.res_model]._get_planning_domain()
+        Model = self.env[column.res_model]
+        column_domain = Model._get_planning_domain()
         if column_domain:
             domain = expression.AND([domain, column_domain])
-        
-        return super().search_read(domain, fields, offset, limit, order, **search_read_kwargs)
+
+        # 3. Let possibility of custom filtering by original model
+        return super().search(domain, offset, limit, order, **kwargs)
     
     def _get_domain_part(self, domain, field):
         """ Search and return a tuple (i.e. `domain_part`) in a `domain`

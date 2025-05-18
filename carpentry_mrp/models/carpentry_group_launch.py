@@ -29,9 +29,8 @@ class CarpentryGroupLaunch(models.Model):
     )
     pending_move_ids = fields.One2many(
         string='Pending Stock Moves',
-        comodel_name='stock.move',
-        compute='_compute_move_ids',
-        readonly=True,
+        related='move_ids',
+        domain=[('state', 'in', ['waiting', 'partially_available'])]
     )
 
     #===== Compute =====#
@@ -42,7 +41,7 @@ class CarpentryGroupLaunch(models.Model):
         """
         for launch in self:
             launch.move_ids = launch.production_ids.move_raw_ids | launch.picking_ids.move_ids
-            launch.pending_move_ids = launch.move_ids.filtered(lambda x: x.state in ('waiting', 'confirmed', 'partially_available'))
+        
     def _search_move_ids(self, operator, value):
         """ Search `move_ids` from `production_ids` *OR* `picking_ids` """
         return ['|',
