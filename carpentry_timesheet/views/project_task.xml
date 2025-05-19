@@ -206,8 +206,7 @@
         <field name="arch" type="xml">
             <kanban position="attributes">
                 <attribute name="default_group_by">analytic_account_id</attribute>
-                <attribute name="quick_create_view">
-                    carpentry_timesheet.quick_create_task_form_timesheet</attribute>
+                <attribute name="quick_create_view">carpentry_timesheet.quick_create_task_form_timesheet</attribute>
                 <attribute name="group_create">False</attribute>
                 <attribute name="group_edit">False</attribute>
                 <attribute name="group_delete">False</attribute>
