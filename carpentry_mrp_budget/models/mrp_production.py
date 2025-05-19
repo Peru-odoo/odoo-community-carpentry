@@ -25,7 +25,6 @@ class ManufacturingOrder(models.Model):
         relation='carpentry_group_affectation_budget_mrp_analytic_rel',
         column1='production_id',
         column2='analytic_id',
-        inverse='', # cancel from mixin
         store=True,
         readonly=False,
     )
@@ -190,7 +189,6 @@ class ManufacturingOrder(models.Model):
                 sum(production._get_total_by_analytic().values())
             ))
     
-    @api.depends('affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self):
         """ [Overwritte] `sum_quantity_affected` and `gain` are for filtered for components only (goods), not workorder (hours) """
         budget_types = self._get_component_budget_types()

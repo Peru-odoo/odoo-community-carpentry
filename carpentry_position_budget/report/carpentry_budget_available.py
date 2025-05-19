@@ -224,8 +224,9 @@ class CarpentryBudgetAvailable(models.Model):
         return ''
     
     #===== Button =====#
-    def open_position_budget(self):
-        position_id_ = self.position_id.id
+    def open_position_budget(self, position_id=None):
+        """ Open document providing budget (position or project) """
+        position_id_ = position_id.id if position_id else self.position_id.id
 
         if not position_id_:
             return self.project_id.button_open_budget_lines()
@@ -234,5 +235,5 @@ class CarpentryBudgetAvailable(models.Model):
                 'carpentry_position_budget.action_open_position_budget_add'
             ) | {
                 'domain': [('position_id', '=', position_id_)],
-                'context': {'efault_position_id': position_id_},
+                'context': {'default_position_id': position_id_},
             }

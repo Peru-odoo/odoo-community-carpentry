@@ -65,7 +65,7 @@ class TestCarpentryPosition_Base(common.SingleTransactionCase):
     @classmethod
     def _clean_affectations(self, quick_affect=False):
         self.project.launch_ids.affectation_ids.unlink()
-        self.project.affectation_ids.unlink()
+        self.project.phase_ids.affectation_ids.unlink()
         if quick_affect:
             self._quick_affect_all()
     
@@ -235,7 +235,7 @@ class TestCarpentryPosition(TestCarpentryPosition_Base):
 
         # Modify a position's sequence: it should propagate to its affectation
         self.position.sequence = 20
-        affectations = self.project.affectation_ids.filtered(lambda x: x.position_id == self.position)
+        affectations = self.phase.affectation_ids.filtered(lambda x: x.position_id == self.position)
         self.assertEqual(set(affectations.sequence('section')), {20})
 
     def test_07_active(self):

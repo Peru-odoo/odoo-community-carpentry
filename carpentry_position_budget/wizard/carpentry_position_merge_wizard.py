@@ -2,9 +2,6 @@
 
 from odoo import models, fields, api, Command, exceptions, _
 
-from itertools import groupby
-from operator import itemgetter
-
 class PositionMerge(models.TransientModel):
     _name = "carpentry.position.merge.wizard"
     _description = "Position Merge"

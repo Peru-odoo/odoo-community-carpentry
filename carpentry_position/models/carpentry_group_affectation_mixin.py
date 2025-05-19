@@ -145,6 +145,14 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """
         self.ensure_one()
 
+    def _get_mapped_records_per_groups(self, record_refs, group_refs):
+        """ Called when generating 2d vals_list, allowing to filter
+            `record_refs` (e.g. launchs) as per a `group_ref` (e.g. analytic)
+            :return: {group_ref.id: record_refs}
+                if group_ref is not found, the column will contain all record_refs
+        """
+        return {}
+
     def _get_affect_vals(self, mapped_model_ids, record_ref, group_ref, affectation=False):
         """ Generates 1 cell's vals of `affectation` or `affectation.temp`
             Used in both way (compute `temp` and inverse to *real*)
@@ -292,10 +300,12 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             self._clean_real_affectations(group_refs, record_refs)
 
         # Generate new x2m_2d_matrix
+        mapped_records_per_groups = self._get_mapped_records_per_groups(record_refs, group_refs)
         mapped_real_ids = self._get_mapped_real_ids()
         vals_list = []
         for group_ref in group_refs:
-            for record_ref in record_refs:
+            record_refs_filtered = mapped_records_per_groups.get(group_ref.id, record_refs)
+            for record_ref in record_refs_filtered:
                 vals = self._add_matrix_cell(group_ref, record_ref, mapped_real_ids, mapped_model_ids, temp)
                 vals_list.append(vals)
         return vals_list
@@ -556,16 +566,13 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         quantities = defaultdict(int)
         
         for affectation in self.affectation_ids:
-            nested = affectation.record_id != affectation.position_id.id
-            
             # sum position's affected qty to the group
             key = frozenset({
                 'group_id': affectation.group_id,
                 'position_id': affectation.position_id.id
             }.items())
 
-            field_qty = 'quantity_affected_parent' if nested else 'quantity_affected'
-            quantities[key] += affectation[field_qty]
+            quantities[key] += affectation['quantity_affected']
         
         return quantities
 

@@ -15,6 +15,12 @@ class CarpentryGroupAffectation(models.Model):
             ('project.project', 'Project'),
         ]
     
+    def _selection_group_res_model(self):
+        """ Budget balance are `section_ref` """
+        return super()._selection_group_res_model() + [
+            ('carpentry.budget.balance', 'Budget balance')
+        ]
+    
     #===== Fields =====#
     budget_unit = fields.Char(compute='_compute_budget_unit_type', compute_sudo=True)
     budget_type = fields.Selection(

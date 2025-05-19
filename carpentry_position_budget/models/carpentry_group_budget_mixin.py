@@ -53,20 +53,23 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
             for x in budget_types
         ])
 
-    @api.depends(
-        # 1a. products template/variants price & dates
-        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids',
-        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
-        'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
-        # 1b. valuations of qties -> budget's dates
-        'project_id.budget_ids', 'project_id.budget_ids.date_from', 'project_id.budget_ids.date_to',
-        # 2. positions' budgets
-        'project_id.position_budget_ids',
-        'project_id.position_budget_ids.amount',
-        # 3. positions affectations
-        'affectation_ids',
-        'affectation_ids.quantity_affected'
-    )
+    def _compute_budget_fields(self):
+        return [
+            # 1a. products template/variants price & dates
+            'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids',
+            'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+            'project_id.position_budget_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
+            # 1b. valuations of qties -> budget's dates
+            'project_id.budget_ids', 'project_id.budget_ids.date_from', 'project_id.budget_ids.date_to',
+            # 2. positions' budgets
+            'project_id.position_budget_ids',
+            'project_id.position_budget_ids.amount',
+            # 3. positions affectations
+            'affectation_ids',
+            'affectation_ids.quantity_affected'
+        ]
+    
+    @api.depends(lambda self: self._compute_budget_fields())
     def _compute_budgets(self):
         if self._context.get('import_budget_no_compute'):
             return

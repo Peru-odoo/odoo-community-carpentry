@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, tools, _, api
+from odoo import models, fields, tools, _, api, exceptions
 from psycopg2.extensions import AsIs
 
 class CarpentryBudgetRemaining(models.Model):
@@ -58,11 +58,16 @@ class CarpentryBudgetRemaining(models.Model):
             	available.launch_id,
                 available.group_model_id,
 
-                -- section
-                available.group_model_id AS section_model_id,
+                -- section_model_id: carpentry.position or project.project
                 CASE
                     WHEN available.launch_id IS NOT NULL
-                    THEN 'carpentry.group.launch,' || available.launch_id
+                    THEN (SELECT id FROM ir_model WHERE model = 'carpentry.position')
+                    ELSE available.group_model_id -- project.project
+                END AS section_model_id,
+                -- section_ref: position or project
+                CASE
+                    WHEN available.launch_id IS NOT NULL
+                    THEN 'carpentry.position,' || available.position_id
                     ELSE 'project.project,' || available.project_id
                 END AS section_ref,
 
@@ -92,7 +97,7 @@ class CarpentryBudgetRemaining(models.Model):
                 
                 -- budget
                 affectation.group_id AS analytic_account_id,
-                -1 * affectation.quantity_affected,
+                -1 * affectation.quantity_affected AS quantity_affected,
                 affectation.budget_type
 
         """
@@ -139,14 +144,20 @@ class CarpentryBudgetRemaining(models.Model):
     
     #===== Buttons =====#
     def open_section_ref(self):
-        """ Opens a document reserving some budget """
+        """ Opens a document providing or reserving some budget """
         if not self.section_model_name:
             return
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': self.section_ref._description,
-            'res_model': self.section_ref._name,
-            'res_id': self.section_ref.id,
-            'view_mode': 'form',
-        }
+        if self.section_model_id.model in ('carpentry.position', 'project.project'):
+            # available budget
+            position_id = self.section_ref._name == 'carpentry.position' and self.section_ref
+            return self.open_position_budget(position_id)
+        else:
+            # budget reservation
+            return {
+                'type': 'ir.actions.act_window',
+                'name': self.section_ref._description,
+                'res_model': self.section_ref._name,
+                'res_id': self.section_ref.id,
+                'view_mode': 'form',
+            }

@@ -153,7 +153,7 @@ class Position(models.Model):
         return super().write(vals)
     
     #===== Compute =====#
-    @api.depends('quantity', 'project_id.affectation_ids.quantity_affected')
+    @api.depends('quantity', 'project_id.affectation_ids_project.quantity_affected')
     def _compute_quantities_and_state(self):
         # For a given position, get its quantity already affected in phases and launches
         sum_affected = {}

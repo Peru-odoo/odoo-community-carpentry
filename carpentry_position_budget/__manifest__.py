@@ -36,8 +36,11 @@
         'views/project_project.xml',
         'views/account_move_budget_line.xml',
         'views/carpentry_affectation_budget.xml',
+        'views/carpentry_budget_balance.xml',
         # report
-        'report/carpentry_budget_report.xml',
+        'report/carpentry_budget_available.xml',
+        'report/carpentry_budget_remaining.xml',
+        'report/carpentry_budget_project.xml',
     ],
     'assets': {
         'web.assets_backend': [

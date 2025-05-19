@@ -156,7 +156,7 @@
                             <field
                                 name="affectation_ids"
                                 nolabel="1" colspan="2"
-                                options="{'create': 0}"
+                                options="{'create': False}"
                                 widget="one2many"
                                 attrs="{'readonly': [('readonly_affectation', '=', True)]}"
                             />
@@ -232,7 +232,7 @@
                 <tree limit="200">
                     <field name="section_ref" string="Phase" />
                     <field name="position_id" decoration-bf="True" options="{'no_create': 1, 'no_open': 1}" />
-                    <field name="quantity_affected_parent" string="Quantity" digits="[10,0]" />
+                    <field name="quantity_affected" string="Quantity" digits="[10,0]" />
                 </tree>
             </field>
         </field>

@@ -7,7 +7,7 @@ class CarpentryGroupAffectation(models.Model):
 
     def _selection_section_res_model(self):
         """ Pickings & Manufacturing Orders are `section_ref` """
-        return self._selection_group_res_model() + [
+        return super()._selection_section_res_model() + [
             ('stock.picking', 'Pickings'),
             ('mrp.production', 'Manufacturing Orders')
         ]

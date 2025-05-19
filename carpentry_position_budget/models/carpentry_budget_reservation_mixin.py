@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _
-from odoo.osv import expression
+from odoo import models, fields, api, exceptions, _, Command
+from odoo.tools import float_round, float_is_zero
 from odoo.tools.safe_eval import safe_eval
+from odoo.osv import expression
 
 from collections import defaultdict
 from datetime import datetime
-from odoo.tools import float_round
 import calendar
 import math
 
@@ -32,7 +32,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         comodel_name='account.analytic.account',
         string='Budgets',
         compute='_compute_budget_analytic_ids',
-        inverse='_inverse_budget_analytic_ids',
     )
     amount_remaining = fields.Monetary(
         string='Budget',
@@ -101,7 +100,37 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     @api.onchange('launch_ids', 'budget_analytic_ids')
     def _set_readonly_affectation(self):
         """ Way to inform users the budget matrix must be re-computed """
-        self.sudo().readonly_affectation = True
+        self.readonly_affectation = True
+    
+    def _get_mapped_records_per_groups(self, launchs, analytics):
+        """ Filter which lines of budget reservation so we display only
+            *launch & budget* launch with available budget (initially)
+            => a.k.a. don't display a budget next to a launch if this launch never
+                had this budget
+            :return: {analytic.id: launchs}
+        """
+        if not launchs or not analytics:
+            return {}
+        
+        model = 'carpentry.group.launch'
+        self.env['carpentry.group.affectation'].flush_model(['group_id'])
+        self._cr.execute(f"""
+            SELECT
+                budget.analytic_account_id,
+                ARRAY_AGG(DISTINCT affectation.group_id) AS launch_ids
+            FROM
+                carpentry_group_affectation AS affectation
+            INNER JOIN
+                carpentry_position_budget AS budget
+                ON budget.position_id = affectation.position_id
+            WHERE
+                affectation.group_id IN %(launchs)s AND
+                affectation.group_model_id = (SELECT id FROM ir_model WHERE model = '{model}')
+            GROUP BY budget.analytic_account_id
+        """, {
+            'launchs': tuple(launchs.ids),
+        })
+        return {row[0]: launchs.browse(row[1]) for row in self._cr.fetchall()}
     
     def _get_affectation_ids_vals_list(self, temp, record_refs=None, group_refs=None):
         """ Appends *Global Budget* (on the *project*) to the matrix """
@@ -203,33 +232,24 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ To be inherited """
         self._set_readonly_affectation()
         self._compute_amount_remaining()
-    
-    def _inverse_budget_analytic_ids(self):
-        """ Manual budget choice => update line's analytic distribution """
-        for section in self:
-            replaced_ids = section.order_line.analytic_ids._origin.filtered('is_project_budget')
-            project_budgets = section.project_id._origin.budget_line_ids.analytic_account_id
-            new_budgets = section.budget_analytic_ids & project_budgets # in the PO lines and the project
-
-            nb_budgets = len(new_budgets)
-            new_distrib = {x.id: 100/nb_budgets for x in new_budgets}
-            
-            section.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
 
     #===== Business logics =====#
     def _auto_update_budget_distribution(self):
         """ Distribute line price (expenses) into budget reservation,
-             according to remaining budget
+             according to remaining budget((, and clean affectation
+             without remaining budget))
         """
         budget_distribution = self._get_auto_launch_budget_distribution()
+        print('budget_distribution', budget_distribution)
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
             auto_reservation = budget_distribution.get(key, None)
             if auto_reservation != None:
+                remaining = affectation.quantity_remaining_to_affect
                 affectation.quantity_affected = math.floor(
-                    min(auto_reservation, affectation.quantity_remaining_to_affect) * 100
+                    min(auto_reservation, remaining) * 100
                 ) / 100.0
-    
+        
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of a PO or MO, considering:
              - total real cost, per budget analytic (e.g. in the order_line or stock moves),
@@ -244,6 +264,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         self.ensure_one() # (!) `remaining_budget` must be computed per order
         total_by_analytic = self._get_total_by_analytic()
+        print('total_by_analytic', total_by_analytic)
         analytics = self.env['account.analytic.account'].sudo().browse(set(total_by_analytic.keys()))
         remaining_budget = analytics._get_remaining_budget(self.launch_ids, self._origin)
 
@@ -269,10 +290,14 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             # budget_distribution[key] = min(auto_reservation or 0.0, budget) # moved to previous method
         return budget_distribution
 
-    def _get_mapped_project_analytics(self):
+    def _get_mapped_project_analytics(self, domain_arg=[]):
+        domain = [('project_id', 'in', self.project_id.ids)]
+        if domain_arg:
+            domain = expression.AND([domain, domain_arg])
+        
         """ Get available budgets, per project """
         rg_result = self.env['account.move.budget.line'].read_group(
-            domain=[('project_id', 'in', self.project_id.ids)],
+            domain=domain,
             groupby=['project_id'],
             fields=['analytic_account_id:array_agg']
         )

@@ -161,7 +161,7 @@
                             
                             <field name="affectation_ids_components"
                                 nolabel="1" colspan="2"
-                                options="{'create': 0}" widget="one2many"
+                                options="{'create': False}" widget="one2many"
                                 attrs="{'invisible': [('affectation_ids_components', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
                             />
@@ -227,7 +227,7 @@
                             
                             <field name="affectation_ids_workorders"
                                 nolabel="1" colspan="2"
-                                options="{'create': 0}" widget="one2many"
+                                options="{'create': False}" widget="one2many"
                                 attrs="{'invisible': [('affectation_ids_workorders', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
                                 context="{
                                     'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',

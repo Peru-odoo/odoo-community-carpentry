@@ -36,14 +36,23 @@ class CarpentryGroupAffectation(models.Model):
     _inherit = ['carpentry.group.affectation']
 
     def write(self, vals):
-        """ When a phase's affectation `quantity_affected` is changed to 0,
-            *cascade-delete* the child(ren) launch-to-position affectations
+        """ When a phase's affectation `quantity_affected` is changed,
+            cascade the change to its children (position-to-launch affectation)
         """
         phase_affectations = self.filtered(lambda x: x.group_res_model == 'carpentry.group.phase')
-        if (
-            phase_affectations and
-            'quantity_affected' in vals and
-            vals['quantity_affected'] == 0.0
-        ):
-            self.affectation_ids.unlink()
+        if phase_affectations and 'quantity_affected' in vals:
+            phase_affectations._cascade_quantity_affected(vals['quantity_affected'])
         return super().write(vals)
+    
+    def _cascade_quantity_affected(self, quantity_affected):
+        """ `self` is `phase_affectations`
+
+            If `quantity_affected`...
+            a) is 0 -> delete the children affectations
+            b) else -> mirror the value, like a related field but mandatory
+                to have it in database for correct *available.budget* report
+        """
+        if not quantity_affected:
+            self.affectation_ids.unlink()
+        else:
+            self.affectation_ids.quantity_affected = self.quantity_affected

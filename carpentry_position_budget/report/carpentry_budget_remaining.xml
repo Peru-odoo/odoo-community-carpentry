@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Remaining budget (pre-select project before opening) -->
+    <record id="action_open_budget_report_remaining_srv" model="ir.actions.server">
+        <field name="name">Remaining</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_remaining')
+        </field>
+    </record>
+    <!-- Remaining budget (real action) -->
+    <record id="action_open_budget_report_remaining" model="ir.actions.act_window">
+        <field name="name">Remaining budget</field>
+        <field name="res_model">carpentry.budget.remaining</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="context">{'display_model_shortname': 1}</field>
+    </record>
+
+    <!-- Pivot -->
+    <record id="carpentry_budget_report_remaining_pivot" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.pivot</field>
+        <field name="model">carpentry.budget.remaining</field>
+
+        <field name="arch" type="xml">
+            <pivot disable_linking="0">
+                <field name="budget_type" type="col" />
+                <field name="analytic_account_id" type="col" />
+
+                <field name="group_model_id" type="row" />
+                <field name="launch_id" type="row" />
+                
+                <field name="quantity_affected" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Tree -->
+    <record id="carpentry_budget_report_remaining_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.tree</field>
+        <field name="model">carpentry.budget.remaining</field>
+        
+        <field name="arch" type="xml">
+            <tree
+                action="open_section_ref" type="object"
+                import="0" create="0" delete="0" 
+                decoration-success="state == 'budget'"
+                decoration-danger="state == 'reservation'"
+            >
+                <field name="project_id" invisible="1" />
+
+                <field name="state" widget="badge"
+                    decoration-success="state == 'budget'"
+                    decoration-danger="state == 'reservation'"
+                />
+                <field name="analytic_account_id" />
+                <field name="launch_id" />
+                <field name="section_model_name" />
+                <field name="section_ref" context="{'display_description': 1}" />
+                <field name="quantity_affected" string="Budget reservation" sum="1" />
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Search: `carpentry.budget.remaining` from common -->
+    <record id="carpentry_budget_report_remaining_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.search</field>
+        <field name="model">carpentry.budget.remaining</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="mode">primary</field>
+        <field name="priority">10</field>
+        
+        <field name="arch" type="xml">
+            <filter name="filter_project_global_cost" position="after">
+                <separator />
+                <filter string="Budget"      name="filter_budget"      domain="[('state', '=', 'budget')]" />
+                <filter string="Reservation" name="filter_reservation" domain="[('state', '=', 'reservation')]" />
+            </filter>
+        </field>
+    </record>
+
+</odoo>

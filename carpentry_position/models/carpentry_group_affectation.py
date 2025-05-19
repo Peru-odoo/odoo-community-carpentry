@@ -161,20 +161,15 @@ class CarpentryGroupAffectation(models.Model):
     )
     
     # Affected Quantity (when `record_ref` is a position), i.e. for Phases
-    # /!\ `quantity_available` is needed *here* for real-time correct value
-    # `quantity_affected_parent` is needed for nested/children affectations (i.e. launch)
     quantity_affected = fields.Float(
         string="Affected quantity",
         default=False,
         digits='Product Unit of Measure',
-        group_operator='sum'
-    )
-    quantity_affected_parent = fields.Float(
-        compute='_compute_quantity_affected_parent',
-        string='Quantity affected to parent group',
+        group_operator='sum',
     )
     quantity_available = fields.Float(
         # Position Quantity (for Phase) or Available budget (for PO, MO)
+        # /!\ `quantity_available` is needed *here* for real-time correct value
         string="Available",
         compute='_compute_quantity_available',
         group_operator='sum'
@@ -235,14 +230,6 @@ class CarpentryGroupAffectation(models.Model):
             affectation.section_ref = (
                 '%s,%s' % (affectation.section_res_model, affectation.section_id)
                 if affectation.section_id else False
-            )
-    
-    def _compute_quantity_affected_parent(self):
-        for affectation in self:
-            affectation.quantity_affected_parent = (
-                affectation.record_ref and
-                'quantity_affected' in affectation.record_ref
-                and affectation.record_ref.quantity_affected
             )
     
     @api.depends('record_id')

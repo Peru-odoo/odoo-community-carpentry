@@ -114,10 +114,9 @@
 
             <!-- Launch ids -->
             <field name="project_id" position="after">
-                <field name="launch_ids" widget="many2many_tags"
-                    attrs="{
-                    'invisible': [('allow_timesheets', '=', False)]
-                }" />
+                <field name="launch_ids" widget="many2many_tags" options="{'create': False}"
+                    attrs="{'invisible': [('allow_timesheets', '=', False)]}"
+                />
             </field>
 
             <!-- Allow (admin) user to manually choose on tasks if Timesheetable (page "other info") -->
@@ -180,7 +179,7 @@
                 </h4>
                 <field name="affectation_ids"
                     nolabel="1" colspan="2"
-                    options="{'create': 0}" widget="one2many"
+                    options="{'create': False}" widget="one2many"
                     attrs="{
                         'invisible': [('launch_ids', '=', [])],
                         'readonly': [('readonly_affectation', '=', True)]

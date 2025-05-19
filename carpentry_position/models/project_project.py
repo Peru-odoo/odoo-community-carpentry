@@ -38,10 +38,10 @@ class Project(models.Model):
     )
 
     # affectations
-    affectation_ids = fields.One2many(
+    affectation_ids_project = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='project_id',
-        string='Affectations'
+        string='All affectations'
     )
     affectation_ids_temp_phase = fields.One2many(
         comodel_name='carpentry.group.affectation.temp',
@@ -89,12 +89,12 @@ class Project(models.Model):
             project.position_count = mapped_qties.get(project.id, 0)
 
     # Temp<->real affectation logics
-    @api.depends('affectation_ids')
+    @api.depends('affectation_ids_project')
     def _compute_affectation_ids_temp_phase(self):
         for project in self:
             matrix = project.phase_ids._get_affectation_ids_temp()
             project.affectation_ids_temp_phase = matrix
-    @api.depends('affectation_ids')
+    @api.depends('affectation_ids_project')
     def _compute_affectation_ids_temp_launch(self):
         for project in self:
             matrix = project.launch_ids._get_affectation_ids_temp()

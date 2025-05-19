@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action project budget balance -->
+    <record id="action_open_budget_balance_srv" model="ir.actions.server">
+        <field name="name">Balance remaining budget</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_balance')
+        </field>
+    </record>
+    <!-- Real action -->
+    <record id="action_open_budget_balance" model="ir.actions.act_window">
+        <field name="name">Balance remaining budget</field>
+        <field name="res_model">carpentry.budget.balance</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Remaining budget : balance (tree) -->
+    <record id="view_carpentry_budget_balance_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.balance.tree</field>
+        <field name="model">carpentry.budget.balance</field>
+
+        <field name="arch" type="xml">
+            <tree>
+                <field name="project_id" invisible="context.get('default_project_id')" />
+                <field name="name" />
+                <field name="launch_ids" widget="many2many_tags" />
+                <field name="sum_quantity_affected" />
+                <field name="write_uid" widget="many2one_avatar_user" />
+                <field name="write_date" widget="date" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Remaining budget : balance (form) -->
+    <record id="view_carpentry_budget_balance_form" model="ir.ui.view">
+        <field name="name">carpentry.budget.balance.form</field>
+        <field name="model">carpentry.budget.balance</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="project_id_domain" invisible="1" />
+
+                <sheet>
+                    <!-- Project -->
+                    <group>
+                        <field name="project_id" class="w-100" force_save="1"
+                            attrs="{'readonly': [('project_id', '!=', False)]}"
+                        />
+                    </group>
+
+                    <!-- Title -->
+                    <div class="oe_title">
+                        <label for="name" />
+                        <h1>
+                            <field name="name" class="w-100" required="1" />
+                        </h1>
+                    </div>
+                    
+                    <!-- Must-save banner -->
+                    <field name="readonly_affectation" invisible="1" />
+                    <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
+                        attrs="{'invisible': [('readonly_affectation', '=', False)]}"
+                    >
+                        <span class="fa fa-floppy-o" />
+                        Please save before continuing.
+                    </div>
+
+                    <!-- 2-columns launches & reservation -->
+                    <group col="12" attrs="{'invisible': [('id', '=', False)]}">
+                        <group name="left" colspan="5" string="Choose launches">
+                            <field name="launch_ids" widget="many2many_checkboxes" nolabel="1" colspan="2" />
+                        </group>
+                        
+                        <!-- Right: real affectations (budget reservation) -->
+                        <group name="right" colspan="7" string="Reserve budget">
+                            <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
+                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
+                            >
+                                No budgets to balance.
+                            </div>
+                            
+                            <field name="affectation_ids"
+                                nolabel="1" colspan="2"
+                                options="{'create': False}" widget="one2many"
+                                attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
+                                context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
+                            />
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

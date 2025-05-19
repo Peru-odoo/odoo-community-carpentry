@@ -36,6 +36,15 @@ class Project(models.Model):
         return super()._get_warning_banner() | self.position_warning_name
     
     #===== Compute: budget sums =====#
+    def _compute_budget_fields(self):
+        """ Replace `affectation_ids` by `affectation_ids_project` """
+        return [
+            field for field in super()._compute_budget_fields()
+            if not field.startswith('affectation_ids')
+        ] + [
+            'affectation_ids_project', 'affectation_ids_project.quantity_affected'
+        ]
+
     def _get_quantities(self):
         """ Called from `_get_budgets_brut_valued()` of mixin `carpentry.group.budget.mixin` """
         quantities = {}
