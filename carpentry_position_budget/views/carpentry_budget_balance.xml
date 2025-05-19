@@ -26,9 +26,9 @@
                 <field name="project_id" invisible="context.get('default_project_id')" />
                 <field name="name" />
                 <field name="launch_ids" widget="many2many_tags" />
-                <field name="sum_quantity_affected" />
                 <field name="write_uid" widget="many2one_avatar_user" />
                 <field name="write_date" widget="date" />
+                <field name="sum_quantity_affected" sum="1" />
             </tree>
         </field>
     </record>

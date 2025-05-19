@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-19 11:34+0000\n"
-"PO-Revision-Date: 2025-05-19 13:36+0200\n"
+"POT-Creation-Date: 2025-05-19 13:31+0000\n"
+"PO-Revision-Date: 2025-05-19 15:32+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -111,6 +111,10 @@ msgstr "Montant de la perte"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__sum_quantity_affected
+msgid "Amount of balanced budget"
+msgstr "Montant budget réservé"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__sum_quantity_affected
 msgid "Amount of reserved budget"
 msgstr "Montant budget réservé"
@@ -183,7 +187,7 @@ msgstr ""
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_balance
 msgid "Budget Balance"
-msgstr "Solder un budget"
+msgstr "Solde de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id

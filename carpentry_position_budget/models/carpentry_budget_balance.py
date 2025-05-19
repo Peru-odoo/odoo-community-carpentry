@@ -22,6 +22,7 @@ class CarpentryBudgetBalance(models.Model):
         readonly=False,
         domain="[('project_id', '=', project_id)]",
     )
+    sum_quantity_affected = fields.Float(string='Amount of balanced budget')
     budget_analytic_ids = fields.Many2many(
         domain="[('budget_project_ids', '=', project_id)]",
     )
@@ -30,6 +31,15 @@ class CarpentryBudgetBalance(models.Model):
     def _get_budget_types(self):
         return [x[0] for x in self.env['account.analytic.account']._fields['budget_type'].selection]
     
+    @api.depends('affectation_ids')
+    def _compute_launch_ids(self):
+        """ `launch_ids` are computed from the `affectation_ids` matrix """
+        for balance in self:
+            balance.launch_ids = balance.affectation_ids.filtered(
+                lambda x: x.record_res_model == 'carpentry.group.launch'
+            ).mapped('record_id')
+    
+    @api.depends('affectation_ids')
     def _compute_budget_analytic_ids(self):
         """ Budget's are computed ones if `launch_ids` are selected, else project's """
         if self.launch_ids:

@@ -213,6 +213,7 @@ class CarpentryBudgetAvailable(models.Model):
             """ if model == 'project.project' else f"""
 
             WHERE
+                affectation.active IS TRUE AND
                 quantity_affected != 0 AND
                 ir_model_group.model = '{model}'
             """

@@ -119,13 +119,10 @@ class Task(models.Model):
     def _get_total_by_analytic(self):
         """ :return: Dict like {analytic_id: charged amount} """
         self.ensure_one()
-
-        res = {
+        return {
             task.analytic_account_id.id: task.planned_hours
             for task in self.filtered('analytic_account_id')
         }
-        print('res', res)
-        return res
 
     #====== Compute amount ======#
     @api.depends('planned_hours')

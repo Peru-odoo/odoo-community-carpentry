@@ -240,12 +240,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
              without remaining budget))
         """
         budget_distribution = self._get_auto_launch_budget_distribution()
-        print('budget_distribution', budget_distribution)
         for affectation in self.affectation_ids:
             key = (affectation.record_res_model, affectation.record_id, affectation.group_id) # model, launch_id, analytic_id
             auto_reservation = budget_distribution.get(key, None)
             if auto_reservation != None:
-                remaining = affectation.quantity_remaining_to_affect
+                remaining = affectation.quantity_remaining_to_affect + affectation.quantity_affected
                 affectation.quantity_affected = math.floor(
                     min(auto_reservation, remaining) * 100
                 ) / 100.0
@@ -264,7 +263,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         self.ensure_one() # (!) `remaining_budget` must be computed per order
         total_by_analytic = self._get_total_by_analytic()
-        print('total_by_analytic', total_by_analytic)
         analytics = self.env['account.analytic.account'].sudo().browse(set(total_by_analytic.keys()))
         remaining_budget = analytics._get_remaining_budget(self.launch_ids, self._origin)
 

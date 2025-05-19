@@ -306,7 +306,8 @@ class CarpentryGroupAffectation(models.Model):
             ('group_model_id', 'in', self.group_model_id.ids),
             ('record_model_id', 'in', self.record_model_id.ids),
             # on the same line
-            ('record_id', 'in', self.mapped('record_id'))
+            ('record_id', 'in', self.mapped('record_id')),
+            ('active', '=', True)
         ]
 
     #===== Quantities & M2o: constrain & compute =====#
@@ -398,8 +399,8 @@ class CarpentryGroupAffectation(models.Model):
         for affectation in self:
             sum_affected_siblings = 0.0
             if affectation.record_ref:
-                domain = affectation._get_domain_siblings()
                 sibling_parent = affectation._origin._get_siblings_parent()
+                domain = affectation._get_domain_siblings()
                 siblings = sibling_parent.affectation_ids.filtered_domain(domain) - affectation._origin
                 sum_affected_siblings = sum(siblings.mapped('quantity_affected'))
             

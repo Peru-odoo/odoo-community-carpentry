@@ -132,6 +132,7 @@ class CarpentryBudgetRemaining(models.Model):
             """ if model == 'carpentry.budget.available' else f"""
 
             WHERE
+                affectation.active IS TRUE AND
                 quantity_affected != 0 AND
                 budget_type IS NOT NULL
             """
