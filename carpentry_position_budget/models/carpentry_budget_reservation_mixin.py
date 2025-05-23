@@ -248,7 +248,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                 affectation.quantity_affected = math.floor(
                     min(auto_reservation, remaining) * 100
                 ) / 100.0
-        
+    
     def _get_auto_launch_budget_distribution(self):
         """ Calculate suggestion for budget reservation of a PO or MO, considering:
              - total real cost, per budget analytic (e.g. in the order_line or stock moves),

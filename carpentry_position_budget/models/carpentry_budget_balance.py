@@ -72,5 +72,5 @@ class CarpentryBudgetBalance(models.Model):
         """
         self.ensure_one()
         return self.budget_analytic_ids._get_remaining_budget_by_analytic(
-            launchs=self.project_id.launch_ids, section=self
+            launchs=self.launch_ids, section=self
         )
