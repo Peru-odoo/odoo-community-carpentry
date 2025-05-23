@@ -15,7 +15,7 @@
     'depends': [
         'project', 'purchase', 'stock', # odoo
         'project_purchase_link', # OCA
-        'project_favorite_switch', 'purchase_multiple_arrival_date', # other
+        'project_favorite_switch', 'purchase_multiple_arrival_date', 'purchase_project_discount', # other
         'carpentry_base', 'carpentry_planning_task_need', # carpentry
     ],
     'data': [

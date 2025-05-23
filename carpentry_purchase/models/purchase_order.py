@@ -4,8 +4,7 @@ from odoo import models, fields, api, exceptions, _, Command
 from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
 
 class PurchaseOrder(models.Model):
-    _name = "purchase.order"
-    _inherit = ['purchase.order', 'project.default.mixin']
+    _inherit = ['purchase.order']
     _rec_name = 'display_name'
 
     #====== Fields' methods ======#
@@ -22,10 +21,6 @@ class PurchaseOrder(models.Model):
         ]
 
     #====== Fields ======#
-    project_id = fields.Many2one(
-        # required on the view. Must not be in ORM because of replenishment (stock.warehouse.orderpoint)
-        required=False
-    )
     description = fields.Char(
         string='Description'
     )
