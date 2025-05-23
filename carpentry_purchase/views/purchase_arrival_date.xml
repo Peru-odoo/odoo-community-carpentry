@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form -->
+    <record id="view_purchase_date_arrival_form" model="ir.ui.view">
+        <field name="name">purchase.arrival.date.form.carpentry</field>
+        <field name="model">purchase.arrival.date</field>
+        <field name="inherit_id" ref="purchase_multiple_arrival_date.view_purchase_date_arrival_form" />
+
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+    
+    <!-- Tree -->
+    <record id="view_purchase_date_arrival_tree" model="ir.ui.view">
+        <field name="name">purchase.arrival.date.tree.carpentry</field>
+        <field name="model">purchase.arrival.date</field>
+        <field name="inherit_id" ref="purchase_multiple_arrival_date.view_purchase_date_arrival_tree" />
+
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Search -->
+    <record id="view_purchase_date_arrival_search" model="ir.ui.view">
+        <field name="name">purchase.arrival.date.search</field>
+        <field name="model">purchase.arrival.date</field>
+        <field name="inherit_id" ref="purchase_multiple_arrival_date.view_purchase_date_arrival_search" />
+
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Calendar -->
+    <record id="view_purchase_date_arrival_calendar" model="ir.ui.view">
+        <field name="name">purchase.arrival.date.calendar</field>
+        <field name="model">purchase.arrival.date</field>
+        <field name="inherit_id" ref="purchase_multiple_arrival_date.view_purchase_date_arrival_calendar" />
+
+        <field name="arch" type="xml">
+            <field name="partner_id" position="before">
+                <field name="project_id" filters="1" />
+            </field>
+        </field>
+    </record>
+</odoo>
