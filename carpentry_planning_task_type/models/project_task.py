@@ -304,7 +304,3 @@ class Task(models.Model):
         }
         
         return action
-
-    #===== Task copy =====#
-    def _fields_to_copy(self):
-        return super()._fields_to_copy() | ['attachment_ids']
