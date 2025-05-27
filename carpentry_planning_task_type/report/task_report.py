@@ -15,7 +15,7 @@ class Task(models.Model):
     _inherit = ["project.task"]
 
     def _get_is_stamp(self):
-        return self.env.ref(XML_ID_INSTRUCTION).id in self.mapped('root_type_id')
+        return self.env.ref(XML_ID_INSTRUCTION) in self.mapped('root_type_id')
     
     def _send_email(self):
         """ Called by user, from tree of `project.task`

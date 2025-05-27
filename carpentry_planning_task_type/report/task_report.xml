@@ -107,7 +107,7 @@
     <!-- Report front-page | Input: `docs` var (`project.task` recordset) -->
     <template id="task_report_front_page">
         <!-- Report title: type of report & date -->
-        <h1>Report of <span t-esc="docs._get_type_strings()" /></h1>
+        <h1>Report of <span t-esc="docs.root_type_id.name" /></h1>
         <p>Date: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')" /></p>
         
         <!-- Report summary (project & tasks names) -->
@@ -122,27 +122,27 @@
         </t>
     </template>
     <!-- Project summary | Input: `project` var (`project.project` record) -->
-    <template t-name="task_report_project_summary">
+    <template id="task_report_project_summary">
         <t t-set="task_ids" t-value="project.task_ids.filtered(lambda task: task.id in docs.ids)" />
 
         <h4>Project: <span t-field="project.name" /></h4>
 
         <!-- tag_ids (if given, ie. classic & instructions) -->
         <!-- <t t-if="task_ids.tag_ids.ids">
-            <p class="mb-3"><strong>Tags(s):</strong> <span t-field="task_ids.tag_ids" t-field-options="{'widget': 'many2many_tags'}" /></p>
+            <p class="mb-3"><strong>Tags(s):</strong> <span t-field="task_ids.tag_ids" /></p>
         </t> -->
 
         <!-- Task types -->
-        <!-- <strong>Summary of <t t-esc="task_ids._get_type_strings()" />:</strong> -->
+        <!-- <strong>Summary of <t t-esc="task_ids.docs.root_type_id.name" />:</strong> -->
         <!-- Task list (names) -->
         <div t-foreach="task_ids" t-as="task">
-            #<t t-esc="task_index + 1" /> <span t-esc="task._get_prefixed_display_name()" />
+            #<t t-esc="task_index + 1" /> <span t-esc="task.display_name" />
         </div>
         
         <hr t-if="not project_last" class="my-4" />
     </template>
     <!-- Receipt header | Static -->
-    <template t-name="task_report_receipt_stamp">
+    <template id="task_report_receipt_stamp">
         <div class="border p-2 mt-4">
             <p>
                 <span class="fw-bold fa fa-exclamation-triangle" />
@@ -166,21 +166,23 @@
 
 <!-- Tasks (individual) templates -->
     <!-- Task | Input: `task` var (record of `project.task`) -->
-    <template t-name="task_report_single">
+    <template id="task_report_single">
         <h3 class="mt-3 mb-0">#<span t-esc="task_index + 1"/> : <span t-esc="task.display_name" /></h3>
         
-        <t t-set="action_open_form" t-value="task.env.ref('carpentry_planning_task_type.action_open_task_by_project').id" />
+        <!-- <t t-set="action_open_form" t-value="task.env.ref('carpentry_planning_task_type.action_open_task_by_project').id" />
         <a t-att-href="'%s/web#id=%s&amp;view_type=form&amp;model=carpentry.task&amp;action=%s' % (web_base_url, task.id, action_open_form)"
-        target="_blank">Open in web browser</a>
+        target="_blank">Open in web browser</a> -->
 
         <ul>
             <!-- <li>Project: <span t-field="task.project_id.name" /></li> -->
-            <t t-if="task.type == 'instruction'">
-                <li>Tag(s): <span t-field="task_ids.tag_ids" t-field-options="{'widget': 'many2many_tags'}" /></li>
+            <t t-if="task.root_type_id.code == 'instruction'">
+                <li t-if="task_ids.tag_ids">Tag(s): <span t-field="task_ids.tag_ids" /></li>
                 <li>Author: <span t-field="task.create_uid" /></li>
             </t>
-            <li t-if="task.user_ids.ids">Assignee(s): <span t-field="task.user_ids" t-field-options="{'widget': 'many2many_avatar_user'}" /></li>
-            <li t-if="task.date_deadline">Deadline: <span t-field="task.date_deadline" t-options="{'widget': 'date'}" /></li>
+            <li t-if="task.user_ids">
+                Assignee(s): <span t-field="task.user_ids" />
+            </li>
+            <li t-if="task.date_deadline">Deadline: <span t-field="task.date_deadline" t-options-widget="date" /></li>
             <li t-if="len(task.attachment_ids) > 0" class="fw-bold text-danger">
                 <span class="fa fa-info-circle" /> <t t-esc="len(task.attachment_ids)" /> attachment(s) available in appendix.
             </li>
@@ -191,7 +193,7 @@
         </div>
 
         <!-- Chatter -->
-        <t t-if="task.message_ids and task.type not in ['instruction']">
+        <t t-if="task.message_ids and task.root_type_id.code not in ['instruction']">
             <strong>Comments</strong>
 
             <t t-foreach="task.message_ids" t-as="message">
@@ -200,7 +202,7 @@
         </t>
     </template>
     <!-- Chatter message | Input: `message` var (record of `mail.message`) -->
-    <template t-name="task_report_chatter">
+    <template id="task_report_chatter">
         <strong>
             <span t-field="message.author_id" /> (<span t-field="message.date" t-options="{'widget': 'date'}" />):
             <div t-field="message.subject" />
@@ -211,11 +213,11 @@
     </template>
 
     <!-- v2: if needed to generate 1 report per task, and append attachment next to task's report -->
-    <!-- <template t-name="task_report_single_html">
+    <!-- <template id="task_report_single_html">
         <t t-call="web.html_container">
             <t t-call="web.internal_layout">
                 <div class="page">
-                    <t t-call="task_report_single" />
+                    <t t-call="carpentry_planning_task_type.task_report_single" />
                 </div>
             </t>
         </t>

@@ -278,7 +278,7 @@ msgstr "Reçu le ____ / ____ / ________"
 #. module: carpentry_planning_task_type
 #: model_terms:ir.ui.view,arch_db:carpentry_planning_task_type.task_report_front_page
 msgid "Report of"
-msgstr "Rapport du"
+msgstr "Rapport de"
 
 #. module: carpentry_planning_task_type
 #: model:ir.model.fields,field_description:carpentry_planning_task_type.field_project_type__root_type_id
