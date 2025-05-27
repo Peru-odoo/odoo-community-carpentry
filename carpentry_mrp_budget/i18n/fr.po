@@ -246,7 +246,7 @@ msgstr "Budget (opérations)"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected_workorders
 msgid "Budget (workorders)"
-msgstr "Budget (oéprations)"
+msgstr "Budget (opérations)"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
