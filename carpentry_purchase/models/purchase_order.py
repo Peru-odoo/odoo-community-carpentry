@@ -4,7 +4,8 @@ from odoo import models, fields, api, exceptions, _, Command
 from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
 
 class PurchaseOrder(models.Model):
-    _inherit = ['purchase.order']
+    _name = 'purchase.order'
+    _inherit = ['purchase.order', 'project.default.mixin']
     _rec_name = 'display_name'
 
     #====== Fields' methods ======#
@@ -21,6 +22,10 @@ class PurchaseOrder(models.Model):
         ]
 
     #====== Fields ======#
+    project_id = fields.Many2one(
+        # not reqiured because of replenishment (stock.warehouse.orderpoint)
+        required=False
+    )
     description = fields.Char(
         string='Description'
     )
@@ -81,6 +86,24 @@ class PurchaseOrder(models.Model):
                 type = 'none'
             purchase.products_type = type
     
+    @api.onchange('project_id', 'partner_id')
+    def _onchange_default_requisition(self):
+        """ Auto-select Purchase Requisition by project and vendor """
+        rg_result = self.env['purchase.requisition'].read_group(
+            domain=[('project_id', 'in', self.project_id.ids), ('vendor_id', 'in', self.partner_id.commercial_partner_id.ids)],
+            groupby=['project_id', 'vendor_id'],
+            fields=['ids:array_agg(id)'],
+            lazy=False,
+        )
+        mapped_data = {
+            (x['project_id'][0], x['vendor_id'][0]): x['ids']
+            for x in rg_result
+        }
+        print('mapped_data', mapped_data)
+        for purchase in self:
+            key = (purchase.project_id.id, purchase.partner_id.commercial_partner_id.id)
+            purchase.requisition_id = mapped_data.get(key, [False])[-1]
+
     # --- project_id (shortcut to set line analytic at once on the project) ---
     @api.onchange('project_id')
     def _onchange_project_id(self):

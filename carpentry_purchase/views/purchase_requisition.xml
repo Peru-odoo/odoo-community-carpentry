@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- Form -->
+    <record model="ir.ui.view" id="view_purchase_requisition_form">
+        <field name="name">purchase.requisition.form.project_discount</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form" />
+
+        <field name="arch" type="xml">
+            <!-- `name` modifiable -->
+            <field name="name" position="attributes">
+                <attribute name="attrs">{'readonly': [('state', 'not in', ['draft'])]}</attribute>
+            </field>
+            
+            <!-- Add `title` -->
+            <h1 position="inside">
+                <field name="title"
+                    placeholder="Title"
+                    class="o_text_overflow flex-shrink-0"
+                    style="width: 90%"
+                    attrs="{'readonly': [('state', '!=', 'draft')]}"
+                />
+            </h1>
+            <field name="name" position="attributes">
+                <attribute name="class">flex-grow-1 me-3</attribute>
+            </field>
+            <h1 position="attributes">
+                <attribute name="class">d-flex</attribute>
+            </h1>
+
+            <!-- Add `project_id` -->
+            <field name="vendor_id" position="after">
+                <field name="project_id_domain" invisible="1" />
+                <field name="project_id" attrs="{'readonly': [('state', 'in', ['ongoing','done'])]}" />
+            </field>
+
+            <!-- Hide products & move Terms & Conditions above -->
+            <page name="products" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </page>
+            <notebook position="before">
+                <label for="description" string="Terms and Conditions" />
+                <field name="description" position="move" />
+            </notebook>
+        </field>
+    </record>
+    <!-- Tree : add `title` & `project_id` -->
+    <record model="ir.ui.view" id="view_purchase_requisition_tree">
+        <field name="name">purchase.requisition.tree.project_discount</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_tree" />
+
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="title" />
+                <field name="project_id" />
+            </field>
+      </field>
+    </record>
+    <!-- Kanban -->
+    <record id="view_purchase_requisition_kanban" model="ir.ui.view">
+        <field name="name">purchase.requisition.kanban.project_discount</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_kanban" />
+        
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="title" />
+            </field>
+        </field>
+    </record>
+    <!-- Search -->
+    <record id="view_purchase_requisition_filter" model="ir.ui.view">
+        <field name="name">purchase.requisition.list.select.project_discount</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_filter" />
+
+        <field name="arch" type="xml">
+            <!-- Add `title` in 1st search by name -->
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">['|', '|', '|',
+                    ('name', 'ilike', self),
+                    ('title', 'ilike', self),
+                    ('origin', 'ilike', self)
+                ]</attribute>
+            </field>
+
+            <!-- Add `project_id` -->
+            <field name="name" position="after">
+                <field name="project_id" />
+            </field>
+        </field>
+    </record>
+</odoo>

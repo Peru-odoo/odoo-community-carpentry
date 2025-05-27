@@ -13,9 +13,9 @@
     'version': '16.0.1.0.1',
 
     'depends': [
-        'project', 'purchase', 'stock', # odoo
+        'project', 'purchase', 'purchase_requisition', 'stock', # odoo
         'project_purchase_link', # OCA
-        'project_favorite_switch', 'purchase_multiple_arrival_date', 'purchase_project_discount', # other
+        'project_favorite_switch', 'purchase_multiple_arrival_date', # other
         'carpentry_base', 'carpentry_planning_task_need', # carpentry
     ],
     'data': [
@@ -25,6 +25,7 @@
         'views/project_purchase_link.xml',
         'views/purchase_order.xml',
         'views/purchase_arrival_date.xml',
+        'views/purchase_requisition.xml',
         # security
         'security/purchase_order.xml',
     ]
