@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-10 09:17+0000\n"
-"PO-Revision-Date: 2025-03-10 10:24+0100\n"
+"POT-Creation-Date: 2025-05-27 16:56+0000\n"
+"PO-Revision-Date: 2025-05-27 18:58+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.project_project_view_form
@@ -62,8 +62,8 @@ msgstr ""
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_project_project__delivery_address_id
-msgid "Field site address"
-msgstr "Adresse du chantier"
+msgid "Delivery address"
+msgstr "Adresse de livraison"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,help:carpentry_purchase.field_project_project__delivery_address_id
@@ -105,21 +105,25 @@ msgid "Launches"
 msgstr "Lancements"
 
 #. module: carpentry_purchase
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
-msgid "Linked purchases"
-msgstr "Commandes liées"
-
-#. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__task_ids
-#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__task_ids
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
 msgid "Needs"
 msgstr "Besoins"
 
 #. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__needs_count
+msgid "Needs Count"
+msgstr "Nombre de besoins"
+
+#. module: carpentry_purchase
+#: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__none
+msgid "No products"
+msgstr "Nombre de produits"
+
+#. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__products_type
 msgid "Products Type"
-msgstr ""
+msgstr "Types de produits"
 
 #. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_project_project
@@ -127,8 +131,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_move_line__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_payment__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_arrival_date__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order_line__project_id
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_requisition__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_stock_picking__project_id
 msgid "Project"
 msgstr "Projet"
@@ -136,9 +142,15 @@ msgstr "Projet"
 #. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id_domain
 #: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_order__project_id_domain
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_requisition__project_id_domain
 #: model:ir.model.fields,field_description:carpentry_purchase.field_stock_picking__project_id_domain
 msgid "Project Id Domain"
 msgstr "Domaine du projet"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_purchase_arrival_date
+msgid "Purchase Arrival Date"
+msgstr "Date de réception"
 
 #. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_purchase_order
@@ -157,8 +169,14 @@ msgstr "Commande d'articles non-stockés (uniquement)"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__purchase_ids
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
 msgid "Purchase Orders"
 msgstr "Commandes fournisseurs"
+
+#. module: carpentry_purchase
+#: model:ir.model,name:carpentry_purchase.model_purchase_requisition
+msgid "Purchase Requisition"
+msgstr "Demande d'achat"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__mix
@@ -171,6 +189,11 @@ msgid "Stock purchase order (only)"
 msgstr "Commande de stock (uniquement)"
 
 #. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.view_purchase_requisition_form
+msgid "Terms and Conditions"
+msgstr "Conditions générales"
+
+#. module: carpentry_purchase
 #. odoo-python
 #: code:addons/carpentry_purchase/models/purchase_order_line.py:0
 #, python-format
@@ -181,6 +204,12 @@ msgstr ""
 "Le seul projet autorisé dans les distributions analytiques des lignes de la "
 "commande est le projet de la commande (ou le projet \"interne\" pour les "
 "lignes de produits stockés)."
+
+#. module: carpentry_purchase
+#: model:ir.model.fields,field_description:carpentry_purchase.field_purchase_requisition__title
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.view_purchase_requisition_form
+msgid "Title"
+msgstr "Titre"
 
 #. module: carpentry_purchase
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
@@ -197,8 +226,24 @@ msgstr "Transfert"
 #: model:ir.model.fields,help:carpentry_purchase.field_account_move__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_account_move_line__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_account_payment__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_purchase_arrival_date__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_purchase_order__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_purchase_order_line__project_id
+#: model:ir.model.fields,help:carpentry_purchase.field_purchase_requisition__project_id
 #: model:ir.model.fields,help:carpentry_purchase.field_stock_picking__project_id
 msgid "Within your favorite projects"
 msgstr "Parmis vos projets favoris"
+
+#. module: carpentry_purchase
+#. odoo-python
+#: code:addons/carpentry_purchase/models/purchase_requisition.py:0
+#, python-format
+msgid "You cannot confirm the blanket order without price."
+msgstr "Vous ne pouvez pas confirmer le contrat-cadre sans prix."
+
+#. module: carpentry_purchase
+#. odoo-python
+#: code:addons/carpentry_purchase/models/purchase_requisition.py:0
+#, python-format
+msgid "You cannot confirm the blanket order without quantity."
+msgstr "Vous ne pouvez pas confirmer le contrat-cadre sans quantité."
