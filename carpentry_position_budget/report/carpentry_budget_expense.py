@@ -134,7 +134,7 @@ class CarpentryBudgetExpense(models.Model):
             
             if model == 'carpentry.group.affectation' else
 
-            f'FROM {model.replace('.', '_')} AS section'
+            f"FROM {model.replace('.', '_')} AS section"
         )
 
     def _join(self, model, models):

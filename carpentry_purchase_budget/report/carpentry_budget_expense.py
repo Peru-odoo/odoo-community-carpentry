@@ -45,7 +45,7 @@ class CarpentryExpense(models.Model):
 
     def _from(self, model, models):
         return (
-            f'FROM {model.replace('.', '_')}_line AS line'
+            f"FROM {model.replace('.', '_')}_line AS line"
 
             if model in ('purchase.order', 'account.move')
 
