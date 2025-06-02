@@ -26,6 +26,7 @@
         'security/project_security.xml',
         # views
         'views/mrp_production.xml',
+        'views/mrp_workorder.xml',
         'views/product_template.xml',
         'views/stock_picking.xml',
         'views/stock_quant.xml',

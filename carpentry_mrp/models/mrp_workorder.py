@@ -21,3 +21,4 @@ class MrpWorkorder(models.Model):
             )))
         
         return res
+    
