@@ -62,8 +62,8 @@ class CarpentryBudgetExpense(models.Model):
                             ELSE 0.0
                         END AS amount_gain
                     FROM (
-                        (%s) AS result
-                    )
+                        (%s)
+                    ) AS result
                     GROUP BY
                         project_id,
                         section_id,
