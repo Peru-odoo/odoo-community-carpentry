@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-08 18:47+0000\n"
-"PO-Revision-Date: 2025-05-08 20:48+0200\n"
+"POT-Creation-Date: 2025-06-02 19:59+0000\n"
+"PO-Revision-Date: 2025-06-02 22:00+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -18,16 +18,9 @@ msgstr ""
 "X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_mrp
-#. odoo-python
-#: code:addons/carpentry_mrp/models/stock_quant.py:0
-#, python-format
-msgid " lot {}"
-msgstr ""
-
-#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__active
 msgid "Active"
-msgstr ""
+msgstr "Actif"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__active
@@ -68,10 +61,16 @@ msgid "Count of linked PO"
 msgstr "Nombre de bons de commande générés"
 
 #. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__description
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__description
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_picking__description
 msgid "Description"
 msgstr ""
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__product_default_code
+msgid "Internal Reference"
+msgstr "Référence interne"
 
 #. module: carpentry_mrp
 #: model:ir.model,name:carpentry_mrp.model_carpentry_group_launch
@@ -89,6 +88,7 @@ msgstr "Lancements"
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_group_launch__production_ids
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__mrp_production_id
+#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_picking__mrp_production_ids
 msgid "Manufacturing Orders"
 msgstr "Ordres de Fabrication"
 
@@ -96,6 +96,12 @@ msgstr "Ordres de Fabrication"
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.mrp_production_form_view
 msgid "Move the component to the On-Site Delivery picking"
 msgstr "Move the component to the Delivery picking"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__name
+#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__product_name
+msgid "Name"
+msgstr "Nom"
 
 #. module: carpentry_mrp
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp.stock_inventory_conflict_form_view
@@ -111,7 +117,6 @@ msgstr "Livraison sur chantier"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_group_launch__pending_move_ids
-#: model_terms:ir.ui.view,arch_db:carpentry_mrp.carpentry_group_launch_form
 msgid "Pending Stock Moves"
 msgstr "Mouvements de stock en attente"
 
@@ -149,6 +154,21 @@ msgid "Product"
 msgstr "Produit"
 
 #. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__product_default_code
+msgid "Product Default Code"
+msgstr "Code par défaut du produit"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Mouvements de produit (Ligne de mouvement de stock)"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__product_name
+msgid "Product Name"
+msgstr "Nom du produit"
+
+#. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__product_uom_qty
 msgid "Product Uom Qty"
 msgstr "Quantité demandée"
@@ -157,6 +177,16 @@ msgstr "Quantité demandée"
 #: model:ir.model,name:carpentry_mrp.model_product_product
 msgid "Product Variant"
 msgstr "Variante de produit"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_production
+msgid "Production Order"
+msgstr "Ordre de fabrication"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__project_id
+msgid "Project"
+msgstr "Projet"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_quant__quantity_without_outgoing_raw_material
@@ -195,6 +225,7 @@ msgid "State"
 msgstr "État"
 
 #. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_stock_move
 #: model:ir.model.fields,field_description:carpentry_mrp.field_carpentry_planning_card__stock_move_id
 msgid "Stock Move"
 msgstr "Mouvement de stock"
@@ -227,19 +258,24 @@ msgid "Title of Picking"
 msgstr "Nom du transfert"
 
 #. module: carpentry_mrp
-#. odoo-python
-#: code:addons/carpentry_mrp/models/stock_quant.py:0
-#, python-format
-msgid ""
-"You cannot validate this stock operation because the stock level of the "
-"product '{name}'{name_lot} would become negative ({q_quantity}) on the "
-"stock location '{complete_name}' and negative stock is not allowed for this "
-"product and/or location."
-msgstr ""
-"Vous ne pouvez pas valider cette opération de stock car le niveau de stock "
-"du produit '{name}'{name_lot} deviendrait négatif ({q_quantity}) sur "
-"l'emplacement de stock '{complete_name}' et le stock négatif n'est pas "
-"autorisé pour ce produit et/ou cet emplacement."
+#: model:ir.model,name:carpentry_mrp.model_stock_picking
+msgid "Transfer"
+msgstr "Transfert"
+
+#. module: carpentry_mrp
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp.carpentry_group_launch_form
+msgid "Unavailable moves"
+msgstr "Mouvements indisponibles"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_workorder
+msgid "Work Order"
+msgstr "Ordre de travail"
+
+#. module: carpentry_mrp
+#: model:ir.model,name:carpentry_mrp.model_mrp_workcenter_productivity
+msgid "Workcenter Productivity Log"
+msgstr "Journal de productivité du poste de travail"
 
 #. module: carpentry_mrp
 #. odoo-python
