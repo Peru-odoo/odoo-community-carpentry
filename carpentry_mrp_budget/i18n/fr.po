@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-23 15:11+0000\n"
-"PO-Revision-Date: 2025-05-23 17:15+0200\n"
+"POT-Creation-Date: 2025-06-02 12:00+0000\n"
+"PO-Revision-Date: 2025-06-02 14:03+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -186,7 +186,7 @@ msgstr "Montant du gain"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_gain_workorders
 msgid "Amount Gain Workorders"
-msgstr ""
+msgstr "Montant du gain (ordres de travail)"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__amount_loss
@@ -203,6 +203,11 @@ msgstr "Montant budget réservé"
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_distribution
 msgid "Analytic"
 msgstr "Analytique"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_workorder__costs_hour_account_id
+msgid "Analytic Account"
+msgstr "Compte analytique"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__analytic_ids
@@ -246,7 +251,7 @@ msgstr "Budget (opérations)"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected_workorders
 msgid "Budget (workorders)"
-msgstr "Budget (opérations)"
+msgstr "Budget (oéprations)"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
@@ -356,14 +361,19 @@ msgid "Please select launch(es) for placing a reservation."
 msgstr "Veuillez sélectionner un(des) lancement(s) pour effectuer une réservation de budget."
 
 #. module: carpentry_mrp_budget
-#: model:ir.model,name:carpentry_mrp_budget.model_carpentry_group_affectation
-msgid "Position Affectation"
-msgstr "Affectation de repère"
+#: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_workorder__costs_hour_account_id
+msgid "Posts analytical accounting entries in real time for both component and operational costs."
+msgstr "Publiez des écritures comptables analytiques en temps réel pour les coûts des composants et les coûts opérationnels."
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_move__standard_price
 msgid "Product Cost"
 msgstr "Coût du produit"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model,name:carpentry_mrp_budget.model_mrp_production
+msgid "Production Order"
+msgstr "Ordre de fabrication"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_stock_valuation_layer__raw_material_production_id
@@ -438,12 +448,12 @@ msgstr "Couche de valorisation d'inventaire"
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__sum_quantity_affected
 msgid "Sum of budget reservation"
-msgstr "Total du budget réservé"
+msgstr "Somme des quantités affectées"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected
 msgid "Sum of budget reservation for components only"
-msgstr "Total du budget réservé (composants uniquement)"
+msgstr "Somme des quantités affectées"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected_workorders
@@ -463,7 +473,7 @@ msgstr "Coût total"
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid "Total expected:"
-msgstr "Durée prévue :"
+msgstr "Durée prévue:"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
@@ -487,6 +497,11 @@ msgstr "Prix unitaire"
 #: model:ir.model.fields,help:carpentry_mrp_budget.field_stock_picking__section_ids
 msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
+
+#. module: carpentry_mrp_budget
+#: model:ir.model,name:carpentry_mrp_budget.model_mrp_workorder
+msgid "Work Order"
+msgstr "Ordre de travail"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view

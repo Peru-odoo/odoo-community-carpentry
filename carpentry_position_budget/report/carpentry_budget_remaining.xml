@@ -72,6 +72,7 @@
         <field name="priority">10</field>
         
         <field name="arch" type="xml">
+            <!-- Default filters -->
             <filter name="filter_project_global_cost" position="after">
                 <separator />
                 <filter string="Budget"      name="filter_budget"      domain="[('state', '=', 'budget')]" />

@@ -20,9 +20,10 @@ class CarpentryBudgetRemaining(models.Model):
     )
     quantity_affected = fields.Float(
         string='Remaining',
+        help='',
     )
     section_ref = fields.Reference(
-        string='Document Name',
+        string='Name',
         selection=lambda self: self.env['carpentry.group.affectation'].fields_get()['section_ref']['selection'],
         readonly=True,
     )
@@ -45,11 +46,10 @@ class CarpentryBudgetRemaining(models.Model):
     def _get_queries_models(self):
         return ('carpentry.budget.available', 'carpentry.group.affectation')
     
-    def _select(self, model):
-        models = {x.model: x.id for x in self.env['ir.model'].sudo().search([])}
-
+    def _select(self, model, models):
         return f"""
             SELECT
+                '{model}' AS model,
                 available.id AS id_origin,
                 'budget' AS state,
                 
@@ -61,7 +61,7 @@ class CarpentryBudgetRemaining(models.Model):
                 -- section_model_id: carpentry.position or project.project
                 CASE
                     WHEN available.launch_id IS NOT NULL
-                    THEN (SELECT id FROM ir_model WHERE model = 'carpentry.position')
+                    THEN {models['carpentry.position']}
                     ELSE available.group_model_id -- project.project
                 END AS section_model_id,
                 -- section_ref: position or project
@@ -79,6 +79,7 @@ class CarpentryBudgetRemaining(models.Model):
         """ if model == 'carpentry.budget.available' else f"""
 
             SELECT
+                '{model}' AS model,
                 affectation.id AS id_origin,
                 'reservation' AS state,
 
@@ -102,7 +103,7 @@ class CarpentryBudgetRemaining(models.Model):
 
         """
 
-    def _from(self, model):
+    def _from(self, model, models):
         return (
             'FROM carpentry_budget_available AS available'
 
@@ -111,7 +112,7 @@ class CarpentryBudgetRemaining(models.Model):
             'FROM carpentry_group_affectation AS affectation'
         )
 
-    def _join(self, model):
+    def _join(self, model, models):
         return """
             INNER JOIN ir_model AS ir_model_group
                 ON ir_model_group.id = available.group_model_id
@@ -122,7 +123,7 @@ class CarpentryBudgetRemaining(models.Model):
                 ON ir_model_section.id = affectation.section_model_id
         """
     
-    def _where(self, model):
+    def _where(self, model, models):
         return """
             WHERE
                 (project_id IS NOT NULL OR
@@ -137,16 +138,16 @@ class CarpentryBudgetRemaining(models.Model):
                 budget_type IS NOT NULL
             """
     
-    def _groupby(self, model):
+    def _groupby(self, model, models):
         return ''
     
-    def _orderby(self, model):
+    def _orderby(self, model, models):
         return ''
     
     #===== Buttons =====#
     def open_section_ref(self):
         """ Opens a document providing or reserving some budget """
-        if not self.section_model_name:
+        if not self.section_model_id:
             return
         
         if self.section_model_id.model in ('carpentry.position', 'project.project'):

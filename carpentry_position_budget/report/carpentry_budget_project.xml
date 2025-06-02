@@ -27,7 +27,8 @@
         <!-- <menuitem id="menu_project_budget_report_project"   action="action_open_budget_report_project_srv"   sequence="10" /> -->
         <menuitem id="menu_project_budget_report_available" action="action_open_budget_report_available_srv" sequence="20" />
         <menuitem id="menu_project_budget_report_remaining" action="action_open_budget_report_remaining_srv" sequence="30" />
-        <menuitem id="menu_project_budget_report_balance"   action="action_open_budget_balance_srv"          sequence="40"
+        <menuitem id="menu_project_budget_report_expense"   action="action_open_budget_report_expense_srv"   sequence="40" />
+        <menuitem id="menu_project_budget_report_balance"   action="action_open_budget_balance_srv"          sequence="50"
             groups="project.group_project_user"
         />
     </menuitem>

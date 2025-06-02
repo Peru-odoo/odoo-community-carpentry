@@ -40,6 +40,7 @@
         # report
         'report/carpentry_budget_available.xml',
         'report/carpentry_budget_remaining.xml',
+        'report/carpentry_budget_expense.xml',
         'report/carpentry_budget_project.xml',
     ],
     'assets': {

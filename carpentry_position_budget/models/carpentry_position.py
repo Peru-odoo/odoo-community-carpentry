@@ -59,7 +59,6 @@ class CarpentryPosition(models.Model):
             sibling_ids = [x for x in sibling_ids if x != position.id] # remove current position
             position.warning_name = len(sibling_ids)
 
-
     #===== Compute (budgets) =====#
     def _get_budgets_brut_valued(self):
         """ Override from `carpentry.group.budget.mixin` """

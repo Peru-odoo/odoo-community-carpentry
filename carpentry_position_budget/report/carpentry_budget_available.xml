@@ -109,7 +109,7 @@
                 <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
                 <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
             </filter>
-                
+            
             <filter name="filter_groupby_launch" position="before">
                 <filter string="Phases"   name="filter_groupby_phase" context="{'group_by': 'phase_id'}" />
             </filter>

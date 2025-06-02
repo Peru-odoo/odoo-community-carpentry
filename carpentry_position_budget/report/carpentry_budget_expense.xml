@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Expense report (pre-select project before opening) -->
+    <record id="action_open_budget_report_expense_srv" model="ir.actions.server">
+        <field name="name">Gains &amp; losses</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_expense')
+        </field>
+    </record>
+    <!-- Expense report (real action) -->
+    <record id="action_open_budget_report_expense" model="ir.actions.act_window">
+        <field name="name">Gains &amp; losses</field>
+        <field name="res_model">carpentry.budget.expense</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="context">{'display_model_shortname': 1}</field>
+    </record>
+
+    <!-- Pivot -->
+    <record id="carpentry_budget_report_expense_pivot" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.pivot</field>
+        <field name="model">carpentry.budget.expense</field>
+
+        <field name="arch" type="xml">
+            <pivot disable_linking="0">
+                <field name="group_model_id" invisible="1" />
+                
+                <field name="section_model_id" type="col" />
+
+                <field name="budget_type" type="row" />
+                <field name="analytic_account_id" type="row" />
+                
+                <field name="amount_gain" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Tree -->
+    <record id="carpentry_budget_report_expense_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.tree</field>
+        <field name="model">carpentry.budget.expense</field>
+        
+        <field name="arch" type="xml">
+            <tree
+                action="open_section_ref" type="object"
+                import="0" create="0" delete="0" 
+                decoration-success="amount_gain &gt; 0.01"
+                decoration-danger="amount_gain &lt; -0.01"
+            >
+                <field name="project_id" invisible="1" />
+
+                <field name="analytic_account_id" />
+                <field name="launch_ids" widget="many2many_tags" optional="show" />
+                <field name="section_model_name" />
+                <field name="section_ref" context="{'display_description': 1}" />
+                <field name="quantity_affected" string="Budget reservation" sum="1" optional="show" />
+                <field name="amount_expense" sum="1" optional="show" />
+                <field name="amount_gain" sum="1" optional="show" />
+            </tree>
+        </field>
+    </record>
+    
+    <!-- Search: `carpentry.budget.expense` from common -->
+    <record id="carpentry_budget_report_expense_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.search</field>
+        <field name="model">carpentry.budget.expense</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="mode">primary</field>
+        <field name="priority">10</field>
+        
+        <field name="arch" type="xml">
+            <!-- Default filters -->
+            <filter name="filter_project_global_cost" position="after">
+                <separator />
+                <filter string="Gains"  name="filter_gain" domain="[('amount_gain', '&gt;', 0.0)]" />
+                <filter string="Losses" name="filter_loss" domain="[('amount_gain', '&lt;', 0.0)]" />
+                
+                <separator />
+                <filter string="With budget reservation"  name="filter_reservation"       domain="[('quantity_affected', '!=', 0.0)]" />
+                <filter string="Without reservation"      name="filter_reservation_empty" domain="[('quantity_affected', '=',  0.0)]" />
+            </filter>
+            
+            <!-- Groupby -->
+            <filter name="filter_groupby_launch" position="replace" />
+            <filter name="filter_groupby_model" position="attributes">
+                <attribute name="context">{'group_by': 'section_model_id'}</attribute>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

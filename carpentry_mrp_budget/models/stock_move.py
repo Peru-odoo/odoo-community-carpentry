@@ -6,11 +6,12 @@ class StockMove(models.Model):
     _name = 'stock.move'
     _inherit = ['stock.move', 'analytic.mixin']
 
-    analytic_distribution = fields.Json(store=False)
+    analytic_distribution = fields.Json(store=True)
     analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
         compute='_compute_analytic_distribution',
-        string='Analytic Accounts'
+        string='Analytic Accounts',
+        compute_sudo=True,
     )
     price_unit = fields.Float(
         help="For permanent valuation. Product cost at move's confirmation.",

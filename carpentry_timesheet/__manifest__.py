@@ -32,5 +32,7 @@
         'web.assets_backend': [
             'carpentry_timesheet/static/src/**/*',
         ]
-    }
+    },
+    'post_init_hook': 'post_init_hook', # rebuild budget expense sql view
+    'uninstall_hook': 'uninstall_hook',
 }

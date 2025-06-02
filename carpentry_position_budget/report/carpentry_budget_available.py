@@ -78,19 +78,21 @@ class CarpentryBudgetAvailable(models.Model):
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
         
-        self._cr.execute("""
-            CREATE or REPLACE VIEW %s AS (
-                SELECT
-                    row_number() OVER (ORDER BY id_origin) AS id,
-                    *
-                FROM (
-                    (%s)
-                ) AS result
-            )""", (
-                AsIs(self._table),
-                AsIs(') UNION ALL (' . join(self._get_queries()))
+        queries = self._get_queries()
+        if queries:
+            self._cr.execute("""
+                CREATE or REPLACE VIEW %s AS (
+                    SELECT
+                        row_number() OVER (ORDER BY model, id_origin) AS id,
+                        *
+                    FROM (
+                        (%s)
+                    ) AS result
+                )""", (
+                    AsIs(self._table),
+                    AsIs(') UNION ALL (' . join(queries))
+                )
             )
-        )
     
     def _get_queries(self):
         return (
@@ -99,6 +101,8 @@ class CarpentryBudgetAvailable(models.Model):
         )
     
     def _init_query(self, model):
+        models = {x.model: x.id for x in self.env['ir.model'].sudo().search([])}
+
         return """
             {select}
             {from_table}
@@ -107,17 +111,18 @@ class CarpentryBudgetAvailable(models.Model):
             {groupby}
             {orderby}
         """ . format(
-            select=self._select(model),
-            from_table=self._from(model),
-            join=self._join(model),
-            where=self._where(model),
-            groupby=self._groupby(model),
-            orderby=self._orderby(model),
+            select=self._select(model, models),
+            from_table=self._from(model, models),
+            join=self._join(model, models),
+            where=self._where(model, models),
+            groupby=self._groupby(model, models),
+            orderby=self._orderby(model, models),
         )
 
-    def _select(self, model):
+    def _select(self, model, models):
         return f"""
             SELECT
+                '{model}' AS model,
                 project.id AS id_origin,
 
                 -- project & carpentry group
@@ -126,7 +131,7 @@ class CarpentryBudgetAvailable(models.Model):
             	NULL AS phase_id,
 
                 -- model
-                (SELECT id FROM ir_model WHERE model = 'project.project') AS group_model_id,
+                {models['project.project']} AS group_model_id,
 
                 -- affectation: position & qty affected
                 NULL AS position_id,
@@ -149,6 +154,7 @@ class CarpentryBudgetAvailable(models.Model):
         """ if model == 'project.project' else f"""
 
             SELECT
+                '{model}' AS model,
                 affectation.id AS id_origin,
 
                 -- project & carpentry group
@@ -176,10 +182,9 @@ class CarpentryBudgetAvailable(models.Model):
                 affectation.quantity_affected * budget.amount AS subtotal,
                 budget.analytic_account_id,
                 budget.budget_type
-
         """
 
-    def _from(self, model):
+    def _from(self, model, models):
         return (
             'FROM account_move_budget_line AS budget'
 
@@ -188,7 +193,7 @@ class CarpentryBudgetAvailable(models.Model):
             'FROM carpentry_group_affectation AS affectation'
         )
 
-    def _join(self, model):
+    def _join(self, model, models):
         return """
             INNER JOIN project_project AS project
                 ON project.id = budget.project_id
@@ -204,7 +209,7 @@ class CarpentryBudgetAvailable(models.Model):
                 ON carpentry_group.id = affectation.group_id
         """
     
-    def _where(self, model):
+    def _where(self, model, models):
         return """
             WHERE
                 budget.balance != 0 AND
@@ -218,10 +223,10 @@ class CarpentryBudgetAvailable(models.Model):
                 ir_model_group.model = '{model}'
             """
     
-    def _groupby(self, model):
+    def _groupby(self, model, models):
         return ''
     
-    def _orderby(self, model):
+    def _orderby(self, model, models):
         return ''
     
     #===== Button =====#

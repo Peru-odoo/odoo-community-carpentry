@@ -28,5 +28,5 @@
         'views/purchase_requisition.xml',
         # security
         'security/purchase_order.xml',
-    ]
+    ],
 }

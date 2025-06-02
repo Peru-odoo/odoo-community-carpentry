@@ -173,7 +173,7 @@
             </group> -->
 
             <!-- Add budget reservation matrix below timesheets -->
-            <group name="project_hours" position="after">
+            <xpath expr="//group[@name='project_hours']/parent::group" position="after">
                 <h4 class="mt-4" attrs="{'invisible': [('launch_ids', '=', [])]}">
                     Budget reservation
                 </h4>
@@ -189,7 +189,7 @@
                         'brut_or_valued': 'brut',
                     }"
                 />
-            </group>
+            </xpath>
         </field>
     </record>
 
