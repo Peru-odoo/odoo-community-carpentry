@@ -22,3 +22,11 @@ class MrpWorkorder(models.Model):
         
         return res
     
+    #===== Fields =====#
+    gain_hours = fields.Float(string='Gain (h)', compute='_compute_performance')
+
+    def _compute_performance(self):
+        res = super()._compute_performance()
+        for wo in self:
+            wo.gain_hours = wo.gain / 60.0
+        return res

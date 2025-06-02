@@ -59,7 +59,7 @@ class CarpentryBudgetExpense(models.Model):
                         CASE
                             WHEN NOT (false = ANY(ARRAY_AGG(should_compute_gain)))
                             THEN SUM(quantity_affected) - SUM(amount_expense)
-                            ELSE 0.0
+                            ELSE SUM(amount_gain)
                         END AS amount_gain
                     FROM (
                         (%s)
@@ -84,7 +84,7 @@ class CarpentryBudgetExpense(models.Model):
         return {
             'section_id': 'section.id',
             'section_ref': f"'{model},' || section.id",
-            'section_model_id': models[model]
+            'section_model_id': models[model],
         }
 
     def _select(self, model, models):
@@ -102,6 +102,7 @@ class CarpentryBudgetExpense(models.Model):
                     affectation.budget_type,
                     affectation.quantity_affected,
                     0.0 AS amount_expense,
+                    0.0 AS amount_gain,
                     TRUE AS should_compute_gain
             """
         else:
@@ -125,6 +126,7 @@ class CarpentryBudgetExpense(models.Model):
         if model == 'carpentry.budget.balance':
             sql += """
                     0.0 AS amount_expense,
+                    0.0 AS amout_gain,
                     TRUE AS should_compute_gain
             """
         
@@ -175,7 +177,8 @@ class CarpentryBudgetExpense(models.Model):
     def _where(self, model, models):
         return (f"""
             WHERE
-                affectation.group_model_id = {models['account.analytic.account']}
+                affectation.group_model_id = {models['account.analytic.account']} AND
+                active IS TRUE
             """
             
             if model == 'carpentry.group.affectation' else """

@@ -18,15 +18,23 @@ class CarpentryExpense(models.Model):
         sql = super()._select(model, models)
         
         if model in ('purchase.order', 'account.move'):
+            ratio_invoiced = (
+                '(line.product_qty::float - line.qty_invoiced::float) / line.product_qty::float'
+                if model == 'purchase.order' 
+                else 1.0
+            )
+
             sql += f"""
                 -- expense
                 SUM(
                     line.price_subtotal::float
+                    * {ratio_invoiced}
                     * analytic_distribution.percentage::float
                     / 100.0
                 ) AS amount_expense,
                 
                 -- gain
+                0.0 AS amount_gain,
                 TRUE AS should_compute_gain
             """
         
@@ -76,14 +84,17 @@ class CarpentryExpense(models.Model):
         if model in ('purchase.order', 'account.move'):
             sql += """
                 AND section.state NOT IN ('draft', 'cancel')
-                AND line.display_type NOT IN ('line_section', 'line_note')
                 AND product_template.type != 'product' -- not stock
             """
 
-        if model == 'purchase.order':
-            # this line allows switching from MO to PO, ie use the MO line cost if available
-            # else revert back to PO lines price
-            sql += ' AND line.qty_invoiced = 0'
+            if model == 'purchase.order':
+                sql += """
+                    AND line.qty_invoiced != line.product_qty
+                    AND product_qty != 0.0
+                    AND line.display_type IS NULL
+                """
+            else:
+                sql += "AND line.display_type NOT IN ('line_section', 'line_note')"
         
         return sql
     

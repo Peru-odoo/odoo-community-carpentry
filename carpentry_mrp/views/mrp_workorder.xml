@@ -12,6 +12,21 @@
             </field>
         </field>
     </record>
+    <!-- Workorder Tree -->
+    <record id="mrp_production_workorder_tree_editable_view" model="ir.ui.view">
+        <field name="name">mrp.production.work.order.tree.productivity_qty.carpentry</field>
+        <field name="model">mrp.workorder</field>
+        <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_editable_view"/>
+
+        <field name="arch" type="xml">
+            <field name="gain" position="replace">
+                <field name="gain_hours" widget="float_time" class="fw-bold"
+                    decoration-success="gain_hours &gt; 0"
+                    decoration-danger="gain_hours &lt; 0"
+                />
+            </field>
+        </field>
+    </record>
 
     <!-- Workorder Search -->
     <record id="view_mrp_production_workorder_form_view_filter" model="ir.ui.view">

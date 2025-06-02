@@ -16,6 +16,7 @@ class CarpentryExpense(models.Model):
     def _select(self, model, models):
         return super()._select(model, models) + ("""
             section.effective_hours AS amount_expense,
+            0.0 AS amout_gain,
             CASE
                 WHEN section.effective_hours > section.planned_hours OR section.is_closed
                 THEN TRUE
