@@ -36,6 +36,7 @@ class CarpentryExpense(models.Model):
         """ display account move costs as/in purchase orders lines/columns """
         return (
             {
+                'section_id': 'purchase_order_line.order_id',
                 'section_ref': "'purchase.order,' || purchase_order_line.order_id",
                 'section_model_id': models['purchase.order'],
             }

@@ -56,6 +56,7 @@ class CarpentryExpense(models.Model):
         """
         return (
             {
+                'section_id': 'section.id',
                 'section_ref': f"'mrp.production,' || section.id",
                 'section_model_id': models['mrp.production'],
             }

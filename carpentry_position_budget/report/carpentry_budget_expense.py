@@ -80,7 +80,9 @@ class CarpentryBudgetExpense(models.Model):
             )
     
     def _get_section_fields(self, model, models):
+        """ Can be overwritten """
         return {
+            'section_id': 'section.id',
             'section_ref': f"'{model},' || section.id",
             'section_model_id': models[model]
         }
@@ -109,7 +111,7 @@ class CarpentryBudgetExpense(models.Model):
                 SELECT
                     -- project & section_ref
                     section.project_id,
-                    section.id AS section_id,
+                    {section_fields['section_id']} AS section_id,
                     {section_fields['section_ref']} AS section_ref,
                     {section_fields['section_model_id']} AS section_model_id,
 
