@@ -41,6 +41,13 @@
             <field name="name" position="after">
                 <field name="description" />
             </field>
+
+            <field name="partner_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
+            <field name="user_id" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </field>
         </field>
     </record>
 
