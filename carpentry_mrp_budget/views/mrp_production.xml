@@ -80,7 +80,7 @@
                     (<strong><field name="amount_budgetable" /></strong>).
                     If this is not on purpose, review the "Budget (components)" tab.
                 </div>
-                <div name="alert_banner_operations" role="alert" class="alert alert-info"
+                <div name="alert_banner_operations" role="alert" class="alert alert-danger"
                     attrs="{'invisible': [('difference_workorder_duration_budget', '=', 0.0)]}"
                 >
                     <span class="fa fa-info-circle" />
@@ -181,6 +181,7 @@
                     </div>
                     <div name="budget_workorder_difference"
                         attrs="{'invisible': [('difference_workorder_duration_budget', '=', 0.0)]}"
+                        class="text-danger"
                     >
                         Difference:
                         <strong class="fs-4">

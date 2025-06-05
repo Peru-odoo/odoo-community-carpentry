@@ -43,17 +43,16 @@ class CarpentryExpense(models.Model):
                 
                 -- gain
                 CASE
-                    WHEN line.productivity_tracking = 'unit' AND SUM(line.duration_expected) != 0.0 AND SUM(line.duration) != 0.0
-                    THEN
-                        (SUM(line.qty_production) / SUM(line.duration_expected)
-                        - SUM(line.qty_produced) / SUM(line.duration)
-                        ) * SUM(line.qty_produced) / 60.0
-                    ELSE
-                        CASE
-                            WHEN SUM(line.duration) > SUM(line.duration_expected) OR section.state = 'done'
-                            THEN (SUM(line.duration_expected) - SUM(line.duration)) / 60.0
-                            ELSE 0.0
-                        END
+                    WHEN SUM(line.duration) > SUM(line.duration_expected) OR section.state = 'done'
+                    THEN (SUM(line.duration_expected) - SUM(line.duration)) / 60.0
+                    ELSE CASE
+                        WHEN line.productivity_tracking = 'unit' AND SUM(line.qty_production) != 0.0 AND SUM(line.qty_produced) != 0.0
+                        THEN
+                            (SUM(line.duration_expected) / SUM(line.qty_production)
+                            - SUM(line.duration) / SUM(line.qty_produced)
+                            ) * SUM(line.qty_produced) / 60.0
+                        ELSE 0.0
+                    END
                 END AS amount_gain,
                 FALSE AS should_compute_gain
             """
