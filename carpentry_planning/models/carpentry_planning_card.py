@@ -189,7 +189,10 @@ class CarpentryPlanningCard(models.Model):
                     expression.OR([[('column_id', '!=', column.id)], column_domain])
                 ])
 
-        return super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
+        res = super(CarpentryPlanningCard, self.sudo()).read_group(
+            domain, fields, groupby, offset, limit, orderby, lazy
+        )
+        return res
     
     @api.model
     def search(self, domain=None, offset=0, limit=None, order=None, **kwargs):
@@ -207,7 +210,9 @@ class CarpentryPlanningCard(models.Model):
             domain = expression.AND([domain, column_domain])
 
         # 3. Let possibility of custom filtering by original model
-        return super().search(domain, offset, limit, order, **kwargs)
+        return super(CarpentryPlanningCard, self.sudo()).search(
+            domain, offset, limit, order, **kwargs
+        )
     
     def _get_domain_part(self, domain, field):
         """ Search and return a tuple (i.e. `domain_part`) in a `domain`
