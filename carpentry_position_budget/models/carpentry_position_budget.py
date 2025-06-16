@@ -91,18 +91,17 @@ class CarpentryPositionBudget(models.Model):
             - Goods value is directly in `amount` 
         """
         for budget in self:
-            budget.value = budget.sudo()._value_amount(budget.amount)
-    
-    def _value_amount(self, amount):
-        self.ensure_one()
-
-        line_type = self.analytic_account_id._get_default_line_type() or 'amount'
-
-        if line_type == 'workforce':
-            budget_id = fields.first(self.project_id.budget_ids)
-            return self.analytic_account_id._value_workforce(amount, budget_id)
-        else:
-            return amount
+            budget.value = budget.analytic_account_id._value_amount(budget.amount, budget.project_id)
+        
+        # Also revalue budget reservation
+        affectations = self.env['carpentry.group.affectation'].search(
+            domain=[
+                ('project_id', 'in', budget.project_id.ids),
+                ('group_id', 'in', budget.analytic_account_id.ids),
+                ('group_res_model', '=', 'account.analytic.account'),
+            ]
+        )
+        affectations._compute_quantity_affected_valued()
 
     #===== Helpers: add or erase budget of a position =====#
     def _add_budget(self, vals_list_budget):

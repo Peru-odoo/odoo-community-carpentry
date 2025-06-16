@@ -47,9 +47,10 @@
                 <!-- budget -->
                 <div class="flex-grow-1 mx-1 fs-4">
                     <t t-set="budget" t-value="header.budget" />
-                    <div t-if="budget" t-att-data-tooltip="budget.tooltip">
-                        <t t-esc="budget.reserved" /><t t-esc="budget.unit" /> /
-                        <t t-esc="budget.available" /><t t-esc="budget.unit" />
+                    <div t-if="budget">
+                        <span t-esc="budget.expense" title="Real expense" /><t t-esc="budget.unit" /> /
+                        <span t-esc="budget.reserved" title="Reserved budget so far" /><t t-esc="budget.unit" /> /
+                        <span t-esc="budget.available" title="Initially available budget" /><t t-esc="budget.unit" />
                     </div>
                     <br t-else="" />
                 </div>

@@ -90,6 +90,21 @@ class AccountAnalyticAccount(models.Model):
         for analytic in self:
             analytic.budget_unit = 'h' if analytic._get_default_line_type() == 'workforce' else '€' 
     
+    def _value_amount(self, amount, project_id):
+        """ Used to convert h to € when needed:
+            - position available budget
+            - reserved budget
+        """
+        self.ensure_one()
+
+        line_type = self._get_default_line_type() or 'amount'
+
+        if line_type == 'workforce':
+            budget_id = fields.first(project_id.budget_ids)
+            return self._value_workforce(amount, budget_id)
+        else:
+            return amount
+    
     #===== Native ORM methods =====#
     def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
         if self._context.get('analytic_display_budget'):

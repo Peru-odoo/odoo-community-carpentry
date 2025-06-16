@@ -229,6 +229,20 @@ class CarpentryBudgetAvailable(models.Model):
     def _orderby(self, model, models):
         return ''
     
+    #===== Queries =====#
+    def _get_groupby(self, records, launch_ids_, groupby):
+        return {}
+        # rg_result = self.read_group(
+        #     domain=[('launch_id', 'in', launch_ids_), (groupby, 'in', records.mapped(groupby))],
+        #     fields=['subtotal:sum'],
+        #     groupby=[groupby],
+        # )
+        # many2one = self[groupby]!!._fields['aaa']
+        # return {
+        #     x[groupby][0] if many2one else x[groupby]: x['subtotal']
+        #     for x in rg_result
+        # }
+
     #===== Button =====#
     def open_position_budget(self, position_id=None):
         """ Open document providing budget (position or project) """

@@ -22,6 +22,13 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
+    # hourly_cost = fields.Monetary(
+    #     string="Hourly cost",
+    #     default=False,
+    #     group_operator='sum',
+    #     compute='_compute_hourly_cost',
+    #     store=True,
+    # )
     budget_unit = fields.Char(compute='_compute_budget_unit_type', compute_sudo=True)
     budget_type = fields.Selection(
         selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
@@ -45,6 +52,19 @@ class CarpentryGroupAffectation(models.Model):
     #     domain = [('budget_type', operator, value)]
     #     analytics = self.env['account.analytic.account'].search(domain)
     #     return [('group_id', 'in', analytics.ids)]
+
+    # @api.depends('project_id', 'group_id', 'group_res_model', 'quantity_affected')
+    # def _compute_hourly_cost(self):
+    #     """ Useful to valorize `workforce` budget for Gain/Loss """
+    #     to_compute = self.filtered(lambda x: x.budget_type)
+    #     (self - to_compute).quantity_affected_valued = False
+
+    #     for affectation in to_compute:
+    #         analytic = affectation.group_ref
+    #         affectation.quantity_affected_valued = analytic._value_amount(
+    #             affectation.quantity_affected,
+    #             affectation.project_id
+    #         )
 
     #===== Logic methods =====#
     def _get_siblings_parent(self):

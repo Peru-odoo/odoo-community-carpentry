@@ -199,6 +199,26 @@ class CarpentryBudgetExpense(models.Model):
     def _orderby(self, model, models):
         return ''
 
+    #===== Queries =====#
+    def _get_groupby(self, records, launch_ids_, groupby, fields=['quantity_affected', 'amount_expense']):
+        return {}
+        # attention
+        # # rajouter fields launch_ids dans la view (left join carpentry_group_launch => affectations uniquement)
+
+        # fields = fields or ['quantity_affected', 'amount_expense']
+        # rg_result = self.read_group(
+        #     domain=[('launch_id', 'in', launch_ids_), (groupby, 'in', records.mapped(groupby))],
+        #     groupby=[groupby],
+        #     fields=[key + ':sum' for key in fields],
+        # )
+        # many2one = self[groupby]!!._fields['aaa']
+        # return (
+        #         {
+        #         x[groupby][0] if many2one else x[groupby]: x[key]
+        #         for x in rg_result
+        #     } for key in fields]
+        # )
+    
     #===== Compute =====#
     @api.depends('section_ref')
     def _compute_launch_ids(self):

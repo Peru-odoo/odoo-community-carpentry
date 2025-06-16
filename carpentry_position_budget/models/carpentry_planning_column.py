@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import time
-from odoo import models, fields, api, _, Command, exceptions
-from collections import defaultdict
+from odoo import models, fields
+from odoo.osv import expression
 
 def human_readable(num, scale=1000.0):
     for unit in ("", "k", "m"):
@@ -23,39 +22,34 @@ class CarpentryPlanningColumn(models.Model):
     def get_headers_data(self, launch_id_):
         """ Add budget information to planning's columns headers """
         res = super().get_headers_data(launch_id_)
+        return res
+    
         if not self.mapped('budget_type'):
             return res
         
-        mapped_milestone_data = defaultdict(list)
         analytics = self.env['account.analytic.account'].search([('is_project_budget', '=', True)])
-        budget_types_descr = dict(analytics._fields['budget_type']._description_selection(self.env))
 
-        # 1. Retrieve all `available` and `reserved` budget for this launch
-        #    budget_dict: format like {('carpentry.group.launch', launch.id, budget_type): amount}
-        launch = self.env['carpentry.group.launch'].browse(launch_id_)
-        brut = analytics._get_available_budget_initial(launch, groupby_budget='budget_type', brut_or_valued='brut')
-        reserved = analytics._get_sum_reserved_budget(launch, groupby_budget='budget_type')
-
-        def __format(budget_dict, column):
-            key = ('carpentry.group.launch', launch.id, column.budget_type)
-            return human_readable(budget_dict.get(key, 0.0))
+        # 1. Retrieve all *available (brut)*, *reserved budget* and *expense* for this launch
+        mapped_available = self.env['carpentry.budget.available']._get_groupby(self, [launch_id_], 'budget_type')
+        mapped_reserved, mapped_expense = self.env['carpentry.budget.expense']._get_groupby(self, [launch_id_], 'budget_type')
+        # 2. ratio répartition % / dépense lancement
+        #   dans chaque section / budget_type selon budget réservé,
+        #   groupé pour toutes les sections par niveau du budget_type
 
         # 2. Compute data per column
         for column in self:
-            if not column.budget_type:
+            budget_type = column.budget_type
+            if not budget_type:
                 continue
 
             column_analytics = analytics.filtered(lambda x: x.budget_type == column.budget_type)
             is_hour = set(column_analytics.mapped('budget_unit')) == {'h'}
 
             res[column.id]['budget'] = {
-                'tooltip': '[{}] {}' . format(
-                    budget_types_descr.get(column.budget_type),
-                    ', ' . join(column_analytics.mapped('name'))
-                ),
                 'unit': 'h' if is_hour else '€',
-                'available': __format(brut, column),
-                'reserved': __format(reserved, column),
+                'expense': human_readable(mapped_expense.get(budget_type)),
+                'reserved': human_readable(mapped_reserved.get(budget_type)),
+                'available': human_readable(mapped_available.get(budget_type)),
             }
 
         return res
