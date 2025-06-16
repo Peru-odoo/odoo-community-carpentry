@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
-from odoo.tools.misc import groupby as tools_groupby
+from odoo import models, fields, api
 from collections import defaultdict
 
 class ManufacturingOrder(models.Model):
@@ -88,6 +87,9 @@ class ManufacturingOrder(models.Model):
         move_done.quantity_done = 0.0
 
     #===== Planning =====#
+    def _get_planning_domain(self):
+        return [('state', '!=', 'cancel')]
+    
     @api.depends('reservation_state', 'components_availability_state')
     def _compute_planning_card_color_class(self):
         for mo in self:

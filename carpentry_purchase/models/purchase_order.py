@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
-from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
+from odoo import models, fields, api
 
 class PurchaseOrder(models.Model):
     _name = 'purchase.order'
@@ -139,6 +138,10 @@ class PurchaseOrder(models.Model):
         return super()._prepare_invoice() | {
             'project_id': self.project_id.id
         }
+
+    #===== Planning =====#
+    def _get_planning_domain(self):
+        return [('state', '!=', 'draft')]
 
     #===== Button =====#
     def open_need_kanban(self):
