@@ -34,7 +34,12 @@
                 <!-- mrp.production -->
                 <t t-if="record.res_model.raw_value == 'mrp.production'">
                     <span t-attf-class="o_kanban_inline_block badge fs-6 fw-bold text-bg-{{record.planning_card_color_class.raw_value}}">
-                        <span t-out="record.components_availability.raw_value || ''" />
+                        <t t-if="record.state.raw_value == 'done'">
+                            Done
+                        </t>
+                        <t t-else="">
+                            <span t-out="record.components_availability.raw_value || ''" />
+                        </t>
                     </span>
                 </t>
 

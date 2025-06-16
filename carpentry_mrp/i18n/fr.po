@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-02 19:59+0000\n"
-"PO-Revision-Date: 2025-06-02 22:00+0200\n"
+"POT-Creation-Date: 2025-06-16 20:38+0000\n"
+"PO-Revision-Date: 2025-06-16 22:38+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -65,6 +65,16 @@ msgstr "Nombre de bons de commande générés"
 #: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_production__description
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_picking__description
 msgid "Description"
+msgstr ""
+
+#. module: carpentry_mrp
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp.carpentry_planning_kanban
+msgid "Done"
+msgstr "Terminé"
+
+#. module: carpentry_mrp
+#: model:ir.model.fields,field_description:carpentry_mrp.field_mrp_workorder__gain_hours
+msgid "Gain (h)"
 msgstr ""
 
 #. module: carpentry_mrp
@@ -185,6 +195,7 @@ msgstr "Ordre de fabrication"
 
 #. module: carpentry_mrp
 #: model:ir.model.fields,field_description:carpentry_mrp.field_stock_move__project_id
+#: model_terms:ir.ui.view,arch_db:carpentry_mrp.view_mrp_production_workorder_form_view_filter
 msgid "Project"
 msgstr "Projet"
 
