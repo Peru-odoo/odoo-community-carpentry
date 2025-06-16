@@ -61,6 +61,9 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         mapped_analytics = self._get_mapped_project_analytics()
         mapped_price = defaultdict(float)
+
+        # Analytic = self.env['account.analytic.account']
+        # HourlyCost = self.env['hr.employee.timesheet.cost.history']
         
         lines = self.order_line.filtered(lambda x: x.product_id.type != 'product')
         for line in lines:
@@ -72,6 +75,13 @@ class PurchaseOrder(models.Model):
                 # Ignore cost if analytic not in project's budget
                 if analytic_id in mapped_analytics.get(line.project_id.id, []):
                     amount = line.price_subtotal * percentage / 100
+                    
+                    # convert € to h
+                    # analytic = Analytic.browse(analytic_id)
+                    # if analytic._get_default_line_type() == 'workforce':
+                    #     hourly_cost = 
+                    #     amount = amount / hourly_cost if hourly_cost else 0.0
+
                     mapped_price[analytic_id] += amount
         return mapped_price
 

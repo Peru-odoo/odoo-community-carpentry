@@ -94,14 +94,14 @@ class CarpentryPositionBudget(models.Model):
             budget.value = budget.analytic_account_id._value_amount(budget.amount, budget.project_id)
         
         # Also revalue budget reservation
-        affectations = self.env['carpentry.group.affectation'].search(
-            domain=[
-                ('project_id', 'in', budget.project_id.ids),
-                ('group_id', 'in', budget.analytic_account_id.ids),
-                ('group_res_model', '=', 'account.analytic.account'),
-            ]
-        )
-        affectations._compute_quantity_affected_valued()
+        # affectations = self.env['carpentry.group.affectation'].search(
+        #     domain=[
+        #         ('project_id', 'in', budget.project_id.ids),
+        #         ('group_id', 'in', budget.analytic_account_id.ids),
+        #         ('group_res_model', '=', 'account.analytic.account'),
+        #     ]
+        # )
+        # affectations._compute_quantity_affected_valued()
 
     #===== Helpers: add or erase budget of a position =====#
     def _add_budget(self, vals_list_budget):

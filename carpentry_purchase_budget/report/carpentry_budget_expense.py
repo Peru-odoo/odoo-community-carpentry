@@ -20,7 +20,7 @@ class CarpentryExpense(models.Model):
         if model in ('purchase.order', 'account.move'):
             ratio_invoiced = (
                 '(line.product_qty::float - line.qty_invoiced::float) / line.product_qty::float'
-                if model == 'purchase.order' 
+                if model == 'purchase.order'
                 else 1.0
             )
 
