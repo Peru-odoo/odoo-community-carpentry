@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, tools, _, api
+from odoo import models, fields, tools, api
 from psycopg2.extensions import AsIs
 
 class CarpentryBudgetAvailable(models.Model):
-    """ Union of `carpentry.position.budget` and `account.move.budget.line`
-        for report of initially available budget, aka *`Where does the budget comes from?*
+    """ Union of:
+        - launch budgets (carpentry.budget.available.launch) and
+        - project budgets (account.move.budget.line)
+        for report of *Initially available budget*,
+                   aka *Where does the budget comes from?*
     """
     _name = 'carpentry.budget.available'
-    _description = 'Available budget report'
+    _description = 'Project & launches budgets'
     _auto = False
-
+    
     #===== Fields =====#
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -20,11 +23,6 @@ class CarpentryBudgetAvailable(models.Model):
     position_id = fields.Many2one(
         comodel_name='carpentry.position',
         string='Position',
-        readonly=True,
-    )
-    phase_id = fields.Many2one(
-        comodel_name='carpentry.group.phase',
-        string='Phase',
         readonly=True,
     )
     launch_id = fields.Many2one(
@@ -37,22 +35,13 @@ class CarpentryBudgetAvailable(models.Model):
         string='Budget type',
         readonly=True,
     )
-    # model
-    group_model_id = fields.Many2one(
-        comodel_name='ir.model',
-        string='Group',
-        readonly=True,
-    )
-    group_res_model = fields.Char(
-        related='group_model_id.model',
-    )
     # affectation
     quantity_affected = fields.Float(
         string='Quantity',
         digits='Product Unit of Measure',
         group_operator='sum',
         readonly=True,
-        help='Number of affected positions'
+        help='Number of affected positions',
     )
     # budget
     budget_type = fields.Selection(
@@ -69,11 +58,19 @@ class CarpentryBudgetAvailable(models.Model):
         string='Budget',
         readonly=True,
     )
-
+    # model
+    group_model_id = fields.Many2one(
+        comodel_name='ir.model',
+        string='Group',
+        readonly=True,
+    )
+    group_res_model = fields.Char(
+        related='group_model_id.model',
+    )
 
     #===== View build =====#
     def _get_queries_models(self):
-        return ('project.project', 'carpentry.group.phase', 'carpentry.group.launch')
+        return ('project.project', 'carpentry.group.affectation')
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -83,7 +80,7 @@ class CarpentryBudgetAvailable(models.Model):
             self._cr.execute("""
                 CREATE or REPLACE VIEW %s AS (
                     SELECT
-                        row_number() OVER (ORDER BY model, id_origin) AS id,
+                        row_number() OVER (ORDER BY unique_key) AS id,
                         *
                     FROM (
                         (%s)
@@ -122,15 +119,11 @@ class CarpentryBudgetAvailable(models.Model):
     def _select(self, model, models):
         return f"""
             SELECT
-                '{model}' AS model,
-                project.id AS id_origin,
+                'project-' || budget_project.id AS unique_key,
 
                 -- project & carpentry group
             	project.id AS project_id,
             	NULL AS launch_id,
-            	NULL AS phase_id,
-
-                -- model
                 {models['project.project']} AS group_model_id,
 
                 -- affectation: position & qty affected
@@ -139,54 +132,43 @@ class CarpentryBudgetAvailable(models.Model):
 
                 -- budget
                 CASE
-                    WHEN budget.type = 'amount'
-                    THEN budget.balance
-                    ELSE budget.qty_balance
+                    WHEN budget_project.type = 'amount'
+                    THEN budget_project.balance
+                    ELSE budget_project.qty_balance
                 END AS amount,
                 CASE
-                    WHEN budget.type = 'amount'
-                    THEN budget.balance
-                    ELSE budget.qty_balance
+                    WHEN budget_project.type = 'amount'
+                    THEN budget_project.balance
+                    ELSE budget_project.qty_balance
                 END AS subtotal,
-                budget.analytic_account_id,
-                budget.budget_type
+                budget_project.analytic_account_id,
+                budget_project.budget_type
             
         """ if model == 'project.project' else f"""
 
             SELECT
-                '{model}' AS model,
-                affectation.id AS id_origin,
+                'launch-' || launch.id || '-' || budget.id  AS unique_key,
 
-                -- project & carpentry group
+                -- project_id & launch_id
                 affectation.project_id,
-            	CASE
-                    WHEN '{model}' = 'carpentry.group.launch'
-                    THEN carpentry_group.id
-                    ELSE NULL
-                END AS launch_id,
-            	CASE
-                    WHEN '{model}' = 'carpentry.group.phase'
-                    THEN carpentry_group.id
-                    ELSE NULL
-                END AS phase_id,
+            	launch.id AS launch_id,
+                {models['carpentry.group.launch']} AS group_model_id,
 
-                -- model
-                affectation.group_model_id AS group_model_id,
-                
                 -- affectation: position & qty affected
-                affectation.position_id,
-                affectation.quantity_affected,
+                budget.position_id,
+                SUM(affectation.quantity_affected) AS quantity_affected,
 
                 -- budget
-                budget.amount,
-                affectation.quantity_affected * budget.amount AS subtotal,
+                SUM(budget.amount) AS amount,
+                SUM(affectation.quantity_affected * budget.amount) AS subtotal,
+
                 budget.analytic_account_id,
                 budget.budget_type
         """
 
     def _from(self, model, models):
         return (
-            'FROM account_move_budget_line AS budget'
+            'FROM account_move_budget_line AS budget_project'
 
             if model == 'project.project' else
 	        
@@ -196,23 +178,19 @@ class CarpentryBudgetAvailable(models.Model):
     def _join(self, model, models):
         return """
             INNER JOIN project_project AS project
-                ON project.id = budget.project_id
-            
-        """ if model == 'project.project' else f"""
-
-            INNER JOIN ir_model AS ir_model_group
-                ON ir_model_group.id = affectation.group_model_id
+                ON project.id = budget_project.project_id
+        """ if model == 'project.project' else """
 
             INNER JOIN carpentry_position_budget AS budget
                 ON budget.position_id = affectation.position_id
-            INNER JOIN {model.replace('.', '_')} AS carpentry_group
-                ON carpentry_group.id = affectation.group_id
+            INNER JOIN carpentry_group_launch AS launch
+                ON launch.id = affectation.group_id
         """
     
     def _where(self, model, models):
         return """
             WHERE
-                budget.balance != 0 AND
+                budget_project.balance != 0 AND
                 is_computed_carpentry IS FALSE
             
             """ if model == 'project.project' else f"""
@@ -220,11 +198,20 @@ class CarpentryBudgetAvailable(models.Model):
             WHERE
                 affectation.active IS TRUE AND
                 quantity_affected != 0 AND
-                ir_model_group.model = '{model}'
+                affectation.group_model_id = {models['carpentry.group.launch']}
             """
     
     def _groupby(self, model, models):
-        return ''
+        return '' if model == 'project.project' else """
+
+            GROUP BY 
+               affectation.project_id,
+               launch.id,
+               budget.id,
+               budget.position_id,
+               budget.budget_type,
+               budget.analytic_account_id
+        """
     
     def _orderby(self, model, models):
         return ''
@@ -242,6 +229,52 @@ class CarpentryBudgetAvailable(models.Model):
         #     x[groupby][0] if many2one else x[groupby]: x['subtotal']
         #     for x in rg_result
         # }
+
+
+
+    #===== ORM method =====#
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+        """ Add position's `quantity_affected` in position's `display_name`
+            when grouping per position
+        """
+        res = super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
+        
+        if (
+            res and 'position_id' in res[0] and # groupby by `position_id`
+            self._context.get('display_model_shortname') # not programatic call
+        ):
+            # count position's affected quantities per launch
+            position_ids_ = [x['position_id'][0] for x in res if x.get('position_id')]
+            rg_result = self.env['carpentry.group.affectation'].read_group(
+                domain=[('group_res_model', '=', 'carpentry.group.launch'), ('position_id', 'in', position_ids_)],
+                fields=['quantity_affected:sum'],
+                groupby=['group_id', 'position_id'],
+                lazy=False,
+            )
+            mapped_quantities = {
+                # (launch_id, position_id): qty:sum
+                (x['group_id'], x['position_id'][0]): x['quantity_affected']
+                for x in rg_result
+            }
+
+            # add the count in position's display_name
+            launch_id_ctx_ = (
+                # when not grouping per launch, but pivot view on a single launch
+                self._context.get('active_model') == 'carpentry.group.launch' and
+                self._context.get('active_id')
+            )
+            for data in res:
+                launch_id_ = launch_id_ctx_ or data.get('launch_id') and data['launch_id'][0]
+                position = data.get('position_id')
+                if launch_id_ and position:
+                    display_name = '{} ({})' . format(
+                        position[1],
+                        round(mapped_quantities.get((launch_id_, position[0]), 0.0))
+                    )
+                    data['position_id'] = (position[0], display_name)
+        
+        return res
 
     #===== Button =====#
     def open_position_budget(self, position_id=None):

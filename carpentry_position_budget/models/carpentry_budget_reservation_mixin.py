@@ -33,10 +33,10 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         string='Budgets',
         compute='_compute_budget_analytic_ids',
     )
-    amount_remaining = fields.Monetary(
-        string='Budget',
-        compute='_compute_amount_remaining',
-    )
+    # amount_remaining = fields.Monetary(
+    #     string='Budget',
+    #     compute='_compute_amount_remaining',
+    # )
     amount_budgetable = fields.Monetary(
         string='Budgetable Amount',
         compute='_compute_amount_budgetable',
@@ -44,7 +44,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
              " Gain = 'Amount of reserved budget' - this amount"
     )
     sum_quantity_affected = fields.Float(
-        store=True, # to search on Budget Reservation amount on Purchase Orders
+        store=True, # to search on Budget Reservation amount
         string='Amount of reserved budget',
         help='Sum of budget reservation'
     )
@@ -196,23 +196,39 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     #===== Compute amounts =====#
     @api.depends('affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self):
-        """ [Overwritte] PO needs real-time computing => no read_group """
-        for record in self:
-            record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
-    
-    @api.depends('launch_ids')
-    def _compute_amount_remaining(self):
-        """ Also called from `_compute_budget_analytic_ids()`
-            Computes *valued* remaining budget at level of the
-            section (PO, MO, picking, task, ...)
+        """ [Overwritte]
+            - Real-time computing => no read_group
+            - (h) to (€) conversion if needed (PO and picking)
         """
-        for record in self:
-            budgets = self.budget_analytic_ids._get_remaining_budget(self.launch_ids, self)
-            record.amount_remaining = sum([
-                amount
-                for (_, _, analytic_id_), amount in budgets.items()
-                if analytic_id_ in self.budget_analytic_ids.ids
-            ])
+        if self._is_quantity_affected_valued():
+            for record in self:
+                record.sum_quantity_affected = sum([
+                    affectation.group_ref._value_amount(
+                        affectation.quantity_affected,
+                        record.project_id,
+                    )
+                    for affectation in record.affectation_ids
+                ])
+        else:
+            for record in self:
+                record.sum_quantity_affected = sum(record.affectation_ids.mapped('quantity_affected'))
+
+    def _is_quantity_affected_valued(self):
+        return False
+
+    # @api.depends('launch_ids')
+    # def _compute_amount_remaining(self):
+    #     """ Also called from `_compute_budget_analytic_ids()`
+    #         Computes *valued* remaining budget at level of the
+    #         section (PO, MO, picking, task, ...)
+    #     """
+    #     for record in self:
+    #         budgets = self.budget_analytic_ids._get_remaining_budget(self.launch_ids, self)
+    #         record.amount_remaining = sum([
+    #             amount
+    #             for (_, _, analytic_id_), amount in budgets.items()
+    #             if analytic_id_ in self.budget_analytic_ids.ids
+    #         ])
 
     def _compute_amount_budgetable(self):
         """ To be inherited """
@@ -231,7 +247,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _compute_budget_analytic_ids(self):
         """ To be inherited """
         self._set_readonly_affectation()
-        self._compute_amount_remaining()
+        # self._compute_amount_remaining()
 
     #===== Business logics =====#
     def _auto_update_budget_distribution(self):
@@ -311,16 +327,15 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         # to be inherited
 
     #===== Button =====#
-    def open_remaining_budget(self):
-        """ From the document (PO, MO, picking),
-            open *Remaining budget* pivot view
+    def action_open_budget(self, xml_id, context={}):
+        """ From the document (PO, MO, picking)
+            open *Available budget* or *Remaining budget* pivot view
+            filtered on launches
         """
-        action = self.env['ir.actions.act_window']._for_xml_id(
-            'carpentry_position_budget.action_open_budget_report_remaining'
-        )
+        action = self.env['ir.actions.act_window']._for_xml_id('carpentry_position_budget.' + xml_id)
 
         budget_types = self._get_budget_types()
-        action['context'] = safe_eval(action['context'] or '{}') | {
+        action['context'] = context | safe_eval(action['context'] or '{}') | {
             f'search_default_filter_{budget_type}': 1
             for budget_type in budget_types
         }
@@ -329,3 +344,12 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             ('launch_id', 'in', [False] + self.launch_ids._origin.ids)
         ]
         return action
+    
+    def open_launch_budget(self):
+        return self.action_open_budget(
+            xml_id='action_open_launch_budget',
+            context={'search_default_filter_groupby_launch': 1}
+        )
+    
+    def open_remaining_budget(self):
+        return self.action_open_budget('action_open_budget_report_remaining')

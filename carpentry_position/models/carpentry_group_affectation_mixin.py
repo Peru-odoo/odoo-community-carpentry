@@ -552,30 +552,31 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     @api.depends('affectation_ids')
     def _compute_sum_quantity_affected(self, groupby='group_id'):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
-        rg_result = self.env['carpentry.group.affectation'].read_group(
-            domain=self._get_domain_affect(),
-            groupby=[groupby],
-            fields=['quantity_affected:sum']
-        )
+        rg_result = self._get_mapped_quantities(self.ids, [groupby])
         mapped_data = {x[groupby]: x['quantity_affected'] for x in rg_result}
         for record in self:
             record.sum_quantity_affected = mapped_data.get(record.id, 0)
 
-    def _get_quantities(self):
+    def _get_mapped_quantities(self, group_ids_, groupby):
+        return self.env['carpentry.group.affectation'].read_group(
+            domain=[('group_res_model', '=', self._name), ('group_id', 'in', group_ids_)],
+            fields=['quantity_affected:sum'],
+            groupby=groupby,
+            lazy=bool(len(groupby) == 1),
+        )
+
+    def _get_quantities(self, group_ids_=[]):
         """ :return: param of `carpentry_position_budget.sum()` """
-        quantities = defaultdict(int)
-        
-        for affectation in self.affectation_ids:
-            # sum position's affected qty to the group
-            key = frozenset({
-                'group_id': affectation.group_id,
-                'position_id': affectation.position_id.id
-            }.items())
-
-            quantities[key] += affectation['quantity_affected']
-        
-        return quantities
-
+        rg_result = self._get_mapped_quantities(self.ids or group_ids_, ['group_id', 'position_id'])
+        return {
+            frozenset(
+                {
+                    'group_id': x['group_id'],
+                    'position_id': x['position_id'][0],
+                }.items()
+            ): x['quantity_affected']
+            for x in rg_result
+        }
 
     #===== Button =====#
     def button_group_quick_create(self):

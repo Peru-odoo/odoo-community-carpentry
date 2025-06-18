@@ -44,12 +44,20 @@
 
             <!-- Smart Button -->
             <div name="button_box" position="inside">
+                <button name="open_launch_budget" type="object"
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('launch_ids', '=', [])]}"
+                    string="Launch budgets"
+                    title="Initially available budgets"
+                />
+
                 <button name="open_remaining_budget" type="object"
                     class="oe_stat_button"
                     icon="fa-money"
-                    attrs="{'invisible': [('launch_ids', '=', [])]}"
-                    string="Budget"
-                    title="Remaining budget"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('launch_ids', '=', [])]}"
+                    string="Remaining"
+                    title="Remaining budgets"
                 />
             </div>
 

@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-19 16:34+0000\n"
-"PO-Revision-Date: 2025-05-01 18:46+0200\n"
+"POT-Creation-Date: 2025-06-18 16:36+0000\n"
+"PO-Revision-Date: 2025-06-18 18:40+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -35,8 +35,7 @@ msgid ""
 "                    If this is not on purpose, review the \"Budget reservation\" tab."
 msgstr ""
 ").\n"
-"                    Si cela n'est pas intentionnel, réviser l'onglet \"Réservation de "
-"budget\"."
+"                    Si cela n'est pas intentionel, réviser l'onglet \"Réservation de budget\"."
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
@@ -109,6 +108,21 @@ msgid "Currency"
 msgstr "Devise"
 
 #. module: carpentry_purchase_budget
+#: model:ir.model,name:carpentry_purchase_budget.model_carpentry_budget_expense
+msgid "Expenses"
+msgstr "Rapport des dépenses et des budgets"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Initially available budgets"
+msgstr "Budgets disponibles initialement"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Launch budgets"
+msgstr "Lancements (budgets)"
+
+#. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid ""
 "Please ensure the \"Products\" tab contains at least 1 non-stored product (with a price) "
@@ -148,6 +162,16 @@ msgstr "Gain enregistré :"
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
 msgid "Recorded loss:"
 msgstr "Perte enregistrée :"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Remaining"
+msgstr "Restant"
+
+#. module: carpentry_purchase_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form
+msgid "Remaining budgets"
+msgstr "Remaining budget"
 
 #. module: carpentry_purchase_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase_budget.purchase_order_form

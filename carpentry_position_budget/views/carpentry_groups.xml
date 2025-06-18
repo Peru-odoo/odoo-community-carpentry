@@ -21,4 +21,50 @@
         </field>
     </record>
 
+    <!-- Launch (form) : positions & budget -->
+    <record id="action_open_launch_budget" model="ir.actions.act_window">
+        <field name="name">Launch budgets</field>
+        <field name="res_model">carpentry.budget.available</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="context">{
+            'search_default_filter_groupby_position': 1,
+            'display_model_shortname': 1,
+        }</field>
+        <field name="domain">[('launch_id', '=', active_id)]</field>
+    </record>
+
+    <record id="carpentry_group_launch_form" model="ir.ui.view">
+        <field name="name">carpentry.group.launch.form.budget</field>
+        <field name="model">carpentry.group.launch</field>
+        <field name="inherit_id" ref="carpentry_position.carpentry_group_launch_form" />
+        
+        <field name="arch" type="xml">
+            <!-- For form edit view (smart button) -->
+            <div name="button_box" position="inside">
+                <button name="%(action_open_launch_budget)d" type="action" class="oe_stat_button" icon="fa-money">
+                    Available budget
+                </button>
+            </div>
+
+            <!-- For planning view (modal) -->
+            <notebook name="carpentry_planning" position="inside">
+                <page name="positions" string="Positions">
+                    <field
+                        name="budget_ids"
+                        widget="x2many_2d_matrix"
+                        field_x_axis="analytic_account_id"
+                        field_y_axis="position_id"
+                        field_value="subtotal"
+                    >
+                        <tree limit="999999">
+                            <field name="analytic_account_id"/>
+                            <field name="position_id" />
+                            <field name="subtotal" />
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
 </odoo>

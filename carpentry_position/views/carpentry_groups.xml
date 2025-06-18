@@ -95,6 +95,8 @@
                 <field name="active" invisible="1" />
 
                 <sheet>
+                    <div class="oe_button_box" name="button_box" groups="base.group_user" />
+                    
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
 
                     <div class="oe_title">
@@ -104,6 +106,7 @@
                     </div>
                     
                     <!-- See `carpentry_purchase_budget` for 'carpentry_planning' ctx -->
+                    <notebook name="carpentry_planning" invisible="not context.get('carpentry_planning')" />
                     <group name="affectation" col="12" invisible="context.get('carpentry_planning')">
                         <!-- Left: Affectation shortcut -->
                         <group name="left" colspan="3">

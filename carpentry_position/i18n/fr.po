@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-23 17:34+0000\n"
-"PO-Revision-Date: 2025-04-23 19:36+0200\n"
+"POT-Creation-Date: 2025-06-18 16:36+0000\n"
+"PO-Revision-Date: 2025-06-18 18:37+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -105,7 +105,6 @@ msgstr "Statut d'affectation"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__affectation_ids
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__affectation_ids
-#: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids
 msgid "Affectations"
 msgstr "Affectations des repères"
 
@@ -124,6 +123,11 @@ msgstr "Affecté"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__quantity_affected
 msgid "Affected quantity"
 msgstr "Quantité affectée"
+
+#. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_project
+msgid "All affectations"
+msgstr "Toutes les affectations"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
@@ -302,11 +306,6 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_launch
-msgid "Launch"
-msgstr "Lancement"
-
-#. module: carpentry_position
 #: model:ir.actions.act_window,name:carpentry_position.action_open_launch
 #: model:ir.actions.server,name:carpentry_position.action_open_launch_srv
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__launch_ids
@@ -345,7 +344,6 @@ msgid "Lot Sequence"
 msgstr "Séquence des lots"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_lot
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__lot_ids
 msgid "Lots"
 msgstr ""
@@ -388,7 +386,6 @@ msgid "Partial on phase(s)"
 msgstr "Partiel sur les phase(s)"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_phase
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 msgid "Phase"
 msgstr ""
@@ -412,17 +409,11 @@ msgstr ""
 "chantier, en accord avec le client et le planning contractuel du projet."
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__position_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__position_id
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_tree
 msgid "Position"
 msgstr "Repère"
-
-#. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_carpentry_group_affectation
-msgid "Position Affectation"
-msgstr "Affectation de repère"
 
 #. module: carpentry_position
 #: model:ir.model,name:carpentry_position.model_carpentry_group_affectation_temp
@@ -469,14 +460,10 @@ msgid "Positions affectation in Phases"
 msgstr "Affectations des repères dans les phases"
 
 #. module: carpentry_position
-#: model:ir.model,name:carpentry_position.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__project_id
 msgid "Project"
 msgstr "Projet"
 
@@ -494,12 +481,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
 msgid "Quantity"
 msgstr "Quantité"
-
-#. module: carpentry_position
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__quantity_affected_parent
-#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__quantity_affected_parent
-msgid "Quantity affected to parent group"
-msgstr "Quantité affectée au groupe parent"
 
 #. module: carpentry_position
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_position__quantity_remaining_to_affect
@@ -643,7 +624,7 @@ msgstr "Somme des quantités affectées"
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__sum_affected_siblings
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__sum_affected_siblings
 msgid "Sum of affected to neighbors"
-msgstr ""
+msgstr "Somme des quantités affectées aux voisins"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__surface
@@ -705,11 +686,8 @@ msgid "With at least 1 position in commun"
 msgstr "Avec au moins 1 repère en commun"
 
 #. module: carpentry_position
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_launch__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_lot__project_id
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_group_mixin__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_group_phase__project_id
-#: model:ir.model.fields,help:carpentry_position.field_carpentry_position__project_id
 msgid "Within your favorite projects"
 msgstr "Parmis vos projets favoris"
 

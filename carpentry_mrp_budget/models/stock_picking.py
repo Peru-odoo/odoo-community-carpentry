@@ -42,6 +42,9 @@ class StockPicking(models.Model):
             not self.purchase_id and not self.mrp_production_ids
         )
     
+    def _is_quantity_affected_valued(self):
+        return True
+    
     #===== Affectations configuration =====#
     def _get_budget_types(self):
         return ['goods', 'project_global_cost']

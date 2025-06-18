@@ -20,6 +20,10 @@ class PurchaseOrder(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['order_line']
     
+    def _is_quantity_affected_valued(self):
+        return True
+    
+    #===== Compute amounts =====#
     @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_budget_analytic_ids(self):
         """ Compute budget analytics shortcuts

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields
-from odoo.osv import expression
 
 def human_readable(num, scale=1000.0):
-    for unit in ("", "k", "m"):
-        if abs(num) < scale:
-            return f"{num:3.0f}{unit}"
-        num /= scale
-    return f"{num:.0f}M"
+    return num
+    # for unit in ("", "k", "m"):
+    #     if abs(num) < scale:
+    #         return f"{num:3.0f}{unit}"
+    #     num /= scale
+    # return f"{num:.0f}M"
 
 class CarpentryPlanningColumn(models.Model):
     _inherit = ["carpentry.planning.column"]

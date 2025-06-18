@@ -6,6 +6,13 @@ class CarpentryGroupLaunch(models.Model):
     _name = 'carpentry.group.launch'
     _inherit = ['carpentry.group.launch', 'carpentry.group.budget.mixin']
 
+    budget_ids = fields.One2many(
+        comodel_name='carpentry.budget.available',
+        inverse_name='launch_id',
+        string='Budgets',
+        readonly=True,
+    )
+
     @api.ondelete(at_uninstall=False)
     def _unlink_except_budget_reservation(self):
         """ Prevent unlink launch is used in PO, MO, Picking, ... """

@@ -9,7 +9,7 @@ class CarpentryBudgetRemaining(models.Model):
     """
     _name = 'carpentry.budget.remaining'
     _inherit = ['carpentry.budget.available']
-    _description = 'Remaining budget report'
+    _description = 'Project & launches remaining budgets'
     _auto = False
 
     #===== Fields =====#
@@ -38,7 +38,6 @@ class CarpentryBudgetRemaining(models.Model):
     )
     # fields cancelling (necessary so they are not in SQL from ORM)
     position_id = fields.Many2one(store=False)
-    phase_id = fields.Many2one(store=False)
     subtotal = fields.Float(store=False)
     amount = fields.Float(store=False)
 
@@ -49,8 +48,7 @@ class CarpentryBudgetRemaining(models.Model):
     def _select(self, model, models):
         return f"""
             SELECT
-                '{model}' AS model,
-                available.id AS id_origin,
+                'available-' || available.id AS unique_key,
                 'budget' AS state,
                 
                 -- project & launch
@@ -79,8 +77,7 @@ class CarpentryBudgetRemaining(models.Model):
         """ if model == 'carpentry.budget.available' else f"""
 
             SELECT
-                '{model}' AS model,
-                affectation.id AS id_origin,
+                'reservation-' || affectation.id AS unique_key,
                 'reservation' AS state,
 
                 -- project & launch

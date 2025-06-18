@@ -27,18 +27,21 @@
         <field name="arch" type="xml">
             <!-- Smart Button -->
             <button name="action_view_invoice" position="before">
-                <field name="currency_id" invisible="1" /> <!-- for `monetary` widget -->
+                <button name="open_launch_budget" type="object"
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('launch_ids', '=', [])]}"
+                    string="Launch budgets"
+                    title="Initially available budgets"
+                />
+
                 <button name="open_remaining_budget" type="object"
-                    class="oe_stat_button" icon="fa-money"
-                    attrs="{'invisible': [('id', '=', False)]}"
-                >
-                    <div class="o_field_statinfo">
-                        <span class="o_stat_info o_stat_value">
-                            <field name="amount_remaining" widget="monetary" />
-                        </span>
-                        <span class="o_stat_text">Budget</span>
-                    </div>
-                </button>
+                    class="oe_stat_button"
+                    icon="fa-money"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('launch_ids', '=', [])]}"
+                    string="Remaining"
+                    title="Remaining budgets"
+                />
             </button>
 
             <!-- Budget info banner -->

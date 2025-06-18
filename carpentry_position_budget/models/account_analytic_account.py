@@ -90,10 +90,15 @@ class AccountAnalyticAccount(models.Model):
         for analytic in self:
             analytic.budget_unit = 'h' if analytic._get_default_line_type() == 'workforce' else '€' 
     
-    def _value_amount(self, amount, project_id):
+    def _value_amount(self, amount, project_id, mapped_hourly_cost=[]):
         """ Used to convert h to € when needed:
             - position available budget
             - reserved budget
+
+            :option mapped_hourly_cost: There is 2 mode to value:
+                a) if given (from _get_hourly_cost()) => value on a specific date 
+                b) else (no specific date): assume `amount` is spread on all `project_id`'s time
+                    => use hourly_cost table between date range of project's budget
         """
         self.ensure_one()
 
@@ -101,9 +106,14 @@ class AccountAnalyticAccount(models.Model):
 
         if line_type == 'workforce':
             budget_id = fields.first(project_id.budget_ids)
-            return self._value_workforce(amount, budget_id)
+            if not mapped_hourly_cost:
+                return self._value_workforce(amount, budget_id)
         else:
             return amount
+    
+    def _get_hourly_cost(self, date):
+        """ Return the last `hourly_cost` per analytic account """
+
     
     #===== Native ORM methods =====#
     def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):

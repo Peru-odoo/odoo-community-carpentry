@@ -7,7 +7,7 @@ class CarpentryBudgetExpense(models.Model):
     """ Should be overriden in each Carpentry module with expense """
     _name = 'carpentry.budget.expense'
     _inherit = ['carpentry.budget.remaining']
-    _description = 'Budget-related expense report'
+    _description = 'Expenses'
     _auto = False
 
     #===== Fields =====#
