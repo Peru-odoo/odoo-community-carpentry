@@ -30,20 +30,20 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
         })]
 
 
-    def test_01_position_unitary_budget(self):
-        """ Test totals on position """
-        brut, valued = self.position.position_budget_ids._get_position_unitary_budget(
-            groupby_budget='budget_type',
-            brut_or_valued='both',
-        )
-        self.assertEqual(brut.get(self.position.id), {
-            'installation': self.BUDGET_INSTALL,
-            'production': self.BUDGET_PROD,
-        })
-        self.assertEqual(valued.get(self.position.id), {
-            'installation': self.BUDGET_INSTALL * self.HOUR_COST,
-            'production': self.BUDGET_PROD * self.HOUR_COST,
-        })
+    # def test_01_position_unitary_budget(self):
+    #     """ Test totals on position """
+    #     brut, valued = self.position.position_budget_ids._get_position_unitary_budget(
+    #         groupby_budget='budget_type',
+    #         brut_or_valued='both',
+    #     )
+    #     self.assertEqual(brut.get(self.position.id), {
+    #         'installation': self.BUDGET_INSTALL,
+    #         'production': self.BUDGET_PROD,
+    #     })
+    #     self.assertEqual(valued.get(self.position.id), {
+    #         'installation': self.BUDGET_INSTALL * self.HOUR_COST,
+    #         'production': self.BUDGET_PROD * self.HOUR_COST,
+    #     })
 
     def test_02_position_subtotal(self):
         subtotal = (

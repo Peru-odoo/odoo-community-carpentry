@@ -407,7 +407,7 @@ msgstr "Perte enregistrée :"
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.view_picking_form
 msgid "Remaining"
-msgstr "REstant"
+msgstr "Restant"
 
 #. module: carpentry_mrp_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view

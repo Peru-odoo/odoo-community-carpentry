@@ -35,19 +35,8 @@ class CarpentryGroupAffectation(models.Model):
         compute='_compute_budget_unit_type',
         store=True,
     )
-
-    #===== Compute =====#
-    @api.depends('group_id', 'group_res_model')
-    def _compute_budget_unit_type(self):
-        affectation_budget = self.filtered(lambda x: x.group_res_model == 'account.analytic.account')
-        (self - affectation_budget).write({'budget_unit': False, 'budget_type': False})
-        
-        budget_unit_forced = '€' if self._context.get('brut_or_valued') == 'valued' else None
-        
-        for affectation in affectation_budget:
-            affectation.budget_unit = budget_unit_forced or affectation.group_ref.budget_unit
-            affectation.budget_type = affectation.group_ref.budget_type
     
+    #===== Compute =====#
     # def _search_budget_type(self, operator, value):
     #     domain = [('budget_type', operator, value)]
     #     analytics = self.env['account.analytic.account'].search(domain)

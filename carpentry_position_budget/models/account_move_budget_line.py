@@ -17,6 +17,11 @@ class AccountMoveBudgetLine(models.Model):
         #   > added by user (only for `consu_project_global`')
         #   => fields are writable (especially `qty_debit`)
     )
+    date = fields.Date(
+        compute='_compute_date',
+        store=True,
+        readonly=False,
+    )
     debit = fields.Monetary(
         compute='_compute_debit_carpentry',
         store=True,
@@ -41,6 +46,13 @@ class AccountMoveBudgetLine(models.Model):
             )
 
     #===== Compute =====#
+    @api.depends('budget_id.date_from')
+    def _compute_date(self):
+        """ Update computed line's `date` on budget's date """
+        line_ids_computed = self.filtered('is_computed_carpentry')
+        for line in line_ids_computed:
+            line.date = line.budget_id.date_from
+    
     @api.depends(
         # 1. positions' budgets
         'project_id.position_budget_ids',
@@ -65,7 +77,7 @@ class AccountMoveBudgetLine(models.Model):
         """
         line_ids_computed = self.filtered('is_computed_carpentry')
 
-        # compute `debit` standardly, since we overriden the field's `compute` arg
+        # compute `debit` standardly, since we override the field's `compute` arg
         super(AccountMoveBudgetLine, self - line_ids_computed)._compute_debit_credit()
 
         # perf early quit
@@ -73,15 +85,19 @@ class AccountMoveBudgetLine(models.Model):
             return
         
         # Get budget project's groupped by analytic account
-        budget_brut = self.project_id.position_budget_ids._origin.sum(
-            quantities=self.project_id._origin._get_quantities(),
-            groupby_budget='analytic_account_id',
-            groupby_group=['group_id'],
-            brut_or_valued='brut',
+        rg_result = self.env['carpentry.budget.available']._read_group(
+            domain=[('project_id', 'in', self.project_id._origin.ids), ('group_res_model', '=', 'carpentry.position')],
+            groupby=['project_id', 'analytic_account_id'],
+            fields=['subtotal:sum'],
+            lazy=False,
         )
+        budget_brut = {
+            (x['project_id'][0], x['analytic_account_id'][0]): x['subtotal']
+            for x in rg_result
+        }
 
         # Write in budget lines
         for line in line_ids_computed:
-            amount = budget_brut.get(line.project_id._origin.id, {}).get(line.analytic_account_id._origin.id, 0.0)
+            key = (line.project_id._origin.id, line.analytic_account_id._origin.id)
             field = 'debit' if line.type == 'amount' else 'qty_debit'
-            line[field] = amount
+            line[field] = budget_brut.get(key, 0.0)

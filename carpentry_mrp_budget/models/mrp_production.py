@@ -199,7 +199,3 @@ class ManufacturingOrder(models.Model):
     @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids')
     def _compute_amount_gain(self):
         return super()._compute_amount_gain()
-
-    # TODO: hours
-    # @api.depends('workorder_ids')
-    # def _compute_amount_budgetable_workorder(self):

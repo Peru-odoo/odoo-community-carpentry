@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _
+from odoo import models, fields, api
+from collections import defaultdict
 
 class CarpentryGroupBudgetMixin(models.AbstractModel):
     """ Budget sums from Affectations
@@ -17,20 +18,28 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     budget_install = fields.Float(string='Install', compute='_compute_budgets')
     # in (€)
     budget_goods = fields.Monetary(string='Goods', compute='_compute_budgets', currency_field='currency_id')
-    budget_global_cost = fields.Monetary(string='Other', compute='_compute_budgets', currency_field='currency_id')
+    budget_global_cost = fields.Monetary(string='Other costs', compute='_compute_budgets', currency_field='currency_id')
     # total
     budget_total = fields.Monetary(string='Total', compute='_compute_budgets', currency_field='currency_id')
     
     
     #===== Compute (budgets) =====#
-    def _get_budgets_brut_valued(self):
-        return self.env['carpentry.position.budget'].sudo().sum(
-            quantities=self._get_quantities(),
-            groupby_group=['group_id'],
-            groupby_budget='budget_type',
-            domain_budget=self._get_domain_budget_ids(),
-            brut_or_valued='both', # for `total` valuation
+    def _get_budgets_totals(self):
+        """ Return brut & valued in a tuple like:
+            {group_id: valued amount}
+        """
+        field = self._name.replace('carpentry.', '').replace('group.', '') + '_id'
+        rg_result = self.env['carpentry.budget.available.valued']._read_group(
+            domain=[(field, 'in', self.ids), ('group_res_model', '=', self._name)],
+            groupby=[field, 'budget_type'],
+            fields=['subtotal:sum', 'value:sum', 'project_id'],
+            lazy=False,
         )
+        brut, valued = defaultdict(dict), defaultdict(dict)
+        for data in rg_result:
+            brut[data[field][0]][data['budget_type']] = data['subtotal']
+            valued[data[field][0]][data['budget_type']] = data['value']
+        return brut, valued
     
     def _get_domain_budget_ids(self):
         """ [For overwriting] Optional """
@@ -74,6 +83,6 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
         if self._context.get('import_budget_no_compute'):
             return
     
-        brut, valued = self._get_budgets_brut_valued()
+        brut, valued = self._get_budgets_totals()
         for group in self:
             group.sudo()._compute_budgets_one(brut, valued)

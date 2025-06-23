@@ -22,22 +22,33 @@ class CarpentryBudgetRemaining(models.Model):
         string='Remaining',
         help='',
     )
+    section_id = fields.Many2oneReference(
+        string='Section ID',
+        model_field='section_res_model',
+        readonly=True,
+    )
     section_ref = fields.Reference(
         string='Name',
         selection=lambda self: self.env['carpentry.group.affectation'].fields_get()['section_ref']['selection'],
         readonly=True,
+        compute='_compute_section_ref',
     )
     section_model_id = fields.Many2one(
         string='Document Model',
         comodel_name='ir.model',
         readonly=True,
     )
+    section_res_model = fields.Char(
+        string='Section Model',
+        related='section_model_id.model',
+    )
     section_model_name = fields.Char(
         string='Document',
-        related='section_model_id.name'
+        related='section_model_id.name',
     )
     # fields cancelling (necessary so they are not in SQL from ORM)
     position_id = fields.Many2one(store=False)
+    phase_id = fields.Many2one(store=False)
     subtotal = fields.Float(store=False)
     amount = fields.Float(store=False)
 
@@ -62,12 +73,12 @@ class CarpentryBudgetRemaining(models.Model):
                     THEN {models['carpentry.position']}
                     ELSE available.group_model_id -- project.project
                 END AS section_model_id,
-                -- section_ref: position or project
+                -- section_id: position or project
                 CASE
                     WHEN available.launch_id IS NOT NULL
-                    THEN 'carpentry.position,' || available.position_id
-                    ELSE 'project.project,' || available.project_id
-                END AS section_ref,
+                    THEN available.position_id
+                    ELSE available.project_id
+                END AS section_id,
 
                 -- budget
                 available.analytic_account_id,
@@ -91,7 +102,7 @@ class CarpentryBudgetRemaining(models.Model):
 
                 -- section
                 ir_model_section.id AS section_model_id,
-                ir_model_section.model || ',' || affectation.section_id AS section_ref,
+                affectation.section_id AS section_id,
                 
                 -- budget
                 affectation.group_id AS analytic_account_id,
@@ -141,6 +152,16 @@ class CarpentryBudgetRemaining(models.Model):
     def _orderby(self, model, models):
         return ''
     
+
+    #===== Compute =====#
+    @api.depends('section_id', 'section_model_id')
+    def _compute_section_ref(self):
+        for remaining in self:
+            remaining.section_ref = '{},{}' . format(
+                remaining.section_model_id.model,
+                remaining.section_id,
+            )
+
     #===== Buttons =====#
     def open_section_ref(self):
         """ Opens a document providing or reserving some budget """

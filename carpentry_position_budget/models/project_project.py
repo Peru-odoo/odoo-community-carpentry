@@ -45,19 +45,6 @@ class Project(models.Model):
             'affectation_ids_project', 'affectation_ids_project.quantity_affected'
         ]
 
-    def _get_quantities(self):
-        """ Called from `_get_budgets_brut_valued()` of mixin `carpentry.group.budget.mixin` """
-        quantities = {}
-        for position in self.position_ids:
-            # sum position's affected qty to the group
-            key = frozenset({
-                'group_id': position.project_id.id,
-                'position_id': position.id
-            }.items())
-            quantities[key] = position.quantity
-        
-        return quantities
-
     @api.depends(
         # 1a. hour valuation per dates
         'budget_line_ids.analytic_account_id',

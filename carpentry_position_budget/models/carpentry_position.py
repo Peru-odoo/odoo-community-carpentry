@@ -60,13 +60,6 @@ class CarpentryPosition(models.Model):
             position.warning_name = len(sibling_ids)
 
     #===== Compute (budgets) =====#
-    def _get_budgets_brut_valued(self):
-        """ Override from `carpentry.group.budget.mixin` """
-        return self.position_budget_ids._get_position_unitary_budget(
-            groupby_budget='budget_type',
-            brut_or_valued='both', # for `subtotal` valuation
-        ).values()
-
     @api.depends(
         # 1a. products template/variants price & dates
         'position_budget_ids.analytic_account_id.timesheet_cost_history_ids',

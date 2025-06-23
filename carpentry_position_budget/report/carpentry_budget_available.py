@@ -5,7 +5,7 @@ from psycopg2.extensions import AsIs
 
 class CarpentryBudgetAvailable(models.Model):
     """ Union of:
-        - launch budgets (carpentry.budget.available.launch) and
+        - phase & launch budgets (carpentry.group.affectation) and
         - project budgets (account.move.budget.line)
         for report of *Initially available budget*,
                    aka *Where does the budget comes from?*
@@ -28,6 +28,11 @@ class CarpentryBudgetAvailable(models.Model):
     launch_id = fields.Many2one(
         comodel_name='carpentry.group.launch',
         string='Launch',
+        readonly=True,
+    )
+    phase_id = fields.Many2one(
+        comodel_name='carpentry.group.phase',
+        string='Phase',
         readonly=True,
     )
     analytic_account_id = fields.Many2one(
@@ -70,7 +75,7 @@ class CarpentryBudgetAvailable(models.Model):
 
     #===== View build =====#
     def _get_queries_models(self):
-        return ('project.project', 'carpentry.group.affectation')
+        return ('project.project', 'carpentry.group.phase', 'carpentry.group.launch', 'carpentry.position')
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -117,96 +122,125 @@ class CarpentryBudgetAvailable(models.Model):
         )
 
     def _select(self, model, models):
-        return f"""
-            SELECT
-                'project-' || budget_project.id AS unique_key,
+        if model == 'project.project':
+            return f"""
+                SELECT
+                    'project-' || budget_project.id AS unique_key,
 
-                -- project & carpentry group
-            	project.id AS project_id,
-            	NULL AS launch_id,
-                {models['project.project']} AS group_model_id,
+                    -- project & carpentry group
+                    project.id AS project_id,
+                    NULL AS launch_id,
+                    NULL AS phase_id,
+                    {models['project.project']} AS group_model_id,
 
-                -- affectation: position & qty affected
-                NULL AS position_id,
-                NULL AS quantity_affected,
+                    -- affectation: position & qty affected
+                    NULL AS position_id,
+                    NULL AS quantity_affected,
 
-                -- budget
-                CASE
-                    WHEN budget_project.type = 'amount'
-                    THEN budget_project.balance
-                    ELSE budget_project.qty_balance
-                END AS amount,
-                CASE
-                    WHEN budget_project.type = 'amount'
-                    THEN budget_project.balance
-                    ELSE budget_project.qty_balance
-                END AS subtotal,
-                budget_project.analytic_account_id,
-                budget_project.budget_type
-            
-        """ if model == 'project.project' else f"""
+                    -- budget
+                    CASE
+                        WHEN budget_project.type = 'amount'
+                        THEN budget_project.balance
+                        ELSE budget_project.qty_balance
+                    END AS amount,
+                    CASE
+                        WHEN budget_project.type = 'amount'
+                        THEN budget_project.balance
+                        ELSE budget_project.qty_balance
+                    END AS subtotal,
+                    budget_project.analytic_account_id,
+                    budget_project.budget_type
+                
+            """
 
-            SELECT
-                'launch-' || launch.id || '-' || budget.id  AS unique_key,
+        else:
+            shortname = model.replace('carpentry.group.', '').replace('.group', '')
+            return f"""
+                SELECT
+                    '{shortname}-' || carpentry_group.id || '-' || budget.id AS unique_key,
 
-                -- project_id & launch_id
-                affectation.project_id,
-            	launch.id AS launch_id,
-                {models['carpentry.group.launch']} AS group_model_id,
+                    -- project_id, launch_id, phase_id
+                    carpentry_group.project_id,
+                    {'carpentry_group.id' if model == 'carpentry.group.launch' else 'NULL::integer'} AS launch_id,
+                    {'carpentry_group.id' if model == 'carpentry.group.phase'  else 'NULL::integer'} AS phase_id,
+                    {models[model]} AS group_model_id,
 
-                -- affectation: position & qty affected
-                budget.position_id,
-                SUM(affectation.quantity_affected) AS quantity_affected,
+                    -- affectation: position & qty affected
+                    budget.position_id,
+                    {
+                        'SUM(carpentry_group.quantity)'
+                        if model == 'carpentry.position'
+                        else 'SUM(affectation.quantity_affected)'
+                    } AS quantity_affected,
 
-                -- budget
-                SUM(budget.amount) AS amount,
-                SUM(affectation.quantity_affected * budget.amount) AS subtotal,
+                    -- budget
+                    SUM(budget.amount) AS amount,
+                    {
+                        'SUM(budget.amount)'
+                        if model == 'carpentry.position'
+                        else 'SUM(affectation.quantity_affected * budget.amount)'
+                    } AS subtotal,
 
-                budget.analytic_account_id,
-                budget.budget_type
-        """
+                    budget.analytic_account_id,
+                    budget.budget_type
+            """
 
     def _from(self, model, models):
-        return (
-            'FROM account_move_budget_line AS budget_project'
-
-            if model == 'project.project' else
-	        
-            'FROM carpentry_group_affectation AS affectation'
-        )
+        if model == 'project.project':
+            return 'FROM account_move_budget_line AS budget_project'
+        elif model == 'carpentry.position':
+            return 'FROM carpentry_position AS carpentry_group'
+        else:
+            return 'FROM carpentry_group_affectation AS affectation'
 
     def _join(self, model, models):
-        return """
-            INNER JOIN project_project AS project
-                ON project.id = budget_project.project_id
-        """ if model == 'project.project' else """
-
-            INNER JOIN carpentry_position_budget AS budget
-                ON budget.position_id = affectation.position_id
-            INNER JOIN carpentry_group_launch AS launch
-                ON launch.id = affectation.group_id
-        """
+        if model == 'project.project':
+            return """
+                INNER JOIN project_project AS project
+                    ON project.id = budget_project.project_id
+            """
+        elif model in ['carpentry.group.phase', 'carpentry.group.launch']:
+            return f"""
+                INNER JOIN carpentry_position_budget AS budget
+                    ON budget.position_id = affectation.position_id
+                INNER JOIN {model.replace('.', '_')} AS carpentry_group
+                    ON carpentry_group.id = affectation.group_id
+            """
+        elif model == 'carpentry.position':
+            return """
+                INNER JOIN carpentry_position_budget AS budget
+                    ON budget.position_id = carpentry_group.id
+            """
     
     def _where(self, model, models):
-        return """
-            WHERE
-                budget_project.balance != 0 AND
-                is_computed_carpentry IS FALSE
-            
-            """ if model == 'project.project' else f"""
+        if model == 'project.project':
+            return """
+                WHERE
+                    budget_project.balance != 0 AND
+                    is_computed_carpentry IS FALSE
+                
+                """
 
-            WHERE
-                affectation.active IS TRUE AND
-                quantity_affected != 0 AND
-                affectation.group_model_id = {models['carpentry.group.launch']}
+        elif model in ('carpentry.group.phase', 'carpentry.group.launch'):
+            return f"""
+                WHERE
+                    affectation.active IS TRUE AND
+                    quantity_affected != 0 AND
+                    affectation.group_model_id = {models[model]}
+                """
+
+        elif model == 'carpentry.position':
+            return """
+                WHERE
+                    carpentry_group.active IS TRUE
             """
     
     def _groupby(self, model, models):
         return '' if model == 'project.project' else """
 
             GROUP BY 
-               affectation.project_id,
-               launch.id,
+               carpentry_group.project_id,
+               carpentry_group.id,
                budget.id,
                budget.position_id,
                budget.budget_type,

@@ -550,33 +550,16 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     #====== Affectations counters ======#
     @api.depends('affectation_ids')
-    def _compute_sum_quantity_affected(self, groupby='group_id'):
+    def _compute_sum_quantity_affected(self):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
-        rg_result = self._get_mapped_quantities(self.ids, [groupby])
-        mapped_data = {x[groupby]: x['quantity_affected'] for x in rg_result}
+        rg_result = self.env['carpentry.group.affectation'].read_group(
+            domain=[('group_res_model', '=', self._name), ('group_id', 'in', self.ids)],
+            fields=['quantity_affected:sum'],
+            groupby=['group_id'],
+        )
+        mapped_data = {x['group_id']: x['quantity_affected'] for x in rg_result}
         for record in self:
             record.sum_quantity_affected = mapped_data.get(record.id, 0)
-
-    def _get_mapped_quantities(self, group_ids_, groupby):
-        return self.env['carpentry.group.affectation'].read_group(
-            domain=[('group_res_model', '=', self._name), ('group_id', 'in', group_ids_)],
-            fields=['quantity_affected:sum'],
-            groupby=groupby,
-            lazy=bool(len(groupby) == 1),
-        )
-
-    def _get_quantities(self, group_ids_=[]):
-        """ :return: param of `carpentry_position_budget.sum()` """
-        rg_result = self._get_mapped_quantities(self.ids or group_ids_, ['group_id', 'position_id'])
-        return {
-            frozenset(
-                {
-                    'group_id': x['group_id'],
-                    'position_id': x['position_id'][0],
-                }.items()
-            ): x['quantity_affected']
-            for x in rg_result
-        }
 
     #===== Button =====#
     def button_group_quick_create(self):

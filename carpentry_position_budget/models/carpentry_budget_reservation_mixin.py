@@ -205,7 +205,8 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                 record.sum_quantity_affected = sum([
                     affectation.group_ref._value_amount(
                         affectation.quantity_affected,
-                        record.project_id,
+                        record.project_id.date_start,
+                        record.project_id.date,
                     )
                     for affectation in record.affectation_ids
                 ])
@@ -324,6 +325,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
                 > move_raw_ids values
                 > workcenter hours
         """
+        return {}
         # to be inherited
 
     #===== Button =====#
@@ -340,8 +342,9 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             for budget_type in budget_types
         }
         action['domain'] = [
+            ('group_res_model', 'in', ['project.project', 'carpentry.group.launch']),
             ('project_id', '=', self.project_id.id),
-            ('launch_id', 'in', [False] + self.launch_ids._origin.ids)
+            ('launch_id', 'in', [False] + self.launch_ids._origin.ids),
         ]
         return action
     

@@ -155,13 +155,24 @@ class Position(models.Model):
     #===== Compute =====#
     @api.depends('quantity', 'project_id.affectation_ids_project.quantity_affected')
     def _compute_quantities_and_state(self):
+        # Helper dict `mapped_models`
+        domain = [('model', 'in', ['carpentry.group.phase', 'carpentry.group.launch'])]
+        mapped_models = {
+            x['id']: x['model']
+            for x in self.env['ir.model'].sudo().search_read(domain)
+        }
+
         # For a given position, get its quantity already affected in phases and launches
-        sum_affected = {}
-        for model in ['launch', 'phase']:
-            sum_affected[model] = defaultdict(int)
-            quantities = self.project_id[model + '_ids']._get_quantities()
-            for key, qty in quantities.items():
-                sum_affected[model][dict(key)['position_id']] += qty
+        rg_result = self.env['carpentry.group.affectation'].read_group(
+            domain=[('position_id', 'in', self.ids)],
+            groupby=['position_id', 'group_model_id'],
+            fields=['quantity_affected:sum'],
+            lazy=False,
+        )
+        sum_affected = defaultdict(dict)
+        for data in rg_result:
+            model = mapped_models[data['group_model_id'][0]].replace('carpentry.group.', '')
+            sum_affected[model][data['position_id'][0]] = data['quantity_affected']
         
         # update fields
         for position in self:

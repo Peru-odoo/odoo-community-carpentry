@@ -81,22 +81,26 @@ class AccountAnalyticAccount(models.Model):
         inverse_name='analytic_account_id'
     )
 
+    def _get_budget_type_workforce(self):
+        return ['service', 'production', 'installation']
+
     def _get_default_line_type(self):
-        if self.budget_type in ['service', 'production', 'installation']:
-            return 'workforce'
-        return super()._get_default_line_type()
+        return (
+            'workforce' if self.budget_type in self._get_budget_type_workforce()
+            else super()._get_default_line_type()
+        )
     
     def _compute_budget_unit(self):
         for analytic in self:
             analytic.budget_unit = 'h' if analytic._get_default_line_type() == 'workforce' else '€' 
     
-    def _value_amount(self, amount, project_id, mapped_hourly_cost=[]):
-        """ Used to convert h to € when needed:
+    def _value_amount(self, amount, date_start, date_end, mapped_hourly_cost=[]):
+        """ Just a conditionaly method to convert h to € *when needed*:
             - position available budget
             - reserved budget
 
             :option mapped_hourly_cost: There is 2 mode to value:
-                a) if given (from _get_hourly_cost()) => value on a specific date 
+                a) if given (from _get_hourly_cost()) => value on a specific date, for PO, MO, ...
                 b) else (no specific date): assume `amount` is spread on all `project_id`'s time
                     => use hourly_cost table between date range of project's budget
         """
@@ -105,15 +109,14 @@ class AccountAnalyticAccount(models.Model):
         line_type = self._get_default_line_type() or 'amount'
 
         if line_type == 'workforce':
-            budget_id = fields.first(project_id.budget_ids)
-            if not mapped_hourly_cost:
-                return self._value_workforce(amount, budget_id)
+            # if not mapped_hourly_cost:
+            return self._value_workforce(amount, date_start, date_end)
         else:
             return amount
     
     def _get_hourly_cost(self, date):
         """ Return the last `hourly_cost` per analytic account """
-
+        pass
     
     #===== Native ORM methods =====#
     def _search(self, domain, offset=0, limit=None, order=None, count=False, access_rights_uid=None):
@@ -122,7 +125,7 @@ class AccountAnalyticAccount(models.Model):
         return super()._search(domain, offset, limit, order, count, access_rights_uid)
 
     #==== Affectation matrix =====#
-    def _get_quantities_available(self, affectations=None, section=None, launchs=None, brut_or_valued=None):
+    def _get_quantities_available(self, affectations):
         """ Called from `carpentry.group.affectation`, to compute `quantity_available`
              field on budget reservation matrix.
             It depends on:
@@ -131,45 +134,71 @@ class AccountAnalyticAccount(models.Model):
             - the PO or MO (affectation.section_ref)
         """
         section = fields.first(affectations).section_ref
-        launch_ids = affectations.filtered(lambda x: x.record_res_model == 'carpentry.group.launch').mapped('record_id')
-        launchs = self.env['carpentry.group.launch'].sudo().browse(launch_ids)
-        available = self._get_available_budget_initial(launchs, section, brut_or_valued)
-        return available
-        # remaining = self._get_remaining_budget(launchs, section, brut_or_valued)
-        # return remaining
+        launchs = self.env['carpentry.group.launch'].sudo().browse(
+            affectations.filtered(lambda x: x.budget_type).mapped('record_id')
+        )
+        return self._get_available_budget_initial(launchs, section)
 
-    def _get_remaining_budget_by_analytic(self, launchs, section, brut_or_valued=None):
-        """ Group remaining budget by `analytic`,
-            according to required `launchs` & `section`
+    def _get_remaining_budget_by_analytic(self, launchs, section):
+        """ Group remaining budget by `analytic`, according to required `launchs` & `section`
+            (!!!) Always in *BRUT*
+
+            :return: Dict like {analytic_id_: amount}
         """
-        remaining_budget = self._get_remaining_budget(launchs, section, brut_or_valued)
-        groupped_data = defaultdict(float)
-        for key in remaining_budget:
-            _, _, analytic_id = key
-            groupped_data[analytic_id] += remaining_budget[key]
-        return groupped_data
+        rg_result = self.env['carpentry.budget.remaining'].read_group(
+            domain=[('launch_id', 'in', launchs.ids)] + self._get_budget_domain_exclude_section(section),
+            groupby=['analytic_account_id'],
+            fields=['quantity_affected:sum'],
+        )
+        return {x['analytic_account_id'][0]: x['quantity_affected'] for x in rg_result}
 
-    def _get_remaining_budget(self, launchs, section=None, brut_or_valued=None):
+    def _get_budget_domain_exclude_section(self, section):
+        return (
+            ['|', ('state', '=', 'budget')]
+            + self._get_domain_exclude_section(section)
+        ) if section else []
+    def _get_domain_exclude_section(self, section):
+        return ['|',
+            ('section_res_model', '!=', section._name),
+            ('section_id', 'not in', section.ids),
+        ] if section else []
+
+    def _get_remaining_budget(self, launchs, section=None):
         """ Calculate [Initial Budget] - [Reservation], per launch & analytic
+            (!!!) Always in *BRUT*
+            
             :arg self:       only those analytics budgets are searched
             :arg launchs:    filters searched budget to only those launches
                              note: Global Cost are always searched, because per-project
             :option section: PO or MO record
-            :option mode: None, 'brut' or 'valued'
-                if `None`, it will switch between 'brut' and 'valued' depending the budget, e.g.
-                (hours) will use `brut`
-                (amount) will use `valued`
             :return: Dict like:
                 {('launch' or 'project', launch-or-project.id, analytic.id): remaining available budget}
         """
-        available = self._get_available_budget_initial(launchs, section, brut_or_valued)
-        reserved = self._get_sum_reserved_budget(launchs, section, sign=-1)
+        # Prepare domain
+        project_ids = (section.project_id if section else launchs.project_id)._origin
+        domain = [
+            ('project_id', 'in', project_ids.ids),
+            ('launch_id', 'in', [False] + launchs.ids),
+        ] + (
+            self._get_budget_domain_exclude_section(section)
+        )
 
-        # careful: browse all keys and all rows of both `brut-or-valued` and `reserved`
-        # since they might be budget without reservation *or* reservation without budget
-        remaining = reserved.copy() # are values are negative (`sign=-1`)
-        for key, amount_available in available.items():
-            remaining[key] = remaining.get(key, 0.0) + amount_available
+        # Fetch & return data
+        remaining = {}
+        rg_result = self.env['carpentry.budget.remaining'].read_group(
+            domain=domain,
+            groupby=['project_id', 'launch_id', 'analytic_account_id'],
+            fields=['quantity_affected:sum'],
+            lazy=False,
+        )
+        for data in rg_result:
+            analytic_id_ = data['analytic_account_id'][0]
+            if data['launch_id']:
+                key = ('carpentry.group.launch', data['launch_id'][0],  analytic_id_)
+            else:
+                key = ('project.project',        data['project_id'][0], analytic_id_)
+            
+            remaining[key] = data['quantity_affected']
         
         return remaining
     
@@ -177,8 +206,6 @@ class AccountAnalyticAccount(models.Model):
                                         launchs,
                                         section=None,
                                         brut_or_valued=None,
-                                        project_budgets=True,
-                                        groupby_budget='analytic_account_id'
                                         ):
         """ :arg launchs:
                 explicit
@@ -201,60 +228,43 @@ class AccountAnalyticAccount(models.Model):
                  - 'group_id' (e.g. carpentry.group.launch)
             :return: Dict like (brut, valued) where each item is a dict-of-dict like:
             {
-                ('carpentry.group.launch',  launch.id, analytic.id): amount, ...}, # per-position budget
+                ('carpentry.group.launch', launch.id, analytic.id): amount, ...}, # per-position budget
                 ('project.project', project.id, analytic.id): amount, ...}, # global budget (per project)
                 ...
             }
         """
-        # === 1. Budget from launches ===
-        # budget mode: default to 'brut'
+        # Budget mode: default to 'brut'
         # can be enforced in the view with context="{'brut_or_valued': 'brut' or 'valued'}"
         brut_or_valued = brut_or_valued or self._context.get('brut_or_valued', 'brut')
+        valued = bool(brut_or_valued == 'valued')
+        model = 'carpentry.budget.available' + ('.valued' if valued else '')
+        field = 'value' if valued else 'subtotal'
 
-        # Budget from launches (computed)
-        available = self.env['carpentry.position.budget'].sudo().sum(
-            quantities=launchs._get_quantities(),
-            groupby_group=['group_id'],
-            groupby_budget=groupby_budget,
-            domain_budget=[('analytic_account_id', 'in', self.ids)] if self.ids else [],
-            brut_or_valued=brut_or_valued,
+        project_ids = (section.project_id if section else launchs.project_id)._origin
+        rg_result = self.env[model].read_group(
+            domain=[
+                ('project_id', 'in', project_ids.ids),
+                ('group_res_model', 'in', ['project.project', 'carpentry.group.launch']),
+                ('launch_id', 'in', [False] + launchs.ids)
+            ],
+            groupby=['project_id', 'launch_id', 'analytic_account_id'],
+            fields=[field + ':sum'],
+            lazy=False,
         )
-        # adapt dict's key
-        available = {
-            ('carpentry.group.launch', group_id_, groupby_value_): amount
-            for group_id_, budget_dict in available.items()
-            for groupby_value_, amount in budget_dict.items()
-        }
-
-        # === 2. Budget from the project (not computed) ===
-        if project_budgets:
-            # note: Global-Cost brut are only in € (not 'h'), like Fournitures
-            project_ids = (section.project_id if section else launchs.project_id)._origin
-            rg_result = self.env['account.move.budget.line'].sudo().read_group(
-                domain=[('project_id', 'in', project_ids.ids), ('is_computed_carpentry', '=', False)],
-                groupby=['type', 'project_id'] + ([groupby_budget] if groupby_budget else []),
-                fields=['balance:sum'] + (['qty_balance:sum'] if brut_or_valued == 'brut' else []),
-                lazy=False
-            )
-            for item in rg_result:
-                # Add global-cost budget to `brut` & `valued`
-                groupby_value_ = (
-                    item[groupby_budget][0] if hasattr(item[groupby_budget], '__iter__')
-                    else item[groupby_budget]
-                )
-
-                key = ('project.project', item['project_id'][0], groupby_value_)
-                if not key in available:
-                    available[key] = 0.0
-                budget_line_field = (
-                    'qty_balance' if item['type'] != 'amount' and brut_or_valued == 'brut'
-                    else 'balance'
-                )
-                available[key] += item[budget_line_field]
+        
+        available = {}
+        for data in rg_result:
+            analytic_id_ = data['analytic_account_id'][0]
+            if data['launch_id']:
+                key = ('carpentry.group.launch', data['launch_id'][0],  analytic_id_)
+            else:
+                key = ('project.project',        data['project_id'][0], analytic_id_)
+            
+            available[key] = data[field]
         
         return available
     
-    def _get_sum_reserved_budget(self, launchs, section=None, sign=1, groupby_budget='group_id'):
+    def _get_sum_reserved_budget(self, launchs, section=None, sign=1):
         """ Sum all budget reservation on project & launches
              and return it by project-or-launches & analytics
             
@@ -274,22 +284,20 @@ class AccountAnalyticAccount(models.Model):
         """
         # 1. Prepare search domain
         project_ids_ = [section.project_id.id] if section else launchs.project_id.ids
-        domain_launch = launchs._get_domain_affect('record')
-        domain_project = [
-            ('record_res_model', '=', 'project.project'),
-            ('record_id', 'in', project_ids_),
-        ]
-        domain = expression.OR([domain_launch, domain_project])
-        if section:
-            domain = expression.AND([domain, ['|',
-                ('section_res_model', '!=', section._name),
-                ('section_id', 'not in', section.ids),
-            ]])
+        domain = [
+            ('budget_type', '!=', False),
+            ('project_id', 'in', project_ids_),
+            '|',
+                ('record_res_model', '=', 'project.project'),
+                '&', launchs._get_domain_affect('record'),
+        ] + (
+            self._get_domain_exclude_section(section)
+        )
         
         # 2. Fetch budget reservation (consumption)
         rg_result = self.env['carpentry.group.affectation'].read_group(
             domain=domain,
-            groupby=['record_model_id', 'record_id', groupby_budget],
+            groupby=['record_model_id', 'record_id', 'group_id'],
             fields=['quantity_affected:sum'],
             lazy=False
         )
@@ -300,7 +308,7 @@ class AccountAnalyticAccount(models.Model):
             for model in self.env['ir.model'].sudo().search_read(domain, ['model'])
         }
         return {
-            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x[groupby_budget]):
+            (mapped_model_name.get(x['record_model_id'][0]), x['record_id'], x['group_id']):
             x['quantity_affected'] * sign
             for x in rg_result
         }
