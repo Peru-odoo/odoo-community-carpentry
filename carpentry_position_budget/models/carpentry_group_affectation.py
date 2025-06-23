@@ -33,7 +33,7 @@ class CarpentryGroupAffectation(models.Model):
     @api.depends('group_id', 'group_res_model')
     def _compute_budget_unit_type(self):
         affectation_budget = self.filtered(lambda x: x.group_res_model == 'account.analytic.account')
-        (self - affectation_budget).write({'budget_unit': False, 'budget_type': False})More actions
+        (self - affectation_budget).write({'budget_unit': False, 'budget_type': False})
         
         budget_unit_forced = '€' if self._context.get('brut_or_valued') == 'valued' else None
         
