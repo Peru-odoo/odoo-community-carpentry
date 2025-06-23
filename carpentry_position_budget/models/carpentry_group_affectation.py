@@ -22,13 +22,6 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
-    # hourly_cost = fields.Monetary(
-    #     string="Hourly cost",
-    #     default=False,
-    #     group_operator='sum',
-    #     compute='_compute_hourly_cost',
-    #     store=True,
-    # )
     budget_unit = fields.Char(compute='_compute_budget_unit_type', compute_sudo=True)
     budget_type = fields.Selection(
         selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
@@ -37,11 +30,17 @@ class CarpentryGroupAffectation(models.Model):
     )
     
     #===== Compute =====#
-    # def _search_budget_type(self, operator, value):
-    #     domain = [('budget_type', operator, value)]
-    #     analytics = self.env['account.analytic.account'].search(domain)
-    #     return [('group_id', 'in', analytics.ids)]
-
+    @api.depends('group_id', 'group_res_model')
+    def _compute_budget_unit_type(self):
+        affectation_budget = self.filtered(lambda x: x.group_res_model == 'account.analytic.account')
+        (self - affectation_budget).write({'budget_unit': False, 'budget_type': False})More actions
+        
+        budget_unit_forced = '€' if self._context.get('brut_or_valued') == 'valued' else None
+        
+        for affectation in affectation_budget:
+            affectation.budget_unit = budget_unit_forced or affectation.group_ref.budget_unit
+            affectation.budget_type = affectation.group_ref.budget_type
+    
     # @api.depends('project_id', 'group_id', 'group_res_model', 'quantity_affected')
     # def _compute_hourly_cost(self):
     #     """ Useful to valorize `workforce` budget for Gain/Loss """
