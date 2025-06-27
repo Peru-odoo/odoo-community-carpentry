@@ -93,6 +93,7 @@ class Task(models.Model):
         # only 1 launch_id for need
         comodel_name='carpentry.group.launch',
         compute='_compute_launch_id',
+        search='_search_launch_id',
     )
 
     #===== Constrains =====#
@@ -135,6 +136,10 @@ class Task(models.Model):
         (self - needs).launch_id = False
         for task in needs:
             task.launch_id = fields.first(task.launch_ids)
+    
+    @api.model
+    def _search_launch_id(self, operator, value):
+        return [('launch_ids', operator, [value])]
 
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):

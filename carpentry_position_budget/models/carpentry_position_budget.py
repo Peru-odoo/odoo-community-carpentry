@@ -92,7 +92,8 @@ class CarpentryPositionBudget(models.Model):
             - Goods value is directly in `amount` 
         """
         for budget in self:
-            budget.value = budget.analytic_account_id._value_amount(
+            analytic = budget.analytic_account_id
+            budget.value = analytic and analytic._value_amount(
                 budget.amount,
                 budget.project_id.date_start,
                 budget.project_id.date,
