@@ -125,6 +125,9 @@ class Task(models.Model):
     launch_ids = fields.Many2many(
         comodel_name='carpentry.group.launch',
         string='Launches',
+        relation='carpentry_group_launch_project_task_rel',
+        column1='task_id',
+        column2='launch_id',
     )
     # meetings
     message_last_date = fields.Date(

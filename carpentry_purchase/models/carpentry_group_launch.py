@@ -9,9 +9,5 @@ class CarpentryGroupLaunch(models.Model):
         comodel_name='purchase.order',
         relation='purchase_order_launch_rel',
         string='Purchase Orders',
-    )
-    task_ids = fields.One2many(
-        comodel_name='project.task',
-        inverse_name='launch_id',
-        string='Needs'
+        domain=[('state', 'not in', ['draft', 'cancel'])]
     )
