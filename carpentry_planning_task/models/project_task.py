@@ -25,10 +25,6 @@ class Task(models.Model):
         string='Planning Card Model Name',
         related='card_res_model_id.model',
     )
-    launch_id = fields.Many2one(
-        comodel_name='carpentry.group.launch',
-        domain="[('project_id', '=', project_id)]"
-    )
     is_late = fields.Boolean(compute='_compute_is_late')
 
     #===== Compute =====#

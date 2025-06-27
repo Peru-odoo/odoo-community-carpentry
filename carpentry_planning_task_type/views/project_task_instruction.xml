@@ -13,10 +13,9 @@
                 <attribute name="editable" />
             </tree>
 
-            <!-- new fieds (messages last date & count) -->
+            <!-- Add field: launch_ids -->
             <field name="name" position="after">
-                <field name="create_date" widget="date" invisible="not context.get('search_default_type_instruction')" />
-                <field name="create_uid" widget="many2one_avatar" string="Author" invisible="not context.get('search_default_type_instruction')" />
+                <field name="launch_ids" widget="many2many_tags" />
             </field>
 
             <!-- Hide fields -->
@@ -49,6 +48,11 @@
                 <attribute name="placeholder">Instruction</attribute>
             </field>
 
+            <!-- Add field: launch_ids -->
+            <field name="project_id" position="after">
+                <field name="launch_ids" widget="many2many_tags" />
+            </field>
+
             <!-- Hide some fields -->
             <field name="stage_id" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -57,6 +61,22 @@
             <xpath expr="(//group/group)[2]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+        </field>
+    </record>
+
+    <!-- Search tasks (instructions) -->
+    <record id="view_task_search_instruction" model="ir.ui.view">
+        <field name="name">project.task.search.carpentry.instruction</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="carpentry_planning_task_type.view_task_search_form" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        
+        <field name="arch" type="xml">
+            <!-- Add field: launch_ids -->
+            <searchpanel position="inside">
+                <field name="launch_ids" select="multi" />
+            </searchpanel>
         </field>
     </record>
 

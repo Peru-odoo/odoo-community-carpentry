@@ -104,6 +104,6 @@ class CarpentryNeed(models.Model):
             'type_id': self.type_id.id, # need category
             'need_id': self.id,
             'user_ids': self.user_ids.ids,
-            'launch_id': launch.id,
+            'launch_ids': launch.ids,
             'stage_id': Task._get_stage_id_default_need().id,
         }

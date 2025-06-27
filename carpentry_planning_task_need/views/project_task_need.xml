@@ -85,7 +85,7 @@
                 <searchpanel>
                     <field name="project_id" invisible="context.get('default_project_id')"/>
                     <field name="user_ids" select="multi" />
-                    <field name="launch_id" select="multi" />
+                    <field name="launch_ids" select="multi" />
                     <field name="parent_type_id" hierarchize="0" string="Type of Need" />
                     <field name="type_id" hierarchize="1" />
                 </searchpanel>

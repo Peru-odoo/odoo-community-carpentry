@@ -68,6 +68,7 @@ class Project(models.Model):
     #===== Action (task menu-items srv action) =====#
     def _action_open_task_common(self, name, type_code, custom, switch, module='', context={}):
         module = module or 'carpentry_planning_task_type'
+        search_view_id = self.env.ref(f'{module}.view_task_search_{type_code}')
 
         return {
             'type': 'ir.actions.act_window',
@@ -78,7 +79,9 @@ class Project(models.Model):
                 'default_root_type_id': self.env.ref(module + '.task_type_' + type_code).id,
             } | context,
             'domain': [('root_type_id', '=', self.env.ref(module + '.task_type_' + type_code).id)]
-        }
+        } | (
+            {'search_view_id': (search_view_id.id, 'search')} if search_view_id else {}
+        )
     
     # Instruction
     def action_open_task_instruction(self):

@@ -21,7 +21,6 @@ class Task(models.Model):
         vals = super().default_get(field_names)
         
         # Default `type_id`
-        type_id = None
         if 'type_id' in field_names and not self._context.get('default_type_id'):
             vals['type_id'] = self._get_default_type_id()
         return vals
@@ -103,7 +102,6 @@ class Task(models.Model):
         string='Type Sequence'
     )
 
-    #===== Fields =====#
     # -- Original --
     name = fields.Char(
         required=False
@@ -123,6 +121,10 @@ class Task(models.Model):
         relation='project_task_subtype_rel',
         string='Categories',
         domain="[('root_type_id', '=', root_type_id), ('task_ok', '=', True)]",
+    )
+    launch_ids = fields.Many2many(
+        comodel_name='carpentry.group.launch',
+        string='Launches',
     )
     # meetings
     message_last_date = fields.Date(

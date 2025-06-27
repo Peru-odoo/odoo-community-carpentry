@@ -89,12 +89,10 @@ class Task(models.Model):
         ondelete='set null',
         recursive=True
     )
-    launch_ids = fields.Many2many(
+    launch_id = fields.Many2one(
+        # only 1 launch_id for need
         comodel_name='carpentry.group.launch',
-        string='Launches',
-        compute='_compute_launch_ids',
-        store=True,
-        readonly=False,
+        compute='_compute_launch_id',
     )
 
     #===== Constrains =====#
@@ -131,11 +129,12 @@ class Task(models.Model):
             )
 
     #===== Compute =====#
-    @api.depends('launch_id')
-    def _compute_launch_ids(self):
+    @api.depends('launch_ids')
+    def _compute_launch_id(self):
         needs = self._filter_needs()
+        (self - needs).launch_id = False
         for task in needs:
-            task.launch_ids = task.launch_id
+            task.launch_id = fields.first(task.launch_ids)
 
     #===== Compute: planning card color =====#
     def _compute_planning_card_color_class(self):
@@ -176,7 +175,7 @@ class Task(models.Model):
     #===== Compute date_deadline =====#
     @api.depends(
         'type_id', 'deadline_week_offset',
-        'launch_id', 'launch_id.milestone_ids', 'launch_id.milestone_ids.date'
+        'launch_ids', 'launch_ids.milestone_ids', 'launch_ids.milestone_ids.date'
     )
     def _compute_date_deadline(self):
         """ Compute `date_deadline = launch_id."date_[prod/install]_start" - deadline_week_offset` """
@@ -186,7 +185,7 @@ class Task(models.Model):
         
         # Get milestones date
         domain = [
-            ('launch_id', 'in', self.launch_id.ids),
+            ('launch_id', 'in', self.launch_ids.ids),
             ('type', '=', 'start')
         ]
         milestone_ids = self.env['carpentry.planning.milestone'].sudo().search(domain)
@@ -262,7 +261,7 @@ class Task(models.Model):
             'view_mode': 'kanban,form',
             'domain': [
                 ('root_type_id', '=', root_type_id_),
-                ('launch_id', 'in', launchs.ids)
+                ('launch_ids', 'in', launchs.ids)
             ],
             'context': {
                 'default_project_id': fields.first(launchs.project_id).id,
