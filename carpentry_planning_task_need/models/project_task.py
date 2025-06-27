@@ -139,6 +139,7 @@ class Task(models.Model):
     
     @api.model
     def _search_launch_id(self, operator, value):
+        operator = 'not in' if '!' in operator else 'in'
         return [('launch_ids', operator, [value])]
 
     #===== Compute: planning card color =====#

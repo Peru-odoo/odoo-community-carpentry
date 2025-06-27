@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-
-    <!-- PO tree specific for Launch form in planning -->
-    <record id="purchase_order_view_tree_carpentry_planning" model="ir.ui.view">
-        <field name="name">purchase.order.view.tree.carpentry.planning</field>
+    <!-- Align same color on classic PO tree -->
+    <record id="purchase_order_view_tree_inherit" model="ir.ui.view">
+        <field name="name">purchase.order.tree.inherit.carpentry</field>
         <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_view_tree" />
-        <field name="mode">primary</field>
+        <field name="inherit_id" ref="purchase_stock.purchase_order_view_tree_inherit"/>
 
         <field name="arch" type="xml">
-            <field name="project_id" position="attributes">
-                <attribute name="invisible">1</attribute>
+            <field name="receipt_status" position="attributes">
+                <attribute name="decoration-success">receipt_status == 'full'</attribute>
+                <attribute name="decoration-warning">receipt_status == 'partial'</attribute>
+                <attribute name="decoration-danger">receipt_status == 'pending'</attribute>
             </field>
-            <field name="date_planned" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </field>
-            <!-- <field name="date_planned" position="replace" /> -->
         </field>
     </record>
         
@@ -31,8 +27,25 @@
                     <field name="purchase_ids" context="{
                         'default_project_id': project_id,
                         'default_launch_ids': [id],
-                        'tree_view_ref': 'carpentry_purchase.purchase_order_view_tree_carpentry_planning',
-                    }" />
+                    }">
+                        <tree>
+                            <field name="currency_id" invisible="1"/>
+
+                            <field name="name" string="Reference" />
+                            <field name="description" />
+                            <field name="partner_id" />
+                            <field name="date_approve" widget="date" optional="show" />
+                            <field name="date_planned" widget="date" optional="show" />
+                            <field name="receipt_status" widget="badge" optional="show"
+                                decoration-success="receipt_status == 'full'"
+                                decoration-warning="receipt_status == 'partial'"
+                                decoration-danger="receipt_status == 'pending'"
+                            />
+                            <field name="effective_date" widget="date" optional="show" />
+                            <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary" optional="hide" />
+                            <field name="amount_total" sum="Total amount" widget="monetary" optional="show" decoration-bf="1" />
+                        </tree>
+                    </field>
                 </page>
             </notebook>
         </field>
