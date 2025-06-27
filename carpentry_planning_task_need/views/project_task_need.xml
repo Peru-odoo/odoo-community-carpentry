@@ -12,6 +12,7 @@
         <field name="arch" type="xml">
             <!-- Tree Order-By -->
             <tree position="attributes">
+                <attribute name="create">False</attribute>
                 <attribute name="default_order">
                     priority DESC, type_sequence ASC, date_deadline ASC, create_date ASC
                 </attribute>
