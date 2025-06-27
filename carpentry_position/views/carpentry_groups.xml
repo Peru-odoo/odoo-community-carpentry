@@ -147,9 +147,9 @@
                         
                         <!-- Right: real affectations -->
                         <group name="right" colspan="7">
-                            <label for="affectation_ids" colspan="2" />
                             <button name="refresh_from_sections"
                                 type="object"
+                                colspan="2"
                                 class="btn btn-success mt-4 oe_right text-uppercase"
                                 icon="fa-hand-o-down"
                                 string="Refresh from Linked Lots"

@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.osv import expression
+from collections import defaultdict
 
 class CarpentryGroupAffectation(models.Model):
     _inherit = ["carpentry.group.affectation"]
@@ -28,7 +29,7 @@ class CarpentryGroupAffectation(models.Model):
         compute='_compute_budget_unit_type',
         store=True,
     )
-    
+
     #===== Compute =====#
     @api.depends('group_id', 'group_res_model')
     def _compute_budget_unit_type(self):

@@ -54,12 +54,15 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
     #===== CRUD =====#
     def unlink(self):
+        self._cascade_unlink_affectation()
+        return super().unlink()
+
+    def _cascade_unlink_affectation(self):
         """ `ondelete='cascade'` does not exist on Many2oneReference fields
             of `carpentry.group.affectation` => just replay it
         """
         domain = self._get_unlink_domain()
         self.env['carpentry.group.affectation'].search(domain).unlink()
-        return super().unlink()
     
     def _get_unlink_domain(self):
         return expression.OR([

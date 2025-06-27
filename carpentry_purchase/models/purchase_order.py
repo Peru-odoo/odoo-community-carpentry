@@ -98,7 +98,6 @@ class PurchaseOrder(models.Model):
             (x['project_id'][0], x['vendor_id'][0]): x['ids']
             for x in rg_result
         }
-        print('mapped_data', mapped_data)
         for purchase in self:
             key = (purchase.project_id.id, purchase.partner_id.commercial_partner_id.id)
             purchase.requisition_id = mapped_data.get(key, [False])[-1]

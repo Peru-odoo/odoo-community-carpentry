@@ -24,3 +24,4 @@ class CarpentryGroupLaunch(models.Model):
                 'This launch is already used in a budget reservation like a Purchase Order, '
                 ' Manufacturing Order or Picking.'
             ))
+        

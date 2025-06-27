@@ -25,6 +25,14 @@ class Launch(models.Model):
             lambda x: x.quantity_affected > 0
         )
     
+    def _get_unlink_domain(self):
+        """ Launch are:
+            - group: for standard affectations
+            - record: for budget
+            This prevents removing budget reservation when deleting launch
+        """
+        return self._get_domain_affect('group')
+    
     def _default_quantity(self, record_ref, group_ref):
         """ Copy `quantity_affected` of phase affectation
             (for `_compute_sum_quantity_affected`)

@@ -82,10 +82,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """ When deleting a PO/MO/picking,
             delete the related the affectation
         """
-        return expression.OR([
-            super()._get_unlink_domain(),
-            self._get_domain_affect('section'),
-        ])
+        return self._get_domain_affect('section')
     
     #====== Affectation refresh ======#
     def _get_domain_write_or_create(self, vals):
@@ -194,7 +191,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         ))
     
     #===== Compute amounts =====#
-    @api.depends('affectation_ids.quantity_affected')
+    @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self):
         """ [Overwritte]
             - Real-time computing => no read_group
