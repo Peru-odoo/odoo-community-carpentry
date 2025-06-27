@@ -12,11 +12,11 @@ class CarpentryPlanningCard(models.Model):
         comodel_name='mrp.production',
         string='Manufacturing Orders',
     )
-    stock_move_id = fields.Many2one(
-        # for `stock.move` column: research by launches & state
-        comodel_name='stock.move',
-        string='Stock Move',
-    )
+    # stock_move_id = fields.Many2one(
+    #     # for `stock.move` column: research by launches & state
+    #     comodel_name='stock.move',
+    #     string='Stock Move',
+    # )
     state = fields.Char(
         # for `stock.move` column, filtering by state
         search='_search_state'

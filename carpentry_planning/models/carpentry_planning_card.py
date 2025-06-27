@@ -31,7 +31,7 @@ class CarpentryPlanningCard(models.Model):
         readonly=True
     )
     column_id = fields.Many2one(
-        'carpentry.planning.column',
+        comodel_name='carpentry.planning.column',
         string='Planning column',
         index=True,
         readonly=True,
@@ -49,7 +49,7 @@ class CarpentryPlanningCard(models.Model):
     state_value = fields.Char(compute='_compute_state_value')
     description = fields.Char(compute='_compute_fields')
     launch_ids = fields.One2many(
-        'carpentry.group.launch',
+        comodel_name='carpentry.group.launch',
         string='Launches',
         compute=True, # needed for `search` not to be ignored
         search='_search_launch_ids' # needed for standard search to work
@@ -81,6 +81,9 @@ class CarpentryPlanningCard(models.Model):
         return
     
     def _rebuild_sql_view(self):
+        self.env['carpentry.planning.column'].flush_model()
+        self.env['carpentry.planning.card'].flush_model()
+
         column_ids = self.env['carpentry.planning.column'].search([('fold', '=', False)])
         if not column_ids.ids:
             return
@@ -188,6 +191,7 @@ class CarpentryPlanningCard(models.Model):
                     domain,
                     expression.OR([[('column_id', '!=', column.id)], column_domain])
                 ])
+
 
         res = super(CarpentryPlanningCard, self.sudo()).read_group(
             domain, fields, groupby, offset, limit, orderby, lazy

@@ -32,13 +32,8 @@ class CarpentryPlanningColumn(models.Model):
     res_model_shortname = fields.Char(
         compute='_compute_res_model_shortname'
     )
-    sequence = fields.Integer(
-        default=1
-    )
-    # sticky = fields.Boolean(
-    #     default=False,
-    #     help='If the card is displayed whatever domain filter on Planning view (e.g. Needs Categories).'
-    # )
+    sequence = fields.Integer(default=1)
+    active = fields.Boolean(default=True)
 
     # Identifier value to route/discrepencies records of same model towards 2 or more columns
     identifier_ref = fields.Reference(
