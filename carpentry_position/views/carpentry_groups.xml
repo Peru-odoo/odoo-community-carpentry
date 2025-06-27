@@ -147,7 +147,7 @@
                         
                         <!-- Right: real affectations -->
                         <group name="right" colspan="7">
-                            <label for="affectation_ids" />
+                            <label for="affectation_ids" colspan="2" />
                             <button name="refresh_from_sections"
                                 type="object"
                                 class="btn btn-success mt-4 oe_right text-uppercase"

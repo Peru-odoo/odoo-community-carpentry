@@ -116,31 +116,21 @@ class Position(models.Model):
             if affectation_ids:
                 affectation_ids.sequence = position.sequence
 
-    # Clean lots with no positions
     def _clean_lots(self):
         """ Remove lots not linked to any positions """
         domain = [('id', 'in', self.lot_id.ids), ('affectation_ids', '=', False)]
         orphan_lots = self.env['carpentry.group.lot'].search(domain)
         orphan_lots.unlink()
     
-    # Cf. unlink() of carpentry_group_affectation_mixin.py => need to CASCADE the unlink to the affectations
     def _clean_affectations(self):
+        """ Remove affectations linked to this position """
         Affectation = self.env['carpentry.group.affectation']
         
-        # delete before the position its affectations with phases
-        phase_domain = self._get_domain_affect('record')
-        phase_affectations = Affectation.search(phase_domain)
-        
-        # ...but even 1st delete position-to-launch affectation that could be empty
-        empty_affectations = phase_affectations.filtered(lambda x: x.quantity_affected == 0.0)
-        domain_launch = [
-            ('record_res_model', '=', Affectation._name),
-            ('record_id', 'in', empty_affectations.ids),
-        ]
-        launch_affectations = Affectation.search(domain_launch)
-        
+        # delete the position affectations (launchs' in first, else it throws an exception)
+        affectations = Affectation.search([('position_id', 'in', self.ids)])
+        launch_affectations = affectations.filtered(lambda x: x.group_res_model == 'carpentry.group.launch')
         launch_affectations.unlink()
-        phase_affectations.unlink()
+        (affectations - launch_affectations).unlink()
     
     def unlink(self):
         self._clean_lots()
