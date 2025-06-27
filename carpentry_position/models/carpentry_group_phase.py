@@ -55,4 +55,4 @@ class CarpentryGroupAffectation(models.Model):
         if not quantity_affected:
             self.affectation_ids.unlink()
         else:
-            self.affectation_ids.quantity_affected = self.quantity_affected
+            self.affectation_ids.quantity_affected = quantity_affected
