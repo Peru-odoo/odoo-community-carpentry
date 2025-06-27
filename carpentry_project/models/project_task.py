@@ -48,16 +48,20 @@ class ProjectTask(models.Model):
             task.create_date_week = bool(date) and _('W%s', str(date.isocalendar()[1]))
     
     #===== Compute `stage_id` depending `date_end` =====#
+    def update_date_end(self, stage_id):
+        """ Cancel native method """
+        return {}
+    
     @api.depends('date_end')
     def _compute_stage_id(self):
         """ == Overwrite Odoo method ==
             When user set `date_end` consider the tasks as done
         """
-        res = self._get_stage_open_done()
+        stage_open, stage_done = self._get_stage_open_done()
         for task in self:
             is_closed = bool(task.date_end)
             has_changed = is_closed != task.is_closed
-            task._change_state_one(has_changed, is_closed, *res)
+            task._change_state_one(has_changed, is_closed, stage_open, stage_done, write_date=False)
     
     def _get_stage_open_done(self):
         stage_ids = self.env['project.task.type'].search([])
@@ -65,14 +69,17 @@ class ProjectTask(models.Model):
         stage_done = fields.first(stage_ids.filtered_domain([('fold', '=', True)]))
         return stage_open, stage_done
     
-    def _change_state_one(self, has_changed, is_closed, stage_open, stage_done):
+    def _change_state_one(self, has_changed, is_closed, stage_open, stage_done, write_date=True):
         """ Move to Open or Closed stage """
         self.ensure_one()
         if has_changed:
             if is_closed:
                 self.stage_id = stage_done.id
                 self.kanban_state = 'done'
-                self.date_end = fields.Datetime.now()
+
+                # don't overwrite date if coming from @api.depends('date_end')
+                if write_date:
+                    self.date_end = fields.Datetime.now()
             else:
                 self.stage_id = stage_open.id
                 self.kanban_state = 'normal'
