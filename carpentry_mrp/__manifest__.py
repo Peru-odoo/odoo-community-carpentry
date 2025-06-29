@@ -32,6 +32,8 @@
         'views/stock_quant.xml',
         'views/carpentry_planning.xml',
         'views/carpentry_launch.xml',
+        # report
+        'report/stock_report_picking_operations.xml',
         # wizard
         'wizard/stock_inventory_conflict.xml',
     ]

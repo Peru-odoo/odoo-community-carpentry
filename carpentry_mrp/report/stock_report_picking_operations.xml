@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_picking" inherit_id="stock.report_picking">
+        <!-- Add project -->
+        <h1 position="after">
+            <h5 t-if="o.project_id">
+                Project : <span t-field="o.project_id" />
+            </h5>
+            <h5 t-if="o.launch_ids">
+                Launch(s) : <span t-field="o.launch_ids" />
+            </h5>
+        </h1>
+
+        <th name="th_product" position="after">
+            <th name="th_description">Description</th>
+        </th>
+        <xpath expr="//td[@t-if='has_barcode']" position="after">
+            <td>
+                <span t-field="ml.comment" />
+            </td>
+        </xpath>
+    </template>
+</odoo>
