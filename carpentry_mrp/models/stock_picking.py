@@ -28,7 +28,10 @@ class StockPicking(models.Model):
     )
 
     #===== Compute =====#
-    @api.depends('mrp_production_ids', 'purchase_id')
+    @api.depends(
+        'purchase_id', 'purchase_id.launch_ids', 'purchase_id.description',
+        'mrp_production_ids', 'mrp_production_ids.launch_ids', 'mrp_production_ids.description',
+    )
     def _compute_launch_ids_description(self):
         for picking in self:
             po = picking.purchase_id
