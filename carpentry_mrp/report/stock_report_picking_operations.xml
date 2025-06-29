@@ -2,13 +2,13 @@
 <odoo>
     <template id="report_picking" inherit_id="stock.report_picking">
         <!-- Add project -->
-        <h2 position="after">
+        <h1 position="after">
             <h5 t-if="o.project_id">
                 Project : <span t-field="o.project_id" />
             </h5>
             <h5 t-if="o.launch_ids">
                 Launch(s) : <span t-field="o.launch_ids" />
             </h5>
-        </h2>
+        </h1>
     </template>
 </odoo>
