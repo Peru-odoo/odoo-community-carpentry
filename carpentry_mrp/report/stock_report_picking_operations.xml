@@ -11,9 +11,6 @@
             </h5>
         </h1>
 
-        <th name="th_product" position="after">
-            <th name="th_description">Description</th>
-        </th>
         <xpath expr="//td[@t-if='has_barcode']" position="after">
             <td>
                 <span t-field="ml.comment" />
