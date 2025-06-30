@@ -89,7 +89,7 @@ class CarpentryExpense(models.Model):
 
             if model == 'purchase.order':
                 sql += """
-                    AND line.qty_invoiced != line.product_qty
+                    AND line.qty_invoiced < line.product_qty
                     AND product_qty != 0.0
                     AND line.display_type IS NULL
                 """
