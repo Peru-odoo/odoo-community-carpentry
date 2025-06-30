@@ -59,9 +59,9 @@ class CarpentryPlanningColumn(models.Model):
 
         # 3. Format data per column
         for column in self:
-            budget_types = column.budget_types.split(',')
-            if not budget_types:
+            if not column.budget_types:
                 continue
+            budget_types = column.budget_types.split(',')
 
             column_analytics = analytics.filtered(lambda x: x.budget_type in budget_types)
             is_hour = set(column_analytics.mapped('budget_unit')) == {'h'}
