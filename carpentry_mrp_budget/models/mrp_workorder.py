@@ -8,3 +8,7 @@ class ManufacturingOrder(models.Model):
     costs_hour_account_id = fields.Many2one(
         related='workcenter_id.costs_hour_account_id',
     )
+
+    def _get_budget_date_field(self):
+        """ Date of budget report """
+        return 'date_planned_start'

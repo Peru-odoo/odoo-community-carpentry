@@ -93,6 +93,9 @@ class Task(models.Model):
         """ Override so that any changes of `planned_hours` updates affectation table """
         return True
 
+    def _get_budget_date_field(self):
+        return 'create_date'
+    
     @api.onchange('planned_hours')
     def _set_readonly_affectation(self):
         """ Modifying `planned_hours` re-computes automatically

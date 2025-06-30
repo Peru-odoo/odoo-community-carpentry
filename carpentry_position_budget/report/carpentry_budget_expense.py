@@ -11,6 +11,10 @@ class CarpentryBudgetExpense(models.Model):
     _auto = False
 
     #===== Fields =====#
+    date = fields.Date(
+        string='Date',
+        readonly=True,
+    )
     state = fields.Selection(
         selection_add=[('expense', 'Expense')]
     )
@@ -58,6 +62,7 @@ class CarpentryBudgetExpense(models.Model):
                         ) AS id,
                         expense.state,
                         expense.project_id,
+                        expense.date,
                         
                         expense.section_id,
                         expense.section_model_id,
@@ -143,6 +148,7 @@ class CarpentryBudgetExpense(models.Model):
                     GROUP BY
                         expense.state,
                         expense.project_id,
+                        expense.date,
                         expense.section_id,
                         expense.section_model_id,
                         expense.analytic_account_id,
@@ -178,6 +184,7 @@ class CarpentryBudgetExpense(models.Model):
                     affectation.group_id AS analytic_account_id,
                     affectation.budget_type,
                     affectation.quantity_affected,
+                    affectation.date,
                     0.0 AS amount_expense,
                     0.0 AS amount_gain,
                     TRUE AS should_compute_gain,
@@ -186,6 +193,7 @@ class CarpentryBudgetExpense(models.Model):
         else:
             # specific : no budget reservation (`quantity_affected`)
             # but `amount_expense` (except carpentry.budget.balance)
+            Model = self.env[model]
             sql = f"""
                 SELECT
                     'expense' AS state,
@@ -199,6 +207,7 @@ class CarpentryBudgetExpense(models.Model):
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
                     0.0 AS quantity_affected,
+                    section.{Model._get_budget_date_field()} AS date,
             """
         
         # specific to budget balance

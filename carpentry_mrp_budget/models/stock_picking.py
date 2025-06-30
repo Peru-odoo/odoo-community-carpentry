@@ -52,6 +52,9 @@ class StockPicking(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_ids']
 
+    def _get_budget_date_field(self):
+        return 'scheduled_date'
+    
     #===== Affectations: compute =====#
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):

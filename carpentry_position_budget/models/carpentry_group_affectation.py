@@ -23,6 +23,13 @@ class CarpentryGroupAffectation(models.Model):
         ]
     
     #===== Fields =====#
+    date = fields.Date(
+        string='Date',
+        compute='_compute_date',
+        store=True,
+        default=False,
+        copy=False,
+    )
     budget_unit = fields.Char(compute='_compute_budget_unit_type', compute_sudo=True)
     budget_type = fields.Selection(
         selection=lambda self: self.env['account.analytic.account']._fields['budget_type'].selection,
@@ -42,18 +49,14 @@ class CarpentryGroupAffectation(models.Model):
             affectation.budget_unit = budget_unit_forced or affectation.group_ref.budget_unit
             affectation.budget_type = affectation.group_ref.budget_type
     
-    # @api.depends('project_id', 'group_id', 'group_res_model', 'quantity_affected')
-    # def _compute_hourly_cost(self):
-    #     """ Useful to valorize `workforce` budget for Gain/Loss """
-    #     to_compute = self.filtered(lambda x: x.budget_type)
-    #     (self - to_compute).quantity_affected_valued = False
-
-    #     for affectation in to_compute:
-    #         analytic = affectation.group_ref
-    #         affectation.quantity_affected_valued = analytic._value_amount(
-    #             affectation.quantity_affected,
-    #             affectation.project_id
-    #         )
+    @api.depends('section_id', 'section_model_id')
+    def _compute_date(self):
+        for affectation in self:
+            Model = self.env.get(affectation.section_res_model)
+            if Model and hasattr(Model, '_get_budget_date_field'):
+                field = self.env[affectation.section_res_model]._get_budget_date_field()
+                if field and affectation.section_ref:
+                    affectation.date = affectation.section_ref[field]
 
     #===== Logic methods =====#
     def _get_siblings_parent(self):

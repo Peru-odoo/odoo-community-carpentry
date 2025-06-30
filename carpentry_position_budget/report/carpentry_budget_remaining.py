@@ -12,6 +12,13 @@ class CarpentryBudgetRemaining(models.Model):
     _description = 'Project & launches remaining budgets'
     _auto = False
 
+    #===== Fields methods =====#
+    def _selection_section_ref(self):
+        return [
+            (model.model, model.name)
+            for model in self.env['ir.model'].sudo().search([])
+        ]
+
     #===== Fields =====#
     state = fields.Selection(
         selection=[('budget', 'Budget'), ('reservation', 'Reservation')],
@@ -29,7 +36,7 @@ class CarpentryBudgetRemaining(models.Model):
     )
     section_ref = fields.Reference(
         string='Name',
-        selection=lambda self: self.env['carpentry.group.affectation'].fields_get()['section_ref']['selection'],
+        selection='_selection_section_ref',
         readonly=True,
         compute='_compute_section_ref',
     )
@@ -157,22 +164,22 @@ class CarpentryBudgetRemaining(models.Model):
     @api.depends('section_id', 'section_model_id')
     def _compute_section_ref(self):
         for remaining in self:
-            remaining.section_ref = '{},{}' . format(
-                remaining.section_model_id.model,
-                remaining.section_id,
+            remaining.section_ref = (
+                '{},{}' . format(
+                    remaining.section_model_id.model,
+                    remaining.section_id,
+                )
+                if remaining.section_model_id and remaining.section_id
+                else False
             )
 
     #===== Buttons =====#
     def open_section_ref(self):
         """ Opens a document providing or reserving some budget """
         if not self.section_model_id:
-            return
+            return {}
         
-        if self.section_model_id.model in ('carpentry.position', 'project.project'):
-            # available budget
-            position_id = self.section_ref._name == 'carpentry.position' and self.section_ref
-            return self.open_position_budget(position_id)
-        else:
+        if self.section_ref and hasattr(self.section_ref, '_carpentry_budget_reservation'):
             # budget reservation
             return {
                 'type': 'ir.actions.act_window',
@@ -181,3 +188,22 @@ class CarpentryBudgetRemaining(models.Model):
                 'res_id': self.section_ref.id,
                 'view_mode': 'form',
             }
+        
+        elif self.section_model_id.model in ('carpentry.position', 'project.project'):
+            # available budget
+            position_id = self.section_ref._name == 'carpentry.position' and self.section_ref
+            return self.open_position_budget(position_id)
+        
+        elif self.section_model_id.model in ('account.move.budget.line'):
+            # available budget (at project level)
+            project = self.section_ref and self.section_ref.project_id
+            if project:
+                return {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'project.project',
+                    'view_mode': 'form',
+                    'name': project.display_name,
+                    'res_id': project.id,
+                }
+        
+        return {}

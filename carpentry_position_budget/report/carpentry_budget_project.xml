@@ -2,7 +2,7 @@
 <odoo>
     <!-- Project report (pre-select project before opening) -->
     <record id="action_open_budget_report_project_srv" model="ir.actions.server">
-        <field name="name">Project report</field>
+        <field name="name">Project result</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
@@ -11,12 +11,44 @@
     </record>
     <!-- Project report (real action) -->
     <record id="action_open_budget_report_project" model="ir.actions.act_window">
-        <field name="name">Project report</field>
-        <field name="res_model">carpentry.budget.available</field> <!-- (!!!!!!!!!!!!!!!!) TO UPDATE -->
+        <field name="name">Project result</field>
+        <field name="res_model">carpentry.budget.project</field>
         <field name="view_mode">pivot,tree</field>
+        <field name="search_view_id" ref="carpentry_position_budget.carpentry_budget_report_expense_search" />
     </record>
 
+    <!-- Pivot -->
+    <record id="carpentry_budget_report_project_pivot" model="ir.ui.view">
+        <field name="name">carpentry.budget.project.pivot</field>
+        <field name="model">carpentry.budget.project</field>
 
+        <field name="arch" type="xml">
+            <pivot disable_linking="0">
+                <field name="group_model_id" invisible="1" />
+                
+                <field name="budget_type" type="row" />
+                <field name="analytic_account_id" type="row" />
+                
+                <field name="available" type="measure" />
+                <field name="quantity_affected" type="measure" />
+                <field name="amount_expense" type="measure" />
+                <field name="amount_gain" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    <!-- Tree -->
+    <record id="carpentry_budget_report_project_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.project.tree</field>
+        <field name="model">carpentry.budget.project</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_expense_tree" />
+        <field name="mode">primary</field>
+        
+        <field name="arch" type="xml">
+            <field name="quantity_affected" position="before">
+                <field name="available" sum="1" optional="show" />
+            </field>
+        </field>
+    </record>
 
     <!-- Menu-items : `Budget main entry` > `Projects budgets` (lines) & `Positions budgets` -->
     <menuitem id="menu_project_budget_report"
@@ -24,7 +56,7 @@
         sequence="20"
         name="Reports"
     >
-        <!-- <menuitem id="menu_project_budget_report_project"   action="action_open_budget_report_project_srv"   sequence="10" /> -->
+        <menuitem id="menu_project_budget_report_project"   action="action_open_budget_report_project_srv"   sequence="10" />
         <menuitem id="menu_project_budget_report_available" action="action_open_budget_report_available_srv" sequence="20" />
         <menuitem id="menu_project_budget_report_remaining" action="action_open_budget_report_remaining_srv" sequence="30" />
         <menuitem id="menu_project_budget_report_expense"   action="action_open_budget_report_expense_srv"   sequence="40" />

@@ -80,6 +80,9 @@
                 <separator />
                 <filter string="With budget reservation"  name="filter_reservation"       domain="[('quantity_affected', '!=', 0.0)]" />
                 <filter string="Without reservation"      name="filter_reservation_empty" domain="[('quantity_affected', '=',  0.0)]" />
+                
+                <separator />
+                <filter name="date" string="Date" date="date" />
             </filter>
             
             <!-- Groupby -->

@@ -14,8 +14,12 @@ class CarpentryExpense(models.Model):
         return super()._get_queries_models() + ('project.task',)
     
     def _select(self, model, models):
-        return super()._select(model, models) + ("""
+        return super()._select(model, models) + (
+            """
+                -- expense
                 section.effective_hours AS amount_expense,
+                
+                -- gain
                 0.0 AS amout_gain,
                 CASE
                     WHEN section.effective_hours > section.planned_hours OR section.is_closed

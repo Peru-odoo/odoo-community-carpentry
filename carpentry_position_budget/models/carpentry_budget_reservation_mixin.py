@@ -18,6 +18,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     _inherit = ['carpentry.group.affectation.mixin']
     _description = 'Carpentry Budget Reservation Mixin'
     _carpentry_affectation_quantity = True
+    _carpentry_budget_reservation = True
     # record: `launch` or `project`
     # group: analytic
     # section: order
@@ -74,8 +75,14 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         vals['readonly_affectation'] = False
         res = super().write(vals)
         fields = self._get_fields_affectation_refresh()
+
         if any(field in vals for field in fields):
             self._compute_affectation_ids()
+        
+        budget_date_field = self._get_budget_date_field()
+        if budget_date_field in vals:
+            self.affectation_ids.date = vals[budget_date_field]
+
         return res
     
     def _get_unlink_domain(self):
@@ -180,6 +187,12 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             Needed for `_write_or_create_affectations`
         """
         return super()._get_domain_affect(group, group2_ids, group2)
+
+    def _get_budget_date_field(self):
+        """ [To overwritte]
+            Date's field on which budget reports can be filtered (expense & project result)
+        """
+        return 'create_date'
 
     #===== Compute amounts =====#
     @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
