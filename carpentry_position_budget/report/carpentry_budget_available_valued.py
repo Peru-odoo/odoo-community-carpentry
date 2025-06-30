@@ -6,6 +6,8 @@ class CarpentryBudgetAvailable(models.Model):
     """ Adds `value` fields to a *new* view just like `carpentry.budget.available`
         following the logics of method `account.analytic.account`.`_value_workforce()`
         from module `project_budget_workforce`
+
+        Meaning: it values (h) to (€) on project's lifetime
     """
     _name = 'carpentry.budget.available.valued'
     _inherit = ['carpentry.budget.available']

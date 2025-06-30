@@ -47,41 +47,115 @@ class CarpentryBudgetExpense(models.Model):
         
         queries = self._get_queries()
         if queries:
+            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
             self._cr.execute("""
-                CREATE or REPLACE VIEW %s AS (
+                CREATE or REPLACE VIEW %(view_name)s AS (
                     SELECT
-                        row_number() OVER (ORDER BY section_id, section_model_id, analytic_account_id) AS id,
-                        state,
-                        project_id,
+                        row_number() OVER (ORDER BY
+                            expense.section_id,
+                            expense.section_model_id,
+                            expense.analytic_account_id
+                        ) AS id,
+                        expense.state,
+                        expense.project_id,
                         
-                        section_id,
-                        section_model_id,
-                        analytic_account_id,
-                        budget_type,
-                        SUM(quantity_affected) AS quantity_affected,
-                        SUM(amount_expense) AS amount_expense,
+                        expense.section_id,
+                        expense.section_model_id,
+                        expense.analytic_account_id,
+                        expense.budget_type,
+                        
+                        SUM(expense.amount_expense) AS amount_expense,
+                        
+                        -- quantity_affected (brut or valued)
                         CASE
-                            WHEN NOT (false = ANY(ARRAY_AGG(should_compute_gain)))
-                            THEN SUM(quantity_affected) - SUM(amount_expense)
-                            ELSE SUM(amount_gain)
+                            WHEN budget_type NOT IN %(budget_types)s OR (false = ANY(ARRAY_AGG(should_value)))
+                            THEN SUM(quantity_affected)
+                            ELSE CASE
+                                WHEN (
+                                    project.date IS NULL OR project.date_start IS NULL
+                                    OR project.date = project.date_start
+                                )
+                                THEN 0.0
+
+                                -- valuation computation
+                                ELSE SUM(
+                                    (
+                                        (
+                                            LEAST(project.date, COALESCE(history.date_to, project.date)) -- overlap_end
+                                            - GREATEST(project.date_start, history.starting_date) -- overlap_start
+                                            + 1.0
+                                        ) -- overlap_days
+                                        /
+                                        (project.date - project.date_start + 1.0) -- total_days
+                                    ) -- weight_of_period
+                                    * expense.quantity_affected * history.hourly_cost
+                                )
+                            END
+                        END AS quantity_affected,
+                        
+                        CASE
+                            WHEN (false = ANY(ARRAY_AGG(should_compute_gain)))
+                            THEN SUM(amount_gain)
+                            ELSE CASE -- quantity_affected
+                                WHEN budget_type NOT IN %(budget_types)s OR (false = ANY(ARRAY_AGG(should_value)))
+                                THEN SUM(quantity_affected)
+                                ELSE CASE
+                                    WHEN (
+                                        project.date IS NULL OR project.date_start IS NULL
+                                        OR project.date = project.date_start
+                                    )
+                                    THEN 0.0
+
+                                    -- valuation computation
+                                    ELSE SUM(
+                                        (
+                                            (
+                                                LEAST(project.date, COALESCE(history.date_to, project.date)) -- overlap_end
+                                                - GREATEST(project.date_start, history.starting_date) -- overlap_start
+                                                + 1.0
+                                            ) -- overlap_days
+                                            /
+                                            (project.date - project.date_start + 1.0) -- total_days
+                                        ) -- weight_of_period
+                                        * expense.quantity_affected * history.hourly_cost
+                                    )
+                                END
+                            END - SUM(amount_expense)
                         END AS amount_gain
+                    
                     FROM (
-                        (%s)
-                    ) AS result
+                        (%(union)s)
+                    ) AS expense
+                    
+                    -- for (h) to (€) valuation when needed (on PO)
+                    INNER JOIN project_project AS project
+                        ON project.id = expense.project_id
+                    LEFT JOIN hr_employee_timesheet_cost_history AS history
+                        ON history.analytic_account_id = expense.analytic_account_id
+                        AND expense.budget_type IN %(budget_types)s
+                        AND project.date_start IS NOT NULL AND project.date IS NOT NULL AND (
+                            history.starting_date IS NOT NULL AND (
+                                history.starting_date BETWEEN project.date_start AND project.date OR
+                                history.date_to       BETWEEN project.date_start AND project.date
+                            )
+                        )
+                    
                     GROUP BY
-                        state,
-                        project_id,
-                        section_id,
-                        section_model_id,
-                        analytic_account_id,
-                        budget_type
+                        expense.state,
+                        expense.project_id,
+                        expense.section_id,
+                        expense.section_model_id,
+                        expense.analytic_account_id,
+                        expense.budget_type,
+                        project.date,
+                        project.date_start
                     ORDER BY
-                        section_id
-                )""", (
-                    AsIs(self._table),
-                    AsIs(') UNION ALL (' . join(queries))
-                )
-            )
+                        expense.section_id
+                )""", {
+                    'view_name': AsIs(self._table),
+                    'budget_types': tuple(budget_types),
+                    'union': AsIs(') UNION ALL (' . join(queries)),
+            })
     
     def _get_section_fields(self, model, models):
         """ Can be overwritten """
@@ -106,7 +180,8 @@ class CarpentryBudgetExpense(models.Model):
                     affectation.quantity_affected,
                     0.0 AS amount_expense,
                     0.0 AS amount_gain,
-                    TRUE AS should_compute_gain
+                    TRUE AS should_compute_gain,
+                    TRUE AS should_value
             """
         else:
             # specific : no budget reservation (`quantity_affected`)
@@ -131,7 +206,8 @@ class CarpentryBudgetExpense(models.Model):
             sql += """
                     0.0 AS amount_expense,
                     0.0 AS amout_gain,
-                    TRUE AS should_compute_gain
+                    TRUE AS should_compute_gain,
+                    FALSE AS should_value
             """
         
         return sql

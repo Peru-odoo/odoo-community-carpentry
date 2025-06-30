@@ -34,7 +34,8 @@ class CarpentryExpense(models.Model):
                 
                 -- gain
                 0.0 AS amout_gain,
-                TRUE AS should_compute_gain
+                TRUE AS should_compute_gain,
+                FALSE AS should_value
             """
         elif model == 'mrp.workorder':
             sql += """
@@ -54,7 +55,8 @@ class CarpentryExpense(models.Model):
                         ELSE 0.0
                     END
                 END AS amount_gain,
-                FALSE AS should_compute_gain
+                FALSE AS should_compute_gain,
+                FALSE AS should_value
             """
         
         return sql
