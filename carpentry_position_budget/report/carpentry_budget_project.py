@@ -118,7 +118,7 @@ class CarpentryBudgetProject(models.Model):
             """
 
     def _from(self, model, models):
-        return f'FROM {model.replace('.', '_')}'
+        return f"FROM {model.replace('.', '_')}"
 
     def _join(self, model, models):
         return ''
