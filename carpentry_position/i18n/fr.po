@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-18 16:36+0000\n"
-"PO-Revision-Date: 2025-06-18 18:37+0200\n"
+"POT-Creation-Date: 2025-06-30 12:49+0000\n"
+"PO-Revision-Date: 2025-06-30 14:57+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -64,8 +64,8 @@ msgstr "Ajouter tous les repères non pleinement affectés des lots liés à cet
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
-msgid "Add any non-affected positions of the linked phases to the current launch"
-msgstr "Ajouter tous les repères non affectés des phases liées à ce lancement"
+msgid "Affect all"
+msgstr "Tout affecter"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_affectation_search
@@ -89,13 +89,6 @@ msgid "Affectation Mixin"
 msgstr ""
 
 #. module: carpentry_position
-#. odoo-javascript
-#: code:addons/carpentry_position/static/src/carpentry_group/carpentry_group_tree_button.xml:0
-#, python-format
-msgid "Affectation matrix"
-msgstr "Matrice d'affectation"
-
-#. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__state
 msgid "Affectation status"
 msgstr "Statut d'affectation"
@@ -114,6 +107,7 @@ msgid "Affectations in Phases"
 msgstr "Affectations dans les phases"
 
 #. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__affected
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__affected
 msgid "Affected"
 msgstr "Affecté"
@@ -128,6 +122,11 @@ msgstr "Quantité affectée"
 #: model:ir.model.fields,field_description:carpentry_position.field_project_project__affectation_ids_project
 msgid "All affectations"
 msgstr "Toutes les affectations"
+
+#. module: carpentry_position
+#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
+msgid "Already affected"
+msgstr "Déjà affecté"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
@@ -276,6 +275,12 @@ msgstr "Indique si la quantité est entièrement affectée ou non dans les phase
 #: model:ir.model.constraint,message:carpentry_position.constraint_carpentry_group_affectation_temp_group_record
 msgid "Integrity error (unicity of 1 group and 1 record per cell)."
 msgstr "Erreur d'intégrité (unicité de 1 groupe et 1 enregistrement par cellule)."
+
+#. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation__is_affectable
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation_temp__is_affectable
+msgid "Is Affectable"
+msgstr "Peut être affecté"
 
 #. module: carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position.field_carpentry_group_affectation____last_update
@@ -483,6 +488,11 @@ msgid "Quantity"
 msgstr "Quantité"
 
 #. module: carpentry_position
+#: model:ir.model.fields,field_description:carpentry_position.field_carpentry_position__quantity_affected
+msgid "Quantity Affected"
+msgstr "Quantité affectée"
+
+#. module: carpentry_position
 #: model:ir.model.fields,help:carpentry_position.field_carpentry_position__quantity_remaining_to_affect
 msgid "Quantity remaining for affection in phases"
 msgstr "Quantité restante pour l'affection dans les phases"
@@ -528,11 +538,6 @@ msgstr "Réf de l'enregistrement"
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_form
 msgid "Refresh from Linked Lots"
 msgstr "Rafraîchir depuis les lots liés"
-
-#. module: carpentry_position
-#: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_launch_form
-msgid "Refresh from Phases"
-msgstr "Rafraîchir depuis les phases liées"
 
 #. module: carpentry_position
 #: model_terms:ir.ui.view,arch_db:carpentry_position.carpentry_group_phase_tree
@@ -649,13 +654,6 @@ msgstr ""
 "- Tentative d'affectation : %s\n"
 "- Quantité déjà affectées dans les objets voisins : %s\n"
 "- Sur-consommation : %s"
-
-#. module: carpentry_position
-#. odoo-python
-#: code:addons/carpentry_position/models/carpentry_group_affectation_mixin.py:0
-#, python-format
-msgid "There is no position to affect from these lots or these phases."
-msgstr "Il n'y a aucun repère à affecter depuis ces lots ou ces phases."
 
 #. module: carpentry_position
 #. odoo-python

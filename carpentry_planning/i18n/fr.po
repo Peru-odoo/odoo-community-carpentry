@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 17:54+0000\n"
-"PO-Revision-Date: 2025-04-22 20:01+0200\n"
+"POT-Creation-Date: 2025-06-30 12:49+0000\n"
+"PO-Revision-Date: 2025-06-30 14:54+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -26,6 +26,7 @@ msgstr " (S%s)"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__active
+#: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__active
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_mixin__active
 msgid "Active"
 msgstr "Actif"
@@ -197,6 +198,13 @@ msgid ""
 msgstr ""
 "Si activé, les autres dates de début et dates de fin de ce lancement seront "
 "décalées d'autant."
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#, python-format
+msgid "Initially available budget"
+msgstr "Budget initialement disponible"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card____last_update
@@ -415,6 +423,13 @@ msgid "Project"
 msgstr "Projet"
 
 #. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#, python-format
+msgid "Real expense"
+msgstr "Dépense réelle"
+
+#. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__res_id
 msgid "Real record ID"
 msgstr "ID de l'enregistrement réel"
@@ -424,6 +439,13 @@ msgstr "ID de l'enregistrement réel"
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__res_model_shortname
 msgid "Res Model Shortname"
 msgstr "Nom court du modèle de l'enregistrement"
+
+#. module: carpentry_planning
+#. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#, python-format
+msgid "Reserved budget so far"
+msgstr "Budget réservé jusqu'à présent"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__sequence

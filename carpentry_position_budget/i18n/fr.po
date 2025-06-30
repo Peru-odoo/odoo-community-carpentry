@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-18 16:36+0000\n"
-"PO-Revision-Date: 2025-06-18 18:39+0200\n"
+"POT-Creation-Date: 2025-06-30 12:49+0000\n"
+"PO-Revision-Date: 2025-06-30 14:59+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -120,7 +120,6 @@ msgid "Amount of reserved budget"
 msgstr "Montant budget réservé"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_account_analytic_account
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__analytic_account_id
 msgid "Analytic Account"
 msgstr "Compte analytique"
@@ -169,16 +168,19 @@ msgstr "Solder un budget restant"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__subtotal
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__subtotal
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__subtotal
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__subtotal
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__subtotal
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense__state__budget
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense_distributed__state__budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_remaining__state__budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_remaining_search
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_search_common
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Budget"
-msgstr "Sous-total"
+msgstr "Budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_balance
@@ -191,21 +193,25 @@ msgid "Budget Category"
 msgstr "Catégorie de budget"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_global_cost
-msgid "Budget Global Cost"
-msgstr "Coûts globaux"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_goods
 msgid "Budget Goods"
 msgstr "Fournitures"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_project_global_cost
+msgid "Budget Project Global Cost"
+msgstr "Coûts globaux"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_affectation_temp__budget_type
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_planning_column__budget_type
 msgid "Budget Type"
 msgstr "Type de budget"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_planning_column__budget_types
+msgid "Budget Type(s)"
+msgstr "Types de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_unit
@@ -216,7 +222,9 @@ msgstr "Unité du budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__budget_type
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__budget_type
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__budget_type
 msgid "Budget category"
 msgstr "Type de budget"
@@ -253,13 +261,16 @@ msgstr "Réservation de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_expense__amount_gain
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_expense_distributed__amount_gain
 msgid "Budget reservation - Real expense"
 msgstr "Réservation de budget - Dépense réelle"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__analytic_account_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__analytic_account_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__analytic_account_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__analytic_account_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__budget_type
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__budget_type
@@ -364,6 +375,7 @@ msgid "Created on"
 msgstr "Créé le"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__currency_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__currency_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_reservation_mixin__currency_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__currency_id
@@ -379,6 +391,11 @@ msgstr "Devise"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_budget_import_wizard
 msgid "Database: .MDB or SQLite"
 msgstr "Base de données : MDB et SQLite"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_account_move_budget_line__date
+msgid "Date"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_move_budget_line__debit
@@ -398,8 +415,10 @@ msgstr "Annuler"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__display_name
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__display_name
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__display_name
@@ -409,13 +428,20 @@ msgid "Display Name"
 msgstr "Groupement"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__expense_distributed
+msgid "Distributed expense"
+msgstr "Dépense répartie"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_model_name
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__section_model_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__section_model_name
 msgid "Document"
 msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_model_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__section_model_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__section_model_id
 msgid "Document Model"
 msgstr ""
@@ -441,6 +467,17 @@ msgid "Encoding"
 msgstr "Encodage"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense__state__expense
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense_distributed__state__expense
+msgid "Expense"
+msgstr "Dépense"
+
+#. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_expense_distributed
+msgid "Expenses per Launchs"
+msgstr "Dépenses par Lancements"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__import_file
 msgid "External DB file"
 msgstr "Fichier de base de données externe"
@@ -462,6 +499,7 @@ msgstr "Nom du fichier"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__amount_gain
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__amount_gain
 msgid "Gain or Loss"
 msgstr "Gain ou perte"
 
@@ -488,7 +526,9 @@ msgstr "Fournitures"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__group_model_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__group_model_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__group_model_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__group_model_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__group_model_id
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_search_common
 msgid "Group"
@@ -496,13 +536,16 @@ msgstr "Groupement"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__group_res_model
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__group_res_model
 msgid "Group Res Model"
 msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard__id
@@ -554,11 +597,11 @@ msgid "Imported data from Orgadata"
 msgstr "Données importées d'Orgadata"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_install
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_install
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_install
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_install
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_install
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_installation
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_installation
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_installation
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_installation
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_installation
 msgid "Install"
 msgstr "Pose"
 
@@ -591,8 +634,10 @@ msgstr "Dernier identifiant de la base"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available____last_update
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued____last_update
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance____last_update
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense____last_update
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed____last_update
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining____last_update
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget____last_update
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_import_wizard____last_update
@@ -620,9 +665,10 @@ msgid "Last Updated on"
 msgstr "Dernière mise à jour le"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_carpentry_group_launch
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__launch_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__launch_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__launch_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__launch_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__launch_id
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
 msgid "Launch"
@@ -636,6 +682,7 @@ msgstr "Lancements (budgets)"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__launch_ids
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__launch_ids
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__launch_ids
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_available_search
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_search_common
 msgid "Launchs"
@@ -686,14 +733,8 @@ msgid "Merge to resolve the conflict with other position(s) with the same name"
 msgstr "Fusionner pour résoudre le conflit avec d'autres repères portant le même nom"
 
 #. module: carpentry_position_budget
-#. odoo-python
-#: code:addons/carpentry_position_budget/models/carpentry_position_budget.py:0
-#, python-format
-msgid "Missing the configuration of %s to compute the position's budget."
-msgstr "Il manque la configuration de %s pour calculer le budget de ce repère."
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__group_res_model
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__group_res_model
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__group_res_model
 msgid "Model"
 msgstr "Type de groupement"
@@ -706,6 +747,7 @@ msgstr "Modèles"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_ref
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__section_ref
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__section_ref
 msgid "Name"
 msgstr "Nom"
@@ -724,6 +766,7 @@ msgstr "Pas de doublons à fusionner."
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_available__quantity_affected
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_budget_available_valued__quantity_affected
 msgid "Number of affected positions"
 msgstr "Nombre de repère affectés"
 
@@ -753,25 +796,26 @@ msgid "Orgadata"
 msgstr "Orgadonnées"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_global_cost
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_global_cost
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_global_cost
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_global_cost
-msgid "Other"
-msgstr "Autre"
-
-#. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__account_analytic_account__budget_type__project_global_cost
 msgid "Other cost"
 msgstr "Autre coût"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_project_global_cost
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_project_global_cost
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_project_global_cost
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_project_global_cost
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_search_common
 msgid "Other costs"
 msgstr "Autres coûts"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_group_phase
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__phase_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__phase_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__phase_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__phase_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__phase_id
 msgid "Phase"
 msgstr ""
 
@@ -792,7 +836,9 @@ msgstr "Veuillez charger un fichier."
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_position
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__position_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__position_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__position_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__position_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__position_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__position_id
 msgid "Position"
@@ -842,11 +888,11 @@ msgid "Positions budget"
 msgstr "Budget des repères"
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_prod
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_prod
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_prod
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_prod
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_prod
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__budget_production
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__budget_production
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_phase__budget_production
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position__budget_production
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_project_project__budget_production
 msgid "Prod"
 msgstr "Fabrication"
 
@@ -857,10 +903,11 @@ msgid "Production"
 msgstr "Fabrication"
 
 #. module: carpentry_position_budget
-#: model:ir.model,name:carpentry_position_budget.model_project_project
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__project_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__project_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_budget_mixin__project_id
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_group_launch__project_id
@@ -877,6 +924,11 @@ msgstr "Projet"
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_available
 msgid "Project & launches budgets"
 msgstr "Budgets disponibles du projet & des lancements"
+
+#. module: carpentry_position_budget
+#: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_available_valued
+msgid "Project & launches budgets (valued)"
+msgstr "Budgets disponibles du projet & des lancements (valorisé)"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_remaining
@@ -902,6 +954,7 @@ msgstr "Par projet"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__quantity_affected
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__quantity_affected
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__quantity
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Quantity"
@@ -925,12 +978,14 @@ msgstr "En lecture seule car calculé depuis les repères"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__amount_expense
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__amount_expense
 msgid "Real expense"
 msgstr "Dépense réelle"
 
 #. module: carpentry_position_budget
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_budget_report_remaining_srv
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__quantity_affected
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__quantity_affected
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__quantity_affected
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_report_remaining
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
@@ -954,6 +1009,7 @@ msgstr "Rapports de budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense__state__reservation
+#: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_expense_distributed__state__reservation
 #: model:ir.model.fields.selection,name:carpentry_position_budget.selection__carpentry_budget_remaining__state__reservation
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_remaining_search
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
@@ -964,6 +1020,20 @@ msgstr "Réservation"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.view_carpentry_budget_balance_form
 msgid "Reserve budget"
 msgstr "Réserver du budget"
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__section_id
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__section_id
+msgid "Section ID"
+msgstr ""
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_res_model
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__section_res_model
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__section_res_model
+msgid "Section Model"
+msgstr ""
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_balance__section_ids
@@ -1004,7 +1074,6 @@ msgstr ""
 "                        ou rejouer l'import après une configuration correcte."
 
 #. module: carpentry_position_budget
-#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__state
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__state
 msgid "State"
 msgstr "Etat"
@@ -1026,24 +1095,14 @@ msgid "Supported formats"
 msgstr "Formats pris en charge"
 
 #. module: carpentry_position_budget
+#: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_planning_column__budget_types
+msgid "Technical names of budget types separated by a coma"
+msgstr "Noms techniques des types de budget, séparés d'une virgule"
+
+#. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_account_analytic_account__template_line_ids
 msgid "Template Line"
 msgstr "Gabarit de ligne"
-
-#. module: carpentry_position_budget
-#. odoo-python
-#: code:addons/carpentry_position_budget/models/carpentry_budget_reservation_mixin.py:0
-#, python-format
-msgid ""
-"There is no possible budget reservation. Please ensure:\n"
-" - launches are selected;\n"
-" - the project has budget on the selected analytic accounts;\n"
-" - for Purchase Orders, that lines have analytic distribution, (in \"Products\" page)."
-msgstr ""
-"Il n'y a aucune réservation possible de budget. Veuillez vous assurer :\n"
-"- qu'au moins un lancement est sélectionné ;\n"
-"- que le projet a du budget sur les comptes analytiques choisis ;\n"
-"- pour les commandes, que les lignes ont des distributions analytiques (dans la page \"Produits\")."
 
 #. module: carpentry_position_budget
 #: model:ir.model.constraint,message:carpentry_position_budget.constraint_carpentry_position_budget_interface_unique_col
@@ -1130,19 +1189,26 @@ msgstr "Budgets des repères"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
 msgid "Unitary Amount"
-msgstr "Montant unitaire"
+msgstr "Montant"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__amount
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__amount
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__amount
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__amount
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__amount
 msgid "Unitary amount"
-msgstr "Montant unitaire"
+msgstr "Montant"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id
 msgid "Used to rapproach incomes, charges and budget in accounting reports."
 msgstr "Utilisé pour rapprocher les revenus, les charges et le budget dans les rapports comptables."
+
+#. module: carpentry_position_budget
+#: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__value
+msgid "Value"
+msgstr "Valeur"
 
 #. module: carpentry_position_budget
 #. odoo-javascript

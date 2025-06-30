@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 14:56+0000\n"
-"PO-Revision-Date: 2025-03-06 16:00+0100\n"
+"POT-Creation-Date: 2025-06-30 12:49+0000\n"
+"PO-Revision-Date: 2025-06-30 14:53+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #. module: carpentry_mrp_import
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_import.product_template_form_view
@@ -250,12 +250,6 @@ msgid "Please upload a file."
 msgstr "Veuillez téléverser un fichier."
 
 #. module: carpentry_mrp_import
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_product__preferred_supplier_id
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__preferred_supplier_id
-msgid "Preferred Supplier"
-msgstr "Fournisseur privilégié"
-
-#. module: carpentry_mrp_import
 #: model:ir.model,name:carpentry_mrp_import.model_product_template
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__product_ids
 msgid "Product"
@@ -277,11 +271,6 @@ msgstr "Variante de produit"
 #, python-format
 msgid "Project"
 msgstr "Projet"
-
-#. module: carpentry_mrp_import
-#: model:ir.model,name:carpentry_mrp_import.model_purchase_order_line
-msgid "Purchase Order Line"
-msgstr "Ligne de commande d'achat"
 
 #. module: carpentry_mrp_import
 #. odoo-python
@@ -339,11 +328,6 @@ msgstr "Références alternatives"
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_template__substitution_product_id
 msgid "Substitution product"
 msgstr "Produit de substitution"
-
-#. module: carpentry_mrp_import
-#: model:ir.model.fields,field_description:carpentry_mrp_import.field_carpentry_mrp_import_wizard__supplierinfo_ids
-msgid "Supplierinfo"
-msgstr "Informations sur les fournisseurs"
 
 #. module: carpentry_mrp_import
 #: model:ir.model.fields,field_description:carpentry_mrp_import.field_product_substitution__product_id
@@ -404,7 +388,7 @@ msgid ""
 "Unknown products:\n"
 " %s"
 msgstr ""
-"Produits inconnus:\n"
+"Produits inconnus :\n"
 "%s"
 
 #. module: carpentry_mrp_import

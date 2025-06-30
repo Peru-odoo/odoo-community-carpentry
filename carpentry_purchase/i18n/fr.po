@@ -6,11 +6,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-27 16:56+0000\n"
-"PO-Revision-Date: 2025-05-27 18:58+0200\n"
+"POT-Creation-Date: 2025-06-30 12:49+0000\n"
+"PO-Revision-Date: 2025-06-30 15:00+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
+"Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -105,7 +105,6 @@ msgid "Launches"
 msgstr "Lancements"
 
 #. module: carpentry_purchase
-#: model:ir.model.fields,field_description:carpentry_purchase.field_carpentry_group_launch__task_ids
 #: model_terms:ir.ui.view,arch_db:carpentry_purchase.purchase_order_form
 msgid "Needs"
 msgstr "Besoins"
@@ -126,7 +125,6 @@ msgid "Products Type"
 msgstr "Types de produits"
 
 #. module: carpentry_purchase
-#: model:ir.model,name:carpentry_purchase.model_project_project
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_bank_statement_line__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_move__project_id
 #: model:ir.model.fields,field_description:carpentry_purchase.field_account_move_line__project_id
@@ -151,11 +149,6 @@ msgstr "Domaine du projet"
 #: model:ir.model,name:carpentry_purchase.model_purchase_arrival_date
 msgid "Purchase Arrival Date"
 msgstr "Date de réception"
-
-#. module: carpentry_purchase
-#: model:ir.model,name:carpentry_purchase.model_purchase_order
-msgid "Purchase Order"
-msgstr "Commande fournisseur"
 
 #. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_purchase_order_line
@@ -184,14 +177,14 @@ msgid "Purchase order mixing both stored and non-stored products"
 msgstr "Commande mélangeant des articles stockés et non-stockés"
 
 #. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
+msgid "Reference"
+msgstr "Référence"
+
+#. module: carpentry_purchase
 #: model:ir.model.fields.selection,name:carpentry_purchase.selection__purchase_order__products_type__storable
 msgid "Stock purchase order (only)"
 msgstr "Commande de stock (uniquement)"
-
-#. module: carpentry_purchase
-#: model_terms:ir.ui.view,arch_db:carpentry_purchase.view_purchase_requisition_form
-msgid "Terms and Conditions"
-msgstr "Conditions générales"
 
 #. module: carpentry_purchase
 #. odoo-python
@@ -217,9 +210,24 @@ msgid "Title of Order"
 msgstr "Nom de la commande"
 
 #. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
+msgid "Total Untaxed amount"
+msgstr "Montant total (hors-taxes)"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
+msgid "Total amount"
+msgstr "Montant total"
+
+#. module: carpentry_purchase
 #: model:ir.model,name:carpentry_purchase.model_stock_picking
 msgid "Transfer"
 msgstr "Transfert"
+
+#. module: carpentry_purchase
+#: model_terms:ir.ui.view,arch_db:carpentry_purchase.carpentry_group_launch_form
+msgid "Untaxed"
+msgstr "Hors-taxes"
 
 #. module: carpentry_purchase
 #: model:ir.model.fields,help:carpentry_purchase.field_account_bank_statement_line__project_id
