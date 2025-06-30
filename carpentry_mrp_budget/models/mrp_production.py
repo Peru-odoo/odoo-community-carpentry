@@ -60,7 +60,7 @@ class ManufacturingOrder(models.Model):
     def _get_budget_types(self):
         return ['production'] + self._get_component_budget_types()
     
-    def _should_move_raw_reserve_budget(self):
+    def _should_mo_reserve_budget(self):
         return self.state not in ['cancel']
     
     def _get_component_budget_types(self):
@@ -94,7 +94,7 @@ class ManufacturingOrder(models.Model):
 
             (!) Let's be careful to keep manually chosen analytics (for workcenters)
         """
-        to_clean = self.filtered(lambda x: not x._should_move_raw_reserve_budget())
+        to_clean = self.filtered(lambda x: not x._should_mo_reserve_budget())
         to_clean.budget_analytic_ids = False
 
         to_compute = (self - to_clean).filtered('project_id')
@@ -125,7 +125,7 @@ class ManufacturingOrder(models.Model):
             :return: Dict like {analytic_id: charged amount}
         """
         self.ensure_one()
-        to_compute_move_raw = self.filtered(lambda x: x._should_move_raw_reserve_budget())
+        to_compute_move_raw = self.filtered(lambda x: x._should_mo_reserve_budget())
         if not to_compute_move_raw:
             return {}
 
@@ -136,7 +136,7 @@ class ManufacturingOrder(models.Model):
         for move in to_compute_move_raw.move_raw_ids:
             if not move.analytic_distribution:
                 continue
-
+            
             for analytic_id, percentage in move.analytic_distribution.items():
                 analytic_id = int(analytic_id)
 
@@ -147,7 +147,7 @@ class ManufacturingOrder(models.Model):
                 qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
                 unit_price = (
                     move.product_id.standard_price
-                    if move.raw_material_production_id.state in ['confirm', 'progress', 'to_close']
+                    if move.raw_material_production_id.state in ['waiting', 'confirmed', 'partially_available', 'assigned']
                     else move._get_price_unit()
                 )
                 mapped_cost[analytic_id] += qty * unit_price * percentage / 100
@@ -172,7 +172,7 @@ class ManufacturingOrder(models.Model):
             - its moves valuation when valuated
             - else, estimation via products' prices
         """
-        to_compute = self.filtered(lambda x: x._should_move_raw_reserve_budget())
+        to_compute = self.filtered(lambda x: x._should_mo_reserve_budget())
         (self - to_compute).amount_budgetable = False
         if not to_compute:
             return
