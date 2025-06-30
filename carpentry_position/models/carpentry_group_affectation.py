@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from re import A
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.osv import expression
 from odoo.tools import float_round
@@ -88,7 +89,8 @@ class CarpentryGroupAffectation(models.Model):
     group_model_id = fields.Many2one(
         comodel_name='ir.model',
         string='Group Model ID',
-        ondelete='cascade'
+        ondelete='cascade',
+        index='btree_not_null',
     )
     group_res_model = fields.Char(
         string='Group Model',
@@ -111,7 +113,8 @@ class CarpentryGroupAffectation(models.Model):
     record_model_id = fields.Many2one(
         comodel_name='ir.model',
         string='Record Model ID',
-        ondelete='cascade'
+        ondelete='cascade',
+        index='btree_not_null',
     )
     record_res_model = fields.Char(
         string='Record Model',
@@ -133,7 +136,8 @@ class CarpentryGroupAffectation(models.Model):
     section_model_id = fields.Many2one(
         comodel_name='ir.model',
         string='Section Model ID',
-        ondelete='cascade'
+        ondelete='cascade',
+        index='btree_not_null',
     )
     section_res_model = fields.Char(
         string='Section Model',
@@ -184,6 +188,15 @@ class CarpentryGroupAffectation(models.Model):
         string='Sum of affected to neighbors',
         compute='_compute_sum_affected_siblings',
         group_operator='sum',
+    )
+
+    # for launch
+    affected = fields.Boolean(
+        default=True,
+        index='btree_not_null',
+    )
+    is_affectable = fields.Boolean(
+        compute='_compute_is_affectable',
     )
     
     _sql_constraints = [(
@@ -256,28 +269,14 @@ class CarpentryGroupAffectation(models.Model):
             )
 
     #===== Constrain: M2o-like if `_carpentry_affectation_quantity == False` =====#
-    @api.constrains('record_id', 'active')
-    def _constrain_m2o(self):
-        """ Replay a M2o constrain: prevent from 2 affectations on same row """
-        self = self.with_context(active_test=False)
-
-        is_temp = bool(self._name == 'carpentry.group.affectation.temp')
-        _filter = (lambda x: x.affected) if is_temp else (lambda x: True)
-        
-        # constrain only on groups not allowing M2M
-        self = self.filtered(lambda x: not x.group_ref._carpentry_affectation_allow_m2m).filtered(_filter)
-        if not self:
-            return
-
+    @api.depends('record_id', 'active', 'affected')
+    def _compute_is_affectable(self):
         # get siblings
-        domain = self._get_domain_siblings()
-        if is_temp:
-            domain += [('affected', '=', True)]
         rg_result = self.env[self._name].read_group(
-            domain=domain,
+            domain=self._get_domain_siblings(),
             groupby=['group_model_id', 'record_model_id', 'record_id'], # group per line
             fields=['siblings_ids:array_agg(id)'],
-            lazy=False
+            lazy=False,
         )
         mapped_siblings_ids = {
             (x['group_model_id'][0], x['record_model_id'][0], x['record_id']): x['siblings_ids']
@@ -287,9 +286,22 @@ class CarpentryGroupAffectation(models.Model):
         # check constrain per row
         for affectation in self:
             key = (affectation.group_model_id.id, affectation.record_model_id.id, affectation.record_id)
-            siblings = set(mapped_siblings_ids.get(key, [])) - set([affectation.id])
+            siblings = set(mapped_siblings_ids.get(key, [])) - set([affectation._origin.id])
 
-            if len(siblings) > 0:
+            affectation.is_affectable = len(siblings) == 0
+    
+    @api.constrains('record_id', 'active')
+    def _constrain_m2o(self):
+        """ Replay a M2o constrain: prevent from 2 affectations on same row """
+        self = self.with_context(active_test=False)
+
+        # constrain only on groups not allowing M2M
+        self = self.filtered(lambda x: not x.group_ref._carpentry_affectation_allow_m2m).filtered(lambda x: x.affected)
+        if not self:
+            return
+
+        for affectation in self:
+            if not affectation.is_affectable:
                 raise exceptions.ValidationError(
                     _('One line cannot be affected to several columns (%s).', affectation.display_name)
                 )
@@ -307,7 +319,8 @@ class CarpentryGroupAffectation(models.Model):
             ('record_model_id', 'in', self.record_model_id.ids),
             # on the same line
             ('record_id', 'in', self.mapped('record_id')),
-            ('active', '=', True)
+            ('active', '=', True),
+            ('affected', '=', True),
         ]
 
     #===== Quantities & M2o: constrain & compute =====#
@@ -427,8 +440,9 @@ class CarpentryAffectationTemp(models.TransientModel):
     _order = "seq_section, seq_group, sequence"
     _rec_name = "display_name"
 
-    affected = fields.Boolean(default=False) # only used when a value-field is not used, ie. for Launch, Plan, Task.Group and SaleOrder
-
     def _constrain_quantity(self):
         """ Neutralize this constrain in temp """
         return
+    def _compute_sum_affected_siblings(self):
+        return
+    

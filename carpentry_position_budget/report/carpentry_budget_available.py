@@ -225,6 +225,7 @@ class CarpentryBudgetAvailable(models.Model):
             return f"""
                 WHERE
                     affectation.active IS TRUE AND
+                    affectation.affected IS TRUE AND
                     quantity_affected != 0 AND
                     affectation.group_model_id = {models[model]}
                 """
@@ -250,20 +251,6 @@ class CarpentryBudgetAvailable(models.Model):
     def _orderby(self, model, models):
         return ''
     
-    #===== Queries =====#
-    def _get_groupby(self, records, launch_ids_, groupby):
-        return {}
-        # rg_result = self.read_group(
-        #     domain=[('launch_id', 'in', launch_ids_), (groupby, 'in', records.mapped(groupby))],
-        #     fields=['subtotal:sum'],
-        #     groupby=[groupby],
-        # )
-        # many2one = self[groupby]!!._fields['aaa']
-        # return {
-        #     x[groupby][0] if many2one else x[groupby]: x['subtotal']
-        #     for x in rg_result
-        # }
-
 
 
     #===== ORM method =====#

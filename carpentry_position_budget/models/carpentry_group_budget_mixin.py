@@ -14,11 +14,11 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     currency_id = fields.Many2one(related='project_id.company_id.currency_id')
     # in (h)
     budget_office = fields.Float(string='Office', compute='_compute_budgets')
-    budget_prod = fields.Float(string='Prod', compute='_compute_budgets')
-    budget_install = fields.Float(string='Install', compute='_compute_budgets')
+    budget_production = fields.Float(string='Prod', compute='_compute_budgets')
+    budget_installation = fields.Float(string='Install', compute='_compute_budgets')
     # in (€)
     budget_goods = fields.Monetary(string='Goods', compute='_compute_budgets', currency_field='currency_id')
-    budget_global_cost = fields.Monetary(string='Other costs', compute='_compute_budgets', currency_field='currency_id')
+    budget_project_global_cost = fields.Monetary(string='Other costs', compute='_compute_budgets', currency_field='currency_id')
     # total
     budget_total = fields.Monetary(string='Total', compute='_compute_budgets', currency_field='currency_id')
     
@@ -48,15 +48,16 @@ class CarpentryGroupBudgetMixin(models.AbstractModel):
     def _compute_budgets_one(self, brut, valued):
         """ Allows to be overriden, e.g. for position to change `total` and `subtotal` computation """
         self.ensure_one()
-        self.budget_office = self._get_budget_one(brut, 'office')
-        self.budget_prod = self._get_budget_one(brut, 'production')
-        self.budget_install = self._get_budget_one(brut, 'installation')
-        self.budget_goods = self._get_budget_one(valued, 'goods')
-        self.budget_global_cost = self._get_budget_one(valued, 'project_global_cost')
-        self.budget_total = self._get_budget_one(valued, ['office', 'production', 'installation', 'goods', 'project_global_cost'])
+        self.budget_office =              self._get_budget_one(brut,   ['office'])
+        self.budget_production =          self._get_budget_one(brut,   ['production'])
+        self.budget_installation =        self._get_budget_one(brut,   ['installation'])
+        self.budget_goods =               self._get_budget_one(valued, ['goods'])
+        self.budget_project_global_cost = self._get_budget_one(valued, ['project_global_cost'])
+        self.budget_total =               self._get_budget_one(valued,
+            ['office', 'production', 'installation', 'goods', 'project_global_cost']
+        )
     
     def _get_budget_one(self, budget, budget_types):
-        budget_types = [budget_types] if isinstance(budget_types, str) else budget_types
         return sum([
             budget.get(self.id, {}).get(x, 0.0)
             for x in budget_types

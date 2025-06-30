@@ -36,6 +36,10 @@ class Position(models.Model):
         string='Quantity',
         required=True
     )
+    quantity_affected = fields.Float(
+        # for affectation
+        compute='_compute_quantity_affected',
+    )
     surface = fields.Float(
         string='Surface',
         digits=(6,2)
@@ -154,7 +158,7 @@ class Position(models.Model):
 
         # For a given position, get its quantity already affected in phases and launches
         rg_result = self.env['carpentry.group.affectation'].read_group(
-            domain=[('position_id', 'in', self.ids)],
+            domain=[('position_id', 'in', self.ids), ('affected', '=', True)],
             groupby=['position_id', 'group_model_id'],
             fields=['quantity_affected:sum'],
             lazy=False,
@@ -178,6 +182,11 @@ class Position(models.Model):
             elif position.quantity > sum_affected['launch'].get(position.id, 0):
                 state = 'warning_launch'
             position.state = state
+    
+    @api.depends('quantity')
+    def _compute_quantity_affected(self):
+        for position in self:
+            position.quantity_affected = position.quantity
 
     #===== Button =====#
     def copy(self, default=None):

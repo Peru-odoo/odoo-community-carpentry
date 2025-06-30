@@ -11,8 +11,8 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
 
     BUDGET_ALUMINIUM = 100.0 # euros
-    BUDGET_PROD = 20.0 # hours
-    BUDGET_INSTALL = 10.0 # hours
+    budget_production = 20.0 # hours
+    budget_installation = 10.0 # hours
 
     @classmethod
     def setUpClass(cls):

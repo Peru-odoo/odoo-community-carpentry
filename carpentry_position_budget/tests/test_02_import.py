@@ -10,7 +10,7 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 
 class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
 
-    BUDGET_INSTALL = 10.0
+    budget_installation = 10.0
     ORGADATA_FILENAME = 'REPORT_MEXT.zip'
 
     @classmethod
@@ -40,11 +40,11 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
     def test_01_truncate_budget(self):
         self.position.position_budget_ids = [Command.create({
             'analytic_account_id': self.aac_install.id,
-            'amount': self.BUDGET_INSTALL
+            'amount': self.budget_installation
         })]
-        self.assertTrue(self.position.budget_install, self.BUDGET_INSTALL)
+        self.assertTrue(self.position.budget_installation, self.budget_installation)
         self.wizard.button_truncate_budget()
-        self.assertTrue(self.position.budget_install, 0.0)
+        self.assertTrue(self.position.budget_installation, 0.0)
 
     def test_02_import_file_orgadata(self):
         """ Test import logic and verify positions, lots and budgets were added """
@@ -58,17 +58,17 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
         self.assertTrue(self.project_import.budget_line_ids.ids)
         
         # project totals
-        self.assertTrue(self.project_import.budget_install)
-        self.assertTrue(self.project_import.budget_prod)
-        self.assertTrue(self.project_import.budget_global_cost)
+        self.assertTrue(self.project_import.budget_installation)
+        self.assertTrue(self.project_import.budget_production)
+        self.assertTrue(self.project_import.budget_project_global_cost)
 
     def test_04_budget_coef(self):
         """ Test coefficient: new import with 40% coef """
-        prod_before = self.project_import.budget_prod
+        prod_before = self.project_import.budget_production
         self._open_wizard(self.project_import, {'budget_coef': 40})
         self.wizard.button_import()
 
-        self.assertEqual(round(prod_before * 40/100, 2), round(self.project_import.budget_prod, 2))
+        self.assertEqual(round(prod_before * 40/100, 2), round(self.project_import.budget_production, 2))
     
     def test_05_column_mode_ignore(self):
         """ Test ignoring/only with some columns """
@@ -78,8 +78,8 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
             'column_ids': [Command.set(self.interface_fab2.ids)]
         })
         self.wizard.button_import()
-        self.assertFalse(self.project_import.budget_prod)
-        self.assertTrue(self.project_import.budget_install)
+        self.assertFalse(self.project_import.budget_production)
+        self.assertTrue(self.project_import.budget_installation)
 
         # Only PROD: we should have PROD but no other
         self._open_wizard(self.project_import, {
@@ -87,5 +87,5 @@ class TestCarpentryPositionBudget_Import(TestCarpentryPositionBudget_Base):
             'column_ids': [Command.set(self.interface_fab2.ids)]
         })
         self.wizard.button_import()
-        self.assertTrue(self.project_import.budget_prod)
-        self.assertFalse(self.project_import.budget_install)
+        self.assertTrue(self.project_import.budget_production)
+        self.assertFalse(self.project_import.budget_installation)

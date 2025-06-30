@@ -1130,14 +1130,14 @@ msgstr "Budgets des repères"
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget__amount
 msgid "Unitary Amount"
-msgstr "Montant"
+msgstr "Montant unitaire"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available__amount
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__amount
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__amount
 msgid "Unitary amount"
-msgstr "Montant"
+msgstr "Montant unitaire"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,help:carpentry_position_budget.field_carpentry_position_budget__analytic_account_id

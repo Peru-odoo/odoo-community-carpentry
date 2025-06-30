@@ -45,12 +45,12 @@
         <xpath expr="//div[hasclass('o_kanban_header_title')]" position="after">
             <div class="d-flex">
                 <!-- budget -->
-                <div class="flex-grow-1 mx-1 fs-4">
+                <div class="flex-grow-1 mx-1 fs-5">
                     <t t-set="budget" t-value="header.budget" />
                     <div t-if="budget">
-                        <span t-esc="budget.expense" title="Real expense" /><t t-esc="budget.unit" /> /
+                        <span t-esc="budget.available" title="Initially available budget" /><t t-esc="budget.unit" /> /
                         <span t-esc="budget.reserved" title="Reserved budget so far" /><t t-esc="budget.unit" /> /
-                        <span t-esc="budget.available" title="Initially available budget" /><t t-esc="budget.unit" />
+                        <span t-esc="budget.expense" title="Real expense" /><t t-esc="budget.unit" />
                     </div>
                     <br t-else="" />
                 </div>
@@ -59,7 +59,7 @@
                 <div t-foreach="header.milestones" t-as="milestone" t-key="milestone.id"
                     t-att-data-tooltip="milestone.name" class="cursor-pointer"
                     t-on-click="() => this.openMilestone(milestone)"
-                    t-attf-class="fw-bold fs-3 {{ milestone.type ? 'ms-1' : 'ms-4' }}"
+                    t-attf-class="d-flex align-items-center fw-bold fs-3 {{ milestone.type ? 'ms-1' : 'ms-4' }}"
                 >
                     <i t-attf-class="me-1 {{ milestone.icon }}" />
                     <t t-esc="milestone.week || '?'" />

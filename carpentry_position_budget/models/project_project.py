@@ -14,11 +14,11 @@ class Project(models.Model):
     )
 
     # project's budget totals (from budget mixin) => store because project form is often displayed
-    budget_prod = fields.Float(store=True)
-    budget_install = fields.Float(store=True)
+    budget_production = fields.Float(store=True)
+    budget_installation = fields.Float(store=True)
     budget_office = fields.Float(store=True)
     budget_goods = fields.Float(store=True, readonly=True)
-    budget_global_cost = fields.Float(store=True, readonly=True)
+    budget_project_global_cost = fields.Float(store=True, readonly=True)
     budget_total = fields.Monetary(
         # duplicate with `budget_line_sum` from `project_budget` (already stored) => cancel storage of mixin field `budget_total`
         store=False,
@@ -69,10 +69,10 @@ class Project(models.Model):
         budget_fields = {
             # field, (budget_type, budget_field)
             'budget_office': ('service', 'qty_debit'),
-            'budget_prod': ('production', 'qty_debit'),
-            'budget_install': ('installation', 'qty_debit'),
+            'budget_production': ('production', 'qty_debit'),
+            'budget_installation': ('installation', 'qty_debit'),
             'budget_goods': ('goods', 'balance'),
-            'budget_global_cost': ('project_global_cost', 'balance')
+            'budget_project_global_cost': ('project_global_cost', 'balance')
         }
         for project in self:
             # Ensure budget lines are up-to-date before updating project's totals

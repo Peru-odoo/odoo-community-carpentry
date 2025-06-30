@@ -181,15 +181,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         return super()._get_domain_affect(group, group2_ids, group2)
 
-    def _raise_if_no_affectations(self):
-        raise exceptions.UserError(_(
-            'There is no possible budget reservation. Please ensure:\n'
-            ' - launches are selected;\n'
-            ' - the project has budget on the selected analytic accounts;\n'
-            ' - for Purchase Orders, that lines have analytic distribution,'
-            ' (in "Products" page).'
-        ))
-    
     #===== Compute amounts =====#
     @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
     def _compute_sum_quantity_affected(self):

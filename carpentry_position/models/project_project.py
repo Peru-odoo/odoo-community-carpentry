@@ -107,6 +107,6 @@ class Project(models.Model):
         """
         prefix = 'affectation_ids_temp_'
         for group in [group for group in ['phase', 'launch'] if prefix + group in vals.keys()]:
-            vals_command = vals[prefix + group] # [2, id, vals] if updated
+            vals_command = vals[prefix + group] # [1, id, vals] if updated
             vals_updated = {vals[1]: vals[2] for vals in vals_command if vals[0] == 1 and vals[2]} # [{temp_id: new_vals}]
             self[group + '_ids']._inverse_affectation_ids_temp(vals_updated)

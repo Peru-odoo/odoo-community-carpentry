@@ -17,7 +17,7 @@ class CarpentryPosition(models.Model):
     # budget
     position_budget_ids = fields.One2many(
         comodel_name='carpentry.position.budget',
-        inverse_name='position_id'
+        inverse_name='position_id',
     )
     budget_subtotal = fields.Monetary(
         string='Sub-total',

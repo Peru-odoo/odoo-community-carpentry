@@ -7,7 +7,7 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 
 class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
 
-    BUDGET_INSTALL = 10.0
+    budget_installation = 10.0
 
     @classmethod
     def setUpClass(cls):
@@ -18,7 +18,7 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
         cls.position_duplicate.write({'name': cls.position.name})
         cls.position_duplicate.position_budget_ids = [Command.create({
             'analytic_account_id': cls.aac_install.id,
-            'amount': cls.BUDGET_INSTALL
+            'amount': cls.budget_installation
         })]
 
         # merge wizard
@@ -66,4 +66,4 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
 
         # Qty: should sum & budget: should weighted-avg
         self.assertEqual(self.position.quantity, 3)
-        self.assertEqual(round(self.position.budget_install, 2), round((0.0 * 1 + self.BUDGET_INSTALL * 2) / 3, 2))
+        self.assertEqual(round(self.position.budget_installation, 2), round((0.0 * 1 + self.budget_installation * 2) / 3, 2))

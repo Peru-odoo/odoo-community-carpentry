@@ -31,6 +31,26 @@ class CarpentryGroupPhase(models.Model):
             for x in affectations
         }
 
+    def refresh_from_lots(self):
+        """ Button to allow refreshing affectations from linked sections.
+            This is useful if section's affectations changes **after** the group affectations
+        """
+        if not self._carpentry_affectation_section:
+            return
+        
+        mapped_model_ids = self._get_mapped_model_ids()
+        for group in self:
+            # 1. Of current sections, get their positions (for lots) or affectations (for phases)
+            #    still affectable (qty_remaining > 0 or not affected) and not already present in the group
+            current_record_ids = group.affectation_ids.mapped('record_id')
+            section_affectations = (
+                group._get_remaining_affectations_from_sections(group._origin.section_ids)
+                .filtered(lambda x: x.id not in current_record_ids)
+            )
+
+            # 2. Add them to group's affectations
+            group._add_affectations_from_sections(section_affectations, mapped_model_ids)
+
 
 class CarpentryGroupAffectation(models.Model):
     _inherit = ['carpentry.group.affectation']
@@ -41,18 +61,19 @@ class CarpentryGroupAffectation(models.Model):
         """
         phase_affectations = self.filtered(lambda x: x.group_res_model == 'carpentry.group.phase')
         if phase_affectations and 'quantity_affected' in vals:
-            phase_affectations._cascade_quantity_affected(vals['quantity_affected'])
+            phase_affectations._cascade_affectations(vals['quantity_affected'])
         return super().write(vals)
     
-    def _cascade_quantity_affected(self, quantity_affected):
+    def _cascade_affectations(self, quantity_affected):
         """ `self` is `phase_affectations`
 
             If `quantity_affected`...
             a) is 0 -> delete the children affectations
-            b) else -> mirror the value, like a related field but mandatory
-                to have it in database for correct *available.budget* report
+            b) else -> precreate affectation and mirror the `quantity_affected` value
         """
         if not quantity_affected:
             self.affectation_ids.unlink()
         else:
+            for group in self.affectation_ids.group_ref:
+                group.refresh_from_lots()
             self.affectation_ids.quantity_affected = quantity_affected

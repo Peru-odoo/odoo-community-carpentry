@@ -8,7 +8,7 @@
 
         <field name="arch" type="xml">
             <tree position="inside">
-                <field name="budget_type" />
+                <field name="budget_types" />
             </tree>
         </field>
     </record>
@@ -21,7 +21,7 @@
 
         <field name="arch" type="xml">
             <group position="inside">
-                <field name="budget_type" />
+                <field name="budget_types" />
             </group>
         </field>
     </record>

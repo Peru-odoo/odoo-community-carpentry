@@ -11,6 +11,9 @@ class CarpentryBudgetExpense(models.Model):
     _auto = False
 
     #===== Fields =====#
+    state = fields.Selection(
+        selection_add=[('expense', 'Expense')]
+    )
     launch_ids = fields.Many2many(
         string='Launchs',
         comodel_name='carpentry.group.launch',
@@ -29,7 +32,6 @@ class CarpentryBudgetExpense(models.Model):
     )
 
     # cancel fields
-    state = fields.Selection(store=False)
     launch_id = fields.Many2one(store=False)
     group_model_id = fields.Many2one(store=False)
     group_res_model = fields.Char(related='', store=False)
@@ -48,9 +50,11 @@ class CarpentryBudgetExpense(models.Model):
             self._cr.execute("""
                 CREATE or REPLACE VIEW %s AS (
                     SELECT
-                        row_number() OVER (ORDER BY section_ref, analytic_account_id) AS id,
+                        row_number() OVER (ORDER BY section_id, section_model_id, analytic_account_id) AS id,
+                        state,
                         project_id,
-                        section_ref,
+                        
+                        section_id,
                         section_model_id,
                         analytic_account_id,
                         budget_type,
@@ -65,9 +69,9 @@ class CarpentryBudgetExpense(models.Model):
                         (%s)
                     ) AS result
                     GROUP BY
+                        state,
                         project_id,
                         section_id,
-                        section_ref,
                         section_model_id,
                         analytic_account_id,
                         budget_type
@@ -83,7 +87,6 @@ class CarpentryBudgetExpense(models.Model):
         """ Can be overwritten """
         return {
             'section_id': 'section.id',
-            'section_ref': f"'{model},' || section.id",
             'section_model_id': models[model],
         }
 
@@ -94,9 +97,9 @@ class CarpentryBudgetExpense(models.Model):
         if model == 'carpentry.group.affectation':
             sql = f"""
                 SELECT
+                    'reservation' AS state,
                     affectation.project_id,
                     affectation.section_id AS section_id,
-                    model.model || ',' || affectation.section_id AS section_ref,
                     affectation.section_model_id,
                     affectation.group_id AS analytic_account_id,
                     affectation.budget_type,
@@ -110,10 +113,11 @@ class CarpentryBudgetExpense(models.Model):
             # but `amount_expense` (except carpentry.budget.balance)
             sql = f"""
                 SELECT
-                    -- project & section_ref
+                    'expense' AS state,
+                    
+                    -- project & section
                     section.project_id,
                     {section_fields['section_id']} AS section_id,
-                    {section_fields['section_ref']} AS section_ref,
                     {section_fields['section_model_id']} AS section_model_id,
 
                     -- budget,
@@ -199,26 +203,6 @@ class CarpentryBudgetExpense(models.Model):
     def _orderby(self, model, models):
         return ''
 
-    #===== Queries =====#
-    def _get_groupby(self, records, launch_ids_, groupby, fields=['quantity_affected', 'amount_expense']):
-        return {}
-        # attention
-        # # rajouter fields launch_ids dans la view (left join carpentry_group_launch => affectations uniquement)
-
-        # fields = fields or ['quantity_affected', 'amount_expense']
-        # rg_result = self.read_group(
-        #     domain=[('launch_id', 'in', launch_ids_), (groupby, 'in', records.mapped(groupby))],
-        #     groupby=[groupby],
-        #     fields=[key + ':sum' for key in fields],
-        # )
-        # many2one = self[groupby]!!._fields['aaa']
-        # return (
-        #         {
-        #         x[groupby][0] if many2one else x[groupby]: x[key]
-        #         for x in rg_result
-        #     } for key in fields]
-        # )
-    
     #===== Compute =====#
     @api.depends('section_ref')
     def _compute_launch_ids(self):

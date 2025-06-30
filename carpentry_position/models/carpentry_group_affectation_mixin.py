@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from re import A
 from odoo import models, fields, api, _, Command, exceptions
 from odoo.osv import expression
 from collections import defaultdict
@@ -10,7 +11,6 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     """
     _name = "carpentry.group.affectation.mixin"
     _description = 'Affectation Mixin'
-
 
     #===== Affectations params =====#
     # True if model is a Carpentry Group, see `carpentry.group.affectation._selection_res_model()`
@@ -23,6 +23,30 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     _carpentry_affectation_section = False # # when lines are grouped (eg. positions groupped by lot for affectations of Phases)
 
 
+    #===== Fields methods =====#
+    def name_get(self):
+        """ Appends number of remaining affectation to affect
+            for group's form
+        """
+        res = super().name_get()
+
+        if not self._context.get('display_remaining_qty'):
+            return res
+
+        Model = self.env[self._name]
+        res_updated = []
+        for id_, name in res:
+            group = Model.browse(id_)
+            remaining_qty = len(group.affectation_ids.filtered(lambda x:
+                sum(x.affectation_ids.filtered('affected').mapped('quantity_affected')) != x.quantity_affected
+            ))
+            suffix = ' ({})' . format(remaining_qty) if remaining_qty > 0 else ''
+
+            res_updated.append((id_, name + suffix))
+        
+        return res_updated
+
+    #===== Fields =====#
     affectation_ids = fields.One2many(
         comodel_name='carpentry.group.affectation',
         inverse_name='group_id',
@@ -178,6 +202,7 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         # vals
         qty = affectation.quantity_affected if affectation else self._default_quantity(record_ref, group_ref)
         active = affectation.active if affectation else self._get_affectation_active(record_ref, group_ref, section_ref)
+        affected = affectation.affected if affectation else True
 
         vals = {
             'project_id': record_ref.id if record_ref._name == 'project.project' else record_ref.project_id.id,
@@ -195,7 +220,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'seq_section': bool(section_ref) and section_ref.sequence,
             # vals
             'quantity_affected': qty,
-            'active': active
+            'active': active,
+            'affected': affected,
         }
         return vals
     
@@ -222,9 +248,17 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         """ Return domain for search on `carpentry.group.affectation[.temp]`
             :arg self: recordset of `[field]_ids`, like `group_ids`, `section_ids`, ...
         """
-        domain = [(group + '_res_model', '=', self._name), (group + '_id', 'in', self.ids)]
+        domain = [
+            (group + '_res_model', '=', self._name),
+            (group + '_id', 'in', self.ids),
+            ('affected', '=', True),
+        ]
         if group2_ids:
-            domain += [(group2 + '_res_model', '=', group2_ids._name), (group2 + '_id', 'in', group2_ids.ids)]
+            domain += [
+                (group2 + '_res_model', '=', group2_ids._name),
+                (group2 + '_id', 'in', group2_ids.ids),
+                ('affected', '=', True),
+            ]
         return domain
     
 
@@ -245,8 +279,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         
         # Compare to existing
         return (
-            record_ids != set(self.affectation_ids.mapped('record_id')) or
-            group_ids != set(self.affectation_ids.mapped('group_id'))
+            record_ids != set(self.affectation_ids.filtered('affected').mapped('record_id')) or
+            group_ids !=  set(self.affectation_ids.filtered('affected').mapped('group_id'))
         )
     
     def _clean_real_affectations(self, group_refs, record_refs):
@@ -469,26 +503,11 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
 
             # 3. Add new affectations
             group._add_affectations_from_sections(section_affectations, mapped_model_ids)
-
-    def refresh_from_sections(self):
-        """ Button to allow refreshing affectations from linked sections.
-            This is useful if section's affectations changes **after** the group affectations
-        """
-        if not self._carpentry_affectation_section:
-            return
         
-        mapped_model_ids = self._get_mapped_model_ids()
-        for group in self:
-            # 1. Of current sections, get their positions (for lots) or affectations (for phases)
-            #    still affectable (qty_remaining > 0 or not affected) and not already present in the group
-            current_record_ids = group.affectation_ids.mapped('record_id')
-            section_affectations = (
-                group._get_remaining_affectations_from_sections(group._origin.section_ids)
-                .filtered(lambda x: x.id not in current_record_ids)
-            )
-
-            # 2. Add them to group's affectations
-            group._add_affectations_from_sections(section_affectations, mapped_model_ids)
+        # Clean all temporary affectations
+        self.env['carpentry.group.affectation.temp'].search(
+            self._get_domain_affect()
+        ).unlink()
 
     def _get_remaining_affectations_from_sections(self, sections):
         """ For given `sections`, return positions (for lots) or affectations (for phases)
@@ -501,8 +520,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             # affectations with remaining qty to affect
             _filter = lambda affectation: affectation.quantity_remaining_to_affect > 0
         elif not self._carpentry_affectation_allow_m2m:
-            # affectations not already affected to another group
-            _filter = lambda affectation: not affectation.affectation_ids.ids
+            # affectations with qty > 0
+            _filter = lambda affectation: affectation.quantity_affected > 0
         return sections.affectation_ids.filtered(_filter)
     
     def _add_affectations_from_sections(self, section_affectations, mapped_model_ids):
@@ -556,7 +575,11 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
     def _compute_sum_quantity_affected(self):
         """ Sums of 'quantity_affected' in 'carpentry.group.affectation' """
         rg_result = self.env['carpentry.group.affectation'].read_group(
-            domain=[('group_res_model', '=', self._name), ('group_id', 'in', self.ids)],
+            domain=[
+                ('group_res_model', '=', self._name),
+                ('group_id', 'in', self.ids),
+                ('affected', '=', True),
+            ],
             fields=['quantity_affected:sum'],
             groupby=['group_id'],
         )
@@ -571,21 +594,9 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
         section_ids = project[self._carpentry_affectation_section + '_ids']
         return section_ids.create_groups_from_sections()
     
-
     def toggle_readonly_affectation(self):
-        """ If there is no affectation: stick to preparation of affectations (left)
-            Else, toggle between the 2 state
-        """
-        if not self.affectation_ids and self.readonly_affectation:
-            self._raise_if_no_affectations()
         self.readonly_affectation = not self.readonly_affectation
     
-    def _raise_if_no_affectations(self):
-        raise exceptions.UserError(_(
-            'There is no position to affect from these lots or these phases.'
-        ))
-
-
     def button_open_affectation_matrix(self):
         return {
             'type': 'ir.actions.act_window',
@@ -593,5 +604,8 @@ class CarpentryAffectation_Mixin(models.AbstractModel):
             'res_id': self._get_project_id(raise_if_not_found=True),
             'view_mode': 'form',
             'view_id': self.env.ref('carpentry_position.carpentry_group_affectation_temp_matrix').id,
-            'context': self._context | {'res_model': self._name}
+            'context': self._context | {
+                'res_model': self._name,
+                'x2many_2d_matrix': True,
+            }
         }

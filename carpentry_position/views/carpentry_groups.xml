@@ -121,6 +121,7 @@
                                 nolabel="1"
                                 widget="many2many_checkboxes"
                                 attrs="{'readonly': [('readonly_affectation', '=', False)]}"
+                                context="{'display_remaining_qty': 1}"
                             />
                         </group>
                         
@@ -147,7 +148,7 @@
                         
                         <!-- Right: real affectations -->
                         <group name="right" colspan="7">
-                            <button name="refresh_from_sections"
+                            <button name="refresh_from_lots"
                                 type="object"
                                 colspan="2"
                                 class="btn btn-success mt-4 oe_right text-uppercase"
@@ -159,7 +160,7 @@
                             <field
                                 name="affectation_ids"
                                 nolabel="1" colspan="2"
-                                options="{'create': False}"
+                                options="{'create': False, 'delete': False}"
                                 widget="one2many"
                                 attrs="{'readonly': [('readonly_affectation', '=', True)]}"
                             />
@@ -225,17 +226,25 @@
                 <attribute name="string">Related Phases</attribute>
             </label>
 
-            <button name="refresh_from_sections" position="attributes">
-                <attribute name="string">Refresh from Phases</attribute>
-                <attribute name="help">Add any non-affected positions of the linked phases to the current launch</attribute>
+            <button name="refresh_from_lots" position="attributes">
+                <attribute name="name">affect_all</attribute>
+                <attribute name="string">Affect all</attribute>
+                <attribute name="help" />
             </button>
 
             <!-- Different tree view for launches' affectations -->
             <field name="affectation_ids" position="inside">
                 <tree limit="200">
+                    <field name="is_affectable" invisible="1" />
+
                     <field name="section_ref" string="Phase" />
                     <field name="position_id" decoration-bf="True" options="{'no_create': 1, 'no_open': 1}" />
                     <field name="quantity_affected" string="Quantity" digits="[10,0]" />
+                    
+                    <button icon="fa-ban" attrs="{'invisible': [('is_affectable', '=', True)]}" title="Already affected" />
+                    <field name="affected" widget="boolean_toggle" attrs="{
+                        'readonly': [('is_affectable', '=', False), ('affected', '=', False)]
+                    }" />
                 </tree>
             </field>
         </field>

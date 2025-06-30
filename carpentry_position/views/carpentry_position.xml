@@ -76,7 +76,8 @@
                             <field name="description" />
                         </group>
 
-                        <field name="affectation_ids" string="Affectations in Phases" />
+                        <label for="affectation_ids" />
+                        <field name="affectation_ids" string="Affectations in Phases" readonly="1" />
                     </group>
                 </sheet>
             </form>

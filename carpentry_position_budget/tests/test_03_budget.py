@@ -11,8 +11,8 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
 
     BUDGET_ALUMINIUM = 100.0 # euros
-    BUDGET_PROD = 20.0 # hours
-    BUDGET_INSTALL = 10.0 # hours
+    budget_production = 20.0 # hours
+    budget_installation = 10.0 # hours
 
     @classmethod
     def setUpClass(cls):
@@ -20,8 +20,8 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
 
         # Each project's position: add Prod and Install budgets (keep Aluminium for unit line)
         for position in cls.project.position_ids:
-            cls._add_budget(position, cls.aac_install, cls.BUDGET_INSTALL)
-            cls._add_budget(position, cls.aac_prod, cls.BUDGET_PROD)
+            cls._add_budget(position, cls.aac_install, cls.budget_installation)
+            cls._add_budget(position, cls.aac_prod, cls.budget_production)
 
     def _add_budget(position, analytic, amount):
         position.position_budget_ids = [Command.create({
@@ -37,18 +37,18 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
     #         brut_or_valued='both',
     #     )
     #     self.assertEqual(brut.get(self.position.id), {
-    #         'installation': self.BUDGET_INSTALL,
-    #         'production': self.BUDGET_PROD,
+    #         'installation': self.budget_installation,
+    #         'production': self.budget_production,
     #     })
     #     self.assertEqual(valued.get(self.position.id), {
-    #         'installation': self.BUDGET_INSTALL * self.HOUR_COST,
-    #         'production': self.BUDGET_PROD * self.HOUR_COST,
+    #         'installation': self.budget_installation * self.HOUR_COST,
+    #         'production': self.budget_production * self.HOUR_COST,
     #     })
 
     def test_02_position_subtotal(self):
         subtotal = (
-            + self.BUDGET_PROD * self.HOUR_COST
-            + self.BUDGET_INSTALL * self.HOUR_COST
+            + self.budget_production * self.HOUR_COST
+            + self.budget_installation * self.HOUR_COST
         )
         self.assertEqual(self.position.budget_subtotal, subtotal)
     
@@ -103,21 +103,21 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
     def test_07_phase_budget(self):
         # Ensure a clean base to start
         self.Affectation.search([('project_id', '=', self.project.id)]).unlink()
-        self.assertFalse(self.phase.budget_install)
+        self.assertFalse(self.phase.budget_installation)
         
         position2 = self.project.position_ids[1]
         self._write_affect(self.phase, position2, {'quantity_affected': 2})
         self.assertEqual(
-            self.phase.budget_install,
-            self.BUDGET_INSTALL * 2
+            self.phase.budget_installation,
+            self.budget_installation * 2
         )
 
     def test_08_launch_budget(self):
-        self.assertFalse(self.launch.budget_install)
+        self.assertFalse(self.launch.budget_installation)
 
         position2 = self.project.position_ids[1]
         self._write_affect(self.launch, self.project.phase_ids.affectation_ids[0])
         self.assertEqual(
-            self.launch.budget_install,
-            self.phase.budget_install
+            self.launch.budget_installation,
+            self.phase.budget_installation
         )

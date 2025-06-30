@@ -32,7 +32,7 @@
                             <!-- Goods & global cost at left -->
                             <group name="budget_left">
                                 <field name="budget_goods" />
-                                <field name="budget_global_cost" />
+                                <field name="budget_project_global_cost" />
                             </group>
 
                             <!-- Services at right -->
@@ -42,14 +42,14 @@
                                     <field name="budget_office" class="oe_inline" /> <span>h</span>
                                 </div>
 
-                                <label for="budget_prod" />
+                                <label for="budget_production" />
                                 <div>
-                                    <field name="budget_prod" class="oe_inline" /> <span>h</span>
+                                    <field name="budget_production" class="oe_inline" /> <span>h</span>
                                 </div>
                                 
-                                <label for="budget_install" />
+                                <label for="budget_installation" />
                                 <div>
-                                    <field name="budget_install" class="oe_inline" /> <span>h</span>
+                                    <field name="budget_installation" class="oe_inline" /> <span>h</span>
                                 </div>
                             </group>
                         </group>
