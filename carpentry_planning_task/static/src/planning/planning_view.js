@@ -17,7 +17,7 @@ const planningControllerPatchGlobalTasks = {
             resModel: 'carpentry.planning.card',
             name: 'action_open_tasks',
             resId: record._values.id,
-            context: {'launch_id': this.model.launchId, 'project_id': this.model.projectId},
+            context: {'launch_ids': this.model.launchId, 'project_id': this.model.projectId},
             onClose: actionReload,
         });
     },
