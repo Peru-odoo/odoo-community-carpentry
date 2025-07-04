@@ -73,7 +73,7 @@ class CarpentryGroupAffectation(models.Model):
         """
         if not quantity_affected:
             self.affectation_ids.unlink()
-        else:
+        elif self.affectation_ids.group_ref:
             for group in self.affectation_ids.group_ref:
                 group.refresh_from_lots()
             self.affectation_ids.quantity_affected = quantity_affected
