@@ -189,7 +189,7 @@ class CarpentryMrpImportWizard(models.TransientModel):
                     ArticleCode_OrderCode || '{SEPARATOR_COLOR}' || ColorInfoInternal,
                     ArticleCode_OrderCode
                 ) AS default_code,
-                Units_Output AS product_uom_qty,
+                Amount AS product_uom_qty,
                 Units_Unit AS uom_name,
                 Description AS name,
                 PriceGross AS price,
