@@ -66,7 +66,13 @@ class CarpentryMrpImportWizard(models.TransientModel):
 
     #===== Buttons =====#
     def button_truncate(self):
-        self.production_id.move_raw_ids.unlink()
+        mo = self.production_id
+        mo.move_raw_ids.unlink()
+        
+        # mo moves to cancel when unlinking its components > make it back to draft
+        mo.move_finished_ids.state = 'draft'
+        mo.workorder_ids.state = 'draft'
+        mo.state = 'draft'
     
     def button_import(self):
         if not self.import_file:
