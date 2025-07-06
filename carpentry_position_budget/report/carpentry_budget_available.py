@@ -168,19 +168,17 @@ class CarpentryBudgetAvailable(models.Model):
                     -- affectation: position & qty affected
                     budget.position_id,
                     {
-                        'SUM(carpentry_group.quantity)'
-                        if model == 'carpentry.position'
-                        else 'SUM(affectation.quantity_affected)'
+                        'SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
+                        'SUM(affectation.quantity_affected)'
                     } AS quantity_affected,
 
                     -- budget
                     SUM(budget.amount) AS amount,
                     {
-                        'SUM(budget.amount)'
-                        if model == 'carpentry.position'
-                        else 'SUM(affectation.quantity_affected * budget.amount)'
+                        'SUM(budget.amount) * SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
+                        'SUM(affectation.quantity_affected * budget.amount)'
                     } AS subtotal,
-
+                    
                     budget.analytic_account_id,
                     budget.budget_type
             """

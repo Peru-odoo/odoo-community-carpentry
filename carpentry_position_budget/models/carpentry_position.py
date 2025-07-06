@@ -77,8 +77,14 @@ class CarpentryPosition(models.Model):
         """ Just to overwrite `@api.depends(...)` """
         return super()._compute_budgets()
 
+    def _get_budget_one(self, budget, budget_types):
+        """ For position, compute unitary budgets """
+        return (
+            super()._get_budget_one(budget, budget_types) / self.quantity
+            if self.quantity else 0.0
+        )
     def _compute_budgets_one(self, brut, valued):
-        """ Because Positions are not Groupped, computed `total` is actually unitary total """
+        """ Compute both unitary total (subtotal) and final total (budget_total) """
         super()._compute_budgets_one(brut, valued)
         self.budget_subtotal = self.budget_total
         self.budget_total = self.budget_subtotal * self.quantity

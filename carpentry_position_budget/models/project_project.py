@@ -12,19 +12,8 @@ class Project(models.Model):
         comodel_name='carpentry.position.budget',
         inverse_name='project_id'
     )
-
-    # project's budget totals (from budget mixin) => store because project form is often displayed
-    budget_production = fields.Float(store=True)
-    budget_installation = fields.Float(store=True)
-    budget_office = fields.Float(store=True)
-    budget_goods = fields.Float(store=True, readonly=True)
-    budget_project_global_cost = fields.Float(store=True, readonly=True)
-    budget_total = fields.Monetary(
-        # duplicate with `budget_line_sum` from `project_budget` (already stored) => cancel storage of mixin field `budget_total`
-        store=False,
-        compute_sudo=True
-    )
-
+    # duplicate with `budget_line_sum` from `project_budget` (already stored)
+    budget_total = fields.Monetary(store=False)
     # user-interface
     position_warning_name = fields.Boolean(
         related='position_ids.warning_name'
