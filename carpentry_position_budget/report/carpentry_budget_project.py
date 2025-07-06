@@ -22,6 +22,12 @@ class CarpentryBudgetProject(models.Model):
         string='Reserved budget',
         digits='Product Unit of Measure',
     )
+    percent_gain = fields.Float(
+        string='Gain (%)',
+        digits=[10,1],
+        readonly=True,
+        group_operator='avg',
+    )
     # cancelled fields
     state = fields.Selection(store=False)
 
@@ -54,9 +60,13 @@ class CarpentryBudgetProject(models.Model):
                         
                         SUM(result.available) AS available,
                         SUM(quantity_affected) AS quantity_affected,
+                        SUM(amount_expense) AS amount_expense,
                         SUM(amount_gain) AS amount_gain,
-                        SUM(amount_expense) AS amount_expense
-                    
+                        CASE
+                            WHEN SUM(quantity_affected) != 0
+                            THEN SUM(amount_gain) / SUM(quantity_affected) * SIGN(SUM(amount_gain)) * 100.0 
+                            ELSE 0
+                        END AS percent_gain
                     FROM (
                         (%s)
                     ) AS result
