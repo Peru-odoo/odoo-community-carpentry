@@ -184,7 +184,7 @@ msgstr "Solder un budget restant"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_group_affectation_tree_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.edit_project
 msgid "Budget"
-msgstr "Sous-total"
+msgstr "Budget"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_carpentry_budget_balance
