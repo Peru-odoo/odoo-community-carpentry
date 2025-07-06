@@ -56,6 +56,7 @@
                     </group>
 
                     <field name="budget_id" invisible="1" />
+                    <label for="budget_line_ids" />
                     <field name="budget_line_ids"
                         context="{'display_short_name': 1, 'default_project_id': id}"
                     >

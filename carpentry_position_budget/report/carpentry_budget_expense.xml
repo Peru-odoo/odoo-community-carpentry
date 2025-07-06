@@ -25,6 +25,7 @@
 
         <field name="arch" type="xml">
             <pivot disable_linking="0">
+                <field name="currency_id" invisible="1" />
                 <field name="group_model_id" invisible="1" />
                 
                 <field name="section_model_id" type="col" />
@@ -32,7 +33,7 @@
                 <field name="budget_type" type="row" />
                 <field name="analytic_account_id" type="row" />
                 
-                <field name="amount_gain" type="measure" />
+                <field name="amount_gain" type="measure" widget="monetary" />
             </pivot>
         </field>
     </record>
@@ -50,14 +51,15 @@
                 decoration-danger="amount_gain &lt; -0.01"
             >
                 <field name="project_id" invisible="1" />
+                <field name="currency_id" invisible="1" />
 
                 <field name="analytic_account_id" />
                 <field name="launch_ids" widget="many2many_tags" optional="show" />
                 <field name="section_model_name" />
                 <field name="section_ref" context="{'display_description': 1}" />
-                <field name="quantity_affected" string="Budget reservation" sum="1" optional="show" />
-                <field name="amount_expense" sum="1" optional="show" />
-                <field name="amount_gain" sum="1" optional="show" />
+                <field name="quantity_affected" string="Budget reservation" widget="monetary" sum="1" optional="show" />
+                <field name="amount_expense" widget="monetary" sum="1" optional="show" />
+                <field name="amount_gain" widget="monetary" sum="1" optional="show" />
             </tree>
         </field>
     </record>

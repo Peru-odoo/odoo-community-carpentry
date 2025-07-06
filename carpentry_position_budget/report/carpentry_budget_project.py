@@ -100,11 +100,7 @@ class CarpentryBudgetProject(models.Model):
                     {models['account.move.budget.line']} AS section_model_id,
                     date,
 
-                    CASE
-                        WHEN type = 'amount'
-                        THEN balance
-                        ELSE qty_balance
-                    END AS available,
+                    balance AS available, -- always valued
                     0.0 AS quantity_affected,
                     0.0 AS amount_gain,
                     0.0 AS amount_expense

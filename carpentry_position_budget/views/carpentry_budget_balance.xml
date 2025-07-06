@@ -94,4 +94,12 @@
             </form>
         </field>
     </record>
+
+
+    <menuitem id="menu_project_budget_report_balance"
+        parent="menu_project_budget_update"
+        action="action_open_budget_balance_srv"
+        sequence="40"
+        groups="project.group_project_user"
+    />
 </odoo>

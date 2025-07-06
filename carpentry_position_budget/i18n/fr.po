@@ -991,7 +991,7 @@ msgstr ""
 #: model:ir.actions.server,name:carpentry_position_budget.action_open_budget_report_project_srv
 #: model:ir.ui.menu,name:carpentry_position_budget.menu_project_budget_report_project
 msgid "Project result"
-msgstr "Résultat de projet"
+msgstr "Résultat d'affaire"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_available_search

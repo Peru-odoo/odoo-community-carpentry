@@ -26,7 +26,7 @@ class CarpentryExpense(models.Model):
                     THEN TRUE
                     ELSE FALSE
                 END AS should_compute_gain,
-                FALSE AS should_value
+                TRUE AS should_value_expense
             """ if model == 'project.task' else ''
         )
 

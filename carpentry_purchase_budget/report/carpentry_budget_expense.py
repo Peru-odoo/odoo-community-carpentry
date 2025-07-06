@@ -36,7 +36,7 @@ class CarpentryExpense(models.Model):
                 -- gain
                 0.0 AS amount_gain,
                 TRUE AS should_compute_gain,
-                TRUE AS should_value
+                FALSE AS should_value_expense
             """
         
         return sql

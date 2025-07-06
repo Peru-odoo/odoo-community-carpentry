@@ -31,6 +31,7 @@ class CarpentryBudgetAvailable(models.Model):
     
     def _select(self, model, models):
         budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+
         return f"""
             SELECT
                 available.unique_key,
@@ -39,36 +40,17 @@ class CarpentryBudgetAvailable(models.Model):
                 available.launch_id,
                 available.group_model_id,
                 available.position_id,
-                SUM(available.quantity_affected) / COUNT(*) AS quantity_affected,
-                SUM(available.amount) / COUNT(*) AS amount,
-                SUM(available.subtotal) / COUNT(*) AS subtotal,
+                SUM(available.quantity_affected) AS quantity_affected,
+                SUM(available.amount) AS amount,
+                SUM(available.subtotal) AS subtotal,
                 available.analytic_account_id,
                 available.budget_type,
 
                 CASE
-                    WHEN available.budget_type NOT IN {tuple(budget_types)}
-                    THEN SUM(available.subtotal)
-                    ELSE CASE
-                        WHEN (
-                            project.date IS NULL OR project.date_start IS NULL
-                            OR project.date = project.date_start
-                        )
-                        THEN 0.0
-                        -- valuation computation
-                        ELSE SUM(
-                            (
-                                (
-                                    LEAST(project.date, COALESCE(history.date_to, project.date)) -- overlap_end
-                                    - GREATEST(project.date_start, history.starting_date) -- overlap_start
-                                    + 1.0
-                                ) -- overlap_days
-                                /
-                                (project.date - project.date_start + 1.0) -- total_days
-                            ) -- weight_of_period
-                            * available.subtotal * history.hourly_cost
-                        )
-                    END
-                END / COUNT(*) AS value
+                    WHEN available.budget_type IN {tuple(budget_types)}
+                    THEN SUM(available.subtotal) * hourly_cost.coef
+                    ELSE SUM(available.subtotal)
+                END AS value
         """
 
     def _from(self, model, models):
@@ -76,24 +58,13 @@ class CarpentryBudgetAvailable(models.Model):
 
     def _join(self, model, models):
         return """
-            INNER JOIN project_project AS project
-                ON project.id = available.project_id
-            LEFT JOIN hr_employee_timesheet_cost_history AS history
-                ON history.analytic_account_id = available.analytic_account_id
+            LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
+                ON  hourly_cost.project_id = available.project_id
+                AND hourly_cost.analytic_account_id = available.analytic_account_id
         """
     
     def _where(self, model, models):
-        budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
-        return f"""
-            WHERE
-                available.budget_type NOT IN {tuple(budget_types)} OR
-                project.date_start IS NULL OR project.date IS NULL OR (
-                    history.starting_date IS NOT NULL AND (
-                        history.starting_date BETWEEN project.date_start AND project.date OR
-                        history.date_to       BETWEEN project.date_start AND project.date
-                    )
-                )
-            """
+        return ''
     
     def _groupby(self, model, models):
         return """
@@ -106,8 +77,7 @@ class CarpentryBudgetAvailable(models.Model):
                 available.position_id,
                 available.analytic_account_id,
                 available.budget_type,
-                project.date,
-                project.date_start
+                hourly_cost.coef
             """
     
     def _orderby(self, model, models):
