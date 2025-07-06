@@ -185,10 +185,6 @@ class Task(models.Model):
     )
     def _compute_date_deadline(self):
         """ Compute `date_deadline = launch_id."date_[prod/install]_start" - deadline_week_offset` """
-        self = self.filtered('deadline_week_offset')
-        if not self.ids: # perf optim
-            return
-        
         # Get milestones date
         domain = [
             ('launch_id', 'in', self.launch_ids.ids),
@@ -218,7 +214,7 @@ class Task(models.Model):
             task.date_deadline = bool(date_start) and (
                 date_utils.subtract(
                     date_start,
-                    weeks = task.deadline_week_offset
+                    weeks = task.deadline_week_offset or 0.0
                 )
             )
     
