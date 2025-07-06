@@ -46,15 +46,12 @@
                 <group name="group_container" col="12">
 
                     <!-- Existing "Budget totals": keep it, on the left -->
-                    <group name="budget_total" colspan="6">
-                        <h3 colspan="2">Budget totals</h3>
+                    <group name="budget_total" colspan="4" string="Budget totals">
                         <div colspan="2">$0</div>
                     </group>
 
-                    <!-- New "Fees & margins" right column -->
-                    <group name="fees_and_margins" colspan="6">
-                        <h3 colspan="2">Fees &amp; Margins</h3>
-                        
+                    <!-- New "Fees" center column -->
+                    <group name="fees" colspan="4" string="Fees">
                         <label for="fees_prorata"/>
                         <div name="fees_prorata" class="o_row">
                             <field name="fees_prorata" />
@@ -66,18 +63,63 @@
                             <field name="fees_structure" />
                             <field name="fees_structure_rate" digits="[10,1]" /> %
                         </div>
-                        
+                    </group>
+                    
+                    <group name="margins" colspan="4" string="Margins">
+                        <!-- Contributive Margin -->
                         <label for="margin_contributive"/>
                         <div name="margin_contributive" class="o_row">
-                            <field name="margin_contributive" />
-                            <field name="margin_contributive_rate" widget="progressbar" options="{'editable': True}" />
+                            <div>
+                                <field name="margin_contributive"  />
+                            </div>
+                            <div>
+                                (<field name="margin_contributive_rate" class="oe_inline" />%)
+                            </div>
+                        </div>
+                        <!-- Contributive Margin (actual) -->
+                        <label for="margin_contributive_actual" class="d-none" />
+                        <div name="margin_contributive_actual" class="o_row"
+                            title="Actual"
+                        >
+                            <div>
+                                <field name="margin_contributive_actual"
+                                    decoration-success="margin_contributive_actual &gt; 0"
+                                    decoration-danger="margin_contributive_actual &lt; 0"
+                                />
+                            </div>
+                            <div>
+                                (<field name="margin_contributive_actual_rate" class="oe_inline" />%)
+                            </div>
                         </div>
                         
-                        <label for="margin_costs"/>
-                        <div name="margin_costs" class="o_row">
-                            <field name="margin_costs" />
-                            <field name="margin_costs_rate" widget="progressbar" options="{'editable': True}" />
+                        <!-- Costs Margin -->
+                        <label for="margin_costs" class="mt-5" />
+                        <div name="margin_costs" class="o_row mt-5">
+                            <div>
+                                <field name="margin_costs" />
+                            </div>
+                            <div>
+                                (<field name="margin_costs_rate" class="oe_inline" />%)
+                            </div>
                         </div>
+                        <!-- Costs Margin (actual) -->
+                        <label for="margin_costs_actual" class="d-none mb-5" />
+                        <div name="margin_costs_actual" class="o_row mb-5"
+                            title="Actual"
+                        >
+                            <div>
+                                <field name="margin_costs_actual"
+                                    decoration-success="margin_contributive_actual &gt; 0"
+                                    decoration-danger="margin_contributive_actual &lt; 0"
+                                />
+                            </div>
+                            <div>
+                                (<field name="margin_costs_actual_rate" class="oe_inline" />%)
+                            </div>
+                        </div>
+
+                        
+                        <field name="budget_reservation_progress" widget="progressbar" string="Budget progress" />
                     </group>
                 </group>
             </group>

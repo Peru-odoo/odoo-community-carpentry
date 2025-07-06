@@ -28,31 +28,23 @@
             <page name="settings" position="before">
                 <page name="budget" string="Budget" attrs="{'invisible': [('id', '=', False)]}">
                     <group name="budget_total">
-                        <group name="budget_divider" colspan="2">
-                            <!-- Goods & global cost at left -->
-                            <group name="budget_left">
-                                <field name="budget_goods" />
-                                <field name="budget_project_global_cost" />
-                            </group>
+                        <field name="budget_goods" />
+                        <field name="budget_project_global_cost" />
 
-                            <!-- Services at right -->
-                            <group name="budget_right">
-                                <label for="budget_office" />
-                                <div>
-                                    <field name="budget_office" class="oe_inline" /> <span>h</span>
-                                </div>
+                        <label for="budget_office" />
+                        <div>
+                            <field name="budget_office" class="oe_inline" /> <span>h</span>
+                        </div>
 
-                                <label for="budget_production" />
-                                <div>
-                                    <field name="budget_production" class="oe_inline" /> <span>h</span>
-                                </div>
-                                
-                                <label for="budget_installation" />
-                                <div>
-                                    <field name="budget_installation" class="oe_inline" /> <span>h</span>
-                                </div>
-                            </group>
-                        </group>
+                        <label for="budget_production" />
+                        <div>
+                            <field name="budget_production" class="oe_inline" /> <span>h</span>
+                        </div>
+                        
+                        <label for="budget_installation" />
+                        <div>
+                            <field name="budget_installation" class="oe_inline" /> <span>h</span>
+                        </div>
                     </group>
 
                     <field name="budget_id" invisible="1" />

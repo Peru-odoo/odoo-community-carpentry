@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-01 11:58+0000\n"
-"PO-Revision-Date: 2025-05-01 13:58+0200\n"
+"POT-Creation-Date: 2025-07-06 21:14+0000\n"
+"PO-Revision-Date: 2025-07-06 23:16+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -26,6 +26,11 @@ msgstr "Budget à jour"
 #: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.view_sales_order_filter
 msgid "Budget partially up-to-date"
 msgstr "Budget partiellement actualisé"
+
+#. module: carpentry_sale_budget
+#: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__budget_reservation_progress
+msgid "Budget reservation progress (%)"
+msgstr "Avancement des réservations de budget (%)"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields,field_description:carpentry_sale_budget.field_sale_order__lines_budget_updated
@@ -58,9 +63,19 @@ msgid "Contributive margin (%)"
 msgstr "Marge contributive (%)"
 
 #. module: carpentry_sale_budget
+#: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__margin_contributive_actual
+msgid "Contributive margin (actual)"
+msgstr "Marge contributive (réel)"
+
+#. module: carpentry_sale_budget
+#: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__margin_contributive_actual_rate
+msgid "Contributive margin (actual) (%)"
+msgstr "Marge contributive (réel) (%)"
+
+#. module: carpentry_sale_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_carpentry_budget
-msgid "Fees &amp; Margins"
-msgstr "Marges &amp; Frais"
+msgid "Fees"
+msgstr "Frais"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields,help:carpentry_sale_budget.field_sale_order_line__budget_updated
@@ -78,9 +93,24 @@ msgid "Margin on costs (%)"
 msgstr "Marge sur coûts (%)"
 
 #. module: carpentry_sale_budget
+#: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__margin_costs_actual
+msgid "Margin on costs (actual)"
+msgstr "Marge sur coûts (réel)"
+
+#. module: carpentry_sale_budget
+#: model:ir.model.fields,field_description:carpentry_sale_budget.field_project_project__margin_costs_actual_rate
+msgid "Margin on costs (actual) (%)"
+msgstr "Marge sur coûts (réel) (%)"
+
+#. module: carpentry_sale_budget
+#: model_terms:ir.ui.view,arch_db:carpentry_sale_budget.edit_project_carpentry_budget
+msgid "Margins"
+msgstr "Marges"
+
+#. module: carpentry_sale_budget
 #: model:ir.model.fields.selection,name:carpentry_sale_budget.selection__sale_order__lines_budget_updated__none
 msgid "None"
-msgstr "Aucun"
+msgstr "Vide"
 
 #. module: carpentry_sale_budget
 #: model:ir.model.fields.selection,name:carpentry_sale_budget.selection__sale_order__lines_budget_updated__all_updated
@@ -108,9 +138,22 @@ msgid "Prorata (%)"
 msgstr ""
 
 #. module: carpentry_sale_budget
+#: model:ir.model.fields,help:carpentry_sale_budget.field_project_project__margin_costs_actual
+msgid "Reserved Budget - Real Expense - All fees"
+msgstr "Budget réservé - Dépense réelle - Tous les frais"
+
+#. module: carpentry_sale_budget
+#: model:ir.model.fields,help:carpentry_sale_budget.field_project_project__margin_contributive_actual
+msgid ""
+"Reserved Budget - Real Expense - Only prorata fees (i.e. not structure fees)"
+msgstr ""
+"Budget réservé - Dépense réelle - Seulement les frais au prorata (i.e. pas "
+"les frais de structure)"
+
+#. module: carpentry_sale_budget
 #: model:ir.model,name:carpentry_sale_budget.model_sale_order
 msgid "Sales Order"
-msgstr "Commande client"
+msgstr "Bon de commande"
 
 #. module: carpentry_sale_budget
 #: model:ir.model,name:carpentry_sale_budget.model_sale_order_line
