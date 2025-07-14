@@ -174,7 +174,11 @@ class CarpentryBudgetRemaining(models.Model):
             )
 
     #===== Buttons =====#
-    def open_section_ref(self):
+    def open_section_ref(self, affectation=None):
+        if affectation:
+            # see `carpentry.group.affectation`
+            self = affectation
+        
         """ Opens a document providing or reserving some budget """
         if not self.section_model_id:
             return {}
