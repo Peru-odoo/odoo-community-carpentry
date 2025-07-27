@@ -23,9 +23,12 @@ class PurchaseOrder(models.Model):
     def _is_quantity_affected_valued(self):
         return True
     
-    def _get_budget_date_field(self):
-        return 'date_order'
-
+    @api.depends('date_approve')
+    def _compute_date_budget(self):
+        for picking in self:
+            picking.date_budget = picking.date_approve
+        return super()._compute_date_budget()
+    
     #===== Compute amounts =====#
     @api.depends('order_line', 'order_line.analytic_distribution')
     def _compute_budget_analytic_ids(self):

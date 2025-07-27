@@ -73,6 +73,17 @@
             </t>
         </field>
     </record>
+    <record id="view_task_tree2" model="ir.ui.view">
+        <field name="name">project.task.tree.budget</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_tree2" />
+
+        <field name="arch" type="xml">
+            <field name="planned_hours" position="after">
+                <field name="sum_quantity_affected" optional="hide" />
+            </field>
+        </field>
+    </record>
     <!-- Task Form > Timesheets notebook page -->
     <record model="ir.ui.view" id="view_task_form2_inherited">
         <field name="name">project.task.form.inherited.carpentry</field>
@@ -85,7 +96,7 @@
                 <button name="open_remaining_budget" type="object"
                     class="oe_stat_button"
                     icon="fa-money"
-                    attrs="{'invisible': ['|', '|', ('id', '=', False), ('allow_timesheets', '=', False), ('launch_ids', '=', [])]}"
+                    attrs="{'invisible': ['|', ('id', '=', False), ('allow_timesheets', '=', False)]}"
                     string="Remaining"
                     title="Remaining budgets"
                 />
@@ -98,10 +109,9 @@
                 <field name="readonly_affectation" invisible="1" />
 
                 <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': ['|', '|', '|',
+                    attrs="{'invisible': ['|', '|',
                         ('amount_gain', '=', 0.0),
                         ('allow_timesheets', '=', False),
-                        ('launch_ids', '=', []),
                         ('readonly_affectation', '=', True)
                     ]}"
                 >
@@ -131,10 +141,10 @@
             <!-- `Must-save` banner at top of timesheets page, if needed -->
             <xpath expr="//page[@id='timesheets_tab']/group" position="before">
                 <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
-                    attrs="{'invisible': ['|', '|',
+                    attrs="{'invisible': ['|',
                         ('readonly_affectation', '=', False),
                         ('id', '=', False),
-                        ('launch_ids', '=', [])]}"
+                    ]}"
                 >
                     <span class="fa fa-floppy-o" /> Please save before continuing. </div>
             </xpath>
@@ -155,9 +165,9 @@
                 <attribute name="invisible">1</attribute>
             </field>
 
-            <!-- Replace `available_budget` by `affectation_ids` if several launchs -->
+            <!-- Replace `available_budget` by `affectation_ids` -->
             <field name="available_budget" position="attributes">
-                <attribute name="attrs">{'invisible': [('launch_ids', '!=', [])]}</attribute>
+                <attribute name="invisible">1</attribute>
             </field>
 
             <!-- Hide `timesheet_ids` if new -->
@@ -173,14 +183,13 @@
 
             <!-- Add budget reservation matrix below timesheets -->
             <xpath expr="//group[@name='project_hours']/parent::group" position="after">
-                <h4 class="mt-4" attrs="{'invisible': [('launch_ids', '=', [])]}">
+                <h4 class="mt-4">
                     Budget reservation
                 </h4>
                 <field name="affectation_ids"
                     nolabel="1" colspan="2"
                     options="{'create': False}" widget="one2many"
                     attrs="{
-                        'invisible': [('launch_ids', '=', [])],
                         'readonly': [('readonly_affectation', '=', True)]
                     }"
                     context="{

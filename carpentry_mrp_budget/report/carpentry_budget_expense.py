@@ -3,7 +3,7 @@
 from odoo import models
 
 class CarpentryExpense(models.Model):
-    _inherit = ['carpentry.budget.expense']
+    _inherit = ['carpentry.budget.expense.history']
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -20,7 +20,14 @@ class CarpentryExpense(models.Model):
         sql = super()._select(model, models)
         
         if model in ('stock.picking', 'mrp.production'):
-            sql += """
+            sign = (
+                "CASE WHEN picking_type.code = 'incoming' THEN -1 ELSE 1 END"
+                if model == 'stock.picking' else 1
+            )
+            
+            sql += f"""
+                line.project_id AS project_id,
+
                 -- expense
                 SUM(
                     CASE
@@ -30,7 +37,7 @@ class CarpentryExpense(models.Model):
                     END
                     * analytic_distribution.percentage::float
                     / 100.0
-                ) AS amount_expense,
+                ) * {sign} AS amount_expense,
                 
                 -- gain
                 0.0 AS amout_gain,
@@ -39,6 +46,8 @@ class CarpentryExpense(models.Model):
             """
         elif model == 'mrp.workorder':
             sql += """
+                line.project_id AS project_id,
+                
                 -- expense
                 SUM(line.duration) / 60.0 AS amount_expense, -- /60 for min to hours conversion
                 
@@ -86,36 +95,10 @@ class CarpentryExpense(models.Model):
             return super()._from(model, models)
     
     def _join(self, model, models):
-        sql_before, sql_after = '', ''
+        sql = ''
 
-        if model in ('stock.picking', 'mrp.production'):
-            if model == 'stock.picking':
-                sql_before = """
-                    INNER JOIN stock_picking AS section
-                        ON section.id = line.picking_id
-                    INNER JOIN stock_picking_type AS picking_type
-                        ON picking_type.id = section.picking_type_id
-                """
-            else:
-                sql_before = """
-                    INNER JOIN mrp_production AS section
-                        ON section.id = line.raw_material_production_id
-                """
-            
-            sql_after = """
-                LEFT JOIN stock_valuation_layer AS svl
-                    ON svl.stock_move_id = line.id
-                
-                INNER JOIN project_project AS project
-                    ON project.id = section.project_id
-                LEFT JOIN ir_property AS property
-                    ON
-                        property.res_id = 'product.product,' || product_product.id AND
-                        property.company_id = project.company_id
-            """
-
-        elif model == 'mrp.workorder':
-            return """
+        if model == 'mrp.workorder':
+            sql = """
                 -- section
                 INNER JOIN mrp_production AS section
                     ON section.id = line.production_id
@@ -126,8 +109,33 @@ class CarpentryExpense(models.Model):
                 LEFT JOIN account_analytic_account AS analytic
                     ON analytic.id = workcenter.costs_hour_account_id
             """
+        elif model in ('stock.picking', 'mrp.production'):
+            if model == 'stock.picking':
+                sql = """
+                    INNER JOIN stock_picking AS section
+                        ON section.id = line.picking_id
+                    INNER JOIN stock_picking_type AS picking_type
+                        ON picking_type.id = section.picking_type_id
+                """
+            else:
+                sql = """
+                    INNER JOIN mrp_production AS section
+                        ON section.id = line.raw_material_production_id
+                """
+            
+            sql += self._join_product_analytic_distribution() + """
+                LEFT JOIN stock_valuation_layer AS svl
+                    ON svl.stock_move_id = line.id
+                
+                INNER JOIN project_project AS project
+                    ON project.id = section.project_id
+                LEFT JOIN ir_property AS property
+                    ON  property.res_id = 'product.product,' || product_product.id
+                    AND property.company_id = project.company_id
+            """
         
-        return sql_before + super()._join(model, models) + sql_after
+        return sql + super()._join(model, models)
+        
     
     def _where(self, model, models):
         sql = super()._where(model, models)
@@ -148,8 +156,14 @@ class CarpentryExpense(models.Model):
         return sql
 
     def _groupby(self, model, models):
-        return super()._groupby(model, models) + (
-            ', line.productivity_tracking'
-            if model == 'mrp.workorder'
-            else ''
-        )
+        res = super()._groupby(model, models)
+        
+        if model in ('mrp.production', 'stock.picking', 'mrp.workorder'):
+            res += ', line.project_id'
+
+            if model == 'mrp.workorder':
+                res += ', line.productivity_tracking'
+            elif model == 'stock.picking':
+                res += ', picking_type.code'
+        
+        return res

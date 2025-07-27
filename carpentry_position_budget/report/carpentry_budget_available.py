@@ -66,7 +66,7 @@ class CarpentryBudgetAvailable(models.Model):
     # model
     group_model_id = fields.Many2one(
         comodel_name='ir.model',
-        string='Group',
+        string='Document',
         readonly=True,
     )
     group_res_model = fields.Char(

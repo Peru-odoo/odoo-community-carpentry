@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from collections import defaultdict
+from odoo.osv import expression
 
 class StockPicking(models.Model):
     """ Budget Reservation on pickings """
@@ -23,23 +24,36 @@ class StockPicking(models.Model):
     can_reserve_budget = fields.Boolean(
         string='Project-related expense',
         compute='_compute_can_reserve_budget',
-        store=True,
+        search='_search_can_reserve_budget',
     )
 
     #===== Compute =====#
-    @api.depends('state', 'picking_type_code', 'purchase_id', 'mrp_production_ids')
+    @api.depends('state', 'picking_type_code', 'purchase_id')
     def _compute_can_reserve_budget(self):
         for move in self:
             move.can_reserve_budget = move._can_reserve_budget()
+    @api.model
+    def _search_can_reserve_budget(self, operator, value):
+        domain = [
+            ('state', 'not in', ['cancel']),
+            ('purchase_id', '=', False),
+            ('picking_type_code', '=', 'outgoing')
+        ]
 
+        if (operator == '=' and value) or (operator == '!=' and not value):
+            return domain
+        else:
+            return expression.distribute_not([domain])
     def _can_reserve_budget(self):
+        """ Prevent budget reservation on picking coming from:
+            - internal, incoming, fab (returns from sconstruction field)
+            - purchase orders
+            - manufacturing orders
+        """
         return (
-            self.state not in ['draft', 'cancel'] and
-            self.picking_type_code != 'internal' and
-            # don't allow budget reservation on picking coming from
-            # purchase orders or manufacturing orders
-            # since they can already reserve some
-            not self.purchase_id and not self.mrp_production_ids
+            self.state not in ['cancel'] and
+            not self.purchase_id and
+            self.picking_type_code == 'outgoing'
         )
     
     def _is_quantity_affected_valued(self):
@@ -52,9 +66,15 @@ class StockPicking(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_ids']
 
-    def _get_budget_date_field(self):
-        return 'scheduled_date'
-    
+    @api.depends('scheduled_date', 'date_done')
+    def _compute_date_budget(self):
+        for picking in self:
+            if picking.state == 'done':
+                picking.date_budget = picking.date_done
+            else:
+                picking.date_budget = picking.scheduled_date
+        return super()._compute_date_budget()
+
     #===== Affectations: compute =====#
     @api.depends('move_ids', 'move_ids.product_id')
     def _compute_budget_analytic_ids(self):

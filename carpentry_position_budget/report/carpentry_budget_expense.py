@@ -3,11 +3,14 @@
 from odoo import models, fields, api, tools
 from psycopg2.extensions import AsIs
 
-class CarpentryBudgetExpense(models.Model):
-    """ Should be overriden in each Carpentry module with expense """
-    _name = 'carpentry.budget.expense'
+
+class CarpentryBudgetExpenseHistory(models.Model):
+    """ Should be overriden in each Carpentry module with expense
+        With `date` field
+    """
+    _name = 'carpentry.budget.expense.history'
     _inherit = ['carpentry.budget.remaining']
-    _description = 'Expenses'
+    _description = 'Expenses History'
     _auto = False
 
     #===== Fields =====#
@@ -17,9 +20,6 @@ class CarpentryBudgetExpense(models.Model):
     date = fields.Date(
         string='Date',
         readonly=True,
-    )
-    state = fields.Selection(
-        selection_add=[('expense', 'Expense')]
     )
     launch_ids = fields.Many2many(
         string='Launchs',
@@ -39,10 +39,10 @@ class CarpentryBudgetExpense(models.Model):
     )
 
     # cancel fields
+    state = fields.Selection(store=False)
     launch_id = fields.Many2one(store=False)
     group_model_id = fields.Many2one(store=False)
     group_res_model = fields.Char(related='', store=False)
-
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -63,7 +63,6 @@ class CarpentryBudgetExpense(models.Model):
                             expense.section_model_id,
                             expense.analytic_account_id
                         ) AS id,
-                        expense.state,
                         expense.project_id,
                         expense.date,
                         
@@ -125,7 +124,6 @@ class CarpentryBudgetExpense(models.Model):
                         AND hourly_cost.analytic_account_id = expense.analytic_account_id
                     
                     GROUP BY
-                        expense.state,
                         expense.project_id,
                         expense.date,
                         expense.section_id,
@@ -156,13 +154,13 @@ class CarpentryBudgetExpense(models.Model):
             sql = f"""
                 SELECT
                     'reservation' AS state,
-                    affectation.project_id,
                     affectation.section_id AS section_id,
                     affectation.section_model_id,
                     affectation.group_id AS analytic_account_id,
                     affectation.budget_type,
                     affectation.quantity_affected,
                     affectation.date,
+                    affectation.project_id,
                     0.0 AS amount_expense,
                     0.0 AS amount_gain,
                     TRUE AS should_compute_gain,
@@ -176,8 +174,7 @@ class CarpentryBudgetExpense(models.Model):
                 SELECT
                     'expense' AS state,
                     
-                    -- project & section
-                    section.project_id,
+                    -- section
                     {section_fields['section_id']} AS section_id,
                     {section_fields['section_model_id']} AS section_model_id,
 
@@ -185,14 +182,15 @@ class CarpentryBudgetExpense(models.Model):
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
                     0.0 AS quantity_affected,
-                    section.{Model._get_budget_date_field()} AS date,
+                    section.date_budget AS date,
             """
         
         # specific to budget balance
         if model == 'carpentry.budget.balance':
             sql += """
+                    section.project_id AS project_id,
                     0.0 AS amount_expense,
-                    0.0 AS amout_gain,
+                    0.0 AS amount_gain,
                     TRUE AS should_compute_gain,
                     TRUE AS should_value_expense
             """
@@ -217,29 +215,31 @@ class CarpentryBudgetExpense(models.Model):
         elif model == 'carpentry.budget.balance':
             return """
                 INNER JOIN carpentry_group_affectation AS affectation
-                    ON affectation.section_id = section.id AND affectation.section_model_id = section_model_id
+                    ON affectation.section_id = section.id
+                    AND affectation.section_model_id = section_model_id
                 
                 INNER JOIN account_analytic_account AS analytic
                     ON analytic.id = affectation.group_id
-            
             """
         else:
-            return """
+            return ''
 
-                INNER JOIN product_product
-                    ON product_product.id = line.product_id
-                INNER JOIN product_template
-                    ON product_template.id = product_product.product_tmpl_id
-                
-                LEFT JOIN LATERAL
-                    jsonb_each_text(line.analytic_distribution)
-                    AS analytic_distribution (account_analytic_id, percentage)
-                    ON true
-                
-                -- analytic
-                LEFT JOIN account_analytic_account AS analytic
-                    ON analytic.id = analytic_distribution.account_analytic_id::integer
-            """
+    def _join_product_analytic_distribution(self):
+        return """
+            INNER JOIN product_product
+                ON product_product.id = line.product_id
+            INNER JOIN product_template
+                ON product_template.id = product_product.product_tmpl_id
+            
+            LEFT JOIN LATERAL
+                jsonb_each_text(line.analytic_distribution)
+                AS analytic_distribution (account_analytic_id, percentage)
+                ON true
+
+            -- analytic
+            LEFT JOIN account_analytic_account AS analytic
+                ON analytic.id = analytic_distribution.account_analytic_id::integer
+        """
     
     def _where(self, model, models):
         return (f"""
@@ -258,10 +258,14 @@ class CarpentryBudgetExpense(models.Model):
         )
     
     def _groupby(self, model, models):
-        return (
-            '' if model == 'carpentry.group.affectation' else
-            'GROUP BY section.project_id, analytic.budget_type, analytic.id, section.id'
-        )
+        if model == 'carpentry.group.affectation':
+            return ''
+        
+        sql = 'GROUP BY analytic.budget_type, analytic.id, section.id'
+        if model == 'carpentry.budget.balance':
+            sql += ', section.project_id'
+        
+        return sql
     
     def _orderby(self, model, models):
         return ''
@@ -275,3 +279,51 @@ class CarpentryBudgetExpense(models.Model):
                 'launch_ids' in expense.section_ref and # for position, launch_ids does not exist
                 expense.section_ref.launch_ids
             )
+
+
+
+
+class CarpentryBudgetExpense(models.Model):
+    """ *Not* grouped by date (simplified), with no history """
+    _name = 'carpentry.budget.expense'
+    _inherit = ['carpentry.budget.expense.history']
+    _description = 'Expenses'
+    _auto = False
+
+    date = fields.Date(store=False)
+
+    def init(self):
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        
+        self._cr.execute("""
+            CREATE or REPLACE VIEW %(view_name)s AS (
+                SELECT
+                    row_number() OVER (ORDER BY
+                        section_id,
+                        section_model_id,
+                        analytic_account_id
+                    ) AS id,
+                    project_id,
+                    
+                    section_id,
+                    section_model_id,
+                    analytic_account_id,
+                    budget_type,
+                    
+                    SUM(quantity_affected) AS quantity_affected,
+                    SUM(amount_expense) AS amount_expense,
+                    SUM(amount_gain) AS amount_gain
+                
+                FROM carpentry_budget_expense_history
+                
+                GROUP BY
+                    project_id,
+                    section_id,
+                    section_model_id,
+                    analytic_account_id,
+                    budget_type
+            )""", {
+                'view_name': AsIs(self._table),
+            }
+        )
+

@@ -51,7 +51,7 @@ class CarpentryBudgetHourlyCost(models.Model):
                         (project.date - project.date_start + 1.0) -- total_days
                     ) -- weight_of_period
                     * history.hourly_cost
-                )
+                ) / COUNT(*)
                 AS coef
         """
 

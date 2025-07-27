@@ -34,6 +34,11 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         string='Budgets',
         compute='_compute_budget_analytic_ids',
     )
+    date_budget = fields.Date(
+        compute='_compute_date_budget',
+        string='Budget date',
+        store=True,
+    )
     # amount_remaining = fields.Monetary(
     #     string='Budget',
     #     compute='_compute_amount_remaining',
@@ -79,10 +84,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         if any(field in vals for field in fields):
             self._compute_affectation_ids()
         
-        budget_date_field = self._get_budget_date_field()
-        if budget_date_field in vals:
-            self.affectation_ids.date = vals[budget_date_field]
-
         return res
     
     def _get_unlink_domain(self):
@@ -188,11 +189,15 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
         """
         return super()._get_domain_affect(group, group2_ids, group2)
 
-    def _get_budget_date_field(self):
+    @api.depends('create_date')
+    def _compute_date_budget(self):
         """ [To overwritte]
             Date's field on which budget reports can be filtered (expense & project result)
         """
-        return 'create_date'
+        for section in self:
+            if not section.date_budget:
+                section.date_budget = section.create_date
+            section.affectation_ids.date = section.date_budget
 
     #===== Compute amounts =====#
     @api.depends('affectation_ids', 'affectation_ids.quantity_affected')

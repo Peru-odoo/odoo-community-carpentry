@@ -10,4 +10,3 @@ class CarpentryGroupAffectation(models.Model):
         return super()._selection_section_res_model() + [
             ('purchase.order', 'Purchase Order')
         ]
-    

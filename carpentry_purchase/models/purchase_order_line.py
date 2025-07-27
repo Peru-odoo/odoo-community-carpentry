@@ -8,7 +8,7 @@ class PurchaseOrderLine(models.Model):
     
     project_id = fields.Many2one(
         related='order_id.project_id',
-        store=True
+        store=True,
     )
     analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
@@ -23,8 +23,8 @@ class PurchaseOrderLine(models.Model):
             - internal project for Storable product
             - PO's project for others
         """
-        project_plan = self.env.company.analytic_plan_id
         for line in self:
+            project_plan = line.company_id.analytic_plan_id
             to_verify = line.analytic_ids.filtered(lambda x: x.plan_id == project_plan)
             if line.product_id.type == 'product':
                 allowed = line.company_id.internal_project_id.analytic_account_id

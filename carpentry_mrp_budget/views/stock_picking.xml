@@ -45,8 +45,7 @@
                 <button name="open_launch_budget" type="object"
                     class="oe_stat_button"
                     icon="fa-money"
-                    attrs="{'invisible': ['|', '|',
-                        ('state', 'in', ['draft', 'cancel']),
+                    attrs="{'invisible': ['|',
                         ('id', '=', False),
                         ('can_reserve_budget', '=', False),
                     ]}"
@@ -57,8 +56,7 @@
                 <button name="open_remaining_budget" type="object"
                     class="oe_stat_button"
                     icon="fa-money"
-                    attrs="{'invisible': ['|', '|',
-                        ('state', 'in', ['draft', 'cancel']),
+                    attrs="{'invisible': ['|',
                         ('id', '=', False),
                         ('can_reserve_budget', '=', False),
                     ]}"
@@ -101,8 +99,7 @@
             <page name="operations" position="after">
                 <!-- Add `Budget` notebook tab -->
                 <page name="budget" string="Budget reservation" attrs="{
-                    'invisible': ['|', '|',
-                        ('state', 'in', ['draft', 'cancel']),
+                    'invisible': ['|',
                         ('id', '=', False),
                         ('can_reserve_budget', '=', False)
                     ]

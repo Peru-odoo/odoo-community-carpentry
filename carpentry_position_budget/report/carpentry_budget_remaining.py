@@ -50,7 +50,7 @@ class CarpentryBudgetRemaining(models.Model):
         related='section_model_id.model',
     )
     section_model_name = fields.Char(
-        string='Document',
+        string='Document (section)',
         related='section_model_id.name',
     )
     # fields cancelling (necessary so they are not in SQL from ORM)

@@ -71,8 +71,7 @@
                 <field name="analytic_account_id" />
 
                 <!-- Filters -->
-                <filter string="★ Projects"   name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
-                <separator />
+                <separator name="budget_type" />
                 <filter string="Goods"        name="filter_goods"   domain="[('budget_type', '=', 'goods')]" />
                 <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
                 <filter string="Production"   name="filter_production" domain="[('budget_type', '=', 'production')]" />
@@ -80,7 +79,7 @@
                 <filter string="Other costs"  name="filter_project_global_cost" domain="[('budget_type', '=', 'project_global_cost')]" />
                 
                 <!-- Group by -->
-                <filter string="Group"        name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
+                <filter string="Document"     name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
                 <filter string="Launchs"      name="filter_groupby_launch" context="{'group_by': 'launch_id'}" />
                 <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
                 <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />

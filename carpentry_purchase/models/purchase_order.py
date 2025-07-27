@@ -106,8 +106,8 @@ class PurchaseOrder(models.Model):
     @api.onchange('project_id')
     def _onchange_project_id(self):
         """ Modify all lines analytic at once """
-        project_analytics = self.env.company.analytic_plan_id.account_ids
         for purchase in self:
+            project_analytics = purchase.company_id.analytic_plan_id.account_ids
             purchase._ensure_project_launches_consistency()
             project_account_id = purchase.project_id._origin.analytic_account_id.id
             purchase.order_line._replace_analytic(

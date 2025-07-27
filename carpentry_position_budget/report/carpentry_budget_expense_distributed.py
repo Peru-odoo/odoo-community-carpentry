@@ -104,7 +104,6 @@ class CarpentryBudgetExpenseDistributed(models.Model):
     def _where(self):
         return """
             WHERE
-                expense.state = 'expense' AND
                 expense.amount_expense != 0.0 AND
                 affectation.budget_type IS NOT NULL AND
                 affectation.quantity_affected != 0.0

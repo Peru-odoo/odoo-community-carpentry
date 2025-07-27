@@ -27,7 +27,6 @@ class CarpentryGroupAffectation(models.Model):
         string='Date',
         compute='_compute_date',
         store=True,
-        default=False,
         copy=False,
     )
     budget_unit = fields.Char(compute='_compute_budget_unit_type', compute_sudo=True)
@@ -52,11 +51,7 @@ class CarpentryGroupAffectation(models.Model):
     @api.depends('section_id', 'section_model_id')
     def _compute_date(self):
         for affectation in self:
-            Model = self.env.get(affectation.section_res_model)
-            if Model and hasattr(Model, '_get_budget_date_field'):
-                field = self.env[affectation.section_res_model]._get_budget_date_field()
-                if field and affectation.section_ref:
-                    affectation.date = affectation.section_ref[field]
+            affectation.date = affectation.section_ref.date_budget
 
     #===== Logic methods =====#
     def _get_siblings_parent(self):

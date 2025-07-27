@@ -88,14 +88,23 @@ class Task(models.Model):
     
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['analytic_account_id', 'planned_hours']
-
+    
     def _has_real_affectation_matrix_changed(self, _):
         """ Override so that any changes of `planned_hours` updates affectation table """
         return True
-
-    def _get_budget_date_field(self):
-        return 'create_date'
     
+    @api.depends('timesheet_ids.date')
+    def _compute_date_budget(self):
+        rg_result = self.env['account.analytic.line'].read_group(
+            domain=[('task_id', 'in', self.ids)],
+            groupby=['task_id'],
+            fields=['date:max'],
+        )
+        mapped_data = {x['task_id'][0]: x['date'] for x in rg_result}
+        for task in self:
+            task.date_budget = mapped_data.get(task.id)
+        return super()._compute_date_budget()
+
     @api.onchange('planned_hours')
     def _set_readonly_affectation(self):
         """ Modifying `planned_hours` re-computes automatically

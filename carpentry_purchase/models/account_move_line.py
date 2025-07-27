@@ -8,4 +8,3 @@ class AccountMoveLine(models.Model):
     project_id = fields.Many2one(
         related='move_id.project_id'
     )
-    

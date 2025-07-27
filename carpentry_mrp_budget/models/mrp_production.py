@@ -69,8 +69,11 @@ class ManufacturingOrder(models.Model):
     def _get_fields_affectation_refresh(self):
         return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
 
-    def _get_budget_date_field(self):
-        return 'date_planned_start'
+    @api.depends('date_planned_start', 'date_finished')
+    def _compute_date_budget(self):
+        for mo in self:
+            mo.date_budget = mo.date_finished or mo.date_planned_start
+        return super()._compute_date_budget()
     
     #===== Affectations: compute =====#
     @api.depends('affectation_ids', 'affectation_ids.quantity_affected')

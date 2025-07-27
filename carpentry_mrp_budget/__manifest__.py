@@ -31,5 +31,7 @@
         "views/stock_picking.xml",
         "views/stock_move.xml",
         "views/stock_valuation_layer.xml",
-    ]
+    ],
+    'post_init_hook': 'post_init_hook', # rebuild budget expense sql view
+    'uninstall_hook': 'uninstall_hook',
 }

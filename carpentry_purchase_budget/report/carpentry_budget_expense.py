@@ -2,9 +2,8 @@
 
 from odoo import models, fields
 
-class CarpentryExpense(models.Model):
-    """ Should be overriden in each Carpentry module with expense """
-    _inherit = ['carpentry.budget.expense']
+class CarpentryExpenseHistory(models.Model):
+    _inherit = ['carpentry.budget.expense.history']
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -25,6 +24,8 @@ class CarpentryExpense(models.Model):
             )
 
             sql += f"""
+                line.project_id AS project_id,
+
                 -- expense
                 SUM(
                     line.price_subtotal::float
@@ -63,19 +64,22 @@ class CarpentryExpense(models.Model):
         )
     
     def _join(self, model, models):
-        sql =''
-        if model == 'purchase.order':
-            sql = """
-                INNER JOIN purchase_order AS section
-                    ON section.id = line.order_id
-            """
-        elif model == 'account.move':
-            sql = """
-                INNER JOIN account_move AS section
-                    ON section.id = line.move_id
-                INNER JOIN purchase_order_line
-                    ON purchase_order_line.id = line.purchase_line_id
-            """
+        sql = ''
+        if model in ('purchase.order', 'account.move'):
+            sql = self._join_product_analytic_distribution()
+            
+            if model == 'purchase.order':
+                sql += """
+                    INNER JOIN purchase_order AS section
+                        ON section.id = line.order_id
+                """
+            elif model == 'account.move':
+                sql += """
+                    INNER JOIN account_move AS section
+                        ON section.id = line.move_id
+                    INNER JOIN purchase_order_line
+                        ON purchase_order_line.id = line.purchase_line_id
+                """
         
         return sql + super()._join(model, models)
     
@@ -102,7 +106,10 @@ class CarpentryExpense(models.Model):
     def _groupby(self, model, models):
         sql = super()._groupby(model, models)
 
-        if model == 'account.move':
-            sql += ', purchase_order_line.order_id'
+        if model in ('purchase.order', 'account.move'):
+            sql += ', line.project_id'
+            
+            if model == 'account.move':
+                sql += ', purchase_order_line.order_id'
         
         return sql
