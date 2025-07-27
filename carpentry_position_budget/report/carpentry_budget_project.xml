@@ -63,6 +63,10 @@
         <field name="mode">primary</field>
         
         <field name="arch" type="xml">
+            <field name="quantity_affected" position="before">
+                <field name="available" widget="monetary" sum="1" optional="show" />
+            </field>
+
             <field name="amount_gain" position="after">
                 <field name="percent_gain" avg="1" optional="show" />
             </field>
