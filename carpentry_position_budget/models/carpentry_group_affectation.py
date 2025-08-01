@@ -51,7 +51,9 @@ class CarpentryGroupAffectation(models.Model):
     @api.depends('section_id', 'section_model_id')
     def _compute_date(self):
         for affectation in self:
-            affectation.date = affectation.section_ref.date_budget
+            section = affectation.section_ref
+            if hasattr(section, 'date_budget'):
+                affectation.date = affectation.section_ref.date_budget
 
     #===== Logic methods =====#
     def _get_siblings_parent(self):
