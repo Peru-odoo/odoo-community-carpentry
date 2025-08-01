@@ -57,9 +57,6 @@ class AnalyticMixin(models.AbstractModel):
             2. Then recompute `project_id`:
                 a) from analytic first (if only 1 is set)
                 b) else from parent's `project_id`
-            
-            (!) @api.depends must be completed in inheriting model, like:
-            @api.depends('move_id.project_id')
         """
         # Get all analytic accounts of projects
         data = self.env['project.project'].sudo().search_read(fields=['analytic_account_id'])
@@ -85,6 +82,7 @@ class AnalyticMixin(models.AbstractModel):
             record._set_project_id_from_analytic_first(*args)
 
     def _cascade_parent_project_to_analytic(self, projects_analytics, new_id, mapped_projects_analytics):
+        """ Update line's project analytic from parent """
         self.ensure_one()
         # deleted
         if not new_id and self.analytic_distribution and str(new_id) in self.analytic_distribution:
@@ -99,6 +97,7 @@ class AnalyticMixin(models.AbstractModel):
                 self.analytic_distribution = self._get_replaced_analytic(replace_dict)
 
     def _set_project_id_from_analytic_first(self, projects_analytics, new_id, mapped_projects_analytics):
+        """ Sets `project_id` of line, from analytic (priority) or parent """
         self.ensure_one()
         if len(projects_analytics) == 1:
             analytic_id = next(iter(projects_analytics))
@@ -119,10 +118,11 @@ class AnalyticMixin(models.AbstractModel):
         return self.env['project.project']
     
     def _get_replaced_analytic(self, replace_dict):
-        return {
-            replace_dict.get(int(account_id), int(account_id)): percent
-            for account_id, percent in self.analytic_distribution.items()
-        }
+        new_dict = {}
+        for account_id, percent in self.analytic_distribution.items():
+            new_account_id = replace_dict.get(int(account_id), int(account_id))
+            new_dict[new_account_id] = new_dict.get(new_account_id, 0.0) + percent
+        return new_dict
 
 
     #====== Internal analytics enforcment ======#
