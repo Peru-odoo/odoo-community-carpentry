@@ -186,25 +186,27 @@ class CarpentryMrpImportWizard(models.TransientModel):
     def _read_external_db(self, db_resource):
         """ Can be overriden to add import logic for other external database """
 
-        if self.external_db_type == 'orgadata':
-            # Components
-            # if `ColorInfoInternal` is given, suffix it to the `default_code`
-            fields = f"""
+        def _get_fields(column_qty):
+            return f"""
                 IIF(
                     ColorInfoInternal IS NOT NULL AND ColorInfoInternal != '',
                     ArticleCode_OrderCode || '{SEPARATOR_COLOR}' || ColorInfoInternal,
                     ArticleCode_OrderCode
                 ) AS default_code,
-                Amount AS product_uom_qty,
+                {column_qty} AS product_uom_qty,
                 Units_Unit AS uom_name,
                 Description AS name,
                 PriceGross AS price,
                 Discount AS discount
             """
+
+        if self.external_db_type == 'orgadata':
+            # Components
+            # if `ColorInfoInternal` is given, suffix it to the `default_code`
             sql = f"""
-                SELECT {fields} FROM AllArticles
+                SELECT {_get_fields('Amount')} FROM AllArticles
                 UNION
-                SELECT {fields} FROM AllProfiles
+                SELECT {_get_fields('Units_Output')} FROM AllProfiles
             """
             components = self._read_db(db_resource, sql)
 
