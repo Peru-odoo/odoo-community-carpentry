@@ -52,15 +52,14 @@ class PurchaseOrder(models.Model):
     
     def _inverse_budget_analytic_ids(self):
         """ Manual budget choice => update line's analytic distribution """
+        domain=[('is_project_budget', '=', True)]
+        budget_analytics_ids = self.env['account.analytic.account'].search(domain).ids
+
         for order in self:
-            replaced_ids = order.order_line.analytic_ids._origin.filtered('is_project_budget')
             project_budgets = order.project_id._origin.budget_line_ids.analytic_account_id
             new_budgets = order.budget_analytic_ids & project_budgets # in the PO lines and the project
 
-            nb_budgets = len(new_budgets)
-            new_distrib = {x.id: 100/nb_budgets for x in new_budgets}
-            
-            order.order_line._replace_analytic(replaced_ids.ids, new_distrib, 'budget')
+            order.order_line._inverse_budget_analytic_ids(new_budgets, budget_analytics_ids)
     
     def _get_total_by_analytic(self):
         """ Group-sum `price_subtotal` of purchase order_line by analytic account,

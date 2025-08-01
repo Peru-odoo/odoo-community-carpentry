@@ -22,8 +22,8 @@ class PurchaseOrder(models.Model):
 
     #====== Fields ======#
     project_id = fields.Many2one(
-        # not reqiured because of replenishment (stock.warehouse.orderpoint)
-        required=False
+        # not required in ORM because of replenishment (stock.warehouse.orderpoint)
+        required=False,
     )
     description = fields.Char(
         string='Description'
@@ -48,6 +48,18 @@ class PurchaseOrder(models.Model):
         compute='_compute_products_type'
     )
     
+    #===== Constrains =====#
+    @api.onchange('project_id')
+    @api.constrains('project_id')
+    def _ensure_project_launches_consistency(self):
+        """ Launch_ids must belong to the project
+            (a discrepency could happen since `project_id` can be modified)
+        """
+        self.ensure_one()
+        to_clean = self.launch_ids.filtered(lambda x: x not in self.project_id.launch_ids)
+        if to_clean:
+            self.launch_ids -= to_clean
+
     #===== Compute =====#
     def _compute_display_name(self):
         for mo in self:
@@ -101,29 +113,6 @@ class PurchaseOrder(models.Model):
         for purchase in self:
             key = (purchase.project_id.id, purchase.partner_id.commercial_partner_id.id)
             purchase.requisition_id = mapped_data.get(key, [False])[-1]
-
-    # --- project_id (shortcut to set line analytic at once on the project) ---
-    @api.onchange('project_id')
-    def _onchange_project_id(self):
-        """ Modify all lines analytic at once """
-        for purchase in self:
-            project_analytics = purchase.company_id.analytic_plan_id.account_ids
-            purchase._ensure_project_launches_consistency()
-            project_account_id = purchase.project_id._origin.analytic_account_id.id
-            purchase.order_line._replace_analytic(
-                replaced_ids=project_analytics._origin.ids,
-                new_distrib={project_account_id: 100} if project_account_id else {},
-                analytic_plan='project',
-            )
-    
-    def _ensure_project_launches_consistency(self):
-        """ Launch_ids must belong to the project
-            (a discrepency could happen since `project_id` can be modified)
-        """
-        self.ensure_one()
-        to_clean = self.launch_ids.filtered(lambda x: x not in self.project_id.launch_ids)
-        if to_clean:
-            self.launch_ids -= to_clean
     
     #===== Logics =====#
     def _prepare_picking(self):

@@ -11,18 +11,13 @@ class AccountMove(models.Model):
         store=True,
     )
 
-
 # -- break inheritance --
 class AccountPayment(models.Model):
     _inherit = ['account.payment']
 
-    date_budget = fields.Date(
-        store=False,
-    )
+    date_budget = fields.Date(store=False)
 
 class AccountBankStatementLine(models.Model):
     _inherit = ['account.bank.statement.line']
 
-    date_budget = fields.Date(
-        store=False,
-    )
+    date_budget = fields.Date(store=False)

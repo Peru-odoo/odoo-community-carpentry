@@ -2,6 +2,7 @@
 
 from . import account_analytic_account
 from . import account_move_budget_line
+from . import analytic_mixin
 
 from . import carpentry_group_budget_mixin
 from . import carpentry_group_phase

@@ -19,7 +19,7 @@ class CarpentryExpense(models.Model):
                 section.project_id AS project_id,
 
                 -- expense
-                SUM(line.amount) AS amount_expense,
+                -1 * SUM(line.amount) AS amount_expense,
                 
                 -- gain
                 0.0 AS amout_gain,

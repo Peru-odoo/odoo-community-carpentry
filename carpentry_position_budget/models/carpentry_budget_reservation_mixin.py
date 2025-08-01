@@ -223,20 +223,6 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
     def _is_quantity_affected_valued(self):
         return False
 
-    # @api.depends('launch_ids')
-    # def _compute_amount_remaining(self):
-    #     """ Also called from `_compute_budget_analytic_ids()`
-    #         Computes *valued* remaining budget at level of the
-    #         section (PO, MO, picking, task, ...)
-    #     """
-    #     for record in self:
-    #         budgets = self.budget_analytic_ids._get_remaining_budget(self.launch_ids, self)
-    #         record.amount_remaining = sum([
-    #             amount
-    #             for (_, _, analytic_id_), amount in budgets.items()
-    #             if analytic_id_ in self.budget_analytic_ids.ids
-    #         ])
-
     def _compute_amount_budgetable(self):
         """ To be inherited """
         return
@@ -251,6 +237,7 @@ class CarpentryBudgetReservationMixin(models.AbstractModel):
             section.amount_loss = -1 * section.amount_gain
 
     #====== Compute/Inverse ======#
+    @api.depends('project_id')
     def _compute_budget_analytic_ids(self):
         """ To be inherited """
         self._set_readonly_affectation()

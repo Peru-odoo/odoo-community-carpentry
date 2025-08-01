@@ -13,6 +13,7 @@
 
     'depends': [
         # odoo
+        'analytic',
         'hr_timesheet', # only for company.internal_project_id
         'sales_team', # for security access
         'web_notify', # OCA

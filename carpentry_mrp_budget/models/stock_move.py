@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
+from odoo import models, fields, api
 
 class StockMove(models.Model):
     _name = 'stock.move'
     _inherit = ['stock.move', 'analytic.mixin']
 
     analytic_distribution = fields.Json(store=True)
-    analytic_ids = fields.Many2many(
-        comodel_name='account.analytic.account',
-        compute='_compute_analytic_distribution',
-        string='Analytic Accounts',
-        compute_sudo=True,
-    )
     price_unit = fields.Float(
         help="For permanent valuation. Product cost at move's confirmation.",
     )
@@ -36,17 +30,7 @@ class StockMove(models.Model):
                 "partner_category_id": move.partner_id.category_id.ids,
                 "company_id": move.company_id.id,
             })
-            new_distrib = distribution or move.analytic_distribution
-            move.analytic_distribution = new_distrib
-
-            # synthetic: only analytic_ids (no % distribution)
-            move.analytic_ids = self._get_analytic_ids()
-
-    def _get_analytic_ids(self):
-        """ Compute analytics records from json `analytic_distribution` """
-        analytic_ids_ = []
-        for analytic in self:
-            distrib = analytic.analytic_distribution
-            if distrib:
-                analytic_ids_ += [int(x) for x in distrib.keys()]
-        return self.env['account.analytic.account'].sudo().browse(analytic_ids_)
+            move.analytic_distribution = distribution or move.analytic_distribution
+        
+        self._compute_analytic_distribution_carpentry()
+    
