@@ -201,12 +201,11 @@ class CarpentryMrpImportWizard(models.TransientModel):
             """
 
         if self.external_db_type == 'orgadata':
-            # Components
             # if `ColorInfoInternal` is given, suffix it to the `default_code`
             sql = f"""
-                SELECT {_get_fields('Amount')} FROM AllArticles
+                SELECT {_get_fields('Units_Output')} FROM AllArticles
                 UNION
-                SELECT {_get_fields('Units_Output')} FROM AllProfiles
+                SELECT {_get_fields('Amount')} FROM AllProfiles
             """
             components = self._read_db(db_resource, sql)
 
