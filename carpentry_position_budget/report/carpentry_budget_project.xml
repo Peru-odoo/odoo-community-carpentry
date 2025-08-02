@@ -64,11 +64,28 @@
         
         <field name="arch" type="xml">
             <field name="quantity_affected" position="before">
-                <field name="available" widget="monetary" sum="1" optional="show" />
+                <!-- Show *available* only for `account.move.budget.line` -->
+                <field name="section_res_model" invisible="1" />
+                <field name="available" widget="monetary" sum="1" optional="show"
+                    attrs="{'invisible': [('section_res_model', '!=', 'account.move.budget.line')]}"
+                />
+                
+                <!-- Hide other field for `account.move.budget.line` -->
+                <field name="quantity_affected" position="attributes">
+                    <attribute name="attrs">{'invisible': [('section_res_model', '=', 'account.move.budget.line')]}</attribute>
+                </field>
+                <field name="amount_expense" position="attributes">
+                    <attribute name="attrs">{'invisible': [('section_res_model', '=', 'account.move.budget.line')]}</attribute>
+                </field>
+                <field name="amount_gain" position="attributes">
+                    <attribute name="attrs">{'invisible': [('section_res_model', '=', 'account.move.budget.line')]}</attribute>
+                </field>
             </field>
 
             <field name="amount_gain" position="after">
-                <field name="percent_gain" avg="1" optional="show" />
+                <field name="percent_gain" avg="1" optional="show"
+                    attrs="{'invisible': [('section_res_model', '=', 'account.move.budget.line')]}"
+                />
             </field>
         </field>
     </record>
