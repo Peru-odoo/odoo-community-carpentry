@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Action & menu-item: 'Timesheet's Budget' -->
-    <!-- Pre-select project before opening Instruction (tasks) -->
+    <!-- Pre-select project before opening tasks -->
     <record id="action_open_task_budget_timesheet_srv" model="ir.actions.server">
         <field name="name">Timesheet's follow-up</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
@@ -23,8 +23,21 @@
 
 
     <!-- BASE TASK VIEWS (modified) -->
+    <!-- Task type: hide on budget tasks -->
+    <record id="project_task_form" model="ir.ui.view">
+        <field name="name">project.task.type.carpentry</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project_type.project_task_form" />
+
+        <field name="arch" type="xml">
+            <field name="type_id" position="attributes">
+                <attribute name="attrs">{'invisible': [('allow_timesheets', '=', True)]}</attribute>
+            </field>
+        </field>
+    </record>
     <!-- Task Kanban (view) -> **all** tasks, alter `planned_hours` widget and add `performance`
-    widget -->
+         widget
+    -->
     <record id="view_task_kanban" model="ir.ui.view">
         <field name="name">project.task.timesheet.kanban.carpentry</field>
         <field name="model">project.task</field>
