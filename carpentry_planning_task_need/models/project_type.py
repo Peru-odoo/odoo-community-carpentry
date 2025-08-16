@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions, _, Command
-from odoo.addons.carpentry_planning_task_need.models.project_task import XML_ID_NEED
+from odoo import models, fields, api
 
 class ProjectType(models.Model):
     _inherit = ['project.type']

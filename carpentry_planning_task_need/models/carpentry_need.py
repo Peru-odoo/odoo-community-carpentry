@@ -33,9 +33,7 @@ class CarpentryNeed(models.Model):
         # example: "Need (Method)"
         comodel_name='project.type',
         string='Type of Need',
-        related='type_id.parent_id',
-        # if coming on need form with no ctx `default_parent_type_id`
-        readonly=False,
+        compute='_compute_parent_type_id',
         domain=lambda self: self.env['carpentry.need.family']._get_domain_parent_type_id(),
     )
     type_id = fields.Many2one(
@@ -90,6 +88,17 @@ class CarpentryNeed(models.Model):
             for task in need.task_ids:
                 if task.user_ids == need.user_ids:
                     task.user_ids = new_user_ids
+
+    #===== Compute =====#
+    @api.depends_context('default_parent_type_id')
+    @api.depends('type_id.parent_id')
+    def _compute_parent_type_id(self):
+        """ Either coming from planning (ctx: `default_parent_type_id`)
+            or need family
+        """
+        default = self._context.get('default_parent_type_id')
+        for need in self:
+            need.parent_type_id = default or need.type_id.parent_id
 
     #===== Business methods =====#
     def _convert_need_to_task_vals(self, launch):
