@@ -36,7 +36,7 @@ class CarpentryExpense(models.Model):
         sql = ''
         if model == 'project.task':
             sql += """
-                INNER JOIN account_analytic_line AS line
+                LEFT JOIN account_analytic_line AS line
                     ON line.task_id = section.id
                 
                 -- analytic

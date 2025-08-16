@@ -92,6 +92,12 @@ class Task(models.Model):
     def _has_real_affectation_matrix_changed(self, _):
         """ Override so that any changes of `planned_hours` updates affectation table """
         return True
+
+    def _compute_affectation_ids(self):
+        """ Don't compute budget reservation for non-budgetable tasks """
+        return super(
+            Task, self.filtered('allow_timesheets')
+        )._compute_affectation_ids()
     
     @api.depends('timesheet_ids.date')
     def _compute_date_budget(self):
