@@ -169,7 +169,6 @@ class CarpentryBudgetExpenseHistory(models.Model):
         else:
             # specific : no budget reservation (`quantity_affected`)
             # but `amount_expense` (except carpentry.budget.balance)
-            Model = self.env[model]
             sql = f"""
                 SELECT
                     'expense' AS state,
