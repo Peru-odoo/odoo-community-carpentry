@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-01 11:57+0000\n"
-"PO-Revision-Date: 2025-05-01 13:58+0200\n"
+"POT-Creation-Date: 2025-08-18 21:01+0000\n"
+"PO-Revision-Date: 2025-08-18 23:05+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -26,6 +26,26 @@ msgstr "(devis et avenants)"
 #: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
 msgid "(reviewed market)"
 msgstr "(marché revu)"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
+msgid "<strong class=\"text-success\">Validated</strong>"
+msgstr "<strong class=\"text-success\">Validé</strong>"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
+msgid "<strong class=\"text-warning\">To validate</strong>"
+msgstr "<strong class=\"text-warning\">A valider</strong>"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
+msgid "Amount fully validated"
+msgstr "Montant entièrement validé"
+
+#. module: carpentry_sale
+#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
+msgid "Amount not fully validated"
+msgstr "Montant pas entièrement validé"
 
 #. module: carpentry_sale
 #: model:ir.model.fields,help:carpentry_sale.field_project_project__market
@@ -66,16 +86,6 @@ msgid "Line state"
 msgstr "État des lignes"
 
 #. module: carpentry_sale
-#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
-msgid "Lines amounts validated"
-msgstr "Lignes validées"
-
-#. module: carpentry_sale
-#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_sales_order_filter
-msgid "Lines not confirmed"
-msgstr "Lignes non validées"
-
-#. module: carpentry_sale
 #: model:ir.model.fields,field_description:carpentry_sale.field_project_project__market
 msgid "Market"
 msgstr "Marché"
@@ -96,6 +106,13 @@ msgid "OK"
 msgstr ""
 
 #. module: carpentry_sale
+#. odoo-python
+#: code:addons/carpentry_sale/models/sale_order.py:0
+#, python-format
+msgid "Operation not supported"
+msgstr "Opération non supportée"
+
+#. module: carpentry_sale
 #: model:ir.model.fields.selection,name:carpentry_sale.selection__sale_order__lines_validated__partial_validated
 msgid "Partial"
 msgstr "Partiel"
@@ -106,24 +123,14 @@ msgid "Project"
 msgstr "Projet"
 
 #. module: carpentry_sale
-#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__sale_order_sum_validated
-msgid "Quotations & Sale Orders total validated amount"
-msgstr "Montant total validé des devis et commandes clients"
-
-#. module: carpentry_sale
 #: model:ir.model.fields,field_description:carpentry_sale.field_project_project__market_reviewed
 msgid "Reviewed Market"
 msgstr "Marché revu"
 
 #. module: carpentry_sale
-#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__sale_order_lines_fully_validated
-msgid "Sale Order Lines Fully Validated"
-msgstr "Lignes de commande client entièrement validées"
-
-#. module: carpentry_sale
 #: model:ir.model,name:carpentry_sale.model_sale_order
 msgid "Sales Order"
-msgstr "Commande client"
+msgstr "Bon de commande"
 
 #. module: carpentry_sale
 #: model:ir.model,name:carpentry_sale.model_sale_order_line
@@ -131,11 +138,9 @@ msgid "Sales Order Line"
 msgstr "Ligne de commande"
 
 #. module: carpentry_sale
-#: model:ir.model.fields,help:carpentry_sale.field_sale_order_line__project_id
-msgid "Select a non billable project on which tasks can be created."
-msgstr ""
-"Sélectionnez un projet non facturable sur lequel des tâches peuvent être "
-"créées."
+#: model:ir.model.fields,field_description:carpentry_sale.field_project_project__so_lines_validated
+msgid "So Lines Validated"
+msgstr "Lignes de commandes clients validées"
 
 #. module: carpentry_sale
 #: model_terms:ir.ui.view,arch_db:carpentry_sale.edit_project
@@ -143,29 +148,46 @@ msgid "Some lines of Sales Order are not validated"
 msgstr "Certaines lignes de la commande client ne sont pas validées"
 
 #. module: carpentry_sale
-#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_tax_validated
-msgid "Taxes (validated lines)"
-msgstr "Taxes (lignes validées)"
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__tax_totals_to_validate
+msgid "Tax Totals To Validate"
+msgstr "Totals des taxes à valider"
 
 #. module: carpentry_sale
-#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
-msgid "Total (HT) - all lines"
-msgstr "Total (HT) - toutes les lignes"
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_tax
+msgid "Taxes"
+msgstr ""
 
 #. module: carpentry_sale
-#: model_terms:ir.ui.view,arch_db:carpentry_sale.view_order_form
-msgid "Total (HT) - validated lines only"
-msgstr "Total (HT) - lignes validées uniquement"
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_total_to_validate
+msgid "To validate"
+msgstr "A valider"
 
 #. module: carpentry_sale
-#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_total_validated
-msgid "Total (validated lines)"
-msgstr "Total (lignes validées)"
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_total
+msgid "Total"
+msgstr ""
 
 #. module: carpentry_sale
-#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_untaxed_validated
-msgid "Untaxed Amount (validated lines)"
-msgstr "Montant non taxé (lignes validées)"
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order__amount_total_to_validate
+msgid "Total be to validated"
+msgstr "Total à valider"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_untaxed
+msgid "Untaxed Amount"
+msgstr "Montant hors taxes"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,field_description:carpentry_sale.field_sale_order__amount_untaxed_to_validate
+msgid "Untaxed amount (to validate)"
+msgstr "Montant hors taxes (à valider)"
+
+#. module: carpentry_sale
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order__amount_tax
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order__amount_total
+#: model:ir.model.fields,help:carpentry_sale.field_sale_order__amount_untaxed
+msgid "Validated"
+msgstr "Validé"
 
 #. module: carpentry_sale
 #: model:ir.model.fields,field_description:carpentry_sale.field_sale_order_line__validated

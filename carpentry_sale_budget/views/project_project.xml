@@ -8,7 +8,7 @@
 
         <field name="arch" type="xml">
             <!-- Alert `budget_up_to_date` next to quotations & sales order total -->
-            <button id="sale_order_lines_fully_validated" position="after">
+            <button id="so_lines_validated" position="after">
                 <field name="budget_up_to_date" invisible="1" />
                 <button
                     id="budget_up_to_date"

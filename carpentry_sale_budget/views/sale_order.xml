@@ -7,13 +7,12 @@
         <field name="inherit_id" ref="carpentry_sale.view_quotation_tree" />
 
         <field name="arch" type="xml">
-            <!-- Add field "Budget State" next to "Line State" -->
-            <field name="lines_validated" position="after">
-                <field name="lines_budget_updated"
-                    widget="badge"
-                    decoration-success="lines_budget_updated == 'all_updated'"
-                    decoration-warning="lines_budget_updated == 'partial_updated'"
-                    decoration-muted="lines_budget_updated == 'none'"
+            <!-- Add field "Budget State" -->
+            <field name="amount_total_to_validate" position="after">
+                <field name="lines_budget_updated" widget="badge"
+                    decoration-success="lines_budget_updated == 'all_updated' and state != 'cancel'"
+                    decoration-warning="lines_budget_updated != 'all_updated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
                 />
             </field>
         </field>
@@ -25,14 +24,12 @@
         <field name="inherit_id" ref="carpentry_sale.view_order_tree" />
 
         <field name="arch" type="xml">
-            <!-- Add field "Budget State" next to "Line State" -->
-            <field name="lines_validated" position="after">
-                <field name="lines_budget_updated"
-                    optional="show"
-                    widget="badge"
-                    decoration-success="lines_budget_updated == 'all_updated'"
-                    decoration-warning="lines_budget_updated == 'partial_updated'"
-                    decoration-muted="lines_budget_updated == 'none'"
+            <!-- Add field "Budget State" -->
+            <field name="amount_total_to_validate" position="after">
+                <field name="lines_budget_updated" widget="badge" optional="show"
+                    decoration-success="lines_budget_updated == 'all_updated' and state != 'cancel'"
+                    decoration-warning="lines_budget_updated != 'all_updated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
                 />
             </field>
         </field>
@@ -61,8 +58,8 @@
         <field name="arch" type="xml">
             <filter name="line_pending" position="after">
                 <separator/>
-                <filter string="Budget up-to-date" name="budget_ok" domain="[('lines_budget_updated', '=', True)]" />
-                <filter string="Budget partially up-to-date" name="budget_pending" domain="[('lines_budget_updated', '=', False)]" />
+                <filter string="Budget up-to-date" name="budget_ok" domain="[('lines_budget_updated', '=', 'all_updated')]" />
+                <filter string="Budget not up-to-date" name="budget_pending" domain="[('lines_budget_updated', '!=', 'all_updated')]" />
             </filter>
         </field>
     </record>

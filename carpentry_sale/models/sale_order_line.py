@@ -9,7 +9,6 @@ class SaleOrderLine(models.Model):
         related='order_id.project_id',
         store=True
     )
-
     validated = fields.Boolean(
         string='Validated?',
         default=False,

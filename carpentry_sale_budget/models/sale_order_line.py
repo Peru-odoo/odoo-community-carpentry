@@ -6,7 +6,7 @@ class SaleOrderLine(models.Model):
     _inherit = ['sale.order.line']
 
     budget_updated = fields.Boolean(
-        string='Budget updated?',
+        string='Budget?',
         default=False,
         help="Has project's budget been updated?",
     )

@@ -57,31 +57,32 @@ class TestCarpentrySale(common.SingleTransactionCase):
         self.assertEqual(project2.market, lead2.expected_revenue)
 
 
-    def test_02_sale_order_total_validated(self):
-        """ Test if sale order's validated and unvalidated totals are calculated well,
-            according to line's `validated` field
-        """
-        # validate 1 line =>  => standard total = 20.0 ; total validated = 10.0
-        sol1 = fields.first(self.order.order_line)
-        sol1.validated = True
-        self.assertEqual(self.order.lines_validated, 'partial_validated')
-        # total not depending "validated" line boolean
-        self.assertEqual(self.order.amount_untaxed, self.PRODUCT_PRICE*2)
-        self.assertEqual(self.project.sale_order_sum, self.PRODUCT_PRICE*2)
-        # total **depending** "validated" line boolean
-        self.assertEqual(self.order.amount_untaxed_validated, self.PRODUCT_PRICE)
-        self.assertEqual(self.project.sale_order_sum_validated, self.PRODUCT_PRICE)
-        self.assertFalse(self.project.sale_order_lines_fully_validated)
+    # OBSOLETE (2025-08-16)
+    # def test_02_sale_order_total_validated(self):
+    #     """ Test if sale order's validated and unvalidated totals are calculated well,
+    #         according to line's `validated` field
+    #     """
+    #     # validate 1 line =>  => standard total = 20.0 ; total validated = 10.0
+    #     sol1 = fields.first(self.order.order_line)
+    #     sol1.validated = True
+    #     self.assertEqual(self.order.lines_validated, 'partial_validated')
+    #     # total not depending "validated" line boolean
+    #     self.assertEqual(self.order.amount_untaxed, self.PRODUCT_PRICE*2)
+    #     self.assertEqual(self.project.sale_order_sum, self.PRODUCT_PRICE*2)
+    #     # total **depending** "validated" line boolean
+    #     self.assertEqual(self.order.amount_untaxed_validated, self.PRODUCT_PRICE)
+    #     self.assertEqual(self.project.sale_order_sum_validated, self.PRODUCT_PRICE)
+    #     self.assertFalse(self.project.so_lines_validated)
 
-        # confirm the quotation => validate lines in mass => both total are equals
-        self.order.action_confirm()
-        self.assertEqual(self.order.amount_untaxed_validated, self.order.amount_untaxed)
-        self.assertTrue(self.project.sale_order_lines_fully_validated)
+    #     # confirm the quotation => validate lines in mass => both total are equals
+    #     self.order.action_confirm()
+    #     self.assertEqual(self.order.amount_untaxed_validated, self.order.amount_untaxed)
+    #     self.assertTrue(self.project.so_lines_validated)
 
-        # test the search
-        search_result = self.SaleOrder.search([('lines_validated', '=', 'all_validated')])
-        self.assertEqual(self.order, search_result)
+    #     # test the search
+    #     search_result = self.SaleOrder.search([('lines_validated', '=', 'all_validated')])
+    #     self.assertEqual(self.order, search_result)
 
-    def test_03_project_market_reviewed(self):
-        self.assertEqual(self.project.sale_order_sum_validated, self.order.amount_untaxed_validated)
-        self.assertEqual(self.project.market_reviewed, self.project.market + self.project.sale_order_sum_validated)
+    # def test_03_project_market_reviewed(self):
+    #     self.assertEqual(self.project.sale_order_sum_validated, self.order.amount_untaxed_validated)
+    #     self.assertEqual(self.project.market_reviewed, self.project.market + self.project.sale_order_sum_validated)

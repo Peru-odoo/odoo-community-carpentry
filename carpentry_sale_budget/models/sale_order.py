@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, Command, _
+from odoo import models, fields, api
 
 class SaleOrder(models.Model):
     _inherit = ['sale.order']
@@ -9,12 +9,13 @@ class SaleOrder(models.Model):
         selection=[
             ('none', 'None'),
             ('partial_updated', 'Partial'),
-            ('all_updated', 'OK')
+            ('all_updated', 'OK'),
         ],
-        string='Budget state',
+        string='Budget?',
         compute='_compute_lines_budget_updated',
         search='_search_lines_budget_updated',
         default=False,
+        help="Has project's budget been updated?",
     )
     
     @api.depends('order_line', 'order_line.budget_updated')
@@ -29,10 +30,7 @@ class SaleOrder(models.Model):
                 state = 'none'
             order.lines_budget_updated = state
     
+    @api.model
     def _search_lines_budget_updated(self, operator, value):
-        if value == 'none':
-            return [('order_line.budget_updated', '=', False)]
-        elif value == 'all_updated':
-            return [('order_line.budget_updated', '=', True)]
-        elif value == 'partial_updated':
-            return [('order_line.budget_updated', 'not in', [True, False])]
+        """ Same logic than `_search_lines_validated` """
+        return self._search_lines_validated(operator, value, sol_field='budget_updated')

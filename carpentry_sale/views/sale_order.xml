@@ -12,14 +12,22 @@
                 <field name="description" />
             </field>
 
-            <!-- Add field "Line Status" next to "Status" -->
-            <field name="state" position="before">
-                <field name="lines_validated"
+            <!-- Add fields *Remaining to validate* aside *validated* totals -->
+            <field name="amount_untaxed" position="after">
+                <field name="lines_validated" invisible="1" />
+                <field name="amount_untaxed_to_validate"
                     optional="show"
-                    widget="badge"
-                    decoration-success="lines_validated == 'all_validated'"
-                    decoration-warning="lines_validated == 'partial_validated'"
-                    decoration-muted="lines_validated == 'none'"
+                    decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
+                    decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
+                />
+            </field>
+            <field name="amount_total" position="after">
+                <field name="amount_total_to_validate"
+                    optional="hide"
+                    decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
+                    decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
                 />
             </field>
         </field>
@@ -36,13 +44,20 @@
                 <field name="description" />
             </field>
 
-            <!-- Add field "Line Status" next to "Status" -->
-            <field name="state" position="before">
-                <field name="lines_validated"
-                    widget="badge"
-                    decoration-success="lines_validated == 'all_validated'"
-                    decoration-warning="lines_validated == 'partial_validated'"
-                    decoration-muted="lines_validated == 'none'"
+            <!-- Add fields *Remaining to validate* aside *validated* totals -->
+            <field name="amount_untaxed" position="after">
+                <field name="lines_validated" invisible="1" />
+                <field name="amount_untaxed_to_validate" optional="hide"
+                    decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
+                    decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
+                />
+            </field>
+            <field name="amount_total" position="after">
+                <field name="amount_total_to_validate" optional="show"
+                    decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
+                    decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
+                    decoration-muted="state == 'cancel'"
                 />
             </field>
         </field>
@@ -77,9 +92,17 @@
             </xpath>
 
             <!-- Total(s) -->
-            <field name="tax_totals" position="replace">
-                <field name="amount_untaxed_validated" string="Total (HT) - validated lines only" />
-                <field name="amount_untaxed" string="Total (HT) - all lines" />
+            <group name="sale_total" position="before">
+                <field name="lines_validated" invisible="1" />
+                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total_to_validate"
+                    attrs="{'invisible': ['|', ('lines_validated', '=', 'all_validated'), ('state', '=', 'cancel')]}"
+                >
+                    <strong class="text-warning">To validate</strong>
+                    <field name="tax_totals_to_validate" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1"/>
+                </group>
+            </group>
+            <field name="tax_totals" position="before">
+                <strong class="text-success">Validated</strong>
             </field>
         </field>
     </record>
@@ -93,8 +116,8 @@
         <field name="arch" type="xml">
             <filter name="my_sale_orders_filter" position="after">
                 <separator/>
-                <filter string="Lines amounts validated" name="line_validated" domain="[('lines_validated', '=', 'all_validated')]" />
-                <filter string="Lines not confirmed" name="line_pending" domain="[('lines_validated', '=', 'partial_validated')]" />
+                <filter string="Amount fully validated" name="line_validated" domain="[('lines_validated', '=', 'all_validated')]" />
+                <filter string="Amount not fully validated" name="line_pending" domain="[('lines_validated', '!=', 'all_validated')]" />
             </filter>
         </field>
     </record>

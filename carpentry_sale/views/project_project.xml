@@ -8,28 +8,26 @@
         <field name="arch" type="xml">
             <!-- Add `Market` fields below `Customer` -->
             <field name="opportunity_id" position="after">
-                <field name="sale_order_lines_fully_validated" invisible="1" />
+                <field name="so_lines_validated" invisible="1" />
                 <field name="currency_id" invisible="1" />
 
                 <label for="market"/>
                 <div name="market">
                     <field name="market" class="oe_inline" />
-                        
+                    
                     <!-- Alert if some sale order lines not validated -->
                     <field name="sale_order_count" invisible="1" />
-                    <button
-                        id="sale_order_lines_fully_validated"
-                        type="action"
+                    <button id="so_lines_validated" type="action"
                         name="%(sale_project_link.action_project_sale_orders)d"
                         class="btn-danger p-1 mx-1"
                         icon="fa-exclamation-triangle"
                         groups="sales_team.group_sale_salesman"
-                        attrs="{'invisible': ['|', ('sale_order_count', '=', 0), ('sale_order_lines_fully_validated', '=', True)]}"
+                        attrs="{'invisible': ['|', ('sale_order_count', '=', 0), ('so_lines_validated', '=', True)]}"
                         title="Some lines of Sales Order are not validated"
                     />
                     
                     <div>
-                        + <field name="sale_order_sum_validated" nolabel="1" widget="currency" class="fw-bold oe_inline" />
+                        + <field name="sale_order_sum" nolabel="1" widget="currency" class="fw-bold oe_inline" />
                         (quotations and sales order)
                     </div>
                     <div>
