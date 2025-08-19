@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from odoo import api, fields, models, _
-from odoo.osv import expression
 from odoo.tools.misc import format_amount
 from odoo.tools import float_is_zero
-from collections import defaultdict
-from pprint import pprint
 
-class AccountAnalyticAccount(models.Model):
+class AnalyticLine(models.Model):
+    _inherit = ['account.analytic.line']
+
+    def write(self, vals):
+        print('self', self.read([]))
+        print('vals', vals)
+        print('project_ids', self.mapped('project_id'))
+        return super().write(vals)
+
+
+class AnalyticAccount(models.Model):
     _name = 'account.analytic.account'
     _inherit = ['account.analytic.account']
     # for Purchase & Manufacturing Orders
