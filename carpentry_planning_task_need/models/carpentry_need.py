@@ -34,6 +34,7 @@ class CarpentryNeed(models.Model):
         comodel_name='project.type',
         string='Type of Need',
         compute='_compute_parent_type_id',
+        search='_search_parent_type_id',
         domain=lambda self: self.env['carpentry.need.family']._get_domain_parent_type_id(),
     )
     type_id = fields.Many2one(
@@ -99,6 +100,10 @@ class CarpentryNeed(models.Model):
         default = self._context.get('default_parent_type_id')
         for need in self:
             need.parent_type_id = default or need.type_id.parent_id
+    
+    @api.model
+    def _search_parent_type_id(self, operator, value):
+        return [('type_id.parent_id', operator, value)]
 
     #===== Business methods =====#
     def _convert_need_to_task_vals(self, launch):
