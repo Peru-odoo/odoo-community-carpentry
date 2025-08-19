@@ -16,7 +16,7 @@
             <field name="amount_untaxed" position="after">
                 <field name="lines_validated" invisible="1" />
                 <field name="amount_untaxed_to_validate"
-                    optional="show"
+                    optional="hide"
                     decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
                     decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
                     decoration-muted="state == 'cancel'"
@@ -24,7 +24,7 @@
             </field>
             <field name="amount_total" position="after">
                 <field name="amount_total_to_validate"
-                    optional="hide"
+                    optional="show"
                     decoration-success="lines_validated == 'all_validated' and state != 'cancel'"
                     decoration-warning="lines_validated != 'all_validated' and state != 'cancel'"
                     decoration-muted="state == 'cancel'"
