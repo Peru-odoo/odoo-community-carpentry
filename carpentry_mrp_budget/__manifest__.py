@@ -25,8 +25,6 @@
         # security
         "security/ir.model.access.csv",
         # views
-        "views/mrp_workcenter.xml",
-        "views/mrp_workorder.xml",
         "views/mrp_production.xml",
         "views/stock_picking.xml",
         "views/stock_move.xml",
