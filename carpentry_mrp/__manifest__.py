@@ -34,6 +34,7 @@
         'views/carpentry_launch.xml',
         # report
         'report/stock_report_picking_operations.xml',
+        'report/mrp_production_templates.xml',
         # wizard
         'wizard/stock_inventory_conflict.xml',
     ]

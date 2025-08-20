@@ -12,10 +12,6 @@ class StockMove(models.Model):
     _name = 'stock.move'
     _inherit = ['stock.move', 'carpentry.planning.mixin']
 
-    # for planning
-    product_default_code = fields.Char(related='product_id.default_code')
-    product_name = fields.Char(related='product_id.name')
-
     #===== ORM methods =====#
     def _compute_display_name(self):
         """ Planning's card layout """
@@ -35,6 +31,8 @@ class StockMove(models.Model):
     # -- for planning --
     project_id = fields.Many2one(store=True)
     active = fields.Boolean(default=True)
+    product_default_code = fields.Char(related='product_id.default_code')
+    product_name = fields.Char(related='product_id.name')
 
     #===== CRUD =====#
     def write(self, vals):

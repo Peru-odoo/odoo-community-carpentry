@@ -119,9 +119,10 @@ class AnalyticMixin(models.AbstractModel):
     
     def _get_replaced_analytic(self, replace_dict):
         new_dict = {}
-        for account_id, percent in self.analytic_distribution.items():
-            new_account_id = replace_dict.get(int(account_id), int(account_id))
-            new_dict[new_account_id] = new_dict.get(new_account_id, 0.0) + percent
+        if self.analytic_distribution:
+            for account_id, percent in self.analytic_distribution.items():
+                new_account_id = replace_dict.get(int(account_id), int(account_id))
+                new_dict[new_account_id] = new_dict.get(new_account_id, 0.0) + percent
         return new_dict
 
 
