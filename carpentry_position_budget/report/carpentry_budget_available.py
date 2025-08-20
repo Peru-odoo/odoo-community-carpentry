@@ -154,7 +154,7 @@ class CarpentryBudgetAvailable(models.Model):
             """
 
         else:
-            shortname = model.replace('carpentry.group.', '').replace('.group', '')
+            shortname = model.replace('carpentry.', '').replace('group.', '')
             return f"""
                 SELECT
                     '{shortname}-' || carpentry_group.id || '-' || budget.id AS unique_key,

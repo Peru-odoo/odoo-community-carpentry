@@ -108,8 +108,8 @@ class CarpentryBudgetRemaining(models.Model):
                 affectation.record_model_id AS group_model_id,
 
                 -- section
-                ir_model_section.id AS section_model_id,
-                affectation.section_id AS section_id,
+                affectation.section_model_id,
+                affectation.section_id,
                 
                 -- budget
                 affectation.group_id AS analytic_account_id,
@@ -132,18 +132,15 @@ class CarpentryBudgetRemaining(models.Model):
             INNER JOIN ir_model AS ir_model_group
                 ON ir_model_group.id = available.group_model_id
             
-        """ if model == 'carpentry.budget.available' else f"""
-
-            INNER JOIN ir_model AS ir_model_section
-                ON ir_model_section.id = affectation.section_model_id
-        """
+        """ if model == 'carpentry.budget.available' else ''
     
     def _where(self, model, models):
         return """
-            WHERE
-                (project_id IS NOT NULL OR
-                launch_id IS NOT NULL) AND
-                ir_model_group.model != 'carpentry.group.phase' -- no available budget from phase
+            -- no available budget from phase or position
+            WHERE ir_model_group.model IN (
+                'project.project',
+                'carpentry.group.launch'
+            )
             
             """ if model == 'carpentry.budget.available' else f"""
 
@@ -158,7 +155,6 @@ class CarpentryBudgetRemaining(models.Model):
     
     def _orderby(self, model, models):
         return ''
-    
 
     #===== Compute =====#
     @api.depends('section_id', 'section_model_id')

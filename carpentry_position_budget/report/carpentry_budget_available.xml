@@ -69,6 +69,8 @@
             <search>
                 <field name="budget_type" />
                 <field name="analytic_account_id" />
+                <field name="launch_id" />
+                <field name="position_id" />
 
                 <!-- Filters -->
                 <separator name="budget_type" />
