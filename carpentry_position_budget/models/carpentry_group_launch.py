@@ -26,11 +26,8 @@ class CarpentryGroupLaunch(models.Model):
                 ._for_xml_id('carpentry_position_budget.action_open_budget_report_remaining')
             ) | {
                 'name': _("Budget reservations of %s", ', '.join(self.mapped('display_name'))),
-                'view_mode': 'tree',
-                'domain': expression.AND([
-                    self._get_domain_affect(),
-                    [('budget_type', '!=', None)],
-                ]),
+                'views': [(False, 'tree')],
+                'domain': [('launch_id', 'in', self.ids)],
             }
 
             raise exceptions.RedirectWarning(
@@ -39,5 +36,5 @@ class CarpentryGroupLaunch(models.Model):
                     ' Manufacturing Order or Picking.'
                 ),
                 action=action,
-                button_text=_("Show reservations")
+                button_text=_("Show reservations"),
             )
