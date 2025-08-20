@@ -5,6 +5,11 @@ from odoo import api, models, fields, exceptions, _, Command
 class StockPicking(models.Model):
     _inherit = ['stock.picking']
 
+    #===== Fields methods =====#
+    def _compute_display_name(self):
+        for mo in self:
+            mo.display_name = '[{}] {}' . format(mo.name, mo.description) if mo.description else mo.name
+    
     #===== Fields =====#
     description = fields.Char(
         string='Description',

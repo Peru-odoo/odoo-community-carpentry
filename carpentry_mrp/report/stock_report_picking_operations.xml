@@ -2,13 +2,8 @@
 <odoo>
     <template id="report_picking" inherit_id="stock.report_picking">
         <!-- Add `description` -->
-        <h1 position="replace">
-            <h1 class="mt0">
-                <span t-field="o.name" />
-                <t t-if="o.description">
-                    - <span t-field="o.description" />
-                </t>
-            </h1>
+        <h1 position="attributes">
+            <attribute name="t-field">o.display_name</attribute>
         </h1>
 
         <!-- Add project -->
