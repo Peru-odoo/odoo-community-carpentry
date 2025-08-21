@@ -5,6 +5,10 @@ from odoo.tools.float_utils import float_round
 from collections import defaultdict
 
 class ProductProduct(models.Model):
+    """ These logics are quite ugly, c.f. plan of the module `mrp_raw_material_confirmation`
+        to rather update `stock.quant`.`quantity`
+    """
+
     _inherit = ['product.product']
 
     def _compute_quantities_dict(self, lot_id, owner_id, package_id, from_date=False, to_date=False):

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- **** Replace `quantity` by `quantity_without_outgoing_raw_material` **** -->
+    <!-- **** Replace `quantity` by `quantity_minus_outgoing_raw_material` **** -->
 
     <!-- Wizard Inventory Conflict -->
     <record id="stock_inventory_conflict_form_view" model="ir.ui.view">
@@ -10,7 +10,7 @@
         
         <field name="arch" type="xml">
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material"
+                <field name="quantity_minus_outgoing_raw_material"
                     optional="show"
                     decoration-warning="quantity &lt; 0"
                     string="On Hand Quantity"

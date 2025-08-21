@@ -84,7 +84,7 @@ class CarpentryBudgetExpenseDistributed(models.Model):
 
     def _join(self):
         return """
-            INNER JOIN carpentry_budget_expense AS expense
+            LEFT JOIN carpentry_budget_expense AS expense
                 -- expense is section's line, which amount must be distributed
                 -- on the several section's launchs as per launch's reserved budget / total reserved budget
                 -- for the line's analytic account
@@ -104,7 +104,6 @@ class CarpentryBudgetExpenseDistributed(models.Model):
     def _where(self):
         return """
             WHERE
-                expense.amount_expense != 0.0 AND
                 affectation.budget_type IS NOT NULL AND
                 affectation.quantity_affected != 0.0
             """

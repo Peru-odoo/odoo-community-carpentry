@@ -43,6 +43,7 @@ class StockMove(models.Model):
         res = super().write(vals)
         raw_material_ids = self.filtered('raw_material_production_id')
         raw_material_ids._synch_product_uom_qty_done()
+        raw_material_ids.product_id.stock_quant_ids.check_negative_qty() # ALY - 2025-08-21 : to be removed when `mrp_raw_material_confirmation` is ready
         return res
     
     def _synch_product_uom_qty_done(self):

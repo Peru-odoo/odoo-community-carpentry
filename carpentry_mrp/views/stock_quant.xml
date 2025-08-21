@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- **** Replace `quantity` by `quantity_without_outgoing_raw_material` **** -->
+    <!-- **** Replace `quantity` by `quantity_minus_outgoing_raw_material` **** -->
 
     <!-- Inventory Adjustments + Update Quantity (via product) view -->
     <record model="ir.ui.view" id="view_stock_quant_tree_inventory_editable">
@@ -10,7 +10,7 @@
         
         <field name="arch" type="xml">
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material"
+                <field name="quantity_minus_outgoing_raw_material"
                     optional="show"
                     decoration-warning="quantity &lt; 0"
                     string="On Hand Quantity"
@@ -29,7 +29,7 @@
 
         <field name="arch" type="xml">
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material" string="On Hand Quantity" />
+                <field name="quantity_minus_outgoing_raw_material" string="On Hand Quantity" />
             </field>
             <field name="quantity" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -44,14 +44,14 @@
 
         <field name="arch" type="xml">
             <label for="quantity" position="after">
-                <label for="quantity_without_outgoing_raw_material" />
+                <label for="quantity_minus_outgoing_raw_material" />
             </label>
             <label for="quantity" position="attributes">
                 <attribute name="invisible">1</attribute>
             </label>
 
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material" />
+                <field name="quantity_minus_outgoing_raw_material" />
             </field>
             <field name="quantity" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -66,7 +66,7 @@
 
         <field name="arch" type="xml">
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material" type="measure" />
+                <field name="quantity_minus_outgoing_raw_material" type="measure" />
             </field>
             <field name="quantity" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -81,7 +81,7 @@
 
         <field name="arch" type="xml">
             <field name="quantity" position="after">
-                <field name="quantity_without_outgoing_raw_material" type="measure" />
+                <field name="quantity_minus_outgoing_raw_material" type="measure" />
             </field>
             <field name="quantity" position="attributes">
                 <attribute name="invisible">1</attribute>

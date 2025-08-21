@@ -4,11 +4,11 @@ from odoo import models, fields
 
 def human_readable(num, scale=1000.0):
     return round(num) if num else 0.0
-    for unit in ("", "k", "m"):
-        if abs(num) < scale:
-            return f"{num:3.0f}{unit}"
-        num /= scale
-    return f"{num:.0f}M"
+    # for unit in ("", "k", "m"):
+    #     if abs(num) < scale:
+    #         return f"{num:3.0f}{unit}"
+    #     num /= scale
+    # return f"{num:.0f}M"
 
 class CarpentryPlanningColumn(models.Model):
     _inherit = ["carpentry.planning.column"]

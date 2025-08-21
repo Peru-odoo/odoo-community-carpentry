@@ -14,7 +14,7 @@
 
     'depends': [
         'mrp', # Odoo CE
-        'purchase_order_no_zero_price', 'stock_valuation_layer_inventory_filter', # OCA
+        'purchase_order_no_zero_price', 'stock_valuation_layer_inventory_filter', 'stock_no_negative', # OCA
         'project_role_visibility', # for access rules
         'mrp_project_link', 'mrp_attendance', 'mrp_productivity_qty', 'stock_move_comment', # other
         'stock_valuation_no_zero',
