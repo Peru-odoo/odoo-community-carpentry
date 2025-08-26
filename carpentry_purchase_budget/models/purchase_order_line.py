@@ -28,13 +28,11 @@ class PurchaseOrderLine(models.Model):
 
         self = self.filtered(lambda x: not x._should_enforce_internal_analytic())
         for line in self:
-            if not line.analytic_distribution:
-                continue
-            
             # 1. Clean line's analytic of any other budget
-            for k, _ in line.analytic_distribution.items():
-                if int(k) in budget_analytics_ids:
-                    line.analytic_distribution.pop(k)
+            if line.analytic_distribution:
+                for k, _ in line.analytic_distribution.items():
+                    if int(k) in budget_analytics_ids:
+                        line.analytic_distribution.pop(k)
 
             # 2. Set new forced distrib from budgets
             line.analytic_distribution = (line.analytic_distribution or {}) | new_distrib
