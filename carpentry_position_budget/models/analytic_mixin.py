@@ -78,7 +78,8 @@ class AnalyticMixin(models.AbstractModel):
                 new_id = replace_dict_enforce.get(new_id, new_id)
 
             args = (projects_analytics, new_id, mapped_projects_analytics)
-            record._cascade_parent_project_to_analytic(*args)
+            if record._origin.project_id != record.project_id:
+                record._cascade_parent_project_to_analytic(*args)
             record._set_project_id_from_analytic_first(*args)
 
     def _cascade_parent_project_to_analytic(self, projects_analytics, new_id, mapped_projects_analytics):
