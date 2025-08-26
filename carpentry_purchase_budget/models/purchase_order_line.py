@@ -28,6 +28,9 @@ class PurchaseOrderLine(models.Model):
 
         self = self.filtered(lambda x: not x._should_enforce_internal_analytic())
         for line in self:
+            if not line.analytic_distribution:
+                continue
+            
             # 1. Clean line's analytic of any other budget
             for k, _ in line.analytic_distribution.items():
                 if int(k) in budget_analytics_ids:
