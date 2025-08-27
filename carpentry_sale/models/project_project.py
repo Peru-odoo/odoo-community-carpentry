@@ -38,7 +38,7 @@ class Project(models.Model):
     #===== Compute: Sale Order lines =====#
     @api.depends('sale_order_ids.order_line.validated')
     def _compute_so_lines_validated(self):
-        rg_result = self.env['sale.order.line'].read_group(
+        rg_result = self.env['sale.order.line'].sudo().read_group(
             domain=[('project_id', 'in', self.ids), ('state', '!=', 'cancel')],
             fields=['validated:array_agg(validated)'],
             groupby=['project_id'],
