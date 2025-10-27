@@ -31,7 +31,7 @@
                 <field name="group_model_id" type="row" />
                 <field name="launch_id" type="row" />
                 
-                <field name="quantity_affected" type="measure" />
+                <field name="amount_subtotal" type="measure" />
             </pivot>
         </field>
     </record>
@@ -58,7 +58,7 @@
                 <field name="launch_id" />
                 <field name="section_model_name" string="Document" />
                 <field name="section_ref" context="{'display_description': 1}" />
-                <field name="quantity_affected" string="Budget reservation" sum="1" />
+                <field name="amount_subtotal" string="Budget reservation" sum="1" />
             </tree>
         </field>
     </record>
@@ -77,7 +77,7 @@
             </field>
 
             <!-- Default filters -->
-            <filter name="filter_project_global_cost" position="after">
+            <filter name="filter_other" position="after">
                 <separator />
                 <filter string="Budget"      name="filter_budget"      domain="[('state', '=', 'budget')]" />
                 <filter string="Reservation" name="filter_reservation" domain="[('state', '=', 'reservation')]" />

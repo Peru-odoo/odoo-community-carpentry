@@ -48,12 +48,12 @@ class Project(models.Model):
     margin_contributive_actual = fields.Monetary(
         string='Contributive margin (actual)',
         compute='_compute_budget_fees_and_margins',
-        help='Reserved Budget - Real Expense - Only prorata fees (i.e. not structure fees)'
+        help='[Reserved Budget] - [Real Expense] - [Only prorata fees (i.e. not structure fees)]'
     )
     margin_costs_actual = fields.Monetary(
         string='Margin on costs (actual)',
         compute='_compute_budget_fees_and_margins',
-        help='Reserved Budget - Real Expense - All fees',
+        help='[Reserved Budget] - [Real Expense] - [All fees]',
     )
     # actuel margins' rates
     margin_contributive_actual_rate = fields.Integer(
@@ -81,11 +81,11 @@ class Project(models.Model):
         # 2. Reserved budget & real expense
         rg_expense = self.env['carpentry.budget.expense']._read_group(
             domain=[('project_id', 'in', self.ids)],
-            fields=['quantity_affected:sum', 'amount_expense:sum'],
+            fields=['amount_reserved_valued:sum', 'amount_expense_valued:sum'],
             groupby=['project_id'],
         )
         mapped_expense = {
-            x['project_id'][0]: {'reserved': x['quantity_affected'], 'expense': x['amount_expense']}
+            x['project_id'][0]: {'reserved': x['amount_reserved_valued'], 'expense': x['amount_expense_valued']}
             for x in rg_expense
         }
         

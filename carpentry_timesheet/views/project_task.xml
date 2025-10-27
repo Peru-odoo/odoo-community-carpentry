@@ -18,7 +18,7 @@
 
     <!-- Base `My Tasks` action: don't show timesheetable tasks -->
     <record id="project.action_view_all_task" model="ir.actions.act_window">
-        <field name="domain">[('allow_timesheets', '=', False)]</field>
+        <field name="domain">[('can_reserve_budget', '=', False)]</field>
     </record>
 
 
@@ -30,8 +30,11 @@
         <field name="inherit_id" ref="project_type.project_task_form" />
 
         <field name="arch" type="xml">
+            <field name="type_id" position="before">
+                <field name="can_reserve_budget" invisible="1" />
+            </field>
             <field name="type_id" position="attributes">
-                <attribute name="attrs">{'invisible': [('allow_timesheets', '=', True)]}</attribute>
+                <attribute name="attrs">{'invisible': [('can_reserve_budget', '=', True)]}</attribute>
             </field>
         </field>
     </record>
@@ -93,7 +96,7 @@
 
         <field name="arch" type="xml">
             <field name="planned_hours" position="after">
-                <field name="sum_quantity_affected" optional="hide" />
+                <field name="total_budget_reserved" optional="hide" />
             </field>
         </field>
     </record>
@@ -104,40 +107,12 @@
         <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited" />
 
         <field name="arch" type="xml">
-            <!-- Smart Button (Budgets) -->
-            <div name="button_box" position="inside">
-                <button name="open_remaining_budget" type="object"
-                    class="oe_stat_button"
-                    icon="fa-money"
-                    attrs="{'invisible': ['|', ('id', '=', False), ('allow_timesheets', '=', False)]}"
-                    string="Remaining"
-                    title="Remaining budgets"
-                />
-            </div>
-
-            <!-- Budget info banner -->
-            <div name="button_box" position="after">
-                <field name="amount_budgetable" invisible="1" />
-                <field name="amount_gain" invisible="1" />
-                <field name="readonly_affectation" invisible="1" />
-
-                <div name="alert_banner" role="alert" class="alert alert-info"
-                    attrs="{'invisible': ['|', '|',
-                        ('amount_gain', '=', 0.0),
-                        ('allow_timesheets', '=', False),
-                        ('readonly_affectation', '=', True)
-                    ]}"
-                >
-                    <span class="fa fa-info-circle" /> The budget reservation (<strong><field
-                            name="sum_quantity_affected" />h</strong>) differs from the allocated
-                    hours (<strong><field name="amount_budgetable" />h</strong>). If this is not on
-                    purpose, review the "Budget reservation" tab. </div>
-            </div>
-
             <!-- Launch ids -->
             <field name="project_id" position="after">
+                <field name="can_reserve_budget" invisible="1" />
+
                 <field name="launch_ids" widget="many2many_tags" options="{'create': False}"
-                    attrs="{'invisible': [('allow_timesheets', '=', False)]}"
+                    attrs="{'invisible': [('can_reserve_budget', '=', False)]}"
                 />
             </field>
 
@@ -150,17 +125,6 @@
             <page name="description_page" position="before">
                 <page id="timesheets_tab" position="move" />
             </page>
-
-            <!-- `Must-save` banner at top of timesheets page, if needed -->
-            <xpath expr="//page[@id='timesheets_tab']/group" position="before">
-                <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
-                    attrs="{'invisible': ['|',
-                        ('readonly_affectation', '=', False),
-                        ('id', '=', False),
-                    ]}"
-                >
-                    <span class="fa fa-floppy-o" /> Please save before continuing. </div>
-            </xpath>
 
             <!-- Make `planned_hours` required (depending context `default_planned_hours_required`) -->
             <field name="planned_hours" position="before">
@@ -177,40 +141,20 @@
             <field name="progress" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
+        </field>
+    </record>
+    <!-- Task Form -->
+    <record id="view_task_form2_inherited_budget" model="ir.ui.view">
+        <field name="name">project.task.form.inherited.project_budget_timesheet.carpentry</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project_budget_timesheet.view_task_form2_inherited" />
 
-            <!-- Replace `available_budget` by `affectation_ids` -->
-            <field name="available_budget" position="attributes">
+        <field name="arch" type="xml">
+            <!-- Replace `remaining_budget` from `project_budget_timesheet`
+             by `Budget` tab -->
+            <field name="remaining_budget" position="attributes">
                 <attribute name="invisible">1</attribute>
             </field>
-
-            <!-- Hide `timesheet_ids` if new -->
-            <!-- <field name="timesheet_ids" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',
-                    ('analytic_account_active', '=', False),
-                    ('timesheet_ids', '=', [])
-                ]}</attribute>
-            </field>
-            <group name="project_hours" position="attributes">
-                <attribute name="attrs">{'invisible': [('timesheet_ids', '=', [])]}</attribute>
-            </group> -->
-
-            <!-- Add budget reservation matrix below timesheets -->
-            <xpath expr="//group[@name='project_hours']/parent::group" position="after">
-                <h4 class="mt-4">
-                    Budget reservation
-                </h4>
-                <field name="affectation_ids"
-                    nolabel="1" colspan="2"
-                    options="{'create': False}" widget="one2many"
-                    attrs="{
-                        'readonly': [('readonly_affectation', '=', True)]
-                    }"
-                    context="{
-                        'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget',
-                        'brut_or_valued': 'brut',
-                    }"
-                />
-            </xpath>
         </field>
     </record>
 
@@ -260,9 +204,6 @@
         <field name="arch" type="xml">
             <form class="o_form_project_tasks">
                 <field name="company_id" invisible="1" />
-                <field name="root_type_id" invisible="1" />
-                <field name="parent_type_id" invisible="1" />
-                <field name="type_id" invisible="1" />
                 <field name="analytic_account_id" invisible="1" />
                 <field name="parent_id" invisible="1" />
                 <field name="description" invisible="1" />
@@ -296,11 +237,11 @@
                         placeholder="Planned hours"
                         attrs="{'required': [('planned_hours_required', '=', True)]}"
                     />
-                    <div colspan="2"> Remaining budget: <field name="available_budget"
+                    <div colspan="2"> Remaining budget: <field name="remaining_budget"
                             nolabel="1"
                             class="oe_inline"
-                            decoration-bf="available_budget &lt; 0"
-                            decoration-danger="available_budget &lt; 0"
+                            decoration-bf="remaining_budget &lt; 0"
+                            decoration-danger="remaining_budget &lt; 0"
                         /> h </div>
 
                     <label for="user_ids" colspan="2" class="my-0" />

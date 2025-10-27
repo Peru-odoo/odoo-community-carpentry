@@ -16,6 +16,7 @@
         'project_favorite_switch', # other
         # other
         'project_budget_timesheet', 'hr_timesheet_sheet_copy', 'project_task_analytic_hr', 'project_task_analytic_type',
+        'hr_department_cost_history',
         # carpentry
         'carpentry_base', 'carpentry_planning',
         'carpentry_position_budget',
@@ -25,6 +26,7 @@
         'views/carpentry_planning.xml',
         'views/hr_views.xml',
         'views/project_task.xml',
+        'views/project_project.xml',
         # report
         'report/hr_timesheet_report_view.xml',
     ],

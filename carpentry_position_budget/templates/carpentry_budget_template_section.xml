@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Template: budget info banner -->
+    <template id="carpentry_budget_template_alert_banner">
+        <div>
+            <field t-att-name="fields['total_budget_reserved']" invisible="1" />
+            <field t-att-name="fields['total_expense_valued']" invisible="1" />
+            <field t-att-name="fields['amount_gain']" invisible="1" />
+            <field t-att-name="fields['is_temporary_gain']" invisible="1" />
+            <field t-att-name="fields['show_gain']" invisible="1" />
+            <field name="currency_id" invisible="1" />
+            <field name="can_reserve_budget" invisible="1" />
+            <field name="readonly_reservation" invisible="1" />
+            <field name="readonly_budget_analytic_ids" invisible="1" />
+
+            <div name="banner_budget_gain" role="alert" class="alert alert-info"
+                t-attf-attrs="{'invisible': ['|',
+                    ('{{fields['is_temporary_gain']}}', '=', False),
+                    ('{{fields['show_gain']}}', '=', False)
+                ]}"
+            >
+                <span class="fa fa-info-circle" />
+                The budget reservation of <t t-out="model_description" />
+                (<strong>
+                    <field t-att-name="fields['total_budget_reserved']" readonly="1" />
+                    <field t-att-name="fields['budget_unit']" readonly="1" />
+                </strong>)
+                differs from the
+                <span t-attf-attrs="{'invisible': [('{{budget_unit}}', '=',  'h')]}">cost affected to the project</span>
+                <span t-attf-attrs="{'invisible': [('{{budget_unit}}', '!=', 'h')]}">allocated hours</span>
+                (<strong>
+                    <field t-att-name="fields['total_budgetable']" readonly="1" />
+                    <field t-att-name="fields['budget_unit']" readonly="1" />
+                </strong>).
+                If this is not on purpose, review the "Budget" tab.
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: smart button -->
+    <template id="carpentry_budget_template_smart_button">
+        <div>
+            <button name="open_remaining_budget" type="object"
+                class="oe_stat_button"
+                icon="fa-money"
+                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
+                string="Remaining budgets"
+                title="[Initially available budgets] - [Other budget reservations]"
+            />
+
+            <button name="open_budget_available" type="object"
+                class="oe_stat_button"
+                icon="fa-money"
+                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
+                string="Available budgets"
+                title="Initially available budgets"
+            />
+        </div>
+    </template>
+
+    <!-- Template: budget notebook's page -->
+    <template id="carpentry_budget_template_notebook_page">
+        <div>
+            <page name="budget" t-att-string="sheet_name"
+                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
+            >
+                <group col="12" t-if="budget_choice">
+                    <!-- Left: choice of budget (col) -->
+                    <group name="left" colspan="5" t-attf-string="Choose budgets ({{model_description}})">
+                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_choice" />
+                    </group>
+                    
+                    <!-- Right: budget reservation -->
+                    <group name="right" colspan="7" t-attf-string="Reserve budget ({{model_description}})" class="ms-2">
+                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation" />
+                    </group>
+                </group>
+                <t t-else=""
+                    t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation"
+                />
+            </page>
+        </div>
+    </template>
+
+    <template id="carpentry_budget_template_notebook_group_choice">
+        <group colspan="2" col="12">
+            <group colspan="8" class="m-0">
+                <field t-att-name="fields['budget_analytic_ids']"
+                    widget="many2many_checkboxes"
+                    nolabel="1" colspan="2"
+                    attrs="{
+                        'readonly': [('readonly_budget_analytic_ids', '=', True)],
+                    }"
+                    t-attf-context="{
+                        'analytic_display_budget': 1,
+                        'section_res_model': '{{model_name}}',
+                        'section_id': id, 
+                    }"
+                    t-attf-domain="[
+                        ('budget_project_ids', '=', project_id),
+                        ('budget_type', 'in', {{budget_types}})
+                    ]"
+                />
+            </group>
+            <group colspan="4" name="save_button" class="m-0">
+                <button name="save_refresh" type="object"
+                    colspan="2" class="btn btn-primary oe_right" icon="fa-floppy-o"
+                >
+                    <!-- attrs="{'invisible': [('readonly_reservation', '=', False)]}" -->
+                    <!-- Please save before continuing -->
+                    Apply
+                </button>
+            </group>
+        </group>
+    </template>
+    
+    <template id="carpentry_budget_template_notebook_group_reservation">
+        <p colspan="2">
+            Total expense affected to the project:
+            <strong>
+                <field t-att-name="fields['total_expense_valued']" class="oe_inline" readonly="1" />
+            </strong>.
+        </p>
+
+        <p name="alert_gain" role="alert" colspan="2" class="alert alert-success"
+            t-attf-attrs="{'invisible': ['|', ('{{fields['show_gain']}}', '=', False), ('{{fields['amount_gain']}}', '&lt;', 0.0)]}"
+        >
+            Recorded gain:
+            <strong><field t-att-name="fields['amount_gain']" class="oe_inline" readonly="1"  /></strong>.
+        </p>
+        <p name="alert_loss" role="alert" colspan="2" class="alert alert-danger"
+            t-attf-attrs="{'invisible': ['|', ('{{fields['show_gain']}}', '=', False), ('{{fields['amount_gain']}}', '&gt;', 0.0)]}"
+        >
+            Recorded loss:
+            <strong><field t-att-name="fields['amount_loss']" class="oe_inline" readonly="1" /></strong>.
+        </p>
+        
+        <p name="noreservation_banner" role="alert" colspan="2" class="alert alert-warning"
+            t-attf-attrs="{'invisible': [('{{fields['text_no_reservation']}}', '=', '')]}"
+        >
+            <!-- There's no reservation table: why could it be? -->
+            <span class="fa fa-exclamation-triangle" />
+            <field t-att-name="fields['text_no_reservation']" class="oe_inline mx-1" readonly="1" />
+        </p>
+        
+        <field t-att-name="fields['reservation_ids']"
+            nolabel="1" colspan="2"
+            options="{'create': False}" widget="one2many"
+            t-attf-attrs="{
+                'invisible': [('{{fields['reservation_ids']}}', '=', [])],
+                'readonly': [('readonly_reservation', '=', True)],
+            }"
+            context="{'active_test': False,}"
+        />
+
+        <group colspan="2" col="12">
+            <group name="temporary" colspan="8">
+                <!-- Temporary message (conditionnal) -->
+                <span colspan="2"
+                    t-if="last_valuation_step"
+                    t-attf-attrs="{'invisible': ['|',
+                        ('{{fields['is_temporary_gain']}}', '=', False),
+                        ('{{fields['show_gain']}}', '=', False),
+                    ]}"
+                >
+                    <i class="fa fa-info-circle" />
+                    Gain and loss are temporarly estimated and may vary until <t t-esc="last_valuation_step" />.
+                </span>
+            </group>
+            <group name="button_refresh" colspan="4">
+                <button name="button_force_refresh" type="object"
+                    t-if="button_refresh"
+                    class="text-primary oe_right" colspan="2"
+                    string="Refresh reservation" icon="fa-refresh"
+                    help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
+                    confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
+                    t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
+                />
+            </group>
+        </group>
+
+        <div name="other_expenses" colspan="2"
+            t-attf-attrs="{'invisible': [('{{fields['other_expense_ids']}}', '=', [])]}"
+        >
+            <separator t-attf-string="Other expenses ({{model_description}})" />
+
+            <p name="info_expense" colspan="2">
+                <span class="fa fa-info-circle" />
+                Below expense(s) are also affected to this(these) <t t-out="model_description" />, but without budget reservation.
+            </p>
+
+            <field t-att-name="fields['other_expense_ids']" readonly="1" 
+                nolabel="1" colspan="2" widget="one2many"
+                context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_budget_other_expense_tree'}"
+            />
+
+            Possible explanations:
+            <ul>
+                <li t-if="model_name == 'purchase.order'">The analytic distribution of the Invoice differs from Purchase Order.</li>
+                <li>The budget is not available in the project or the selected launch(s).</li>
+                <li>The cost was added to the <t t-out="model_description" /> after the budget was reserved.</li>
+            </ul>
+        </div>
+    </template>
+
+</odoo>

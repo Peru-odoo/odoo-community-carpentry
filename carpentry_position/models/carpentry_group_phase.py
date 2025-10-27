@@ -2,78 +2,91 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 
-class CarpentryGroupPhase(models.Model):
+class Phase(models.Model):
     _name = "carpentry.group.phase"
+    _inherit = ['project.default.mixin', 'carpentry.affectation.mixin']
     _description = "Phase"
-    _inherit = ['carpentry.group.mixin', 'carpentry.group.affectation.mixin']
-    _carpentry_affectation_quantity = True
-    _carpentry_affectation_section = 'lot'
-    _carpentry_affectation_section_of = 'launch'
+    _order = "sequence"
+    # affectations config
+    _carpentry_field_parent_group = 'lot_id'
+    _carpentry_field_record = 'position_id'
+    _carpentry_field_affectations = 'affectation_ids'
     
-    #===== Fields (from `affectation.mixin`) =====#
+    #===== Fields ======#
+    name = fields.Char(
+        string='Name',
+        required=True,
+    )
+    sequence = fields.Integer(
+        string="Sequence",
+        compute='_compute_sequence',
+        store=True,
+        copy=False
+    )
+    active = fields.Boolean(
+        string="Active?",
+        default=True
+    )
+    company_id = fields.Many2one(
+        related='project_id.company_id'
+    )
+    # from `affectation.mixin`
     affectation_ids = fields.One2many(
-        domain=[('group_res_model', '=', _name)]
+        inverse_name='phase_id',
+        domain=[('mode', '=', 'phase')],
     )
-    section_ids = fields.One2many(
-        comodel_name='carpentry.group.lot',
+    lot_ids = fields.One2many(
+        inverse='_inverse_parent_group_ids',
     )
 
-    #====== Affectation matrix ======#
-    def _get_record_refs(self):
-        """ Lines of Phases affectation matrix are Project' Positions """
-        return self.project_id.position_ids
-
-    @api.model
-    def _get_quantities_available(self, affectations):
-        """ `Available quantity` in phase affectation is position's quantity in the project """
-        return {
-            (x.record_res_model, x.record_id, x.group_id): x.record_ref.quantity
-            for x in affectations
-        }
-
-    def refresh_from_lots(self):
-        """ Button to allow refreshing affectations from linked sections.
-            This is useful if section's affectations changes **after** the group affectations
+    #===== Compute =====#
+    @api.depends('project_id')
+    def _compute_sequence(self):
+        """ `sequence` is incremental for all phases within the project
+            We could use `ir.sequence` object but this would create 1 `ir.sequence`
+            record per project & carpentry group (lot, phase, launch, ...)
+            which is too spaming
+            => we manage the incremental it manually
         """
-        if not self._carpentry_affectation_section:
-            return
-        
-        mapped_model_ids = self._get_mapped_model_ids()
+        self = self.with_context(active_test=False)
+        rg_result = self._read_group(
+            domain=[('project_id', 'in', self.project_id.ids)],
+            groupby=['project_id'],
+            fields=['sequence:max']
+        )
+        mapped_sequence_max = {x['project_id'][0]: x['sequence'] for x in rg_result}
         for group in self:
-            # 1. Of current sections, get their positions (for lots) or affectations (for phases)
-            #    still affectable (qty_remaining > 0 or not affected) and not already present in the group
-            current_record_ids = group.affectation_ids.mapped('record_id')
-            section_affectations = (
-                group._get_remaining_affectations_from_sections(group._origin.section_ids)
-                .filtered(lambda x: x.id not in current_record_ids)
-            )
+            group.sequence = mapped_sequence_max.get(group.project_id.id, 0) + 1
 
-            # 2. Add them to group's affectations
-            group._add_affectations_from_sections(section_affectations, mapped_model_ids)
+            # increment, in case we create several phases at once
+            mapped_sequence_max[group.project_id.id] = group.sequence
 
-
-class CarpentryGroupAffectation(models.Model):
-    _inherit = ['carpentry.group.affectation']
-
-    def write(self, vals):
-        """ When a phase's affectation `quantity_affected` is changed,
-            cascade the change to its children (position-to-launch affectation)
+    #====== Actions & Buttons ======#
+    def convert_to_launch(self):
+        """ Create launchs from phases
+            :return: tree view of created launchs
         """
-        phase_affectations = self.filtered(lambda x: x.group_res_model == 'carpentry.group.phase')
-        if phase_affectations and 'quantity_affected' in vals:
-            phase_affectations._cascade_affectations(vals['quantity_affected'])
-        return super().write(vals)
+        Launch = self.env['carpentry.group.launch']
+        launchs = Launch.create([
+            phase._get_vals_converted_launch()
+            for phase in self
+        ])
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': Launch._name,
+            'name': _(Launch._description),
+            'view_mode': 'tree',
+            'domain': [('id', 'in', launchs.ids)]
+        }
     
-    def _cascade_affectations(self, quantity_affected):
-        """ `self` is `phase_affectations`
-
-            If `quantity_affected`...
-            a) is 0 -> delete the children affectations
-            b) else -> precreate affectation and mirror the `quantity_affected` value
+    def _get_vals_converted_launch(self):
+        """ :arg `self`: phase
+            :return: launch's vals
         """
-        if not quantity_affected:
-            self.affectation_ids.unlink()
-        elif self.affectation_ids.group_ref:
-            for group in self.affectation_ids.group_ref:
-                group.refresh_from_lots()
-            self.affectation_ids.quantity_affected = quantity_affected
+        self.ensure_one()
+        return {
+            'name': self.name,
+            'project_id': self.project_id.id,
+            'phase_ids': [Command.set([self.id])]
+        }

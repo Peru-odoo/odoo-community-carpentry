@@ -2,10 +2,11 @@
 
 from odoo import models, fields, api, Command
 
-
 class Task(models.Model):
     _name = 'project.task'
-    _inherit = ['project.task', 'carpentry.budget.reservation.mixin']
+    _inherit = ['project.task', 'carpentry.budget.mixin']
+    _carpentry_budget_notebook_page_xpath = "//page[@id='timesheets_tab']"
+    _carpentry_budget_choice = False
 
     #===== Fields =====#
     allow_timesheets = fields.Boolean(
@@ -16,6 +17,7 @@ class Task(models.Model):
         readonly=False
     )
     # budget reservation
+    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     launch_ids = fields.Many2many(
         string='Launch(s)',
         comodel_name='carpentry.group.launch',
@@ -25,8 +27,8 @@ class Task(models.Model):
         domain="[('project_id', '=', project_id)]",
         help='For budget & times distribution and follow-up per launch on the planning',
     )
-    affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-
+    budget_analytic_ids = fields.Many2many(store=False,)
+    budget_unit = fields.Char(default='h')
     # -- Planning --
     progress_reviewed = fields.Float(
         string='Reviewed Progress',
@@ -36,7 +38,6 @@ class Task(models.Model):
         string='Performance (%)',
         compute='_compute_progress_reviewed_performance',
     )
-
     # -- UI adjustements --
     user_ids = fields.Many2many(
         help='Only Assignees can log timesheets on the Tasks'
@@ -56,7 +57,6 @@ class Task(models.Model):
         """ If project does not allow timesheets, water-falls it to its tasks """
         self.filtered(lambda x: not x.project_id.allow_timesheets).allow_timesheets = False
     
-
     @api.depends('stage_id', 'progress', 'overtime')
     def _compute_progress_reviewed_performance(self):
         """ * Fakely make `progress_reviewed` to 100% when task is done
@@ -86,19 +86,35 @@ class Task(models.Model):
     def _get_budget_types(self):
         return ['service', 'installation']
     
-    def _get_fields_affectation_refresh(self):
-        return super()._get_fields_affectation_refresh() + ['analytic_account_id', 'planned_hours']
+    def _get_fields_budget_reservation_refresh(self):
+        return super()._get_fields_budget_reservation_refresh() + [
+            'analytic_account_id', 'planned_hours', 'allow_timesheets'
+        ]
     
-    def _has_real_affectation_matrix_changed(self, _):
-        """ Override so that any changes of `planned_hours` updates affectation table """
-        return True
+    def _depends_can_reserve_budget(self):
+        return ['allow_timesheets']
+    def _get_domain_can_reserve_budget(self):
+        return [('allow_timesheets', '=', True)]
+    def _get_domain_is_temporary_gain(self):
+        return [('stage_id.fold', '=', False)]
+    
+    def _compute_view_fields_totals_one(self, prec, _):
+        super()._compute_view_fields_totals_one(prec)
+        self.total_budgetable = self.planned_hours
 
-    def _compute_affectation_ids(self):
-        """ Don't compute budget reservation for non-budgetable tasks """
-        return super(
-            Task, self.filtered('allow_timesheets')
-        )._compute_affectation_ids()
+        return self.analytic_account_id.ids
     
+    def _get_total_budgetable_by_analytic(self):
+        """ [OVERRIDE]
+            Auto-budget reservation of tasks is based on `planned_hours`
+        """
+        return {
+            (task.project_id.id, task.analytic_account_id.id):
+            task.planned_hours
+            for task in self.filtered('analytic_account_id')
+        }
+    
+    #===== Compute budget: date & amounts =====#
     @api.depends('timesheet_ids.date')
     def _compute_date_budget(self):
         rg_result = self.env['account.analytic.line'].read_group(
@@ -110,44 +126,3 @@ class Task(models.Model):
         for task in self:
             task.date_budget = mapped_data.get(task.id)
         return super()._compute_date_budget()
-
-    @api.onchange('planned_hours')
-    def _set_readonly_affectation(self):
-        """ Modifying `planned_hours` re-computes automatically
-            the budget matrix after saving the task
-        """
-        return super()._set_readonly_affectation()
-    
-    @api.depends('analytic_account_id')
-    def _compute_budget_analytic_ids(self):
-        """ Budget reservation for task is on the single task's analytic """
-        to_compute = self.filtered('project_id')
-        if to_compute:
-            mapped_analytics = self._get_mapped_project_analytics()
-
-            for task in to_compute:
-                task.budget_analytic_ids = (
-                    [Command.set([task.analytic_account_id.id])] if
-                    task.analytic_account_id.id in mapped_analytics.get(task.project_id.id, [])
-                    else False
-                )
-        
-        return super()._compute_budget_analytic_ids()
-
-    def _get_total_by_analytic(self):
-        """ :return: Dict like {analytic_id: charged amount} """
-        self.ensure_one()
-        return {
-            task.analytic_account_id.id: task.planned_hours
-            for task in self.filtered('analytic_account_id')
-        }
-
-    #====== Compute amount ======#
-    @api.depends('planned_hours')
-    def _compute_amount_budgetable(self):
-        for task in self:
-            task.amount_budgetable = task.planned_hours
-
-    @api.depends('planned_hours')
-    def _compute_amount_gain(self):
-        return super()._compute_amount_gain()

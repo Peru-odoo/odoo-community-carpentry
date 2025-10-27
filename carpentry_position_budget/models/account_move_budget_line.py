@@ -25,12 +25,12 @@ class AccountMoveBudgetLine(models.Model):
     debit = fields.Monetary(
         compute='_compute_debit_carpentry',
         store=True,
-        readonly=False
+        readonly=False,
     )
     qty_debit = fields.Float(
         compute='_compute_debit_carpentry',
         store=True,
-        readonly=False
+        readonly=False,
     )
 
     #===== Constrain =====#
@@ -45,6 +45,42 @@ class AccountMoveBudgetLine(models.Model):
                 % self.analytic_account_id.mapped('display_name')
             )
 
+    #===== CRUD: no negative budgets (for project-global budgets) =====#
+    def _get_fields_budget_constrain(self):
+        return ('qty_debit', 'debit', 'credit', 'qty_credit', 'qty_balance', 'balance')
+    
+    def write(self, vals):
+        """ Prevent lowering a global-project budget qty,
+            regarding already existing budgets reservations
+        """
+        res = super().write(vals)
+
+        # after `write`
+        fields = self._get_fields_budget_constrain()
+        if any(x in vals for x in fields):
+            projects = self.filtered(lambda x: not x.is_computed_carpentry).project_id
+            if projects:
+                self.env['carpentry.affectation']._clean_reservation_and_constrain_budget(
+                    project_ids=projects.ids
+                )
+        
+        return res
+    
+    def unlink(self):
+        """ Prevent deleting a budget line if it results
+            a negative *remaining budget* on a PO, MO, ...
+        """
+        projects = self.filtered(lambda x: not x.is_computed_carpentry).project_id
+        res = super().unlink()
+
+        # after `unlink`
+        if projects:
+            self.env['carpentry.affectation']._clean_reservation_and_constrain_budget(
+                project_ids=projects.ids
+            )
+        
+        return res
+
     #===== Compute =====#
     @api.depends('budget_id.date_from')
     def _compute_date(self):
@@ -56,7 +92,7 @@ class AccountMoveBudgetLine(models.Model):
     @api.depends(
         # 1. positions' budgets
         'project_id.position_budget_ids',
-        'project_id.position_budget_ids.amount',
+        'project_id.position_budget_ids.amount_unitary',
         # 2. positions quantity
         'project_id.position_ids',
         'project_id.position_ids.quantity',
@@ -68,7 +104,7 @@ class AccountMoveBudgetLine(models.Model):
         'analytic_account_id',
         'timesheet_cost_history_ids',
         'timesheet_cost_history_ids.hourly_cost',
-        'timesheet_cost_history_ids.starting_date'
+        'timesheet_cost_history_ids.starting_date',
     )
     def _compute_debit_carpentry(self):
         """ When position's budgets are updated (import or manually),
@@ -84,15 +120,25 @@ class AccountMoveBudgetLine(models.Model):
         if not line_ids_computed:
             return
         
+        # Ensure correct values in database
+        # (!) needed here, because `read_group` on view
+        #                           & write of storable fields
+        self.env.invalidate_all()
+
         # Get budget project's groupped by analytic account
+        domain = [
+            ('project_id', 'in', self.project_id._origin.ids),
+            ('group_res_model', '=', 'carpentry.position'),
+            ('analytic_account_id', '!=', False),
+        ]
         rg_result = self.env['carpentry.budget.available']._read_group(
-            domain=[('project_id', 'in', self.project_id._origin.ids), ('group_res_model', '=', 'carpentry.position')],
+            domain=domain,
             groupby=['project_id', 'analytic_account_id'],
-            fields=['subtotal:sum'],
+            fields=['amount_subtotal:sum'],
             lazy=False,
         )
         budget_brut = {
-            (x['project_id'][0], x['analytic_account_id'][0]): x['subtotal']
+            (x['project_id'][0], x['analytic_account_id'][0]): x['amount_subtotal']
             for x in rg_result
         }
 
@@ -101,3 +147,8 @@ class AccountMoveBudgetLine(models.Model):
             key = (line.project_id._origin.id, line.analytic_account_id._origin.id)
             field = 'debit' if line.type == 'amount' else 'qty_debit'
             line[field] = budget_brut.get(key, 0.0)
+
+            # force re-computation of `debit`, else it's not triggered
+            if line.type == 'workforce':
+                line._compute_debit_credit()
+

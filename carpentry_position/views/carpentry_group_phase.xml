@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Phases -->
+    <record id="action_open_phase" model="ir.actions.act_window">
+        <field name="name">Phases</field>
+        <field name="res_model">carpentry.group.phase</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a first Phase.
+            </p>
+            <p>
+                Phases are the contractual groupping of Positions with the project's customer.
+                They match with the site installation phases of Positions on the building (e.g. frontages).
+            </p>
+        </field>
+    </record>
+    <record id="action_open_phase_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Phases</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_phase')</field>
+    </record>
+    
+    <!-- Actions: convert phase to launch -->
+    <record id="action_phase_convert_to_launch" model="ir.actions.server"> 
+        <field name="name">Convert to launch</field>
+        <field name="model_id" ref="carpentry_position.model_carpentry_group_phase" />
+        <field name="binding_model_id" ref="carpentry_position.model_carpentry_group_phase"/>
+        <field name="binding_view_types">tree,form</field>
+        <field name="state">code</field>
+        <field name="code">action = record.convert_to_launch()</field>
+    </record>
+
+
+    <!-- Phase (tree) -->
+    <record id="carpentry_group_phase_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.phase.tree</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <tree>
+                <header>
+                    <button name="convert_to_launch" type="object" string="Convert to launch" icon="fa-files-o" class="mx-2" />
+                </header>
+
+                <field name="sequence" widget="handle" />
+
+                <field name="project_id_domain" invisible="1" />
+                <field name="project_id" invisible="1" />
+
+                <field name="name" />
+                <field name="lot_ids"
+                    widget="many2many_tags"
+                    string="Related Lots"
+                    readonly="1"
+                />
+                <field name="position_count" sum="1" />
+            </tree>
+        </field>
+    </record>
+    <!-- Phase (form) -->
+    <record id="carpentry_group_phase_form" model="ir.ui.view">
+        <field name="name">carpentry.group.phase.form</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="project_id_domain" invisible="1" />
+                <field name="active" invisible="1" />
+                <field name="readonly_affectation" invisible="1" />
+                <field name="readonly_parent_group" invisible="1" />
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box" groups="base.group_user" />
+                    
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" attrs="{'invisible': [('active', '=', True)]}" />
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Name" />
+                        </h1>
+                    </div>
+                    
+                    <!-- See `carpentry_purchase_budget` for 'carpentry_planning' ctx -->
+                    <notebook name="carpentry_planning" invisible="not context.get('carpentry_planning')" />
+                    <group name="affectation" col="12" invisible="context.get('carpentry_planning')">
+                        <!-- Left: parent groups -->
+                        <group name="left" colspan="4">
+                            <field name="project_id"
+                                attrs="{'readonly': [('id', '!=', False)]}"
+                                invisible="context.get('default_project_id')"
+                            />
+
+                            <label for="lot_ids" />
+                            <field name="lot_ids"
+                                colspan="2"
+                                nolabel="1"
+                                widget="many2many_checkboxes"
+                                attrs="{'readonly': [('readonly_parent_group', '=', True)]}"
+                                context="{'display_remaining_affectation_count': 1}"
+                            />
+                            
+                            <button name="save_refresh" type="object"
+                                colspan="2" class="btn btn-primary" icon="fa-floppy-o"
+                                attrs="{'invisible': [('readonly_affectation', '=', False), ('readonly_parent_group', '=', False)]}"
+                            >
+                                Please save before continuing
+                            </button>
+                        </group>
+                        
+                        <!-- Right: affectations -->
+                        <group name="right" colspan="8">
+                            <field
+                                name="affectation_ids"
+                                nolabel="1" colspan="2"
+                                options="{'create': False, 'delete': False}"
+                                widget="one2many"
+                                attrs="{'readonly': [('readonly_affectation', '=', True)]}"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Search -->
+    <record model="ir.ui.view" id="carpentry_group_phase_search">
+        <field name="name">carpentry.group.phase.search</field>
+        <field name="model">carpentry.group.phase</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="project_id" />
+
+                <filter string="★ Projects"
+                    name="my_favorite_projects"
+                    domain="[('project_id.favorite_user_ids','=',uid)]"
+                />
+
+                <searchpanel>
+                    <field name="project_id" invisible="context.get('default_project_id')" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+</odoo>

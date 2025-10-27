@@ -5,10 +5,13 @@ from psycopg2.extensions import AsIs
 
 class CarpentryBudgetAvailable(models.Model):
     """ Union of:
-        - phase & launch budgets (carpentry.group.affectation) and
+        - phase & launch budgets (carpentry.affectation) and
         - project budgets (account.move.budget.line)
-        for report of *Initially available budget*,
-                   aka *Where does the budget comes from?*
+        
+        for:
+        - list view of Phases & Launchs
+        - report of *Initially available budget*,
+                aka *Where does the budget comes from?*
     """
     _name = 'carpentry.budget.available'
     _description = 'Project & launches budgets'
@@ -19,6 +22,10 @@ class CarpentryBudgetAvailable(models.Model):
         comodel_name='project.project',
         string='Project',
         readonly=True,
+    )
+    project_stage_id = fields.Many2one(
+        related='project_id.stage_id',
+        string='Project stage',
     )
     position_id = fields.Many2one(
         comodel_name='carpentry.position',
@@ -40,13 +47,14 @@ class CarpentryBudgetAvailable(models.Model):
         string='Budget type',
         readonly=True,
     )
+    active = fields.Boolean(
+        readonly=True,
+    )
     # affectation
-    quantity_affected = fields.Float(
-        string='Quantity',
-        digits='Product Unit of Measure',
+    quantity_affected = fields.Integer(
+        string='Qty of affected positions',
         group_operator='sum',
         readonly=True,
-        help='Number of affected positions',
     )
     # budget
     budget_type = fields.Selection(
@@ -54,13 +62,23 @@ class CarpentryBudgetAvailable(models.Model):
         selection=lambda self: self.env['account.analytic.account'].fields_get()['budget_type']['selection'],
         readonly=True,
     )
-    amount = fields.Float(
-        string='Unitary amount',
+    amount_unitary = fields.Float(
+        string='Unitary budget amount',
         readonly=True,
     )
-    subtotal = fields.Float(
+    amount_subtotal = fields.Float(
         # amount * quantity_affected
         string='Budget',
+        readonly=True,
+    )
+    amount_subtotal_valued = fields.Monetary(
+        # amount * quantity_affected * hourly_cost
+        string='Budget (valued)',
+        readonly=True,
+    )
+    currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        related='project_id.currency_id',
         readonly=True,
     )
     # model
@@ -75,21 +93,58 @@ class CarpentryBudgetAvailable(models.Model):
 
     #===== View build =====#
     def _get_queries_models(self):
-        return ('project.project', 'carpentry.group.phase', 'carpentry.group.launch', 'carpentry.position')
+        return (
+            'project.project', 'carpentry.group.launch', 'carpentry.group.phase', 'carpentry.position',
+        )
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
         
         queries = self._get_queries()
         if queries:
-            self._cr.execute("""
+            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+
+            self._cr.execute(f"""
                 CREATE or REPLACE VIEW %s AS (
+                    
                     SELECT
-                        row_number() OVER (ORDER BY unique_key) AS id,
-                        *
+                        row_number() OVER (ORDER BY result.unique_key) AS id,
+                        result.project_id,
+                        result.launch_id,
+                        result.phase_id,
+                        result.position_id,
+                        result.group_model_id,
+                        result.analytic_account_id,
+                        result.budget_type,
+                        result.active,
+                        SUM(result.quantity_affected) AS quantity_affected,
+                        SUM(result.amount_unitary) AS amount_unitary,
+                        SUM(result.amount_subtotal) AS amount_subtotal,
+                        CASE
+                            WHEN result.budget_type IN {tuple(budget_types)}
+                            THEN SUM(result.amount_subtotal) * hourly_cost.coef
+                            ELSE SUM(result.amount_subtotal)
+                        END AS amount_subtotal_valued
+                    
                     FROM (
                         (%s)
                     ) AS result
+                    
+                    LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
+                        ON  hourly_cost.project_id = result.project_id
+                        AND hourly_cost.analytic_account_id = result.analytic_account_id
+
+                    GROUP BY
+                        result.unique_key,
+                        result.project_id,
+                        result.launch_id,
+                        result.phase_id,
+                        result.position_id,
+                        result.group_model_id,
+                        result.analytic_account_id,
+                        result.budget_type,
+                        result.active,
+                        hourly_cost.coef
                 )""", (
                     AsIs(self._table),
                     AsIs(') UNION ALL (' . join(queries))
@@ -103,7 +158,8 @@ class CarpentryBudgetAvailable(models.Model):
         )
     
     def _init_query(self, model):
-        models = {x.model: x.id for x in self.env['ir.model'].sudo().search([])}
+        # (!) Warning: `models` only contains models created before module `carpentry_position_budget`
+        models = {x['model']: x['id'] for x in self.env['ir.model'].search_read([], ['model'])}
 
         return """
             {select}
@@ -112,6 +168,7 @@ class CarpentryBudgetAvailable(models.Model):
             {where}
             {groupby}
             {orderby}
+            {having}
         """ . format(
             select=self._select(model, models),
             from_table=self._from(model, models),
@@ -119,6 +176,7 @@ class CarpentryBudgetAvailable(models.Model):
             where=self._where(model, models),
             groupby=self._groupby(model, models),
             orderby=self._orderby(model, models),
+            having=self._having(model, models),
         )
 
     def _select(self, model, models):
@@ -132,24 +190,28 @@ class CarpentryBudgetAvailable(models.Model):
                     NULL AS launch_id,
                     NULL AS phase_id,
                     {models['project.project']} AS group_model_id,
+                    TRUE AS active,
 
                     -- affectation: position & qty affected
                     NULL AS position_id,
                     NULL AS quantity_affected,
 
                     -- budget
-                    CASE
-                        WHEN budget_project.type = 'amount'
-                        THEN budget_project.balance
-                        ELSE budget_project.qty_balance
-                    END AS amount,
-                    CASE
-                        WHEN budget_project.type = 'amount'
-                        THEN budget_project.balance
-                        ELSE budget_project.qty_balance
-                    END AS subtotal,
                     budget_project.analytic_account_id,
-                    budget_project.budget_type
+                    budget_project.budget_type,
+
+                    -- amounts
+                    CASE
+                        WHEN budget_project.type = 'amount'
+                        THEN budget_project.balance
+                        ELSE budget_project.qty_balance
+                    END AS amount_unitary,
+
+                    CASE
+                        WHEN budget_project.type = 'amount'
+                        THEN budget_project.balance
+                        ELSE budget_project.qty_balance
+                    END AS amount_subtotal
                 
             """
 
@@ -159,28 +221,30 @@ class CarpentryBudgetAvailable(models.Model):
                 SELECT
                     '{shortname}-' || carpentry_group.id || '-' || budget.id AS unique_key,
 
-                    -- project_id, launch_id, phase_id
+                    -- project_id, phase_id, launch_id
                     carpentry_group.project_id,
                     {'carpentry_group.id' if model == 'carpentry.group.launch' else 'NULL::integer'} AS launch_id,
                     {'carpentry_group.id' if model == 'carpentry.group.phase'  else 'NULL::integer'} AS phase_id,
                     {models[model]} AS group_model_id,
+                    carpentry_group.active,
 
                     -- affectation: position & qty affected
                     budget.position_id,
                     {
                         'SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
                         'SUM(affectation.quantity_affected)'
-                    } AS quantity_affected,
+                    } / COUNT(*) AS quantity_affected,
 
                     -- budget
-                    SUM(budget.amount) AS amount,
-                    {
-                        'SUM(budget.amount) * SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
-                        'SUM(affectation.quantity_affected * budget.amount)'
-                    } AS subtotal,
-                    
                     budget.analytic_account_id,
-                    budget.budget_type
+                    budget.budget_type,
+
+                    -- amounts
+                    SUM(budget.amount_unitary) / COUNT(*) AS amount_unitary,
+                    {
+                        'SUM(carpentry_group.quantity * budget.amount_unitary)' if model == 'carpentry.position' else
+                        'SUM(affectation.quantity_affected * budget.amount_unitary)'
+                    } / COUNT(*) AS amount_subtotal
             """
 
     def _from(self, model, models):
@@ -189,7 +253,7 @@ class CarpentryBudgetAvailable(models.Model):
         elif model == 'carpentry.position':
             return 'FROM carpentry_position AS carpentry_group'
         else:
-            return 'FROM carpentry_group_affectation AS affectation'
+            return 'FROM carpentry_affectation AS affectation'
 
     def _join(self, model, models):
         if model == 'project.project':
@@ -197,12 +261,13 @@ class CarpentryBudgetAvailable(models.Model):
                 INNER JOIN project_project AS project
                     ON project.id = budget_project.project_id
             """
-        elif model in ['carpentry.group.phase', 'carpentry.group.launch']:
+        elif model in ('carpentry.group.launch', 'carpentry.group.phase'):
+            field = model.replace('carpentry.group.', '') + '_id'
             return f"""
                 INNER JOIN carpentry_position_budget AS budget
                     ON budget.position_id = affectation.position_id
                 INNER JOIN {model.replace('.', '_')} AS carpentry_group
-                    ON carpentry_group.id = affectation.group_id
+                    ON carpentry_group.id = affectation.{field}
             """
         elif model == 'carpentry.position':
             return """
@@ -216,24 +281,19 @@ class CarpentryBudgetAvailable(models.Model):
                 WHERE
                     budget_project.balance != 0 AND
                     is_computed_carpentry IS FALSE
-                
                 """
 
-        elif model in ('carpentry.group.phase', 'carpentry.group.launch'):
+        elif model in ('carpentry.group.launch', 'carpentry.group.phase'):
             return f"""
                 WHERE
-                    affectation.active IS TRUE AND
-                    affectation.affected IS TRUE AND
                     quantity_affected != 0 AND
-                    affectation.group_model_id = {models[model]}
+                    affectation.active IS TRUE AND
+                    (affectation.mode != 'launch' OR affectation.affected IS TRUE)
                 """
 
-        elif model == 'carpentry.position':
-            return """
-                WHERE
-                    carpentry_group.active IS TRUE
-            """
-    
+        else:
+            return ''
+
     def _groupby(self, model, models):
         return '' if model == 'project.project' else """
 
@@ -249,7 +309,8 @@ class CarpentryBudgetAvailable(models.Model):
     def _orderby(self, model, models):
         return ''
     
-
+    def _having(self, model, models):
+        return ''
 
     #===== ORM method =====#
     @api.model
@@ -259,39 +320,44 @@ class CarpentryBudgetAvailable(models.Model):
         """
         res = super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
         
+        mode = self._context.get('active_model', '').replace('carpentry.group.', '')
+        group_id = self._context.get('active_id')
         if (
-            res and 'position_id' in res[0] and # groupby by `position_id`
-            self._context.get('display_model_shortname') # not programatic call
+            bool(res) and 'position_id' in res[0] # groupby by `position_id`
+            and self._context.get('display_model_shortname') # not programatic call
+            and bool(mode) and bool(group_id) # pivot view on a single launch or phase
         ):
+            field = mode + '_id'
             # count position's affected quantities per launch
             position_ids_ = [x['position_id'][0] for x in res if x.get('position_id')]
-            rg_result = self.env['carpentry.group.affectation'].read_group(
-                domain=[('group_res_model', '=', 'carpentry.group.launch'), ('position_id', 'in', position_ids_)],
+            rg_result = self.env['carpentry.affectation'].read_group(
+                domain=[
+                    ('mode', '=', mode),
+                    (field, '=', group_id),
+                    ('position_id', 'in', position_ids_)
+                ],
                 fields=['quantity_affected:sum'],
-                groupby=['group_id', 'position_id'],
+                groupby=[field, 'position_id'],
                 lazy=False,
             )
             mapped_quantities = {
-                # (launch_id, position_id): qty:sum
-                (x['group_id'], x['position_id'][0]): x['quantity_affected']
+                # (launch_id or phase_id, position_id): qty:sum
+                (x[field][0], x['position_id'][0]): x['quantity_affected']
                 for x in rg_result
             }
 
-            # add the count in position's display_name
-            launch_id_ctx_ = (
-                # when not grouping per launch, but pivot view on a single launch
-                self._context.get('active_model') == 'carpentry.group.launch' and
-                self._context.get('active_id')
-            )
+            # modifiy content of inherited `res`
             for data in res:
-                launch_id_ = launch_id_ctx_ or data.get('launch_id') and data['launch_id'][0]
-                position = data.get('position_id')
-                if launch_id_ and position:
-                    display_name = '{} ({})' . format(
-                        position[1],
-                        round(mapped_quantities.get((launch_id_, position[0]), 0.0))
-                    )
-                    data['position_id'] = (position[0], display_name)
+                res_position = data.get('position_id')
+                if not res_position:
+                    continue
+
+                position_id, position_name = res_position
+                display_name = '{} ({})' . format(
+                    position_name,
+                    round(mapped_quantities.get((group_id, position_id), 0.0))
+                )
+                data['position_id'] = (position_id, display_name)
         
         return res
 

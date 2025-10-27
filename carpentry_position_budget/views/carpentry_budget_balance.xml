@@ -28,7 +28,7 @@
                 <field name="launch_ids" widget="many2many_tags" />
                 <field name="write_uid" widget="many2one_avatar_user" />
                 <field name="write_date" widget="date" />
-                <field name="sum_quantity_affected" sum="1" />
+                <field name="total_budget_reserved" sum="1" />
             </tree>
         </field>
     </record>
@@ -57,35 +57,48 @@
                             <field name="name" class="w-100" required="1" />
                         </h1>
                     </div>
-                    
-                    <!-- Must-save banner -->
-                    <field name="readonly_affectation" invisible="1" />
-                    <div name="save_banner" role="alert" colspan="2" class="alert alert-warning"
-                        attrs="{'invisible': [('readonly_affectation', '=', False)]}"
-                    >
-                        <span class="fa fa-floppy-o" />
-                        Please save before continuing.
-                    </div>
 
                     <!-- 2-columns launches & reservation -->
                     <group col="12" attrs="{'invisible': [('id', '=', False)]}">
                         <group name="left" colspan="5" string="Choose launches">
-                            <field name="launch_ids" widget="many2many_checkboxes" nolabel="1" colspan="2" />
+                            <group colspan="2" col="12">
+                                <group colspan="8">
+                                    <p name="banner_project_launch" colspan="2">
+                                        <span class="fa fa-info-circle" />
+                                        <span attrs="{'invisible': [('launch_ids', '!=', [])]}">
+                                            Project mode: since no launch is selected, only projects budgets are balanced.
+                                        </span>
+                                        <span attrs="{'invisible': [('launch_ids', '=', [])]}">
+                                            Launch mode: since at least one launch is selected, only launches budgets are balanced.
+                                        </span>
+                                    </p>
+                                
+                                    <field name="launch_ids" widget="many2many_checkboxes" nolabel="1" colspan="2" />
+                                </group>
+                                <group colspan="4" name="save_button">
+                                    <field name="readonly_reservation" invisible="1" />
+                                    <button name="save_refresh" type="object"
+                                        colspan="2" class="btn btn-primary" icon="fa-floppy-o"
+                                        attrs="{'invisible': [('readonly_reservation', '=', False)]}"
+                                    >
+                                        Please save before continuing
+                                    </button>
+                                </group>
+                            </group>
                         </group>
                         
-                        <!-- Right: real affectations (budget reservation) -->
+                        <!-- Right: budget reservation -->
                         <group name="right" colspan="7" string="Reserve budget">
-                            <div name="noaffectations_banner" role="alert" colspan="2" class="alert alert-warning"
-                                attrs="{'invisible': [('affectation_ids', '!=', [])]}"
+                            <div name="noreservation_banner" role="alert" colspan="2" class="alert alert-warning"
+                                attrs="{'invisible': [('reservation_ids', '!=', [])]}"
                             >
                                 No budgets to balance.
                             </div>
                             
-                            <field name="affectation_ids"
+                            <field name="reservation_ids"
                                 nolabel="1" colspan="2"
                                 options="{'create': False}" widget="one2many"
-                                attrs="{'invisible': [('affectation_ids', '=', [])], 'readonly': [('readonly_affectation', '=', True)]}"
-                                context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_group_affectation_tree_budget'}"
+                                attrs="{'invisible': [('reservation_ids', '=', [])]}"
                             />
                         </group>
                     </group>

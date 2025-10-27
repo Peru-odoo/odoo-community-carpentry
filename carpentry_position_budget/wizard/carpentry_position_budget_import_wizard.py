@@ -213,15 +213,15 @@ class CarpentryPositionBudgetImportWizard(models.TransientModel):
         for elevation in Budgets:
             position_id_ = mapped_position_ids.get(elevation.get('xGUID'))
             for col, analytic_account_id_ in mapped_interface.items():
-                amount = elevation.get(col, 0.0)
-                if not float_is_zero(float(amount), precision_digits=precision):
-                    mapped_budget[(position_id_, analytic_account_id_)] += amount
+                amount_unitary = elevation.get(col, 0.0)
+                if not float_is_zero(float(amount_unitary), precision_digits=precision):
+                    mapped_budget[(position_id_, analytic_account_id_)] += amount_unitary
         
         # 5. Create if new, write/erase if existing, delete if not touched
         # and apply `column_coef` to amount
         vals_list_budget = [{
             'position_id': key[0],
             'analytic_account_id': key[1],
-            'amount': amount * self.budget_coef/100
-        } for key, amount in mapped_budget.items()]
+            'amount_unitary': amount_unitary * self.budget_coef/100
+        } for key, amount_unitary in mapped_budget.items()]
         position_ids.position_budget_ids._erase_budget(vals_list_budget)

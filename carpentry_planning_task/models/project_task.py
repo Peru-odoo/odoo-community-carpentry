@@ -32,8 +32,8 @@ class Task(models.Model):
     def _compute_is_late(self):
         for task in self:
             # (i) `date_end` is `datetime` while `date_deadline` is `date`
-            date_end_or_today = bool(task.date_end) and task.date_end.date() or fields.Date.today()
-            task.is_late = bool(task.date_deadline) and date_end_or_today > task.date_deadline
+            date_end_or_today = bool(task.date_end) and task.date_end or fields.Date.today()
+            task.is_late = bool(task.date_deadline) and date_end_or_today.date() > task.date_deadline
 
     #===== Buttons / action =====#
     def action_open_planning_form(self):

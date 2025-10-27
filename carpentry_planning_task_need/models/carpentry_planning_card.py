@@ -27,14 +27,6 @@ class CarpentryPlanningCard(models.Model):
         return super()._get_fields() + [
             'user_ids', 'week_deadline', 'need_default', 'week_end', 'type_name'
         ]
-
-    # @api.model
-    # def _search_launch_ids(self, operator, value):
-        # """ Sticky Needs: don't filter by project (independant of filtered launch) """
-        # return expression.OR([
-        #     [('project_id', '=', False)],
-        #     [(field, operator, value) for field in fields]
-        # ])
     
     #===== Button =====#
     def action_activate_need(self):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, tools
+from odoo import models, tools, fields
 from psycopg2.extensions import AsIs
 
 class CarpentryBudgetHourlyCost(models.Model):
@@ -11,6 +11,23 @@ class CarpentryBudgetHourlyCost(models.Model):
     _description = 'Project hourly costs ratio'
     _auto = False
     
+    project_id = fields.Many2one(
+        comodel_name='project.project',
+        readonly=True,
+    )
+    analytic_account_id = fields.Many2one(
+        comodel_name='account.analytic.account',
+        readonly=True,
+    )
+    budget_type = fields.Selection(
+        string='Budget category',
+        selection=lambda self: self.env['account.analytic.account'].fields_get()['budget_type']['selection'],
+        readonly=True,
+    )
+    coef = fields.Float(
+        readonly=True,
+    )
+
     #===== View build =====#
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -37,6 +54,9 @@ class CarpentryBudgetHourlyCost(models.Model):
     def _select(self):
         return f"""
             SELECT
+                row_number() OVER (
+                    ORDER BY budget_line.project_id, budget_line.analytic_account_id
+                ) AS id,
                 budget_line.project_id,
                 budget_line.analytic_account_id,
                 budget_line.budget_type,

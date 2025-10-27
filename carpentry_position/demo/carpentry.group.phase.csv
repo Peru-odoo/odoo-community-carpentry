@@ -1,0 +1,12 @@
+id,project_id/id,name,lot_ids/id
+"carpentry_position.phase1","carpentry_project.denfer","PH2 - Châssis R+7","carpentry_position.lot1"
+"carpentry_position.phase2","carpentry_project.denfer","MR Passerelle","carpentry_position.lot2"
+"carpentry_position.phase3","carpentry_project.tours","MR6/7 -R+2","carpentry_position.lot3,carpentry_position.lot4"
+"carpentry_position.phase4","carpentry_project.tours","carpentry_position.phase 1","carpentry_position.lot3,carpentry_position.lot4"
+"carpentry_position.phase5","carpentry_project.tours","Etage 9","carpentry_position.lot3,carpentry_position.lot4"
+"carpentry_position.phase6","carpentry_project.rennes","carpentry_position.phase 1 - Châssis et porte RdC","carpentry_position.lot5"
+"carpentry_position.phase7","carpentry_project.rennes","MR Hall","carpentry_position.lot5
+"carpentry_position.phase8","carpentry_project.rennes","Cube Mezzanine","carpentry_position.lot5"
+"carpentry_position.phase9","carpentry_project.eiffel","Prototype","carpentry_position.lot6,carpentry_position.lot7"
+"carpentry_position.phase10","carpentry_project.eiffel","PH1 - Châssis Bt A","carpentry_position.lot7,carpentry_position.lot8"
+"carpentry_position.phase11","carpentry_project.eiffel","Chassis","carpentry_position.lot8"

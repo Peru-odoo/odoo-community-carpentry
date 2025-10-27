@@ -26,14 +26,24 @@ class CarpentryBudgetExpenseHistory(models.Model):
         comodel_name='carpentry.group.launch',
         compute='_compute_launch_ids',
     )
-    amount_expense = fields.Float(
-        string='Real expense',
-        digits='Product price',
+    amount_reserved = fields.Float(
+        string='Reserved budget (brut)',
+    )
+    amount_reserved_valued = fields.Monetary(
+        string='Reserved budget',
         readonly=True,
     )
-    amount_gain = fields.Float(
+    amount_expense = fields.Float(
+        string='Real expense (brut)',
+        digits='Product Unit of Measure',
+        readonly=True,
+    )
+    amount_expense_valued = fields.Monetary(
+        string='Real expense',
+        readonly=True,
+    )
+    amount_gain = fields.Monetary(
         string='Gain or Loss',
-        digits='Product price',
         readonly=True,
         help='Budget reservation - Real expense',
     )
@@ -43,11 +53,12 @@ class CarpentryBudgetExpenseHistory(models.Model):
     launch_id = fields.Many2one(store=False)
     group_model_id = fields.Many2one(store=False)
     group_res_model = fields.Char(related='', store=False)
+    amount_subtotal = fields.Float(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
         """ Inherited in sub-modules (purchase, mrp, timesheet) """
-        return ('carpentry.group.affectation', 'carpentry.budget.balance',)
+        return ('carpentry.budget.reservation', 'carpentry.budget.balance',)
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -65,6 +76,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         ) AS id,
                         expense.project_id,
                         expense.date,
+                        expense.active,
                         
                         expense.section_id,
                         expense.section_model_id,
@@ -72,47 +84,35 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         expense.budget_type,
                         
                         -- reserved budget
-                        SUM(expense.quantity_affected) * (
-                        CASE
-                            WHEN expense.budget_type IN %(budget_types)s
-                            THEN hourly_cost.coef
-                            ELSE 1.0
-                        END) AS quantity_affected,
+                        SUM(expense.amount_reserved) AS amount_reserved,
+                        SUM(expense.amount_reserved) * (
+                            CASE
+                                WHEN expense.budget_type IN %(budget_types)s
+                                THEN hourly_cost.coef
+                                ELSE 1.0
+                            END
+                        ) AS amount_reserved_valued,
                         
                         -- expense
-                        SUM(expense.amount_expense) * (
+                        SUM(expense.amount_expense) *
                         CASE
-                            WHEN expense.budget_type IN %(budget_types)s AND NOT(false = ANY(ARRAY_AGG(should_value_expense)))
-                            THEN hourly_cost.coef
-                            ELSE 1.0
-                        END) AS amount_expense,
+                            WHEN expense.budget_type IN %(budget_types)s AND TRUE = ANY(ARRAY_AGG(should_devalue_workforce_expense))
+                            THEN CASE
+                                WHEN COUNT(hourly_cost.coef) > 0 AND hourly_cost.coef != 0.0
+                                THEN 1 / hourly_cost.coef
+                                ELSE 0.0
+                            END ELSE 1.0
+                        END AS amount_expense,
+                        SUM(expense.amount_expense_valued) AS amount_expense_valued,
                         
                         -- gain
-                        (CASE
-                            WHEN (false = ANY(ARRAY_AGG(should_compute_gain)))
-                            THEN SUM(amount_gain) * (
-                                    CASE
-                                        WHEN expense.budget_type IN %(budget_types)s AND NOT(false = ANY(ARRAY_AGG(should_value_expense)))
-                                        THEN hourly_cost.coef
-                                        ELSE 1.0
-                                    END
-                                )
-                            ELSE
-                                SUM(quantity_affected) * (
-                                    CASE
-                                        WHEN expense.budget_type IN %(budget_types)s
-                                        THEN hourly_cost.coef
-                                        ELSE 1.0
-                                    END
-                                )
-                                - SUM(amount_expense) * (
-                                    CASE
-                                        WHEN expense.budget_type IN %(budget_types)s AND true = ALL(ARRAY_AGG(should_value_expense))
-                                        THEN hourly_cost.coef
-                                        ELSE 1.0
-                                    END
-                                )
-                        END) AS amount_gain
+                        SUM(amount_reserved) * (
+                            CASE
+                                WHEN expense.budget_type IN %(budget_types)s
+                                THEN hourly_cost.coef
+                                ELSE 1.0
+                            END
+                        ) - SUM(amount_expense_valued) AS amount_gain
                     
                     FROM (
                         (%(union)s)
@@ -126,6 +126,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                     GROUP BY
                         expense.project_id,
                         expense.date,
+                        expense.active,
                         expense.section_id,
                         expense.section_model_id,
                         expense.analytic_account_id,
@@ -138,87 +139,65 @@ class CarpentryBudgetExpenseHistory(models.Model):
                     'budget_types': tuple(budget_types),
                     'union': AsIs(') UNION ALL (' . join(queries)),
             })
-    
-    def _get_section_fields(self, model, models):
-        """ Can be overwritten """
-        return {
-            'section_id': 'section.id',
-            'section_model_id': models[model],
-        }
 
     def _select(self, model, models):
-        section_fields = self._get_section_fields(model, models)
-
-        # general
-        if model == 'carpentry.group.affectation':
-            sql = f"""
+        if model == 'carpentry.budget.reservation':
+            sql = """
                 SELECT
-                    'reservation' AS state,
-                    affectation.section_id AS section_id,
-                    affectation.section_model_id,
-                    affectation.group_id AS analytic_account_id,
-                    affectation.budget_type,
-                    affectation.quantity_affected,
-                    affectation.date,
-                    affectation.project_id,
-                    0.0 AS amount_expense,
-                    0.0 AS amount_gain,
-                    TRUE AS should_compute_gain,
-                    TRUE AS should_value_expense
-            """
-        else:
-            # specific : no budget reservation (`quantity_affected`)
-            # but `amount_expense` (except carpentry.budget.balance)
-            sql = f"""
-                SELECT
-                    'expense' AS state,
+                    reservation.project_id,
+                    reservation.date,
+                    reservation.active,
+                    reservation.section_id AS section_id,
+                    reservation.section_model_id,
+                    reservation.analytic_account_id,
+                    reservation.budget_type,
                     
-                    -- section
-                    {section_fields['section_id']} AS section_id,
-                    {section_fields['section_model_id']} AS section_model_id,
+                    reservation.amount_reserved,
+                    FALSE AS should_devalue_workforce_expense,
 
-                    -- budget,
+                    0.0 AS amount_expense,
+                    0.0 AS amount_expense_valued
+            """
+        elif model == 'carpentry.budget.balance':
+            sql = f"""
+                SELECT
+                    section.project_id,
+                    section.date_budget AS date,
+                    TRUE as active,
+                    section.id AS section_id,
+                    (SELECT id FROM ir_model WHERE model = '{model}') AS section_model_id,
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
-                    0.0 AS quantity_affected,
-                    section.date_budget AS date,
-            """
-        
-        # specific to budget balance
-        if model == 'carpentry.budget.balance':
-            sql += """
-                    section.project_id AS project_id,
+
+                    0.0 AS amount_reserved,
+                    FALSE AS should_devalue_workforce_expense,
+
                     0.0 AS amount_expense,
-                    0.0 AS amount_gain,
-                    TRUE AS should_compute_gain,
-                    TRUE AS should_value_expense
+                    0.0 AS amount_expense_valued
             """
         
         return sql
 
     def _from(self, model, models):
-        return (
-            'FROM carpentry_group_affectation AS affectation'
-            
-            if model == 'carpentry.group.affectation' else
-
-            f"FROM {model.replace('.', '_')} AS section"
-        )
+        if model == 'carpentry.budget.reservation':
+            return 'FROM carpentry_budget_reservation AS reservation'
+        else:
+            return f"FROM {model.replace('.', '_')} AS section"
 
     def _join(self, model, models):
-        if model == 'carpentry.group.affectation':
+        if model == 'carpentry.budget.reservation':
             return """
                 INNER JOIN ir_model AS model
-                    ON model.id = affectation.section_model_id
+                    ON model.id = reservation.section_model_id
             """
         elif model == 'carpentry.budget.balance':
             return """
-                INNER JOIN carpentry_group_affectation AS affectation
-                    ON affectation.section_id = section.id
-                    AND affectation.section_model_id = section_model_id
+                INNER JOIN carpentry_budget_reservation AS reservation
+                    ON reservation.section_id = section.id
+                    AND reservation.section_model_id = section_model_id
                 
                 INNER JOIN account_analytic_account AS analytic
-                    ON analytic.id = affectation.group_id
+                    ON analytic.id = reservation.analytic_account_id
             """
         else:
             return ''
@@ -232,45 +211,34 @@ class CarpentryBudgetExpenseHistory(models.Model):
             
             LEFT JOIN LATERAL
                 jsonb_each_text(line.analytic_distribution)
-                AS analytic_distribution (account_analytic_id, percentage)
+                AS analytic_distribution (aac_id, percentage)
                 ON true
 
             -- analytic
             LEFT JOIN account_analytic_account AS analytic
-                ON analytic.id = analytic_distribution.account_analytic_id::integer
+                ON analytic.id = analytic_distribution.aac_id::integer
         """
     
     def _where(self, model, models):
-        return (f"""
-            WHERE
-                affectation.group_model_id = {models['account.analytic.account']} AND
-                active IS TRUE
-            """
-            
-            if model == 'carpentry.group.affectation' else """
-
-            WHERE
-                (analytic.id IS NULL OR (
-                analytic.is_project_budget IS TRUE AND
-                analytic.budget_type IS NOT NULL))
-            """
-        )
-    
-    def _groupby(self, model, models):
-        if model == 'carpentry.group.affectation':
+        if model == 'carpentry.budget.reservation':
             return ''
         
-        sql = 'GROUP BY analytic.budget_type, analytic.id, section.id'
-        if model == 'carpentry.budget.balance':
-            sql += ', section.project_id'
+        return 'WHERE analytic.budget_type IS NOT NULL'
+    
+    def _groupby(self, model, models):
+        if model == 'carpentry.budget.reservation':
+            return ''
         
-        return sql
+        return 'GROUP BY analytic.budget_type, analytic.id, section.id, section.project_id'
     
     def _orderby(self, model, models):
         return ''
 
+    def _having(self, model, models):
+        return ''
+
     #===== Compute =====#
-    @api.depends('section_ref')
+    @api.depends('section_id', 'section_model_id')
     def _compute_launch_ids(self):
         for expense in self:
             expense.launch_ids = (
@@ -279,11 +247,8 @@ class CarpentryBudgetExpenseHistory(models.Model):
                 expense.section_ref.launch_ids
             )
 
-
-
-
 class CarpentryBudgetExpense(models.Model):
-    """ *Not* grouped by date (simplified), with no history """
+    """ *Not* grouped by date (without history): for *Loss/Gains* report """
     _name = 'carpentry.budget.expense'
     _inherit = ['carpentry.budget.expense.history']
     _description = 'Expenses'
@@ -303,14 +268,17 @@ class CarpentryBudgetExpense(models.Model):
                         analytic_account_id
                     ) AS id,
                     project_id,
+                    active,
                     
                     section_id,
                     section_model_id,
                     analytic_account_id,
                     budget_type,
                     
-                    SUM(quantity_affected) AS quantity_affected,
+                    SUM(amount_reserved) AS amount_reserved,
+                    SUM(amount_reserved_valued) AS amount_reserved_valued,
                     SUM(amount_expense) AS amount_expense,
+                    SUM(amount_expense_valued) AS amount_expense_valued,
                     SUM(amount_gain) AS amount_gain
                 
                 FROM carpentry_budget_expense_history
@@ -320,7 +288,8 @@ class CarpentryBudgetExpense(models.Model):
                     section_id,
                     section_model_id,
                     analytic_account_id,
-                    budget_type
+                    budget_type,
+                    active
             )""", {
                 'view_name': AsIs(self._table),
             }

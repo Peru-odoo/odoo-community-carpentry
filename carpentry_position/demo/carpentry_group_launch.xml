@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <function model="carpentry.group.phase"
+        name="convert_to_launch"
+        eval="[
+            [
+                ref('phase1'),
+                ref('phase2'),
+                ref('phase3'),
+                ref('phase4'),
+                ref('phase5'),
+                ref('phase6'),
+                ref('phase7'),
+                ref('phase8'),
+                ref('phase9'),
+                ref('phase10'),
+                ref('phase11')
+            ]
+        ]"
+    />
+</odoo>

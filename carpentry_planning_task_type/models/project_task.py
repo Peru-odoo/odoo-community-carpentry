@@ -4,6 +4,7 @@ from odoo import models, fields, api, exceptions, _, Command
 from odoo.tools import date_utils
 from odoo.osv import expression
 from collections import defaultdict
+from lxml import etree
 
 XML_ID_MILESTONE = 'carpentry_planning_task_type.task_type_milestone'
 XML_ID_MEETING = 'carpentry_planning_task_type.task_type_meeting'
@@ -94,12 +95,12 @@ class Task(models.Model):
             ('parent_id', '=', parent_type_id),
             ('task_ok', '=', True)
         ]""",
-        group_expand='_read_group_types'
+        group_expand='_read_group_types',
     )
     type_sequence = fields.Integer(
         related='type_id.sequence',
         store=True,
-        string='Type Sequence'
+        string='Type Sequence',
     )
 
     # -- Original --
@@ -203,27 +204,6 @@ class Task(models.Model):
     @api.model
     def _search_display_name(self, operator, value):
         return [('name', operator, value)]
-    
-    # def _get_prefix_display_name(self):
-    #     """ Add `type_id.name` in front of name, separated by a dash "-",
-    #         only when needed/relevant
-    #     """
-    #     self.ensure_one()
-    #     should_prefix = bool(
-    #         self._context.get('display_with_prefix', True) # context may forced it to False
-    #         and self._should_display_name_prefix()
-    #     )
-    #     dash = ' - ' if self.type_id.name and self.name else ''
-
-    #     return (
-    #         '' if not should_prefix or not self.type_id.name
-    #         else self.type_id.name + dash
-    #     )
-    
-    # def _should_display_name_prefix(self):
-    #     """ Classic and Instruction: never prefix the `display_name` """
-    #     no_prefix = [self.env.ref(XML_ID_INSTRUCTION)]
-    #     return self.root_type_id and self.root_type_id not in no_prefix
     
     #===== Onchange: type =====#
     @api.onchange('root_type_id', 'parent_type_id')

@@ -63,7 +63,7 @@ class CarpentryPlanningCard(models.Model):
             # append the *fake* fields for tasks (which depend on `launch_id`)
             for vals in vals_list:
                 vals |= {
-                    field: mapped_card_ids.get(vals['id'])[field]
+                    field: mapped_card_ids.get(vals['id'], {})[field]
                     for field in self._get_task_fields_list()
                 }
         

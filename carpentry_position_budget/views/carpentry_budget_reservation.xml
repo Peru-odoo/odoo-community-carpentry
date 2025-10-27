@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Budget Reservations embedded tree view in forms of PO, MO, Picking, ... -->
+    <record model="ir.ui.view" id="carpentry_budget_reservation_tree">
+        <field name="name">carpentry.budget.reservation.tree</field>
+        <field name="model">carpentry.budget.reservation</field>
+
+        <field name="arch" type="xml">
+            <tree editable="top" create="0" delete="0">
+                <field name="project_id" invisible="1" />
+                <field name="launch_id" invisible="1" />
+                <field name="currency_id" invisible="1" />
+
+                <field name="analytic_account_id" readonly="1" options="{'no_create': 1, 'no_open': 1}" />
+                <field name="launch_id" readonly="1" options="{'no_create': 1, 'no_open': 1}"
+                    attrs="{'column_invisible': [('parent.launch_ids', '=', [])]}"
+                />
+                <field name="amount_remaining" string="Remaining" sum="1"
+                    decoration-warning="amount_remaining == 0.0"
+                />
+                <field name="budget_unit" nolabel="1"
+                    decoration-warning="amount_remaining == 0.0"
+                />
+                <field name="amount_reserved" string="Reservation" required="1" sum="1" />
+                <field name="budget_unit" nolabel="1" />
+                <field name="amount_expense_valued" readonly="1" sum="1" widget="monetary" optional="show" />
+                <field name="amount_gain" readonly="1" sum="1" widget="monetary" optional="show" />
+            </tree>
+        </field>
+    </record>
+
+    
+    <!-- Other Expense embedded same tree view in forms -->
+    <record id="carpentry_budget_other_expense_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.tree.others</field>
+        <field name="model">carpentry.budget.expense</field>
+        
+        <field name="arch" type="xml">
+            <tree>
+                <field name="project_id" invisible="1" />
+                <field name="currency_id" invisible="1" />
+
+                <field name="analytic_account_id" string="Budget" />
+                <field name="amount_expense_valued" widget="monetary" sum="1" string="Expense" />
+            </tree>
+        </field>
+    </record>
+    
+</odoo>

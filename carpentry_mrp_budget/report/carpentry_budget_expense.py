@@ -7,84 +7,114 @@ class CarpentryExpense(models.Model):
 
     #===== View build =====#
     def _get_queries_models(self):
-        """ stock.picking: for stock move estimation before validation (done)
-            mrp.production: same, for raw material
-            stock.valuation.layer: final/accountable value when done
+        """ == Stock moves== 
+            * `stock.picking`:  for stock.move estimation before validation
+            * `mrp.production`: same, for raw material
+            For those 2, expense is summed from `stock.valuation.layer`
+            when they are done, for final/accountable value
+            
+            == Work orders ==
+            * `mrp.workorder`: manufacturing times
         """
         return super()._get_queries_models() + (
-            'stock.picking','mrp.production', # for product stock
-            'mrp.workorder' # for production times (section is changed back to mrp.production)
+            'stock.picking', # lines are stock.move (move_ids)
+            'mrp.production', # lines are stock.move too (move_raw_ids)
+            'mrp.workorder' # lines are mrp.workorders (actually: mrp.workcenter.productivity)
         )
     
     def _select(self, model, models):
-        sql = super()._select(model, models)
+        sql_active = "section.state NOT IN ('cancel')"
+        if model in ('mrp.production', 'mrp.workorder'):
+            sql_active + " AND section.active"
         
         if model in ('stock.picking', 'mrp.production'):
             sign = (
                 "CASE WHEN picking_type.code = 'incoming' THEN -1 ELSE 1 END"
-                if model == 'stock.picking' else 1
+                if model == 'stock.picking'
+                else 1
             )
             
-            sql += f"""
-                line.project_id AS project_id,
+            return f"""
+                SELECT
+                    section.project_id,
+                    section.date_budget AS date,
+                    {sql_active} AS active,
+                    section.id AS section_id,
+                    {models[model]} AS section_model_id,
+                    analytic.id AS analytic_account_id,
+                    analytic.budget_type,
 
-                -- expense
-                SUM(
-                    CASE
-                        WHEN section.state = 'done'
-                        THEN ABS(svl.value) -- accounting value
-                        ELSE line.product_uom_qty::float * property.value_float::float -- estimation
-                    END
-                    * analytic_distribution.percentage::float
-                    / 100.0
-                ) * {sign} AS amount_expense,
-                
-                -- gain
-                0.0 AS amout_gain,
-                TRUE AS should_compute_gain,
-                FALSE AS should_value_expense
-            """
-        elif model == 'mrp.workorder':
-            sql += """
-                line.project_id AS project_id,
-                
-                -- expense
-                SUM(line.duration) / 60.0 AS amount_expense, -- /60 for min to hours conversion
-                
-                -- gain
-                CASE
-                    WHEN SUM(line.duration) > SUM(line.duration_expected) OR section.state = 'done'
-                    THEN (SUM(line.duration_expected) - SUM(line.duration)) / 60.0
-                    ELSE CASE
-                        WHEN line.productivity_tracking = 'unit' AND SUM(line.qty_production) != 0.0 AND SUM(line.qty_produced) != 0.0
-                        THEN
-                            (SUM(line.duration_expected) / SUM(line.qty_production)
-                            - SUM(line.duration) / SUM(line.qty_produced)
-                            ) * SUM(line.qty_produced) / 60.0
-                        ELSE 0.0
-                    END
-                END AS amount_gain,
-                FALSE AS should_compute_gain,
-                TRUE AS should_value_expense
+                    0.0 AS amount_reserved,
+                    TRUE AS should_devalue_workforce_expense,
+                    
+                    -- expense
+                    SUM(
+                        CASE
+                            WHEN section.state = 'done'
+                            THEN ABS(svl.value) -- accounting value
+                            ELSE line.product_uom_qty::float * property.value_float::float -- estimation
+                        END
+                        * analytic_distribution.percentage::float
+                        / 100.0
+                    ) * {sign} AS amount_expense,
+
+                    -- valued expense
+                    SUM(
+                        CASE
+                            WHEN section.state = 'done'
+                            THEN ABS(svl.value) -- accounting value
+                            ELSE line.product_uom_qty::float * property.value_float::float -- estimation
+                        END
+                        * analytic_distribution.percentage::float
+                        / 100.0
+                    ) * {sign} AS amount_expense_valued
             """
         
-        return sql
-    
-    def _get_section_fields(self, model, models):
-        """ Resolve mrp.workorder indicators as mrp.production's
-            in the pivot and tree view,
+        elif model == 'mrp.workorder':
+            return f"""
+                SELECT
+                    section.project_id AS project_id,
+                    section.date_budget_workorders AS date,
+                    {sql_active} AS active,
+                    section.id AS section_id,
+                    {models['mrp.production']} AS section_model_id,
+                    analytic.id AS analytic_account_id,
+                    analytic.budget_type,
+                    
+                    -- amount_reserved:
+                    -- 1. if effective_hours < amount_reserved:
+                    --    displays expense == budget_reservation in the project's budget report
+                    --    by cancelling amount_reserved of `carpentry.budget.reservation`
+                    CASE
+                        WHEN section.state != 'done' AND SUM(line.duration) / 60 < SUM(reservation.amount_reserved)
+                        THEN SUM(line.duration) / 60 - SUM(reservation.amount_reserved) -- replace `sum(amount_reserved)` by `effective_hours`
+                        ELSE 0.0
+                    END *
+                    CASE -- prorata per workorder's reserved budget
+                        WHEN section.total_budget_reserved != 0.0
+                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
+                        ELSE 0.0
+                    END AS amount_reserved,
+                    FALSE AS should_devalue_workforce_expense,
+                    
+                    -- expense
+                    SUM(line.duration) / 60 *
+                    CASE -- prorata per workorder's reserved budget
+                        WHEN section.total_budget_reserved != 0.0
+                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
+                        ELSE 0.0
+                    END AS amount_expense,
 
-            and compute gain as per workorder qty logics
-        """
-        return (
-            {
-                'section_id': 'section.id',
-                'section_ref': f"'mrp.production,' || section.id",
-                'section_model_id': models['mrp.production'],
-            }
-            if model == 'mrp.workorder'
-            else super()._get_section_fields(model, models)
-        )
+                    -- expense valued
+                    SUM(line.duration) / 60 *
+                    CASE -- prorata per workorder's reserved budget
+                        WHEN section.total_budget_reserved != 0.0
+                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
+                        ELSE 0.0
+                    END * hourly_cost.coef AS amount_expense_valued
+            """
+        
+        return super()._select(model, models)
     
     def _from(self, model, models):
         if model in ('stock.picking', 'mrp.production'):
@@ -98,17 +128,35 @@ class CarpentryExpense(models.Model):
         sql = ''
 
         if model == 'mrp.workorder':
-            sql = """
-                -- section
+            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+            sql = f"""
                 INNER JOIN mrp_production AS section
                     ON section.id = line.production_id
                 
-                -- analytic
-                INNER JOIN mrp_workcenter AS workcenter
-                    ON workcenter.id = line.workcenter_id
+                -- reservation (we need them to calculate the expense conditionnally)
+                LEFT JOIN carpentry_budget_reservation AS reservation
+                    ON  reservation.section_model_id = {models['mrp.production']}
+                    AND reservation.section_id = section.id
+                    AND reservation.budget_type IN {tuple(budget_types)}
+
                 LEFT JOIN account_analytic_account AS analytic
-                    ON analytic.id = workcenter.costs_hour_account_id
+                    ON analytic.id = reservation.analytic_account_id
+                
+                LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
+                    ON  hourly_cost.project_id = section.project_id
+                    AND hourly_cost.analytic_account_id = analytic.id
             """
+
+
+                
+                # -- analytic
+                # INNER JOIN mrp_workcenter AS workcenter
+                #     ON workcenter.id = line.workcenter_id
+                # LEFT JOIN account_analytic_account AS analytic
+                #     ON analytic.id = workcenter.costs_hour_account_id
+
+                # -- for (h) to (€) valuation
+
         elif model in ('stock.picking', 'mrp.production'):
             if model == 'stock.picking':
                 sql = """
@@ -140,30 +188,22 @@ class CarpentryExpense(models.Model):
     def _where(self, model, models):
         sql = super()._where(model, models)
 
-        if model in ('stock.picking', 'mrp.production', 'mrp.workorder'):
+        if model == 'stock.picking':
             sql += """
-                AND section.state NOT IN ('draft', 'cancel')
+                AND picking_type.code != 'internal'
+                AND line.purchase_line_id IS NULL -- stock_move.purchase_line_id
+                AND line.production_id IS NULL
+                AND line.raw_material_production_id IS NULL
             """
-            
-            if model == 'stock.picking':
-                sql += """
-                    AND picking_type.code != 'internal'
-                    AND line.purchase_line_id IS NULL -- stock_move.purchase_line_id
-                    AND line.production_id IS NULL
-                    AND line.raw_material_production_id IS NULL
-                """
-        
         return sql
 
     def _groupby(self, model, models):
         res = super()._groupby(model, models)
         
-        if model in ('mrp.production', 'stock.picking', 'mrp.workorder'):
-            res += ', line.project_id'
-
-            if model == 'mrp.workorder':
-                res += ', line.productivity_tracking'
-            elif model == 'stock.picking':
-                res += ', picking_type.code'
+        if model == 'mrp.workorder':
+            res += ', line.project_id, line.productivity_tracking, hourly_cost.coef'
+        elif model == 'stock.picking':
+            res += ', picking_type.code'
         
         return res
+    

@@ -15,7 +15,10 @@
     'depends': [
         'mrp_account', # Odoo
 
+        'stock_analytic', # OCA
+
         'mrp_workcenter_cost_history', # other
+        'mrp_workcenter_cost_history',
 
         # carpentry
         'carpentry_mrp',
@@ -25,7 +28,6 @@
         # security
         "security/ir.model.access.csv",
         # views
-        "views/mrp_workorder.xml",
         "views/mrp_production.xml",
         "views/stock_picking.xml",
         "views/stock_move.xml",

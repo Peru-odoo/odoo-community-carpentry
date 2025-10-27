@@ -34,7 +34,7 @@
 
                 <field name="group_model_id" type="row" />
                 
-                <field name="subtotal" type="measure" />
+                <field name="amount_subtotal" type="measure" />
             </pivot>
         </field>
     </record>
@@ -53,8 +53,8 @@
                 <field name="analytic_account_id" />
                 <field name="position_id" />
                 <field name="quantity_affected" optional="hide" sum="1" />
-                <field name="amount" />
-                <field name="subtotal" sum="1" />
+                <field name="amount_unitary" />
+                <field name="amount_subtotal" sum="1" />
             </tree>
         </field>
     </record>
@@ -71,6 +71,8 @@
                 <field name="analytic_account_id" />
                 <field name="launch_id" />
                 <field name="position_id" />
+                <field name="project_id" />
+                <field name="project_stage_id" />
 
                 <!-- Filters -->
                 <separator name="budget_type" />
@@ -78,7 +80,10 @@
                 <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
                 <filter string="Production"   name="filter_production" domain="[('budget_type', '=', 'production')]" />
                 <filter string="Installation" name="filter_installation" domain="[('budget_type', '=', 'installation')]" />
-                <filter string="Other costs"  name="filter_project_global_cost" domain="[('budget_type', '=', 'project_global_cost')]" />
+                <filter string="Other costs"  name="filter_other" domain="[('budget_type', '=', 'other')]" />
+                
+                <separator name="active" />
+                <filter string="Ignored"      name="filter_active" domain="['|', ('active', '=', True), ('active', '=', False)]" />
                 
                 <!-- Group by -->
                 <filter string="Document"     name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
@@ -86,8 +91,8 @@
                 <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
                 <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
 
-                <searchpanel view_type="tree">
-                    <field name="project_id" select="multi" invisible="context.get('default_project_id')" />
+                <searchpanel>
+                    <field name="project_id"       select="multi" invisible="context.get('default_project_id')" />
                     <field name="budget_type" />
                     <field name="analytic_account_id" />
                 </searchpanel>
@@ -103,7 +108,7 @@
         <field name="priority">10</field>
         
         <field name="arch" type="xml">
-            <filter name="filter_project_global_cost" position="after">
+            <filter name="filter_other" position="after">
                 <separator />
                 <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
                 <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />

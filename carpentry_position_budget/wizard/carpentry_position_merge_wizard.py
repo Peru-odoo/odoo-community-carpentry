@@ -54,19 +54,6 @@ class PositionMerge(models.TransientModel):
         domain="[('id', 'in', position_ids_to_merge)]"
     )
 
-    #===== Constrain =====#
-    @api.constrains('position_ids_to_merge')
-    def _constrain_no_affectation(self):
-        """ Ensure positions to be merged (i.e. deleted) have no affectations """
-        domain = self.position_ids_to_merge._get_domain_affect(group='record')
-        count = self.env['carpentry.group.affectation'].sudo().search_count(domain)
-
-        if count > 0:
-            raise exceptions.UserError(_(
-                'Please remove all the affectations to phases and launches of'
-                ' the positions to merge before merging.'
-            ))
-
     #===== Action =====#
     def button_merge(self):
         """ Merge logic:
@@ -80,7 +67,6 @@ class PositionMerge(models.TransientModel):
         """
         # Checks before merge
         target, sources = self.position_id_target, self.position_ids_to_merge
-        self._constrain_no_affectation()
         if not sources.ids:
             raise exceptions.UserError(_('No duplicates to merge.'))
 
@@ -91,6 +77,7 @@ class PositionMerge(models.TransientModel):
         # Write
         target.position_budget_ids._erase_budget(vals_list_budget)
         target.quantity = sum_qty
+        sources.affectation_ids.unlink() # Unlink affectations (hard to merge)
 
         # Clean: unlink with external DB and remove merged positions
         target.external_db_guid = False
@@ -103,12 +90,12 @@ class PositionMerge(models.TransientModel):
         """
         # make sure values are up-to-date in database
         sources.flush_recordset(['quantity'])
-        sources.position_budget_ids.flush_recordset(['position_id', 'analytic_account_id', 'amount'])
+        sources.position_budget_ids.flush_recordset(['position_id', 'analytic_account_id', 'amount_unitary'])
 
         self.env.cr.execute("""
             SELECT
                 budget.analytic_account_id,
-                SUM(budget.amount * position.quantity)
+                SUM(budget.amount_unitary * position.quantity)
             FROM carpentry_position_budget AS budget
                 INNER JOIN carpentry_position AS position ON position.id = budget.position_id
             WHERE position.id IN %s
@@ -118,5 +105,5 @@ class PositionMerge(models.TransientModel):
         return [{
             'position_id': target.id,
             'analytic_account_id': row[0],
-            'amount': row[1] / sum_qty
+            'amount_unitary': row[1] / sum_qty
         } for row in self.env.cr.fetchall()]

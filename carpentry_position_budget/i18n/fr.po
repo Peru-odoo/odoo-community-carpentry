@@ -1060,7 +1060,7 @@ msgstr "Résultat d'affaire"
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_available_search
 msgid "Projects"
-msgstr "Par projet"
+msgstr "Projets"
 
 #. module: carpentry_position_budget
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_expense_search

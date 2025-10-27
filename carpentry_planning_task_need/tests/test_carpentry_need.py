@@ -39,10 +39,9 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         cls.PlanningColumn = cls.PlanningColumn.with_context(no_test_mirroring_column_id=False)
         cls.column_need = cls.PlanningColumn.create({
             'name': 'Column Need Test 1',
-            'res_model_id': cls.mapped_model_ids['project.task'].id,
+            'res_model_id': cls.env['ir.model']._get_id('project.task'),
             'identifier_res_id': cls.type_need_section.id,
-            'identifier_res_model_id': cls.mapped_model_ids['project.task'].id,
-            'sticky': False,
+            'identifier_res_model_id': cls.env['ir.model']._get_id('project.task'),
             'column_id_need_date': cls.column.id
         })
 
@@ -122,7 +121,7 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         
         # Computed deadline
         prod_start = date(2024, 1, 31)
-        task.lauch_id.milestone_ids.filtered(lambda x: x.type =='start').date = prod_start
+        task.launch_id.milestone_ids.filtered(lambda x: x.type == 'start').date = prod_start
         self.assertEqual(
             task.date_deadline,
             prod_start - timedelta(weeks=4)
@@ -131,20 +130,3 @@ class TestCarpentryPlanningTaskNeed(TestCarpentryPlanning, TestCarpentryPlanning
         # Unlink should be prevented
         with self.assertRaises(exceptions.ValidationError):
             task.unlink()
-
-    def test_07_task_standalone(self):
-        task = self.env['project.task'].create({
-            'name': 'Test Standalone Need 01',
-            'launch_id': self.launch.id,
-            'type_id': self.type_need_child.id
-        })
-
-        # Test computation of `res_card_id` and `res_card_model_id` for standalone needs
-        self.assertEqual(task.card_res_model, 'project.type')
-        self.assertEqual(task.card_res_id, self.type_need_child.id)
-
-        # standalone can be deleted
-        try:
-            task.unlink()
-        except:
-            self.fail('Manual need should be deletable')

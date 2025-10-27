@@ -10,12 +10,12 @@ class Project(models.Model):
     # market
     market = fields.Monetary(
         string='Market',
-        help='Amount of initial contract with the customer.'
+        help='Amount of initial contract with the customer.',
     )
     market_reviewed = fields.Monetary(
         string='Reviewed Market',
         compute='_compute_market_reviewed',
-        help='Initial market + validated sale order lines (based on analytic distribution)'
+        help='Initial market + validated sale order lines (based on analytic distribution)',
     )
     # sale order
     so_lines_validated = fields.Boolean(

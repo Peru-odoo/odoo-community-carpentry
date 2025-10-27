@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_carpentry_affectation_mrp,CarpentryAffectationMrp,carpentry_position.model_carpentry_group_affectation,mrp.group_mrp_user,1,1,1,1
-access_carpentry_affectation_temp_mrp,CarpentryAffectationTempMrp,carpentry_position.model_carpentry_group_affectation_temp,mrp.group_mrp_user,1,1,1,1
+access_carpentry_affectation_mrp,CarpentryAffectationMrp,carpentry_position.model_carpentry_affectation,mrp.group_mrp_user,1,1,1,1

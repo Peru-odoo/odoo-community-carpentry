@@ -5,7 +5,7 @@ from psycopg2.extensions import AsIs
 
 class CarpentryBudgetRemaining(models.Model):
     """ Union of (+) `carpentry.budget.available` and
-                 (-) `carpentry.group.affectation`
+                 (-) `carpentry.budget.reservation`
     """
     _name = 'carpentry.budget.remaining'
     _inherit = ['carpentry.budget.available']
@@ -25,9 +25,8 @@ class CarpentryBudgetRemaining(models.Model):
         string='State',
         readonly=True,
     )
-    quantity_affected = fields.Float(
+    amount_subtotal = fields.Float(
         string='Remaining',
-        help='',
     )
     section_id = fields.Many2oneReference(
         string='Section ID',
@@ -54,15 +53,50 @@ class CarpentryBudgetRemaining(models.Model):
         related='section_model_id.name',
     )
     # fields cancelling (necessary so they are not in SQL from ORM)
-    position_id = fields.Many2one(store=False)
     phase_id = fields.Many2one(store=False)
-    subtotal = fields.Float(store=False)
-    amount = fields.Float(store=False)
+    position_id = fields.Many2one(store=False)
+    amount_unitary = fields.Float(store=False)
+    amount_subtotal_valued = fields.Float(store=False)
+    quantity_affected = fields.Float(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
-        return ('carpentry.budget.available', 'carpentry.group.affectation')
-    
+        return ('carpentry.budget.reservation', 'carpentry.budget.available')
+
+    def init(self):
+        """ Over-write `init` of `carpentry.budget.available`
+            to make it simplier
+        """
+        tools.drop_view_if_exists(self.env.cr, self._table)
+        
+        queries = self._get_queries()
+        if queries:
+            self._cr.execute(f"""
+                CREATE or REPLACE VIEW %s AS (
+                    SELECT
+                        row_number() OVER (ORDER BY unique_key) AS id,
+                        
+                        state,
+                        project_id,
+                        launch_id,
+                        group_model_id,
+                        active,
+
+                        section_model_id,
+                        section_id,
+
+                        analytic_account_id,
+                        amount_subtotal,
+                        budget_type
+                    FROM (
+                        (%s)
+                    ) AS result
+                )""", (
+                    AsIs(self._table),
+                    AsIs(') UNION ALL (' . join(queries))
+                )
+            )
+
     def _select(self, model, models):
         return f"""
             SELECT
@@ -73,6 +107,7 @@ class CarpentryBudgetRemaining(models.Model):
             	available.project_id,
             	available.launch_id,
                 available.group_model_id,
+                available.active,
 
                 -- section_model_id: carpentry.position or project.project
                 CASE
@@ -89,32 +124,33 @@ class CarpentryBudgetRemaining(models.Model):
 
                 -- budget
                 available.analytic_account_id,
-                available.subtotal AS quantity_affected,
+                available.amount_subtotal AS amount_subtotal,
                 available.budget_type
             
         """ if model == 'carpentry.budget.available' else f"""
 
             SELECT
-                'reservation-' || affectation.id AS unique_key,
+                'reservation-' || reservation.id AS unique_key,
                 'reservation' AS state,
 
                 -- project & launch
-                affectation.project_id,
+                reservation.project_id,
+                reservation.launch_id,
                 CASE
-                    WHEN affectation.record_model_id = {models['carpentry.group.launch']}
-                    THEN affectation.record_id
-                    ELSE NULL
-                END AS launch_id,
-                affectation.record_model_id AS group_model_id,
+                    WHEN reservation.launch_id IS NOT NULL
+                    THEN {models['carpentry.group.launch']}
+                    ELSE {models['project.project']}
+                END AS group_model_id,
+                reservation.active,
 
                 -- section
-                affectation.section_model_id,
-                affectation.section_id,
+                reservation.section_model_id,
+                reservation.section_id,
                 
                 -- budget
-                affectation.group_id AS analytic_account_id,
-                -1 * affectation.quantity_affected AS quantity_affected,
-                affectation.budget_type
+                reservation.analytic_account_id,
+                -1 * reservation.amount_reserved AS amount_subtotal,
+                reservation.budget_type
 
         """
 
@@ -124,30 +160,23 @@ class CarpentryBudgetRemaining(models.Model):
 
             if model == 'carpentry.budget.available' else
 	        
-            'FROM carpentry_group_affectation AS affectation'
+            'FROM carpentry_budget_reservation AS reservation'
         )
 
     def _join(self, model, models):
-        return """
-            INNER JOIN ir_model AS ir_model_group
-                ON ir_model_group.id = available.group_model_id
-            
-        """ if model == 'carpentry.budget.available' else ''
+        return ''
     
     def _where(self, model, models):
-        return """
-            -- no available budget from phase or position
-            WHERE ir_model_group.model IN (
-                'project.project',
-                'carpentry.group.launch'
+        return f"""
+            -- no available budget from position, only project and launch
+            WHERE available.group_model_id IN (
+                {models['project.project']},
+                {models['carpentry.group.launch']}
             )
             
             """ if model == 'carpentry.budget.available' else f"""
 
-            WHERE
-                affectation.active IS TRUE AND
-                quantity_affected != 0 AND
-                budget_type IS NOT NULL
+            WHERE amount_reserved != 0.0
             """
     
     def _groupby(self, model, models):
@@ -169,11 +198,34 @@ class CarpentryBudgetRemaining(models.Model):
                 else False
             )
 
-    #===== Buttons =====#
-    def open_section_ref(self, affectation=None):
-        if affectation:
-            # see `carpentry.group.affectation`
-            self = affectation
+    #===== Actions & Buttons =====#
+    def _get_raise_to_reservations(self, message):
+        """ Used when trying to delete source of budget, like when:
+            * deleting `carpentry.group.launch`
+            * unaffecting `carpentry.affectation` (position-to-launch)
+
+            :return: kwargs of `exceptions.RedirectWarning`
+        """
+        return {
+            'message': message,
+            'action': self.action_open_tree(),
+            'button_text': _("Show reservations"),
+        }
+    def action_open_tree(self):
+        """ :arg self: records of this model, gotten from a `search` """
+        return (
+            self.env['ir.actions.act_window']
+            ._for_xml_id('carpentry_position_budget.action_open_budget_report_remaining')
+        ) | {
+            'name': _("Budget reservations"),
+            'views': [(False, 'tree')],
+            'domain': [('id', 'in', self.ids)],
+        }
+    
+    def open_section_ref(self, reservation=None):
+        if reservation:
+            # see `carpentry.budget.reservation`
+            self = reservation
         
         """ Opens a document providing or reserving some budget """
         if not self.section_model_id:

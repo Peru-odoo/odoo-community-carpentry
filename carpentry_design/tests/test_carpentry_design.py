@@ -2,11 +2,11 @@
 
 from odoo import exceptions, fields, _, Command, tools
 from odoo.tests import common, Form
-from odoo.addons.carpentry_position.tests.test_carpentry_position import TestCarpentryPosition
+from odoo.addons.carpentry_position.tests.test_carpentry_00_base import TestCarpentryGroup_Base
 
 from datetime import datetime, timedelta
 
-class TestCarpentryDesign(TestCarpentryPosition):
+class TestCarpentryDesign(TestCarpentryGroup_Base):
 
     @classmethod
     def setUpClass(cls):

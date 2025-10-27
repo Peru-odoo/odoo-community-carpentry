@@ -57,10 +57,11 @@ class CarpentryPlanningMixin(models.AbstractModel):
         """ Computes `planning_card_color_int` from `planning_card_color_class` as per
             dict `PLANNING_CARD_COLOR`
         """
-        for record in self:
-            if record.planning_card_color_is_auto:
-                color_int = PLANNING_CARD_COLOR.get(record.planning_card_color_class)
-                record.planning_card_color_int = color_int
+        auto = self.filtered('planning_card_color_is_auto')
+        (self - auto).planning_card_color_int = False
+        for record in auto:
+            color_int = PLANNING_CARD_COLOR.get(record.planning_card_color_class)
+            record.planning_card_color_int = color_int
 
     #===== Button =====#
     def action_open_planning_card(self):

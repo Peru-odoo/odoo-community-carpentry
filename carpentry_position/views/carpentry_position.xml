@@ -13,10 +13,6 @@
         <field name="state">code</field>
         <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_position')</field>
     </record>
-    <!-- Menu-item -->
-    <menuitem id="menu_carpentry_position" sequence="20" action="action_open_position_srv" parent="carpentry_project.menu_projects_carpentry" />
-
-
 
     <!-- Positions (tree) -->
     <record id="carpentry_position_tree" model="ir.ui.view">
@@ -24,7 +20,7 @@
         <field name="model">carpentry.position</field>
 
         <field name="arch" type="xml">
-            <tree multi_edit="1" editable="bottom" default_order="seq_group, lot_id, sequence">
+            <tree multi_edit="1" editable="bottom">
                 <field name="project_id_domain" invisible="1" />
                 <field name="project_id" invisible="context.get('default_project_id')" />
 

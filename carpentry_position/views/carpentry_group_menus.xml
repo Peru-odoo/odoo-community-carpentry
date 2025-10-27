@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Menu-item -->
+    <menuitem id="menu_carpentry_group"
+        parent="carpentry_project.menu_projects_carpentry"
+        sequence="20"
+        name="Carpentry"
+    >
+        <menuitem id="menu_carpentry_position" sequence="20" action="carpentry_position.action_open_position_srv" />
+        <menuitem id="menu_carpentry_lot"      sequence="10" action="carpentry_position.action_open_lot_srv" />
+        <menuitem id="menu_carpentry_phase"    sequence="30" action="carpentry_position.action_open_phase_srv" />
+        <menuitem id="menu_carpentry_launch"   sequence="40" action="carpentry_position.action_open_launch_srv" />
+    </menuitem>
+
+</odoo>

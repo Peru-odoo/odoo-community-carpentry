@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action: Open project's tasks (see OCA module `project_task_link`)
+         => don't show budget tasks
+    -->
+    <record id="project.act_project_project_2_project_task_all" model="ir.actions.act_window">
+        <field name="domain">[('display_project_id', '=', active_id), ('allow_timesheets', '=', False)]</field>
+    </record>
+</odoo>

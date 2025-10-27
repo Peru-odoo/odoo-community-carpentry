@@ -112,10 +112,7 @@
 
                             <h3>Impact of changes in Interface configuration</h3>
                             <p>
-                                Any changes in Interface configuration do not impact previously imported budget.
-                                The only modification having direct impact on Position's Budget is the change
-                                of Default Product of Analytic Account. It changes how the time workloads are valued
-                                in the projects. However, the Product Type of this product should never be changed.
+                                Previously imported budgets are not impacted by any changes of the Interface configuration.
                             </p>
                         </page>
                     </notebook>

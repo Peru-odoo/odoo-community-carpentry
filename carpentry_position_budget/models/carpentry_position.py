@@ -3,8 +3,7 @@
 from odoo import models, fields, api, exceptions, _
 
 class CarpentryPosition(models.Model):
-    _name = 'carpentry.position'
-    _inherit = ['carpentry.position', 'carpentry.group.budget.mixin']
+    _inherit = ['carpentry.position']
     _rec_name = 'display_name'
     _rec_names_search = ['name']
 
@@ -18,6 +17,7 @@ class CarpentryPosition(models.Model):
     position_budget_ids = fields.One2many(
         comodel_name='carpentry.position.budget',
         inverse_name='position_id',
+        copy=True,
     )
     budget_subtotal = fields.Monetary(
         string='Sub-total',
@@ -25,20 +25,33 @@ class CarpentryPosition(models.Model):
         currency_field='currency_id',
     )
 
+    # allow duplicate for import from exernal db
+    _sql_constraints = [('name_per_project', 'check(1=1)', ''),]
+
+    #===== CRUD =====#
+    def unlink(self):
+        """ Unlink positions' budgets by ORM, to trigger
+            `_clean_reservation_and_constrain_budget` if needed
+        """
+        self.position_budget_ids.unlink()
+        return super().unlink()
+
     #===== Compute (display_name) =====#
     def _compute_display_name(self):
         """ Full display_name mode for merge wizard """
         if not self._context.get('merge_wizard'):
-            return super()._compute_display_name()
+            for position in self:
+                position.display_name = position.name
+            return
         
         for position in self:
-            position.display_name = '{name} ({lot}) / {qty} / {range} / {descr} / {budget}' . format(
+            position.display_name = '{name} | {lot} | {qty} | {range} | {descr} | {budget}' . format(
                 name = position.name,
-                lot = position.lot_id.name or '',
-                qty = position.quantity,
-                range = position.range or '',
-                descr = position.description or '',
-                budget = float(position.budget_total) or 0,
+                lot = _('Lot: ') + (position.lot_id.name or 'Ø'),
+                qty = _('Qty: ') + str(position.quantity),
+                range = _('Range: ') + (position.range or 'Ø'),
+                descr = _('Descr: ') + (position.description or 'Ø'),
+                budget = _('Budget: +') + str(float(position.budget_total) or 0.0),
             )
     
     @api.depends('name')
@@ -69,7 +82,7 @@ class CarpentryPosition(models.Model):
         'project_id.budget_ids', 'project_id.budget_ids.date_from', 'project_id.budget_ids.date_to',
         # 2. position' budgets
         'position_budget_ids',
-        'position_budget_ids.amount',
+        'position_budget_ids.amount_unitary',
         # 3. position quantity
         'quantity',
     )

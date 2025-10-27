@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo import api, models, fields
 
 class Lot(models.Model):
     _name = "carpentry.group.lot"
+    _inherit = ['carpentry.group.phase', 'carpentry.affectation.mixin']
     _description = "Lots"
-    _inherit = ['carpentry.group.mixin', 'carpentry.group.affectation.mixin']
-    _order = 'sequence, id'
-    _carpentry_affectation_section_of = 'phase'
+    _carpentry_field_affectations = 'position_ids'
     
-    #===== Fields (from `affectation.mixin`) =====#
-    # `affectation_ids` should be named `position_ids`, but it's a cheat for `_inverse_section_ids`
-    affectation_ids = fields.One2many(
-        comodel_name='carpentry.position',
-        inverse_name='lot_id',
-        string='Positions',
-        domain=[]
-    )
-
-    def _set_affectations_active(self):
-        """ Don't propagate `lot` active/state to its `positions` """
-        return
+    #===== Fields =====#
+    # from mixins
+    affectation_ids = fields.One2many(inverse_name='lot_id',)
+    position_ids = fields.One2many(inverse_name='lot_id', compute='',)
     

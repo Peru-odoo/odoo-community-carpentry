@@ -52,7 +52,7 @@ class CarpentryPlanningCard(models.Model):
         comodel_name='carpentry.group.launch',
         string='Launches',
         compute=True, # needed for `search` not to be ignored
-        search='_search_launch_ids' # needed for standard search to work
+        search='_search_launch_ids', # needed for standard search to work
     )
 
     # color of body's template (button)
@@ -183,13 +183,13 @@ class CarpentryPlanningCard(models.Model):
         # 2.
         columns = self.env['carpentry.planning.column'].search([('fold', '=', False)])
         for column in columns:
-            column_domain = self.env[column.res_model]._get_planning_domain()
-            
             # Add specific domain per column
-            if column_domain:
+            Column = self.env[column.res_model]
+            if hasattr(Column, '_get_planning_domain'):
                 domain = expression.AND([
-                    domain,
-                    expression.OR([[('column_id', '!=', column.id)], column_domain])
+                    domain, expression.OR([
+                        [('column_id', '!=', column.id)], Column._get_planning_domain()
+                    ])
                 ])
 
 
@@ -203,17 +203,18 @@ class CarpentryPlanningCard(models.Model):
         """ Allow specific domain to filter the column's cards """
         # 1. Retrieve the column_id from the domain
         column_id_ = self._get_domain_part(domain, 'column_id')
-        column = self.env['carpentry.planning.column'].browse(column_id_)
-        if not column:
-            return []
+        domain_column = [] if not column_id_ else [('column_id', '=', column_id_)]
+        column = self.env['carpentry.planning.column'].search(domain_column)
         
         # 2. Get the column's domain (if any) and add it to the current domain
-        Model = self.env[column.res_model]
-        column_domain = Model._get_planning_domain()
-        if column_domain:
-            domain = expression.AND([domain, column_domain])
+        domain_card = []
+        for res_model in column.mapped('res_model'):
+            Model = self.env[res_model]
+            if hasattr(Model, 'get_planning_domain'):
+                domain_card = expression.OR([domain, Model._get_planning_domain()])
+        if domain_card:
+            domain = expression.AND([domain, domain_card])
 
-        # 3. Let possibility of custom filtering by original model
         return super(CarpentryPlanningCard, self.sudo()).search(
             domain, offset, limit, order, **kwargs
         )

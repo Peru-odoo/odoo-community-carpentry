@@ -1,56 +1,84 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <!-- Tree -->
-    <record id="carpentry_group_affectation_tree" model="ir.ui.view">
-        <field name="name">carpentry.group.affectation.tree</field>
-        <field name="model">carpentry.group.affectation</field>
+    <!-- Tree (Phase) -->
+    <record id="carpentry_affectation_tree_phase" model="ir.ui.view">
+        <field name="name">carpentry.affectation.tree.phase</field>
+        <field name="model">carpentry.affectation</field>
 
         <field name="arch" type="xml">
             <tree editable="bottom" delete="False" limit="200">
                 <field name="project_id" invisible="1" />
+                <field name="is_affectable" invisible="1" />
+                <field name="mode" invisible="1" />
 
-                <field name="section_ref"
-                    options="{'no_create': 1}"
-                    string="Lot"
-                    readonly="1"
+                <field name="lot_id"      options="{'no_create': 1}" />
+                <field name="position_id" options="{'no_create': 1}" decoration-bf="True" />
+                <field name="quantity_position" />
+                <field name="quantity_remaining_to_affect"
+                    decoration-success="quantity_remaining_to_affect &gt; 0"
+                    decoration-bf     ="quantity_remaining_to_affect &gt; 0"
                 />
-                <field name="position_id"
-                    options="{'no_create': 1, 'no_open': 1}"
-                    string="Position"
-                    readonly="1"
-                    decoration-bf="True"
+                <field name="quantity_affected"
+                    attrs="{
+                        'required': [('mode', '=', 'phase')],
+                        'readonly': ['|', ('mode', '=', 'launch'), ('is_affectable', '=', False)],
+                    }"
+                    sum="1" 
+                    decoration-primary="quantity_affected &gt; 0"
+                    decoration-bf     ="quantity_affected &gt; 0"
                 />
-                <field name="quantity_available" readonly="1" string="Position quantity" digits="[10,0]" />
-                <field name="quantity_remaining_to_affect" readonly="1" digits="[10,0]" />
-                <field name="quantity_affected" digits="[10,0]"
-                    sum="1" required="True"
-                    decoration-bf="True" decoration-primary="True"
-                />
+                <button icon="fa-ban" attrs="{'invisible': [('is_affectable', '=', True)]}" title="Already affected" />
             </tree>
+        </field>
+    </record>
+    <!-- Tree (Launch) -->
+    <record id="carpentry_affectation_tree_launch" model="ir.ui.view">
+        <field name="name">carpentry.affectation.tree.launch</field>
+        <field name="model">carpentry.affectation</field>
+        <field name="inherit_id" ref="carpentry_position.carpentry_affectation_tree_phase" />
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+
+        <field name="arch" type="xml">
+            <field name="lot_id" position="attributes">
+                <attribute name="name">phase_id</attribute>
+            </field>
+
+            <field name="quantity_position" position="replace" />
+            <field name="quantity_remaining_to_affect" position="replace" />
+            
+            <button position="before">
+                <field name="affected" widget="boolean_toggle" attrs="{
+                    'readonly': [('is_affectable', '=', False), ('affected', '=', False)],
+                }" />
+            </button>
         </field>
     </record>
 
     <!-- Form -->
-    <record id="carpentry_group_affectation_form" model="ir.ui.view">
-        <field name="name">carpentry.group.affectation.form</field>
-        <field name="model">carpentry.group.affectation</field>
+    <record id="carpentry_affectation_form" model="ir.ui.view">
+        <field name="name">carpentry.affectation.form</field>
+        <field name="model">carpentry.affectation</field>
 
         <field name="arch" type="xml">
             <form>
+                <field name="mode" invisible="1" />
+
                 <sheet>
-                    <group name="group_section">
+                    <group name="group_left">
                         <group name="group_left">
                             <field name="project_id" />
-                            <field name="group_ref" />
-                            <field name="record_ref" />
-                            <field name="section_ref" />
-        
                             <field name="position_id" />
+                            <field name="launch_id" attrs="{'invisible': [('mode', '!=', 'launch')]}" />
+                            <field name="phase_id" />
+                            
+                            <field name="lot_id" attrs="{'invisible': [('mode', '!=', 'phase')]}" />
                         </group>
+
                         <group name="group_right">
-                            <field name="quantity_affected" readonly="1" digits="[10,0]" />
-                            <field name="quantity_available" />
-                            <field name="quantity_remaining_to_affect" digits="[10,0]" />
+                            <field name="quantity_affected" readonly="1" />
+                            <field name="quantity_position" />
+                            <field name="quantity_remaining_to_affect" />
                         </group>
                     </group>
                 </sheet>
@@ -58,19 +86,14 @@
         </field>
     </record>
 
+    
     <!-- Search -->
-    <record model="ir.ui.view" id="carpentry_group_affectation_search">
-        <field name="name">carpentry.group.affectation.search</field>
-        <field name="model">carpentry.group.affectation</field>
+    <record model="ir.ui.view" id="carpentry_affectation_search">
+        <field name="name">carpentry.affectation.search</field>
+        <field name="model">carpentry.affectation</field>
 
         <field name="arch" type="xml">
             <search>
-                <field name="record_ref" string="Affectation"
-                    filter_domain="['|', '|',
-                        ('record_ref', 'ilike', self),
-                        ('group_ref', 'ilike', self),
-                        ('seection_ref', 'ilike', self)]"
-                    />
                 <field name="project_id" />
 
                 <filter string="★ Projects"
@@ -82,56 +105,6 @@
                     <field name="project_id" invisible="context.get('default_project_id')" />
                 </searchpanel>
             </search>
-        </field>
-    </record>
-
-    
-    <!-- 
-        (!!!) Affectation Temp Matrix is a field of `project.project`
-        Same form for Phase or Launch, varying depending context
-    -->
-    <record id="carpentry_group_affectation_temp_matrix" model="ir.ui.view">
-        <field name="name">carpentry.group.affectation.temp</field>
-        <field name="model">project.project</field>
-        <field name="priority">10000</field>
-
-        <field name="arch" type="xml">
-            <form>
-                <h1><field name="name" class="oe_inline" readonly="1" /></h1>
-
-                <h3 invisible="context.get('res_model') != 'carpentry.group.phase'" >Positions affectation in Phases</h3>
-                <h3 invisible="context.get('res_model') != 'carpentry.group.launch'">Positions affectation in Launches</h3>
-
-                <field
-                    name="affectation_ids_temp_phase"
-                    widget="x2many_2d_matrix"
-                    field_x_axis="group_ref"
-                    field_y_axis="record_ref"
-                    field_value="quantity_affected"
-                    invisible="context.get('res_model') != 'carpentry.group.phase'"
-                >
-                    <tree limit="999999">
-                        <field name="group_ref"/>
-                        <field name="record_ref" context="{'display_with_suffix': True}" />
-                        <field name="quantity_affected" digits="[10,0]" />
-                    </tree>
-                </field>
-                
-                <field
-                    name="affectation_ids_temp_launch"
-                    widget="x2many_2d_matrix"
-                    field_x_axis="group_ref"
-                    field_y_axis="record_ref"
-                    field_value="affected"
-                    invisible="context.get('res_model') != 'carpentry.group.launch'"
-                >
-                    <tree limit="999999">
-                        <field name="group_ref"/>
-                        <field name="record_ref" context="{'display_with_suffix': True}" />
-                        <field name="affected" widget="boolean_toggle" />
-                    </tree>
-                </field>
-            </form>
         </field>
     </record>
 </odoo>

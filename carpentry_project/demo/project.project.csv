@@ -1,0 +1,5 @@
+id,active,date_start,date,name,parent_id:id
+carpentry_project.tours,True,2025-01-01,2025-12-31,Renovation Hopital de Tours,
+carpentry_project.rennes,True,2025-01-01,2025-12-31,SG Rennes,
+carpentry_project.eiffel,True,2025-01-01,2025-12-31,Tour Eiffel,
+carpentry_project.denfert,False,2025-01-01,2025-12-31,Prototype rue Denfert,carpentry_project.eiffel

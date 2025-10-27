@@ -26,7 +26,7 @@
         <field name="arch" type="xml">
             <pivot disable_linking="0">
                 <field name="currency_id" invisible="1" />
-                <field name="group_model_id" invisible="1" />
+                <field name="analytic_account_id" invisible="1" />
                 
                 <field name="section_model_id" type="col" />
 
@@ -75,8 +75,10 @@
                 <field name="launch_ids" widget="many2many_tags" optional="show" />
                 <field name="section_model_name" string="Document" />
                 <field name="section_ref" context="{'display_description': 1}" />
-                <field name="quantity_affected" string="Budget reservation" widget="monetary" sum="1" optional="show" />
-                <field name="amount_expense" widget="monetary" sum="1" optional="show" />
+                <field name="amount_reserved" sum="1" optional="hide" />
+                <field name="amount_reserved_valued" widget="monetary" sum="1" optional="show" />
+                <field name="amount_expense" sum="1" optional="hide" />
+                <field name="amount_expense_valued" widget="monetary" sum="1" optional="show" />
                 <field name="amount_gain" widget="monetary" sum="1" optional="show" />
             </tree>
         </field>
@@ -92,14 +94,14 @@
         
         <field name="arch" type="xml">
             <!-- Default filters -->
-            <filter name="filter_project_global_cost" position="after">
+            <filter name="filter_other" position="after">
                 <separator name="gains_losses" />
                 <filter string="Gains"  name="filter_gain" domain="[('amount_gain', '&gt;', 0.0)]" />
                 <filter string="Losses" name="filter_loss" domain="[('amount_gain', '&lt;', 0.0)]" />
 
                 <separator name="with_reservation" />
-                <filter string="With budget reservation"  name="filter_reservation"       domain="[('quantity_affected', '!=', 0.0)]" />
-                <filter string="Without reservation"      name="filter_reservation_empty" domain="[('quantity_affected', '=',  0.0)]" />
+                <filter string="With budget reservation"  name="filter_reservation"       domain="[('amount_reserved', '!=', 0.0)]" />
+                <filter string="Without reservation"      name="filter_reservation_empty" domain="[('amount_reserved', '=',  0.0)]" />
 
                 <separator name="models" />
                 <filter string="Purchase Orders"      name="filter_purchase" domain="[('section_model_id.model', 'in', ['purchase.order'])]" />
@@ -192,7 +194,7 @@
         
         <field name="arch" type="xml">
             <!-- Default filters -->
-            <filter name="filter_project_global_cost" position="after">
+            <filter name="filter_other" position="after">
                 <separator name="date" />
                 <filter name="date" string="Date" date="date" />
             </filter>

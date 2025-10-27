@@ -6,7 +6,7 @@ class PlanSet(models.Model):
     _name = "carpentry.plan.set"
     _description = "Plan Set"
     _inherit = [
-        'carpentry.group.mixin',
+        'carpentry.group.phase',
         'mail.thread', 'mail.activity.mixin'
     ]
 

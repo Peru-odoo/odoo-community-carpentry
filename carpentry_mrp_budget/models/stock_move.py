@@ -4,9 +4,8 @@ from odoo import models, fields, api
 
 class StockMove(models.Model):
     _name = 'stock.move'
-    _inherit = ['stock.move', 'analytic.mixin']
+    _inherit = ['stock.move']
 
-    analytic_distribution = fields.Json(store=True)
     price_unit = fields.Float(
         help="For permanent valuation. Product cost at move's confirmation.",
     )
@@ -19,9 +18,9 @@ class StockMove(models.Model):
         related='company_id.currency_id',
     )
 
-    @api.depends('product_id', 'partner_id')
+    @api.depends('product_id', 'partner_id', 'company_id')
     def _compute_analytic_distribution(self):
-        """ Computed field `analytic_distribution` (intermediate Manufacturing Order) """
+        """ Apply analytic distribution model """
         for move in self:
             distribution = self.env['account.analytic.distribution.model']._get_distribution({
                 "product_id": move.product_id.id,
@@ -33,4 +32,9 @@ class StockMove(models.Model):
             move.analytic_distribution = distribution or move.analytic_distribution
         
         self._compute_analytic_distribution_carpentry()
+    
+    # def _compute_analytic_distribution(self):
+    #     res = super()._compute_analytic_distribution()
+    #     self._compute_analytic_distribution_carpentry()
+    #     return res
     

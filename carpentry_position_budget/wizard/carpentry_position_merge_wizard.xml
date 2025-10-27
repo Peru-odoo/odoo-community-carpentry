@@ -18,8 +18,13 @@
         <field name="arch" type="xml">
             <form>
                 <field name="project_id_domain" invisible="1" />
-                
                 <sheet>
+
+                    <div name="warning_banner" role="alert" class="alert alert-warning">
+                        Before merging, the affectations of the source position(s) will be removed.
+                        Thus, the affectations of the target position will need manual work again.
+                    </div>
+                    
                     <group>
                         <field name="project_id" invisible="context.get('default_project_id')" />
                         <field name="position_id_target" context="{'merge_wizard': True}" />

@@ -11,9 +11,6 @@
                 <field name="currency_id" invisible="1" />
                 <field name="price_unit" readonly="1" widget="monetary" optional="hide" groups="base.group_no_one" />
                 <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
-                <field name="analytic_distribution" widget="analytic_distribution"
-                    groups="analytic.group_analytic_accounting" optional="hide"
-                />
             </tree>
         </field>
     </record>
@@ -28,9 +25,6 @@
                 <field name="currency_id" invisible="1" />
                 <field name="price_unit" readonly="1" widget="monetary" optional="hide" groups="base.group_no_one" />
                 <field name="standard_price" widget="monetary" optional="hide" groups="base.group_no_one" />
-                <field name="analytic_distribution" widget="analytic_distribution"
-                    groups="analytic.group_analytic_accounting" optional="hide"
-                />
             </tree>
         </field>
     </record>
@@ -45,9 +39,6 @@
                 <field name="currency_id" invisible="1" />
                 <field name="price_unit" readonly="1" widget="monetary" groups="base.group_no_one" />
                 <field name="standard_price" widget="monetary" groups="base.group_no_one" />
-                <field name="analytic_distribution" widget="analytic_distribution"
-                    groups="analytic.group_analytic_accounting"
-                />
             </group>
         </field>
     </record>

@@ -7,8 +7,6 @@ from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 
 class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
 
-    budget_installation = 10.0
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -16,10 +14,6 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
         # duplicate position with some budget
         cls.position_duplicate = cls.position.copy({'quantity': 2})
         cls.position_duplicate.write({'name': cls.position.name})
-        cls.position_duplicate.position_budget_ids = [Command.create({
-            'analytic_account_id': cls.aac_install.id,
-            'amount': cls.budget_installation
-        })]
 
         # merge wizard
         cls.Wizard = cls.env['carpentry.position.merge.wizard']
@@ -29,13 +23,18 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
 
     #===== carpentry.position =====#
     def test_01_position_display_name(self):
+        """ When position is displayed in merge wizzard, show other info
+            (including its lot) to be able to distinguish duplicates 
+        """
         display_name = self.position.with_context(merge_wizard=True).display_name
         self.assertTrue(self.lot.name in display_name)
     
     def test_02_position_warning_name(self):
+        """ Warning banner on project when it exists position's names duplicates """
         self.assertTrue(self.position.warning_name)
         self.assertTrue(self.position_duplicate.warning_name)
         self.assertFalse(self.project.position_ids[2].warning_name)
+        self.assertTrue(self.project._get_warning_banner())
     
 
     #===== carpentry.position.merge.wizard =====#
@@ -66,4 +65,7 @@ class TestCarpentryPositionBudget_Position(TestCarpentryPositionBudget_Base):
 
         # Qty: should sum & budget: should weighted-avg
         self.assertEqual(self.position.quantity, 3)
-        self.assertEqual(round(self.position.budget_installation, 2), round((0.0 * 1 + self.budget_installation * 2) / 3, 2))
+        self.assertEqual(
+            round(self.position.budget_installation, 2),
+            round((0.0 * 1 + self.amount_installation * 2) / 3, 2)
+        )

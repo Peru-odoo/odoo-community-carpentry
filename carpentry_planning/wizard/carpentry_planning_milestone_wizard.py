@@ -49,7 +49,7 @@ class PlanningMilestoneWizard(models.TransientModel):
 
     #===== Onchange =====#
     @api.onchange('date_new')
-    def _compute_date_new(self):
+    def _onchange_date_new(self):
         for wizard in self:
             d1, d2 = wizard.date_origin, wizard.date_new
             if not d1 or not d2:
@@ -83,7 +83,7 @@ class PlanningMilestoneWizard(models.TransientModel):
         
         for wizard in self:
             # calculate `should_shift` before setting date
-            should_shift = wizard.shift and wizard.date_origin and wizard.date_new
+            should_shift = wizard.shift and bool(wizard.date_origin) and bool(wizard.date_new)
 
             # set date
             wizard.milestone_id.date = wizard.date_new
@@ -93,6 +93,6 @@ class PlanningMilestoneWizard(models.TransientModel):
                 siblings = wizard.launch_id.milestone_ids - wizard.milestone_id
                 to_shift = siblings.filtered(lambda x: x.date and x._should_shift())
                 for sibling in to_shift:
-                    sibling.date += datetime.timedelta(days = 7 * wizard.offset)
+                    sibling.date += datetime.timedelta(weeks = wizard.offset)
         
         return self

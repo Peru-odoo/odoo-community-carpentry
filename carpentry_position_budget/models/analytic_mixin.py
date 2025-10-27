@@ -1,124 +1,160 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, Command
+from odoo import models, fields, api, exceptions, _
+
+class BaseModel(models.AbstractModel):
+    """ To target parent model of child model using analytics
+        Example: on PO, detects changes of `project_id` and cascade it
+        to `order_line` because it has `analytic_distribution` field
+    """
+    _inherit = 'base'
+
+    def write(self, vals):
+        # before `write`
+        if 'project_id' in vals:
+            self._cascade_project_to_line_analytic_distrib(vals['project_id'])
+        
+        return super().write(vals)
+
+    def _get_fields_related_with(self, looked_field):
+        """ Return every relational field of this model having `field`
+            in the model in relation
+
+            Exemple: when called from `purchase.order`, it returns `['order_line']`
+        """
+        fields = []
+        for field, description in self.fields_get(attributes=['relation']).items():
+            model_child = description.get('relation')
+            if model_child and hasattr(self.env[model_child], looked_field):
+                fields.append(field)
+        return fields
+
+    # @api.onchange('project_id') # must be set in child modules
+    def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
+        field_lines = self._get_fields_related_with('analytic_distribution')
+        if not field_lines:
+            return
+
+        onchange = bool(new_project_id == None)
+        if not onchange: # from `write()`
+            new_project = self.env['project.project'].browse(new_project_id)
+        
+        for parent in self:
+            if onchange:
+                new_project = parent.project_id
+            
+            for field in field_lines:
+                parent[field]._synch_project_analytic_distrib_from_section(new_project)
 
 class AnalyticMixin(models.AbstractModel):
-    """ 
-        Compute and store a `project_id` field from `analytic_distribution` (in priority),
-        else from the parent object (`purchase.order` or `account.move`).
-
-        Plus business logics to override analytic to INTERNAL project/budget
+    """
+        Designed for `line`-type model (like `account_move_line`)
+        Update lines's analytic:
+        - Cascading section's project (on some events) - only for project plan
+        - Forcing analytic to INTERNAL project & budget - both project & budget plan
     """
     _inherit = ['analytic.mixin']
 
-    #====== Fields methods ======#
-    def _get_fields_project_id(self):
-        """ Fields (in order) in which to lookup `project_id`
-            Eg: order_id, picking_id, production_id, ...
+    #====== CRUD ======#
+    def write(self, vals):
+        """ 1. Simulate `onchange`
+            2. Auto update budget reservation of parent (e.g. PO) on change
+               of cost, product or analytic of line (e.g. PO line)
         """
-        return []
+        res = super().write(vals)
 
-    #====== Fields ======#
-    project_id = fields.Many2one(
-        comodel_name='project.project',
-        compute='_compute_project_id',
-        store=True,
-    )
-    analytic_ids = fields.Many2many(
-        comodel_name='account.analytic.account',
-        compute='_compute_analytic_ids',
-        string='Analytic Accounts',
-    )
-
+        # 1. after `write()`
+        if 'analytic_distribution' in vals and not self._context.get('has_enforced_aac_distrib'):
+            self._enforce_internal_analytic()
+        # 2.
+        if any(x in vals for x in self._get_fields_budget_reservation_refresh()):
+            # print('self._get_fields_related_with(project_id)', self._get_fields_related_with('project_id'))
+            for field_parent in self._get_fields_related_with('project_id'):
+                if hasattr(self[field_parent], '_refresh_budget_reservations'):
+                    # print('field_parent', field_parent)
+                    self[field_parent]._refresh_budget_reservations()
+        
+        return res
+    
+    def _compute_analytic_distribution_carpentry(self):
+        """ **TO BE CALLED AT THE END** of `_compute_analytic_distribution`
+            in inheriting model
+            (because `_compute_analytic_distribution` is fully overriden in them,
+            without call to super())
+        """
+        for record in self:
+            project = record._get_project_from_parent()._origin
+            record._synch_project_analytic_distrib_from_section(project)
 
     #====== Compute ======#
-    @api.depends('analytic_distribution')
-    def _compute_analytic_ids(self):
-        """ Gather analytic account selected in the line's analytic distribution
-            synthetic: only analytic_ids (no % distribution)
+    def _synch_project_analytic_distrib_from_section(self, new_project):
+        """ Cascade `project_id` of the parent record (if changed)
+            to the line's analytic distribution 
         """
-        for record in self:
-            distrib = record.analytic_distribution
-            record.analytic_ids = distrib and [Command.set([int(x) for x in distrib.keys()])]
-
-    def _compute_analytic_distribution_carpentry(self):
-        """ Since `_compute_analytic_distribution` is re-defined on inheriting models,
-            this method must be called *manually* from them to trigger mixin' logics
-        """
-        self._compute_project_id()
-        self._enforce_internal_analytic()
-
-    @api.depends(
-        lambda self: ['analytic_distribution'] + [x + '.project_id' for x in self._get_fields_project_id()]
-    )
-    def _compute_project_id(self):
-        """ 1. First cascade `project_id` of the parent record (if changed)
-               to the line's analytic distribution 
-            2. Then recompute `project_id`:
-                a) from analytic first (if only 1 is set)
-                b) else from parent's `project_id`
-        """
-        # Get all analytic accounts of projects
-        data = self.env['project.project'].sudo().search_read(fields=['analytic_account_id'])
-        mapped_projects_analytics = {x['analytic_account_id'][0]: x['id'] for x in data}
-        parent_fields = self._get_fields_project_id()
-
+        mapped_projects_analytics = self._get_mapped_projects_analytics()
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
-
+        
         for record in self:
-            projects_analytics = set()
-            if record.analytic_distribution:
-                projects_analytics = (
-                    set(int(x) for x in record.analytic_distribution.keys())
-                    & set(mapped_projects_analytics.keys())
-                )
-
-            new_id = record._get_project_from_parent(parent_fields)._origin.analytic_account_id.id
+            new_aac_id = new_project.analytic_account_id.id
             if record._should_enforce_internal_analytic():
-                new_id = replace_dict_enforce.get(new_id, new_id)
+                new_aac_id = replace_dict_enforce.get(new_aac_id) or new_aac_id
 
-            args = (projects_analytics, new_id, mapped_projects_analytics)
-            if record._origin.project_id != record.project_id:
-                record._cascade_parent_project_to_analytic(*args)
-            record._set_project_id_from_analytic_first(*args)
+            record._cascade_parent_project_to_analytic(new_aac_id, mapped_projects_analytics)
 
-    def _cascade_parent_project_to_analytic(self, projects_analytics, new_id, mapped_projects_analytics):
-        """ Update line's project analytic from parent """
+    def _get_mapped_projects_analytics(self):
+        """ Get all analytic accounts of projects """
+        data = self.env['project.project'].sudo().search_read(
+            domain=[('analytic_account_id', '!=', False)],
+            fields=['analytic_account_id']
+        )
+        return {x['analytic_account_id'][0]: x['id'] for x in data}
+
+    def _get_analytics_projects(self, mapped_projects_analytics):
+        """ Return the only analytics accounts from `analytic_distribution`
+            that are related to projects
+        """
         self.ensure_one()
-        # deleted
-        if not new_id and self.analytic_distribution and str(new_id) in self.analytic_distribution:
-            self.analytic_distribution.pop(str(new_id))
-        else:
-            # added
-            if new_id and not len(projects_analytics):
-                self.analytic_distribution = (self.analytic_distribution or {}) | {new_id: 100}
-            # replaced
-            elif new_id:
-                replace_dict = {x: new_id for x in mapped_projects_analytics.keys()}
-                self.analytic_distribution = self._get_replaced_analytic(replace_dict)
+        projects_analytics = set()
+        if self.analytic_distribution:
+            projects_analytics = (
+                set(int(x) for x in self.analytic_distribution.keys())
+                & set(mapped_projects_analytics.keys())
+            )
+        return projects_analytics
 
-    def _set_project_id_from_analytic_first(self, projects_analytics, new_id, mapped_projects_analytics):
-        """ Sets `project_id` of line, from analytic (priority) or parent """
+    def _cascade_parent_project_to_analytic(self, new_aac_id, mapped_projects_analytics):
+        """ Cascade section's project to line:
+            1. Remove all project-related analytics on the line
+            2. Set up the cascaded project
+        """
         self.ensure_one()
-        if len(projects_analytics) == 1:
-            analytic_id = next(iter(projects_analytics))
-        else:
-            analytic_id = new_id
-        self.project_id = mapped_projects_analytics.get(analytic_id)
+
+        distrib = self.analytic_distribution or {}
+        for aac_id in mapped_projects_analytics.keys():
+            if str(aac_id) in distrib:
+                distrib.pop(str(aac_id))
+        
+        if new_aac_id:
+            distrib |= {new_aac_id: 100}
+
+        self.analytic_distribution = distrib
+
 
     #====== Helper methods ======#
-    def _get_project_from_parent(self, parent_fields):
-        """ Compute `project_id` from the fields listed in `_get_fields_project_id` """
-        if self:
-            self.ensure_one()
+    def _get_project_from_parent(self):
+        """ Compute `project_id` from the parent model """
+        if self: self.ensure_one()
         
-        for field in parent_fields:
+        for field in self._get_fields_related_with('project_id'):
             project_id = self[field].project_id
             if project_id:
                 return project_id
         return self.env['project.project']
     
-    def _get_replaced_analytic(self, replace_dict):
+    def _get_replaced_analytic_distribution(self, replace_dict):
+        """ Replaces keys in `self.analytic_distribution` as per `replace_dict`
+            :arg replace_dict: {old_analytic_id -> new_analytic_id}
+        """
         new_dict = {}
         if self.analytic_distribution:
             for account_id, percent in self.analytic_distribution.items():
@@ -128,28 +164,44 @@ class AnalyticMixin(models.AbstractModel):
 
 
     #====== Internal analytics enforcment ======#
+    @api.onchange('analytic_distribution')
     def _enforce_internal_analytic(self):
-        """ Forces analytic of *internal* project for all *storable* lines """
-        if self._context.get('enforce_internal_analytic'):
+        """ Forces analytic (e.g. to *internal* project for all *storable* lines) """
+        self = self.filtered(lambda x: x._should_enforce_internal_analytic())
+        if not self or self._context.get('has_enforced_aac_distrib'): # optim
             return
-        self = (
-            self.filtered(lambda record: record._should_enforce_internal_analytic())
-            .with_context(enforce_internal_analytic=True)
-        )
-        if not self: # optim
-            return
-
+        self = self.with_context(has_enforced_aac_distrib=True)
+        
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
         for record in self:
-            record.analytic_distribution = record._get_replaced_analytic(replace_dict_enforce)
+            record.analytic_distribution = record._get_replaced_analytic_distribution(
+                replace_dict_enforce
+            )
     
     def _should_enforce_internal_analytic(self):
+        """ **Can be inheritted**
+            Under what conditions the analytic should be forced with
+            Forces analytic of *internal* project for all *storable* lines
+        """
         return False
     
     def _get_enforce_dict_analytic_internal(self):
-        """ [For inheritance] Returns `replace_dict` to be applied in `_enforce_internal_analytic`
-            Rule: replace any projects by *INTERNAL project*
+        """ [For inheritance] Returns a static `replace_dict` to be applied in
+             `_enforce_internal_analytic`
+            Rule below replaces any projects by *INTERNAL project*
         """
-        sr_result = self.env['project.project'].sudo().search_read(fields=['analytic_account_id'])
-        internal_id = self.company_id.internal_project_id.analytic_account_id.id
-        return {x: internal_id for x in [x['analytic_account_id'][0] for x in sr_result]}
+        Project = self.env['project.project'].sudo().with_context(active_test=False)
+        sr_result = Project.search_read(
+            domain=[('analytic_account_id', '!=', False)],
+            fields=['analytic_account_id']
+        )
+        internal_aac_id = self.company_id.internal_project_id.analytic_account_id.id
+        return {
+            project_aac_id: internal_aac_id
+            for project_aac_id in [x['analytic_account_id'][0] for x in sr_result]
+        }
+
+    #==== CRUD: budget affectation refresh ====#
+    def _get_fields_budget_reservation_refresh(self):
+        return ['product_id', 'product_qty', 'price_unit', 'discount', 'analytic_distribution',]
+    

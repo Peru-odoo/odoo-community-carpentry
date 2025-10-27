@@ -2,24 +2,20 @@
 
 from odoo import exceptions, fields, _, Command, tools
 from odoo.tests import common, Form
-from odoo.addons.carpentry_position.tests.test_carpentry_position import TestCarpentryPosition
+from odoo.addons.carpentry_position.tests.test_carpentry_00_base import TestCarpentryGroup_Base
 
 import datetime
 
-class TestCarpentryPlanning(TestCarpentryPosition):
+class TestCarpentryPlanning(TestCarpentryGroup_Base):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        model_ids = cls.env['ir.model'].search([])
-        cls.mapped_model_ids = {x.model: x for x in model_ids}
-
         cls.PlanningColumn = cls.env['carpentry.planning.column'].with_context(no_test_mirroring_column_id=True)
         cls.column = cls.PlanningColumn.create({
             'name': 'Column Test',
-            'res_model_id': cls.mapped_model_ids.get('project.project').id,
-            'sticky': True,
+            'res_model_id': cls.env['ir.model']._get_id('project.project'),
             'icon': 'fa-xxx'
         })
 
@@ -38,7 +34,7 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         }])
 
         # Milestones
-        cls.milestones = cls.project.launch_ids[0].milestone_ids
+        cls.milestones = cls.launch.milestone_ids
         cls.milestone_start = fields.first(
             cls.milestones.filtered(lambda x: x.type == 'start')
         )
@@ -46,6 +42,13 @@ class TestCarpentryPlanning(TestCarpentryPosition):
             lambda x: x.type == 'end' and x.column_id == cls.milestone_start.column_id
         )
 
+    @classmethod
+    def _create_wizard(cls):
+        Wizard = Form(
+            cls.env['carpentry.planning.milestone.wizard'].with_context(
+            default_milestone_id=cls.milestone_end.id
+        ))
+        return Wizard.save()
 
     #===== carpentry.planning.column =====#
     def test_01_column_identifier_ref(self):
@@ -89,11 +92,9 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         self.assertTrue(self.Card.read_group(**kwargs))
 
     def test_05_card_real_record(self):
-        card_ids = self.Card.search([])
-        card_id = card_ids.filtered(lambda x: x.res_id == self.project.id)
-        self.assertEqual(card_id._real_record_one(), self.project)
-        self.assertEqual(card_id.display_name, self.project.display_name)
-
+        card = self.Card.search([('res_id', '=', self.project.id)])
+        self.assertEqual(card._real_record_one(), self.project)
+        self.assertEqual(card.display_name, self.project.display_name)
 
     #===== carpentry.planning.milestone, .types & launches =====#
     def test_06_milestone_type_prefill(self):
@@ -117,12 +118,9 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         start, end = datetime.date(2024, 1, 1), datetime.date(2024, 1, 22) # mondays
         self.milestone_start.date, self.milestone_end.date = start, end
         # wizard to change `milestone_end`
-        wizard = (
-            self.env['carpentry.planning.milestone.wizard']
-            .create([{'milestone_id': self.milestone_end.id}])
-        )
 
         # Test with offset (-2 weeks)
+        wizard = self._create_wizard()
         with Form(wizard) as f:
             f.offset = -2
         wizard.button_set_date()
@@ -130,6 +128,7 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         self.assertEqual(self.milestone_start.date, start - datetime.timedelta(weeks=2))
 
         # Test by setting date (+3 weeks)
+        wizard = self._create_wizard()
         with Form(wizard) as f:
             f.date_new = '2024-01-29'
         wizard.button_set_date()
@@ -137,6 +136,7 @@ class TestCarpentryPlanning(TestCarpentryPosition):
         self.assertEqual(self.milestone_start.date, datetime.date(2024, 1, 8))
 
         # Test with no shift
+        wizard = self._create_wizard()
         with Form(wizard) as f:
             f.shift = False
             f.date_new = '2024-02-15'

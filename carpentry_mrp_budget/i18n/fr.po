@@ -234,7 +234,7 @@ msgstr "Montant budget réservé"
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__budget_analytic_ids_workorder
 #: model_terms:ir.ui.view,arch_db:carpentry_mrp_budget.mrp_production_form_view
 msgid "Budget (work orders)"
-msgstr "Budget (opérations)"
+msgstr "Budget (ordres de travail)"
 
 #. module: carpentry_mrp_budget
 #: model:ir.model.fields,field_description:carpentry_mrp_budget.field_mrp_production__sum_quantity_affected_workorders

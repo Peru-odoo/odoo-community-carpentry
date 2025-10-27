@@ -9,29 +9,32 @@
     'application': False,
     'installable': True,
     'category': 'Carpentry/Carpentry',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.2.0',
 
     'depends': [
         'project',
-        'web_widget_numeric_step', 'web_widget_x2many_2d_matrix', # OCA
+        'web_widget_numeric_step', # OCA
         'project_favorite_switch', # other
         'carpentry_base', 'carpentry_project', # carpentry
     ],
+    'demo': [
+        'demo/carpentry.group.lot.csv',
+        'demo/carpentry.position.csv',
+        'demo/carpentry.group.phase.csv',
+        'demo/carpentry_group_launch.xml',
+    ],
     'data': [
         # security
-        'security/ir_model.xml',
         'security/ir.model.access.csv',
         # views
         'views/carpentry_affectation.xml',
-        'views/carpentry_groups.xml',
         'views/carpentry_position.xml',
+        'views/carpentry_group_lot.xml',
+        'views/carpentry_group_phase.xml',
+        'views/carpentry_group_launch.xml',
+        'views/carpentry_group_menus.xml',
         'views/project_project.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'carpentry_position/static/src/**/*',
-        ],
-    },
 }
 
 

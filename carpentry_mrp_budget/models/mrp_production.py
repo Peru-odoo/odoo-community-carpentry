@@ -7,201 +7,242 @@ from collections import defaultdict
 class ManufacturingOrder(models.Model):
     """ Budget Reservation on MOs """
     _name = 'mrp.production'
-    _inherit = ['mrp.production', 'carpentry.budget.reservation.mixin']
+    _inherit = ['mrp.production', 'carpentry.budget.mixin']
+    _carpentry_budget_notebook_page_xpath = '//page[@name="components"]'
+    _carpentry_budget_sheet_name = 'Budget (components)'
+    _carpentry_budget_last_valuation_step = _('products revaluation')
 
     #====== Fields ======#
-    affectation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    affectation_ids_components = fields.One2many(
-        comodel_name='carpentry.group.affectation',
+    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    reservation_ids_components = fields.One2many(
+        comodel_name='carpentry.budget.reservation',
         inverse_name='section_id',
-        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['goods', 'project_global_cost'])]
+        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['goods', 'other'])],
+        context={'active_test': False},
     )
-    affectation_ids_workorders = fields.One2many(
-        comodel_name='carpentry.group.affectation',
+    reservation_ids_workorders = fields.One2many(
+        comodel_name='carpentry.budget.reservation',
         inverse_name='section_id',
-        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['production'])]
+        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['production'])],
+        context={'active_test': False},
     )
     budget_analytic_ids = fields.Many2many(
-        relation='carpentry_group_affectation_budget_mrp_analytic_rel',
+        relation='carpentry_budget_mrp_analytic_rel',
         column1='production_id',
         column2='analytic_id',
-        store=True,
-        readonly=False,
     )
-    budget_analytic_ids_workorder = fields.Many2many(
-        related='budget_analytic_ids',
+    budget_analytic_ids_workorders = fields.Many2many(
+        comodel_name='account.analytic.account',
+        compute='_compute_budget_analytic_ids_workorders',
+        inverse='_inverse_budget_analytic_ids_workorders',
         string='Budget (work orders)',
-        readonly=False,
         domain="""[
             ('budget_project_ids', '=', project_id),
             ('budget_type', 'in', ['production'])
         ]"""
     )
-    amount_budgetable = fields.Monetary(string='Total cost (components)')
-    amount_gain = fields.Monetary(string='Gain (components)')
-    sum_quantity_affected = fields.Float(
+    total_budget_reserved = fields.Float(
         string='Budget (components)',
-        help='Sum of budget reservation for components only'
+        help='Sum of budget reservation for components only',
+        store=True, # needed in expense report
     )
-    currency_id = fields.Many2one(related='project_id.currency_id')
-    sum_quantity_affected_workorders = fields.Float(
+    total_budget_reserved_workorders = fields.Float(
         string='Budget (workorders)',
         help='Sum of budget reservation in hours for workorders only',
-        compute='_compute_sum_quantity_affected_workorders'
+        compute='_compute_budget_totals',
+        compute_sudo=True,
     )
     difference_workorder_duration_budget = fields.Float(
-        compute='_compute_sum_quantity_affected_workorders'
+        compute='_compute_budget_totals',
+        compute_sudo=True,
     )
+    total_expense_valued = fields.Monetary(string='Total cost (components)', compute_sudo=True,)
+    total_expense_valued_workorders = fields.Monetary(
+        string='Total cost (work orders)',
+        compute='_compute_budget_totals',
+        compute_sudo=True,
+    )
+    budget_unit_workorders = fields.Char(default='h')
+    amount_gain = fields.Monetary(string='Gain (components)', compute_sudo=True,)
+    amount_loss = fields.Monetary(compute_sudo=True,)
     amount_gain_workorders = fields.Monetary(
-        compute='_compute_sum_quantity_affected_workorders'
+        compute='_compute_budget_totals',
+        compute_sudo=True,
+    )
+    other_expense_ids = fields.Many2many(compute_sudo=True,)
+    other_expense_ids_workorders = fields.Many2many(
+        comodel_name='carpentry.budget.expense',
+        string='Other expenses (components)',
+        compute='_compute_budget_totals',
+        compute_sudo=True,
+    )
+    date_budget_workorders = fields.Date(
+        compute='_compute_date_budget',
+        string='Last date time',
+        store=True,
+    )
+    # -- view fields --
+    show_gain = fields.Boolean(compute_sudo=True,)
+    is_temporary_gain = fields.Boolean(compute_sudo=True,)
+    show_gain = fields.Boolean(compute_sudo=True,)
+    text_no_reservation = fields.Char(compute='_compute_budget_totals',compute_sudo=True,)
+    total_budgetable = fields.Float(compute_sudo=True,)
+    total_budgetable_workorders = fields.Float(compute='_compute_budget_totals', compute_sudo=True,)
+    show_gain_workorders = fields.Boolean(compute='_compute_budget_totals', compute_sudo=True,)
+    text_no_reservation_workorders = fields.Char(compute='_compute_budget_totals', compute_sudo=True,)
+    is_temporary_gain_workorders = fields.Boolean(
+        store=False,
+        default=False,
     )
 
-    #===== Affectations configuration =====#
-    def _get_budget_types(self):
-        return ['production'] + self._get_component_budget_types()
-    
-    def _should_mo_reserve_budget(self):
-        return self.state not in ['cancel']
-    
-    def _get_component_budget_types(self):
-        return ['goods', 'project_global_cost']
-    
-    def _get_fields_affectation_refresh(self):
-        return super()._get_fields_affectation_refresh() + ['move_raw_ids', 'affectation_ids_production']
-
-    @api.depends('date_planned_start', 'date_finished')
-    def _compute_date_budget(self):
-        for mo in self:
-            mo.date_budget = mo.date_finished or mo.date_planned_start
-        return super()._compute_date_budget()
-    
-    #===== Affectations: compute =====#
-    @api.depends('affectation_ids', 'affectation_ids.quantity_affected')
-    def _compute_sum_quantity_affected_workorders(self):
-        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
-        for mo in self:
-            mo.sum_quantity_affected_workorders = sum(mo.affectation_ids_workorders.mapped('quantity_affected'))
-            mo.difference_workorder_duration_budget = float_round(
-                mo.production_duration_hours_expected -
-                mo.sum_quantity_affected_workorders,
-                precision_digits = prec
-            )
-            mo.amount_gain_workorders = float_round(
-                mo.sum_quantity_affected_workorders -
-                mo.production_real_duration_hours,
-                precision_digits = prec
-            )
-
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id')
-    def _compute_budget_analytic_ids(self):
-        """ MO's budgets are updated automatically from:
-            - component's analytic distribution model
-            (- workcenter's analytics [STOPPED - ALY 2025-03-12] -> now only manual)
-
-            (!) Let's be careful to keep manually chosen analytics (for workcenters)
+    #===== Compute =====#
+    def _compute_state(self):
+        """ Ensure `reservation_ids.active` follows `mrp_production.state`,
+            which is a computed stored field and thus not catched in `write`
         """
-        to_clean = self.filtered(lambda x: not x._should_mo_reserve_budget())
-        to_clean.budget_analytic_ids = False
-
-        to_compute = (self - to_clean).filtered('project_id')
-        if to_compute:
-            mapped_analytics = self._get_mapped_project_analytics()
-            budget_types = self._get_component_budget_types()
-
-            for mo in to_compute:
-                project_budgets = set(mapped_analytics.get(mo.project_id.id, []))
-
-                existing = set(mo.budget_analytic_ids.filtered(lambda x: x.budget_type in budget_types)._origin.ids)
-                to_add = set(mo.move_raw_ids.analytic_ids._origin.ids) & project_budgets
-                to_remove = existing - to_add
-                if to_add:
-                    mo.budget_analytic_ids = [Command.link(x) for x in to_add]
-                if to_remove:
-                    mo.budget_analytic_ids = [Command.unlink(x) for x in to_remove]
-
-        return super()._compute_budget_analytic_ids()
+        res = super()._compute_state()
+        self.reservation_ids._compute_section_fields()
+        return res
     
-    def _get_total_by_analytic(self):
-        """ Group-sum real cost of components for automated budget reservation
-            Component's cost is `qty * move._get_price_unit()`
-            => At reservation's time, the OF is not validated (draft or in progress)
-               thus the move most likely not valuated, so `_get_price_unit()` will return
-               `product.standard_cost`
-
-            :return: Dict like {analytic_id: charged amount}
+    @api.depends('budget_analytic_ids')
+    def _compute_budget_analytic_ids_workorders(self):
+        budget_types_workorders = self._get_workorder_budget_types()
+        for mo in self:
+            mo.budget_analytic_ids_workorders = mo.budget_analytic_ids.filtered(
+                lambda x: x.budget_type in budget_types_workorders
+            )
+    def _inverse_budget_analytic_ids_workorders(self):
+        """ Populate workorders budget center in main field budget_analytic_ids,
+            without refreshing component's `amount_reserved` 
         """
-        self.ensure_one()
-        to_compute_move_raw = self.filtered(lambda x: x._should_mo_reserve_budget())
-        if not to_compute_move_raw:
-            return {}
+        self = self.with_context(budget_analytic_ids_workorders_inverse=True)
+        budget_types_workorders = self._get_workorder_budget_types()
+        for mo in self:
+            existing = mo.budget_analytic_ids.filtered(
+                lambda x: x.budget_type in budget_types_workorders
+            )
+            to_add = mo.budget_analytic_ids_workorders._origin - existing
+            to_remove = existing - mo.budget_analytic_ids_workorders._origin
 
-        mapped_analytics = to_compute_move_raw._get_mapped_project_analytics()
-        mapped_cost = defaultdict(float)
-
-        # Components
-        for move in to_compute_move_raw.move_raw_ids:
-            if not move.analytic_distribution:
-                continue
-            
-            for analytic_id, percentage in move.analytic_distribution.items():
-                analytic_id = int(analytic_id)
-
-                # Ignore cost if analytic not in project's budget
-                if not analytic_id in mapped_analytics.get(move.project_id.id, []):
-                    continue
-                # qty in product.uom_id
-                qty = move.product_uom._compute_quantity(move.product_uom_qty, move.product_id.uom_id)
-                unit_price = (
-                    move.product_id.standard_price
-                    if move.raw_material_production_id.state in ['waiting', 'confirmed', 'partially_available', 'assigned']
-                    else move._get_price_unit()
-                )
-                mapped_cost[analytic_id] += qty * unit_price * percentage / 100
+            if to_add:
+                mo.budget_analytic_ids += to_add
+            if to_remove:
+                mo.budget_analytic_ids -= to_remove
         
-        # [STOPPED - ALY 2025-03-12] -> Workcenter budget reservation is
-        #  now only manual for workcenter and 0,00h by default
-        # for wo in self.workorder_ids:
-        #     analytic = wo.workcenter_id.costs_hour_account_id
-        #     # Ignore cost if analytic not in project's budget
-        #     if analytic.id in mapped_analytics.get(wo.project_id.id, []):
-        #         mapped_cost[analytic.id] += wo.duration_expected / 60 # in hours
-
-        return mapped_cost
-
-    #====== Compute amount ======#
-    @api.depends(
-        'move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.product_id.standard_price',
-        'move_raw_ids.price_unit', 'move_raw_ids.stock_valuation_layer_ids',
-    )
-    def _compute_amount_budgetable(self):
-        """ MO's **COMPONENTS-ONLY** cost is like for picking:
-            - its moves valuation when valuated
-            - else, estimation via products' prices
-        """
-        to_compute = self.filtered(lambda x: x._should_mo_reserve_budget())
-        (self - to_compute).amount_budgetable = False
-        if not to_compute:
+        mo.invalidate_recordset(['budget_analytic_ids']) # ensure correct value in next logics
+    
+    #===== Budgets customization =====#
+    def _auto_update_budget_distribution(self):
+        """ Don't update components amounts while update workorders budgets """
+        if self._context.get('budget_analytic_ids_workorders_inverse'):
             return
         
-        rg_result = self.env['stock.valuation.layer'].sudo().read_group(
-            domain=[('raw_material_production_id', 'in', to_compute.ids)],
-            fields=['value:sum'],
-            groupby=['raw_material_production_id']
+        super()._auto_update_budget_distribution()
+
+    #===== Budgets configuration =====#
+    def _get_budget_types(self):
+        return self._get_workorder_budget_types() + self._get_component_budget_types()
+    def _get_workorder_budget_types(self):
+        return ['production']
+    def _get_component_budget_types(self):
+        return ['goods', 'other']
+    
+    def _get_reservations_auto_update(self):
+        """ Filter reservations of workorders so their amount is never updated """
+        return self.reservation_ids.filtered(
+            lambda x: x.budget_type in self._get_component_budget_types()
         )
-        mapped_svl_values = {x['raw_material_production_id'][0]: x['value'] for x in rg_result}
-        for production in to_compute:
-            production.amount_budgetable = abs(mapped_svl_values.get(
-                production._origin.id,
-                sum(production._get_total_by_analytic().values())
-            ))
+
+    def _get_fields_budget_reservation_refresh(self):
+        return (
+            super()._get_fields_budget_reservation_refresh()
+            + ['move_raw_ids']
+        )
+
+    def _get_domain_is_temporary_gain(self):
+        return [('state', '!=', 'done'),]
     
-    def _compute_sum_quantity_affected(self):
-        """ [Overwritte] `sum_quantity_affected` and `gain` are for filtered for components only (goods), not workorder (hours) """
-        budget_types = self._get_component_budget_types()
-        for production in self:
-            affectations_goods = production.affectation_ids.filtered(lambda x: x.group_ref and x.group_ref.budget_type in budget_types)
-            production.sum_quantity_affected = sum(affectations_goods.mapped('quantity_affected'))
-    
-    @api.depends('move_raw_ids', 'move_raw_ids.product_id', 'move_raw_ids.stock_valuation_layer_ids')
-    def _compute_amount_gain(self):
-        return super()._compute_amount_gain()
+    #===== Budget reservation: date & compute =====#
+    @api.depends(
+        'date_planned_start', 'date_finished',
+        'workorder_ids.time_ids.date_end',
+    )
+    def _compute_date_budget(self):
+        """ Manages both `date_budget` for components and workorders """
+        for mo in self:
+            mo.date_budget = mo.date_finished or mo.date_planned_start
+            dates_end = mo.workorder_ids.time_ids.filtered('date_end').mapped('date_end')
+            mo.date_budget_workorders = max(dates_end) if bool(dates_end) else False
+            
+            # update reservations' dates
+            reservations_components = mo._get_reservations_auto_update()
+            reservations_components.date = mo.date_budget
+            (mo.reservation_ids - reservations_components).date = mo.date_budget_workorders
+
+    def _get_auto_budget_analytic_ids(self):
+        """ Only for components
+            For workcenters: keep manually chosen budgets
+        """
+        Analytic = self.env['account.analytic.account']
+        workcenter_budgets = self.budget_analytic_ids.filtered(
+            lambda x: x.budget_type not in self._get_component_budget_types()
+        )
+        components_budgets = self.move_raw_ids.analytic_account_ids if self.can_reserve_budget else Analytic
+        return (workcenter_budgets + components_budgets)._origin.ids
+
+    #====== Compute amount ======#
+    def _compute_budget_totals(self):
+        super()._compute_budget_totals()
+        prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
+        for mo in self:
+            mo.difference_workorder_duration_budget = float_round(
+                mo.production_duration_hours_expected -
+                mo.total_budget_reserved_workorders,
+                precision_digits = prec
+            )
+    def _compute_budget_totals_one(self, totals, expense_ids, prec, pivot_analytic_to_budget_type):
+        """ 1. Split `totals` and `expense_ids` between components and workorders
+            2. Computes both totals
+        """
+        # 1.
+        components_budget_types = self._get_component_budget_types()
+        totals_workorders, expense_ids_workorders = {}, {}
+        for aac_id in totals.copy():
+            budget_type = pivot_analytic_to_budget_type.get(aac_id)
+            if budget_type not in components_budget_types:
+                totals_workorders[aac_id] = totals.pop(aac_id)
+                if aac_id in expense_ids:
+                    expense_ids_workorders[aac_id] = expense_ids.pop(aac_id)
+
+        # 2.
+        super()._compute_budget_totals_one(totals, expense_ids, prec)
+        super()._compute_budget_totals_one(totals_workorders, expense_ids_workorders, prec, field_suffix='_workorders')
+
+
+    #===== Views =====#
+    def _get_view_carpentry_config(self):
+        """ Add workorders tab """
+        res = super()._get_view_carpentry_config()
+        res[0]['params'] |= {
+            'model_description': _('Components'),
+            'fields_suffix': '_components',
+            'budget_types': [x for x in self._get_component_budget_types()],
+        }
+        return res + [
+            {
+                'templates': {
+                    'alert_banner': self._carpentry_budget_alert_banner_xpath,
+                    'notebook_page': '//page[@name="operations"]',
+                },
+                'params': {
+                    'model_name': self._name,
+                    'model_description': _('Work Orders'),
+                    'fields_suffix': '_workorders',
+                    'budget_types': [x for x in self._get_budget_types() if x not in self._get_component_budget_types()],
+                    'budget_choice': self._carpentry_budget_choice,
+                    'sheet_name': _('Budget (work orders)'),
+                    'last_valuation_step': False,
+                    'button_refresh': False,
+                }
+            }
+        ,]

@@ -14,7 +14,7 @@
                 <span attrs="{'invisible': [('position_fully_affected', '=', True)]}">
                     At least one position's quantity is not affected at all or not fully affected in phases
                     or launches. See <strong>Positions</strong>, <strong>Phases</strong> or <strong>Launches</strong>
-                    for more details.
+                    menu items.
                 </span>
             </div>
 

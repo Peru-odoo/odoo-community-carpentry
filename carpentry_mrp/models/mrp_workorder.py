@@ -30,3 +30,4 @@ class MrpWorkorder(models.Model):
         for wo in self:
             wo.gain_hours = wo.gain / 60.0
         return res
+    

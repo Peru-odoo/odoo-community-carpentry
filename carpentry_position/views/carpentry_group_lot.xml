@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Lots -->
+    <record id="action_open_lot" model="ir.actions.act_window">
+        <field name="name">Lots</field>
+        <field name="res_model">carpentry.group.lot</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a first Lot.
+            </p>
+            <p>
+                Lots are the first way of groupping the Positions in the project.
+                They are defined in the call for tender, at the beginning of commercial phase.
+                They are used in the design &amp; calculation tools to simulate the project.
+            </p>
+        </field>
+    </record>
+    <record id="action_open_lot_srv" model="ir.actions.server">
+        <!-- Preselect-action of project wizard before opening real action -->
+        <field name="name">Lots</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">action = model.action_choose_project_and_redirect('carpentry_position.action_open_lot')</field>
+    </record>
+
+    
+    <!-- Lot (tree) -->
+    <record id="carpentry_group_lot_tree" model="ir.ui.view">
+        <field name="name">carpentry.group.lot.tree</field>
+        <field name="model">carpentry.group.lot</field>
+
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="project_id_domain" invisible="1" />
+
+                <field name="sequence" widget="handle" />
+                <field name="project_id" invisible="context.get('default_project_id')" />
+                <field name="name" />
+                <field name="position_count" sum="1" />
+            </tree>
+        </field>
+    </record>
+    <!-- Lot (form) -->
+    <record id="carpentry_group_lot_form" model="ir.ui.view">
+        <field name="name">carpentry.group.lot.form</field>
+        <field name="model">carpentry.group.lot</field>
+
+        <field name="arch" type="xml">
+            <form>
+                <field name="project_id_domain" invisible="1" />
+
+                <sheet>
+                    <group>
+                        <field name="project_id" attrs="{'readonly': [('id', '!=', False)]}" />
+                        <field name="name" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <!-- Lot (search) -->
+    <record model="ir.ui.view" id="carpentry_group_lot_search">
+        <field name="name">carpentry.group.lot.search</field>
+        <field name="model">carpentry.group.lot</field>
+
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
+</odoo>

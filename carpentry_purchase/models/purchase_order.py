@@ -45,7 +45,7 @@ class PurchaseOrder(models.Model):
             ('non_storable', 'Purchase Order with non-stored products (only)'),
             ('mix', 'Purchase order mixing both stored and non-stored products')
         ],
-        compute='_compute_products_type'
+        compute='_compute_products_type',
     )
     
     #===== Constrains =====#

@@ -3,12 +3,10 @@
     <data noupdate="1">
         <record id="planning_column_need_method" model="carpentry.planning.column">
             <field name="name">Plan Releases</field>
-            <field name="sticky">False</field>
             <field name="res_model_id" ref="model_carpentry_plan_release" />
             <field name="sequence">10</field>
             <field name="fold">False</field>
             <field name="icon">fa fa-pencil</field>
-            <field name="can_open">True</field>
         </record>
     </data>
 </odoo>

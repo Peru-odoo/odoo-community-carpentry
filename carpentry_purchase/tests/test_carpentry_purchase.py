@@ -81,42 +81,10 @@ class TestCarpentryPurchase(TestCarpentryPurchase_Base):
 
     #===== purchase.order =====#
     def test_02_warning_mix_stock(self):
-        self.assertTrue(self.order.warning_stock)
-    
-    #===== purchase.order.line (project analytic affectation) =====#
-    # def test_03_shortcut_analytic_project(self):
-    #     """ Test if **project** analytic account is well set on line (in mass) """
-    #     # Set project2 first, and ensure the new 'self.project' wins over the former one
-    #     with Form(self.order) as f:
-    #         f.project_id = self.project2
-    #     with Form(self.order) as f:
-    #         f.project_id = self.project
-    
-    #     self.assertTrue(all(
-    #         self.project.analytic_account_id in line.analytic_ids and
-    #         not self.project2.analytic_account_id in line.analytic_ids
-    #         for line in self.order.order_line
-    #     ))
-
-    def test_04_raise_analytic_project(self):
-        """ Should raise: cannot set different project analytic than the one in `project_id` """
-        self.order.project_id = self.project
-        with self.assertRaises(exceptions.ValidationError):
-            self.order.order_line.analytic_distribution = {self.project2.analytic_account_id.id: 100}
-
-    def test_05_line_project_analytic_stock(self):
-        aac_project = self.project.analytic_account_id
-        aac_internal = self.env.company.internal_project_id.analytic_account_id
-
-        # -- HERE 28/01/2025 --
-        self.order.order_line._compute_analytic_ids() # necessary forced refresh
-        self.assertTrue(aac_project not in self.line_stock.analytic_ids)
-        self.assertTrue(aac_internal in self.line_stock.analytic_ids)
-        self.assertTrue(aac_project in self.line_consu.analytic_ids)
-        self.assertTrue(aac_internal not in self.line_consu.analytic_ids)
+        self.assertEqual(self.order.products_type, 'mix')
 
     #===== stock.picking =====#
-    def test_06_picking_project(self):
+    def test_03_picking_project(self):
         self.order.button_confirm()
         self.assertEqual(self.project, self.order.picking_ids.project_id)
     

@@ -3,8 +3,6 @@
 from odoo import models, fields, api, tools
 from psycopg2.extensions import AsIs
 
-
-
 class CarpentryBudgetProject(models.Model):
     """ Should be overriden in each Carpentry module with expense """
     _name = 'carpentry.budget.project'
@@ -15,14 +13,9 @@ class CarpentryBudgetProject(models.Model):
 
     #===== Fields =====#
     sequence = fields.Integer()
-    available = fields.Float(
+    available_valued = fields.Monetary(
         string='Available budget',
-        digits='Product price',
         readonly=True,
-    )
-    quantity_affected = fields.Float(
-        string='Reserved budget',
-        digits='Product Unit of Measure',
     )
     percent_gain = fields.Float(
         string='Gain (%)',
@@ -33,6 +26,8 @@ class CarpentryBudgetProject(models.Model):
     # cancelled fields
     state = fields.Selection(store=False)
     date = fields.Date(store=False)
+    amount_reserved = fields.Float(store=False)
+    amount_expense = fields.Monetary(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -65,6 +60,7 @@ class CarpentryBudgetProject(models.Model):
                     'union':     AsIs(') UNION ALL (' . join(queries)),
             })
     
+    #===== View definition =====#
     def _view_select(self):
         return """
             SELECT
@@ -77,17 +73,20 @@ class CarpentryBudgetProject(models.Model):
                 result.budget_type,
                 analytic_account_id,
                 sequence,
+                result.active,
                 
                 section_id AS section_id,
                 section_model_id,
                 
-                SUM(available) AS available,
-                SUM(quantity_affected) AS quantity_affected,
+                SUM(available_valued) AS available_valued,
+                SUM(amount_reserved) AS amount_reserved,
+                SUM(amount_reserved_valued) AS amount_reserved_valued,
                 SUM(amount_expense) AS amount_expense,
+                SUM(amount_expense_valued) AS amount_expense_valued,
                 SUM(amount_gain) AS amount_gain,
                 CASE
-                    WHEN SUM(quantity_affected) != 0
-                    THEN SUM(amount_gain) / SUM(quantity_affected) * 100.0 
+                    WHEN SUM(amount_reserved_valued) != 0
+                    THEN SUM(amount_gain) / SUM(amount_reserved_valued) * 100.0 
                     ELSE 0.0
                 END AS percent_gain
         """
@@ -100,10 +99,12 @@ class CarpentryBudgetProject(models.Model):
                 analytic_account_id,
                 section_id,
                 section_model_id,
-                sequence
+                sequence,
+                result.active
         """
     
     
+    #===== Union sub-queries definition =====#
     def _select(self, model, models):
         if model == 'account.move.budget.line':
             return f"""
@@ -115,11 +116,14 @@ class CarpentryBudgetProject(models.Model):
                     analytic_account_id,
                     id AS section_id,
                     {models['account.move.budget.line']} AS section_model_id,
+                    TRUE AS active,
 
-                    balance AS available, -- always valued
-                    0.0 AS quantity_affected,
-                    0.0 AS amount_gain,
-                    0.0 AS amount_expense
+                    balance AS available_valued, -- always valued
+                    0.0 AS amount_reserved,
+                    0.0 AS amount_reserved_valued,
+                    0.0 AS amount_expense,
+                    0.0 AS amount_expense_valued,
+                    0.0 AS amount_gain
             """
         else:
             return """
@@ -131,11 +135,14 @@ class CarpentryBudgetProject(models.Model):
                     analytic_account_id,
                     section_id,
                     section_model_id,
+                    active,
 
-                    0.0 AS available,
-                    quantity_affected,
-                    amount_gain,
-                    amount_expense
+                    0.0 AS available_valued,
+                    amount_reserved,
+                    amount_reserved_valued,
+                    amount_expense,
+                    amount_expense_valued,
+                    amount_gain
             """
 
     def _from(self, model, models):
@@ -159,3 +166,5 @@ class CarpentryBudgetProject(models.Model):
     def _orderby(self, model, models):
         return ''
 
+    def _having(self, model, models):
+        return ''

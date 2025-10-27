@@ -9,7 +9,7 @@
     'application': False,
     'installable': True,
     'category': 'Carpentry/Carpentry',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.2.0',
 
     'depends': [
         # odoo
@@ -17,6 +17,7 @@
         'hr_timesheet', # only for company.internal_project_id
         'sales_team', # for security access
         'web_notify', # OCA
+        'analytic_mixin_analytic_account', # OCA, for field `account_analytic_ids`
         'project_role_visibility', # other (for security access)
         'project_task_analytic_hr', # other (for 🕓 in analytic display_name)
         'project_favorite_switch', 'project_budget_workforce', 'utilities_file_management', # other
@@ -29,15 +30,17 @@
         'wizard/carpentry_position_merge_wizard.xml',
         'wizard/carpentry_position_budget_import_wizard.xml',
         # views
-        'views/carpentry_groups.xml',
+        'views/carpentry_group_phase.xml',
         'views/carpentry_position_budget_interface.xml',
         'views/carpentry_position_budget.xml',
         'views/carpentry_position.xml',
         'views/carpentry_planning_column.xml',
         'views/project_project.xml',
         'views/account_move_budget_line.xml',
-        'views/carpentry_affectation_budget.xml',
+        'views/carpentry_budget_reservation.xml',
         'views/carpentry_budget_balance.xml',
+        # templates
+        'templates/carpentry_budget_template_section.xml',
         # report
         'report/carpentry_budget_available.xml',
         'report/carpentry_budget_remaining.xml',

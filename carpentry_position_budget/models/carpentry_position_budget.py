@@ -12,6 +12,9 @@ class CarpentryPositionBudget(models.Model):
         related='position_id.project_id',
         store=True,
         index='btree_not_null',
+        required=True,
+        precompute=True,
+        ondelete='cascade',
     )
     position_id = fields.Many2one(
         comodel_name='carpentry.position',
@@ -44,7 +47,7 @@ class CarpentryPositionBudget(models.Model):
         related='analytic_account_id.budget_type',
         store=True # for groupby
     )
-    amount = fields.Float(
+    amount_unitary = fields.Float(
         # depending `budget_type`, either a currency amount, or a quantity
         string='Unitary Amount',
         default=0.0,
@@ -56,10 +59,10 @@ class CarpentryPositionBudget(models.Model):
                         # but XML view restore it with attr readonly="1"
         help="Position's quantity in the project",
     )
-    value = fields.Monetary(
+    value_unitary = fields.Monetary(
         string='Unit Value',
         currency_field='currency_id',
-        compute='_compute_value',
+        compute='_compute_value_unitary',
         help='Only relevant for budget in hours',
     )
 
@@ -77,24 +80,82 @@ class CarpentryPositionBudget(models.Model):
         "A position cannot receive twice a budget from the same analytic account."
     )]
 
+    #===== CRUD =====#
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records.project_id._populate_account_move_budget_line('add', records.analytic_account_id)
+        return records
+    
+    def copy(self, default={}):
+        records = super().copy(default)
+        records.project_id._populate_account_move_budget_line('add', records.analytic_account_id)
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'amount_unitary' in vals:
+            affectations = self.position_id.affectation_ids
+            launchs = affectations._get_launchs_and_children_launchs()
+            affectations._clean_reservation_and_constrain_budget(launchs.ids)
+        return res
+    
+    def unlink(self):
+        """ 1. Trigger budget line cleaning
+            2. Ensure no negative budget in reservation
+        """
+        # before `unlink`
+        self._remove_project_budget_lines()
+        launchs = self.position_id.affectation_ids._get_launchs_and_children_launchs()
+        res = super().unlink()
+        
+        # after `unlink`
+        self.env['carpentry.affectation']._clean_reservation_and_constrain_budget(launchs.ids)
+        return res
+
+    def _remove_project_budget_lines(self):
+        """ Remove project budget lines when removing the
+            **LAST** aac in the project's positions budgets
+        """
+        # Get position's budgets that exists in other positions's budgets in the project
+        rg_result = self._read_group(
+            domain=[
+                ('project_id', 'in', self.project_id.ids),
+                ('analytic_account_id', 'in', self.analytic_account_id.ids),
+                ('id', 'not in', self.ids),
+            ],
+            groupby=['project_id'],
+            fields=['analytic_account_id:array_agg']
+        )
+        mapped_to_keep = {x['project_id'][0]: set(x['analytic_account_id']) for x in rg_result}
+
+        for project in self.project_id:
+            ids_to_keep = mapped_to_keep.get(project.id, set())
+            deleted = self.filtered(lambda x: x.project_id == project).analytic_account_id
+            to_flush = set(deleted.ids) - ids_to_keep
+
+            if to_flush:
+                project._populate_account_move_budget_line(
+                    'remove', deleted.browse(list(to_flush))
+                )
 
     #===== Compute =====#
     @api.depends(
-        'amount',
+        'amount_unitary',
         'analytic_account_id',
         'analytic_account_id.timesheet_cost_history_ids',
         'analytic_account_id.timesheet_cost_history_ids.hourly_cost',
         'analytic_account_id.timesheet_cost_history_ids.starting_date',
         'project_id.date_start', 'project_id.date',
     )
-    def _compute_value(self):
+    def _compute_value_unitary(self):
         """ - Services (work-force) are valued as per company's value table (on project's lifetime)
-            - Goods value is directly in `amount` 
+            - Goods value is directly in `amount_unitary` 
         """
         for budget in self:
             analytic = budget.analytic_account_id
-            budget.value = analytic and analytic._value_amount(
-                budget.amount,
+            budget.value_unitary = analytic and analytic._value_amount(
+                budget.amount_unitary,
                 budget.project_id.date_start,
                 budget.project_id.date,
             )
@@ -116,22 +177,22 @@ class CarpentryPositionBudget(models.Model):
         return [{
             'position_id': replace_keys.get('position_id', budget.position_id.id),
             'analytic_account_id': replace_keys.get('analytic_account_id', budget.analytic_account_id.id),
-            'amount': budget.amount
+            'amount_unitary': budget.amount_unitary
         } for budget in self]
     
     def _write_budget(self, vals_list_budget, erase_mode=False, erase_force=False):
         """ Write/add in existing budget or create new budgets 
 
             :param vals_list_budget: `vals_dict` of this model
-            :param mode_erase:  if True,  `amount` is written in place of any existing
+            :param mode_erase:  if True,  `amount_unitary` is written in place of any existing
                                  budget, or created if no budget
-                                if False, `amount` is added to existing budget
+                                if False, `amount_unitary` is added to existing budget
             :param erase_force: if True, the existing non-updated budgets are removed
         """
 
         # get existing budget, to route between `write()` or `create()`
         mapped_existing_ids = {(x.position_id.id, x.analytic_account_id.id): x for x in self}
-        to_create, to_delete = [], self
+        vals_list, to_delete = [], self
 
         # write/sum
         for vals in vals_list_budget:
@@ -139,13 +200,14 @@ class CarpentryPositionBudget(models.Model):
             budget = mapped_existing_ids.get(primary_key)
 
             if budget:
-                budget.amount = vals.get('amount') if erase_mode else budget.amount + vals.get('amount')
+                budget.amount_unitary = vals.get('amount_unitary') if erase_mode else budget.amount_unitary + vals.get('amount_unitary')
                 to_delete -= budget # for `erase_force` if True
             else:
-                to_create.append(vals)
+                vals_list.append(vals)
         
         # create
-        self.create(to_create)
+        if vals_list:
+            self.create(vals_list)
 
         # delete
         if erase_mode and erase_force:

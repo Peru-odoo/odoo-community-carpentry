@@ -16,11 +16,7 @@
         'project_favorite_switch', 'project_task_copy', # other
         'carpentry_base', 'carpentry_planning',
     ],
-    'data': [
-        # views
-        # 'views/carpentry_planning.xml', # [2025-03-24 - ALY] disabled feature
-        # 'views/project_task_planning.xml',
-    ],
+    'data': [],
     'assets': {
         'web.assets_backend': [
             'carpentry_planning_task/static/src/**/*',

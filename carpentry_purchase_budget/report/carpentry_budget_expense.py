@@ -14,8 +14,6 @@ class CarpentryExpenseHistory(models.Model):
         return super()._get_queries_models() + ('purchase.order','account.move',)
     
     def _select(self, model, models):
-        sql = super()._select(model, models)
-        
         if model in ('purchase.order', 'account.move'):
             ratio_invoiced = (
                 '(line.product_qty::float - line.qty_invoiced::float) / line.product_qty::float'
@@ -23,45 +21,47 @@ class CarpentryExpenseHistory(models.Model):
                 else 1.0
             )
 
-            sql += f"""
-                line.project_id AS project_id,
+            sql_section_id = 'section.id'
+            if model == 'account.move':
+                sql_section_id = 'purchase_order_line.order_id'
+            
+            return f"""
+                SELECT
+                    section.project_id,
+                    section.date_budget AS date,
+                    section.state NOT IN ('cancel') as active,
+                    {sql_section_id} AS section_id,
+                    {models['purchase.order']} AS section_model_id,
+                    analytic.id AS analytic_account_id,
+                    analytic.budget_type,
 
-                -- expense
-                SUM(
-                    line.price_subtotal::float
-                    * {ratio_invoiced}
-                    * analytic_distribution.percentage::float
-                    / 100.0
-                ) AS amount_expense,
-                
-                -- gain
-                0.0 AS amount_gain,
-                TRUE AS should_compute_gain,
-                FALSE AS should_value_expense
+                    0.0 AS amount_reserved,
+                    TRUE AS should_devalue_workforce_expense,
+
+                    -- expense
+                    SUM(
+                        line.price_subtotal::float
+                        * {ratio_invoiced}
+                        * analytic_distribution.percentage::float
+                        / 100.0
+                    ) AS amount_expense,
+                    
+                    -- expense valued
+                    SUM(
+                        line.price_subtotal::float
+                        * {ratio_invoiced}
+                        * analytic_distribution.percentage::float
+                        / 100.0
+                    ) AS amount_expense_valued
             """
         
-        return sql
-
-    def _get_section_fields(self, model, models):
-        """ display account move costs as/in purchase orders lines/columns """
-        return (
-            {
-                'section_id': 'purchase_order_line.order_id',
-                'section_ref': "'purchase.order,' || purchase_order_line.order_id",
-                'section_model_id': models['purchase.order'],
-            }
-            if model == 'account.move'
-            else super()._get_section_fields(model, models)
-        )
+        return super()._select(model, models)
 
     def _from(self, model, models):
-        return (
-            f"FROM {model.replace('.', '_')}_line AS line"
-
-            if model in ('purchase.order', 'account.move')
-
-            else super()._from(model, models)
-        )
+        if model in ('purchase.order', 'account.move'):
+            return f"FROM {model.replace('.', '_')}_line AS line"
+        else:
+            return super()._from(model, models)
     
     def _join(self, model, models):
         sql = ''
@@ -87,9 +87,9 @@ class CarpentryExpenseHistory(models.Model):
         sql = super()._where(model, models)
         
         if model in ('purchase.order', 'account.move'):
-            sql += """
-                AND section.state NOT IN ('draft', 'cancel')
-                AND product_template.type != 'product' -- not stock
+            clause = " WHERE" if not sql else " AND"
+            sql += clause + """
+                product_template.type != 'product' -- not stock
             """
 
             if model == 'purchase.order':
@@ -106,10 +106,7 @@ class CarpentryExpenseHistory(models.Model):
     def _groupby(self, model, models):
         sql = super()._groupby(model, models)
 
-        if model in ('purchase.order', 'account.move'):
-            sql += ', line.project_id'
-            
-            if model == 'account.move':
-                sql += ', purchase_order_line.order_id'
+        if model == 'account.move':
+            sql += ', purchase_order_line.order_id'
         
         return sql
