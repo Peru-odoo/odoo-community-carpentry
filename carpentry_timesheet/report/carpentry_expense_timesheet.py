@@ -31,14 +31,14 @@ class CarpentryExpense(models.Model):
                     -- 2. if planned_hours != amount_reserved:
                     --    fakely raise/reduce amount_reserved by the difference
                     CASE
-                        WHEN section.is_closed IS FALSE AND section.effective_hours < SUM(reservation.amount_reserved)
-                        THEN section.effective_hours - SUM(reservation.amount_reserved) -- replace `sum(amount_reserved)` by `effective_hours`
+                        WHEN section.is_closed IS FALSE AND section.effective_hours < (SUM(reservation.amount_reserved) / COUNT(reservation.id))
+                        THEN section.effective_hours - (SUM(reservation.amount_reserved) / COUNT(reservation.id)) -- replace `sum(amount_reserved)` by `effective_hours`
                         ELSE 0.0
                     END -
                     CASE
-                        WHEN section.planned_hours != SUM(reservation.amount_reserved)
-                         AND section.effective_hours < LEAST(SUM(reservation.amount_reserved), section.planned_hours)
-                        THEN section.planned_hours - SUM(reservation.amount_reserved)
+                        WHEN section.planned_hours != (SUM(reservation.amount_reserved) / COUNT(reservation.id))
+                         AND section.effective_hours < LEAST(SUM(reservation.amount_reserved) / COUNT(reservation.id), section.planned_hours)
+                        THEN section.planned_hours - (SUM(reservation.amount_reserved) / COUNT(reservation.id))
                         ELSE 0.0
                     END AS amount_reserved,
                     FALSE AS should_devalue_workforce_expense,
