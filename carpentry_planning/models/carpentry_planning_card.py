@@ -203,7 +203,7 @@ class CarpentryPlanningCard(models.Model):
         """ Allow specific domain to filter the column's cards """
         # 1. Retrieve the column_id from the domain
         column_id_ = self._get_domain_part(domain, 'column_id')
-        domain_column = [] if not column_id_ else [('column_id', '=', column_id_)]
+        domain_column = [] if not column_id_ else [('id', '=', column_id_)]
         column = self.env['carpentry.planning.column'].search(domain_column)
         
         # 2. Get the column's domain (if any) and add it to the current domain
