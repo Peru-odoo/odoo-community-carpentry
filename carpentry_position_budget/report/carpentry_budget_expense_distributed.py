@@ -17,6 +17,9 @@ class CarpentryBudgetExpenseDistributed(models.Model):
 
     #===== View build =====#
     def init(self):
+        # prerequisites
+        self.env['carpentry.budget.expense.history'].init()
+        self.env['carpentry.budget.expense'].init()
         tools.drop_view_if_exists(self.env.cr, self._table)
 
         self._cr.execute("""

@@ -35,6 +35,8 @@ class CarpentryBudgetProject(models.Model):
         return ('account.move.budget.line', 'carpentry.budget.expense',)
     
     def init(self):
+        # prerequisites
+        self.env['carpentry.budget.expense.distributed'].init()
         tools.drop_view_if_exists(self.env.cr, self._table)
         
         queries = self._get_queries()
