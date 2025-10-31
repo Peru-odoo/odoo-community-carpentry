@@ -70,10 +70,11 @@ class AnalyticMixin(models.AbstractModel):
             self._enforce_internal_analytic()
         # 2.
         if any(x in vals for x in self._get_fields_budget_reservation_refresh()):
+            self_sudo = self.sudo()
             for field_parent in self._get_fields_related_with(['project_id']):
-                if hasattr(self[field_parent], '_refresh_budget_reservations'):
-                    self[field_parent]._refresh_budget_analytics()
-                    self[field_parent]._refresh_budget_reservations()
+                if hasattr(self_sudo[field_parent], '_refresh_budget_reservations'):
+                    self_sudo[field_parent]._refresh_budget_analytics()
+                    self_sudo[field_parent]._refresh_budget_reservations()
         
         return res
     
