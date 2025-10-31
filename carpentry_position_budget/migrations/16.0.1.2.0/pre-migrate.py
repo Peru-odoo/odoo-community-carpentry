@@ -8,8 +8,11 @@ def migrate(cr, version):
     #     return
     # env = api.Environment(cr, SUPERUSER_ID, {})
 
-    # view
-    cr.execute("DELETE FROM ir_ui_view WHERE arch_prev LIKE '%%amount_budgetable%%';")
+    # views
+    cr.execute("""
+        DELETE FROM ir_ui_view WHERE arch_prev LIKE '%%amount_budgetable%%';
+        DELETE FROM ir_ui_view WHERE arch_prev LIKE '%total_budget_reserved%' AND type = 'tree';
+    """)
 
     # tables: positions, affectations, ...
     cr.execute("""

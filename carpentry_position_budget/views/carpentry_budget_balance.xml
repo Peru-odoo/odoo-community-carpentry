@@ -28,7 +28,6 @@
                 <field name="launch_ids" widget="many2many_tags" />
                 <field name="write_uid" widget="many2one_avatar_user" />
                 <field name="write_date" widget="date" />
-                <field name="total_budget_reserved" sum="1" />
             </tree>
         </field>
     </record>

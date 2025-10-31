@@ -16,8 +16,6 @@
     'data': [
         # security
         'security/ir.model.access.csv',
-        # views
-        'views/purchase_order.xml',
     ],
     'post_init_hook': 'post_init_hook', # rebuild budget expense sql view
     'uninstall_hook': 'uninstall_hook',

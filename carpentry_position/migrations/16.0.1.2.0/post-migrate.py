@@ -13,40 +13,43 @@ def migrate(cr, version):
     _migrate_carpentry_affectation(cr, env)
 
 def _migrate_carpentry_affectation(cr, env):
-    Affectation = env['carpentry.affectation']
+    Affectation = env['carpentry.affectation'].with_context(active_test=False)
 
-    # phase affectations
+    # phase & launchs affectations
     cr.execute("""
         SELECT
-            group_model.model,
-            affectation.record_id,
-            affectation.group_id,
+            REPLACE(group_model.model, 'carpentry.group.', ''),
+            affectation.group_id, -- `phase_id` or `launch_id`
+            parent_affectation.group_id, -- parent_group_id (phase_id)
+            CASE -- position_id
+                WHEN group_model.model = 'carpentry.group.phase'
+                THEN affectation.record_id
+                ELSE parent_affectation.record_id
+            END,
             affectation.quantity_affected,
             affectation.affected,
-            affectation.position_id,
-            parent.group_id -- phase_id
+            parent_affectation.quantity_affected
         FROM
             carpentry_group_affectation AS affectation
         INNER JOIN 
             ir_model AS group_model
             ON group_model.id = affectation.group_model_id
         LEFT JOIN
-            carpentry_group_affectation AS parent
-            ON  parent.id = affectation.record_id
-            AND affectation.record_model_id = (SELECT id FROM ir_model WHERE model = 'carpentry.group.affectation')
+            carpentry_group_affectation AS parent_affectation
+            ON  parent_affectation.id = affectation.record_id
+        WHERE group_model.model IN ('carpentry.group.phase', 'carpentry.group.launch')
     """)
     vals_list = []
     for row in cr.fetchall():
-        mode = row[0].replace('carpentry.group.', '')
-        if mode not in ('phase', 'launch'):
-            continue
-        
-        position = env['carpentry.position'].browse(row[5])
-        phase    = env['carpentry.group.phase'].browse(row[2] if mode == 'phase' else row[6])
-        group    = phase if mode == 'phase' else env['carpentry.group.launch'].browse(row[2])
-        parent_group = phase if mode == 'launch' else position.lot_id
+        (
+            mode, group_id, parent_group_id, position_id,
+            quantity_affected, affected, parent_quantity_affected
+        ) = row
+        position = env['carpentry.position'].browse(position_id)
+        phase    = env['carpentry.group.phase'].browse(group_id if mode == 'phase' else parent_group_id)
+        launch   = env['carpentry.group.launch'].browse(group_id if mode == 'launch' else 0)
 
-        if not position.exists() or not phase.exists() or not group.exists():
+        if not position.exists() or not phase.exists() or not launch.exists():
             continue
 
         vals = {
@@ -55,21 +58,20 @@ def _migrate_carpentry_affectation(cr, env):
             'position_id': position.id,
             'lot_id': position.lot_id.id,
             'phase_id': phase.id,
+            'launch_id': launch.id,
             'sequence_position': position.sequence,
-            'sequence_group': group.sequence,
-            'sequence_parent_group': parent_group.sequence,
+            'sequence_group': phase.sequence if mode == 'phase' else launch.sequence,
+            'sequence_parent_group': position.lot_id.sequence if mode == 'phase' else phase.sequence,
+            'affected': affected if mode == 'launch' else False,
+            'quantity_affected': quantity_affected if mode == 'phase' else parent_quantity_affected,
             'active': all([
                 position.active,
                 position.project_id.active,
                 position.lot_id.active,
                 phase.active,
-                group.active, # can be launch
+                launch.active if mode == 'launch' else True,
             ]),
-        } | (
-            {'quantity_affected': row[3]}
-            if mode == 'phase' else
-            {'affected': row[4]}
-        )
+        }
         vals_list.append(vals)
     Affectation.create(vals_list)
 
