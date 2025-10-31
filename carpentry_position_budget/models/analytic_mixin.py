@@ -16,7 +16,7 @@ class BaseModel(models.AbstractModel):
         
         return super().write(vals)
 
-    def _get_fields_related_with(self, looked_field):
+    def _get_fields_related_with(self, looked_fields):
         """ Return every relational field of this model having `field`
             in the model in relation
 
@@ -25,16 +25,18 @@ class BaseModel(models.AbstractModel):
         fields = []
         for field, description in self.fields_get(attributes=['relation']).items():
             model_child = description.get('relation')
-            if model_child and hasattr(self.env[model_child], looked_field):
+            if model_child and all(hasattr(self.env[model_child], field) for field in looked_fields):
                 fields.append(field)
         return fields
 
     # @api.onchange('project_id') # must be set in child modules
     def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
-        field_lines = self._get_fields_related_with('analytic_distribution')
+        field_lines = self._get_fields_related_with(
+            ['analytic_distribution', '_synch_project_analytic_distrib_from_section']
+        )
         if not field_lines:
             return
-
+        
         onchange = bool(new_project_id == None)
         if not onchange: # from `write()`
             new_project = self.env['project.project'].browse(new_project_id)
@@ -43,8 +45,8 @@ class BaseModel(models.AbstractModel):
             if onchange:
                 new_project = parent.project_id
             
-            for field in field_lines:
-                parent[field]._synch_project_analytic_distrib_from_section(new_project)
+            for field_line in field_lines:
+                parent[field_line]._synch_project_analytic_distrib_from_section(new_project)
 
 class AnalyticMixin(models.AbstractModel):
     """
@@ -68,7 +70,7 @@ class AnalyticMixin(models.AbstractModel):
             self._enforce_internal_analytic()
         # 2.
         if any(x in vals for x in self._get_fields_budget_reservation_refresh()):
-            for field_parent in self._get_fields_related_with('project_id'):
+            for field_parent in self._get_fields_related_with(['project_id']):
                 if hasattr(self[field_parent], '_refresh_budget_reservations'):
                     self[field_parent]._refresh_budget_analytics()
                     self[field_parent]._refresh_budget_reservations()
@@ -144,7 +146,7 @@ class AnalyticMixin(models.AbstractModel):
         """ Compute `project_id` from the parent model """
         if self: self.ensure_one()
         
-        for field in self._get_fields_related_with('project_id'):
+        for field in self._get_fields_related_with(['project_id']):
             project_id = self[field].project_id
             if project_id:
                 return project_id
