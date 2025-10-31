@@ -14,7 +14,11 @@ class PlanSet(models.Model):
         comodel_name='carpentry.group.launch',
         inverse_name='plan_set_id',
         string='Launches',
-        domain="[('project_id', '=', project_id), '|', ('plan_set_id', '=', False), ('plan_set_id', '=', id)]"
+        domain="[('project_id', '=', project_id), '|', ('plan_set_id', '=', False), ('plan_set_id', '=', id)]",
+        # cut inheritance from `carpentry.group.phase`
+        compute=False,
+        search=False,
+        readonly=False,
     )
     plan_release_ids = fields.One2many(
         comodel_name='carpentry.plan.release',

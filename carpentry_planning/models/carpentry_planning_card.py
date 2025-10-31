@@ -181,17 +181,21 @@ class CarpentryPlanningCard(models.Model):
             return []
 
         # 2.
-        columns = self.env['carpentry.planning.column'].search([('fold', '=', False)])
+        columns = self.env['carpentry.planning.column'].search(
+            [('fold', '=', False), ('res_model', '!=', False)]
+        )
         for column in columns:
+            if not column.res_model or not column.res_model in self.env:
+                continue
+            
             # Add specific domain per column
             Column = self.env[column.res_model]
-            if hasattr(Column, '_get_planning_domain'):
+            domain_specific = Column._get_planning_domain() if hasattr(Column, '_get_planning_domain') else []
+            if domain_specific:
                 domain = expression.AND([
-                    domain, expression.OR([
-                        [('column_id', '!=', column.id)], Column._get_planning_domain()
-                    ])
+                    domain,
+                    expression.OR([[('column_id', '!=', column.id)], domain_specific])
                 ])
-
 
         res = super(CarpentryPlanningCard, self.sudo()).read_group(
             domain, fields, groupby, offset, limit, orderby, lazy
