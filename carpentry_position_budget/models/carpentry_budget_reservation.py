@@ -14,19 +14,6 @@ class CarpentryBudgetReservation(models.Model):
     _order = "project_budget DESC, sequence_aac, sequence_launch, sequence_section"
     _log_access = False
 
-    #===== Fields methods =====#
-    def _selection_section_res_model(self):
-        return [
-            (x['model'], x['name'])
-            for x in self.env['ir.model'].search_read([], ['model', 'name'])
-        ]
-
-    def _selection_record_res_model(self):
-        models = self._selection_section_res_model()
-        return [
-            (model, name) for model, name in models
-            if model in ('project.project', 'carpentry.group.launch')
-        ]
 
     #===== Fields =====#
     project_id = fields.Many2one(
@@ -83,6 +70,7 @@ class CarpentryBudgetReservation(models.Model):
     section_res_model = fields.Char(
         string='Section Model',
         related='section_model_id.model',
+        compute_sudo=True,
     )
     # section fields
     sequence_section = fields.Integer(
@@ -193,6 +181,7 @@ class CarpentryBudgetReservation(models.Model):
     @api.depends('section_id', 'section_model_id')
     def _compute_section_fields(self):
         if not self: return # optim
+        print(' ==== start _compute_section_fields ==== ')
         self.section_model_id.ensure_one()
 
         model_name = fields.first(self).section_res_model
@@ -210,17 +199,16 @@ class CarpentryBudgetReservation(models.Model):
                 if section and hasattr(section, 'date_budget')
                 else False
             )
+        print(' ==== end _compute_section_fields ==== ')
 
     #===== Compute: amounts =====#
-    @api.depends(
-        'analytic_account_id', 'launch_id',
-        'section_id', 'section_model_id',
-    )
+    @api.depends('analytic_account_id', 'launch_id')
     def _compute_amount_expense_gain_valued(self):
         """ Display *real* expense (and gain) for information,
             in budget reservation table, from
             view `carpentry.budget.expense.distributed`
         """
+        print(' ==== start _compute_amount_expense_gain_valued ==== ')
         domain = [
             ('project_id', 'in', self.project_id.ids),
             ('launch_id', 'in', [False] + self.launch_id.ids),
@@ -300,7 +288,8 @@ class CarpentryBudgetReservation(models.Model):
     def _get_domain_exclude_sections(self, sections=None):
         """ Return a *OR* domain excluding `self` sections """
         # 1. Organize `section_ids` per `section_model_id`
-        IrModel = self.env['ir.model']
+        print(' ==== start _get_domain_exclude_sections ==== ')
+        IrModel = self.env['ir.model'].sudo()
         mapped_section_ids = defaultdict(list)
         if sections:
             for section in sections:

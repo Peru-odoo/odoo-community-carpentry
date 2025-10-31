@@ -11,6 +11,7 @@ class StockPicking(models.Model):
 
     #====== Fields ======#
     reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_budget_picking_analytic_rel',
         column1='picking_id',
@@ -37,7 +38,7 @@ class StockPicking(models.Model):
     
     def _get_fields_budget_reservation_refresh(self):
         return super()._get_fields_budget_reservation_refresh() + [
-            'move_ids', 'move_ids.product_id', 'move_ids.product_uom_qty', 'move_ids.product_uom',
+            'move_ids', 'state',
         ]
     
     def _should_value_budget_reservation(self):

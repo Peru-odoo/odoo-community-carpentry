@@ -14,6 +14,7 @@ class ManufacturingOrder(models.Model):
 
     #====== Fields ======#
     reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)],)
     reservation_ids_components = fields.One2many(
         comodel_name='carpentry.budget.reservation',
         inverse_name='section_id',
@@ -69,12 +70,17 @@ class ManufacturingOrder(models.Model):
         compute='_compute_budget_totals',
         compute_sudo=True,
     )
-    other_expense_ids = fields.Many2many(compute_sudo=True,)
-    other_expense_ids_workorders = fields.Many2many(
+    other_expense_ids_components = fields.Many2many(
         comodel_name='carpentry.budget.expense',
         string='Other expenses (components)',
-        compute='_compute_budget_totals',
-        compute_sudo=True,
+        compute='_compute_other_expense_ids',
+        context={'active_test': False},
+    )
+    other_expense_ids_workorders = fields.Many2many(
+        comodel_name='carpentry.budget.expense',
+        string='Other expenses (workorders)',
+        compute='_compute_other_expense_ids',
+        context={'active_test': False},
     )
     date_budget_workorders = fields.Date(
         compute='_compute_date_budget',
@@ -106,11 +112,21 @@ class ManufacturingOrder(models.Model):
     
     @api.depends('budget_analytic_ids')
     def _compute_budget_analytic_ids_workorders(self):
+        debug = False
+        if debug:
+            print(' === _compute_budget_analytic_ids_workorders === ')
+        
         budget_types_workorders = self._get_workorder_budget_types()
         for mo in self:
             mo.budget_analytic_ids_workorders = mo.budget_analytic_ids.filtered(
                 lambda x: x.budget_type in budget_types_workorders
             )
+
+            if debug:
+                print('budget_types_workorders', budget_types_workorders)
+                print('mo.budget_analytic_ids', mo.budget_analytic_ids.read(['name', 'budget_type']))
+                print('mo.budget_analytic_ids_workorders', mo.budget_analytic_ids_workorders.read(['name', 'budget_type']))
+    
     def _inverse_budget_analytic_ids_workorders(self):
         """ Populate workorders budget center in main field budget_analytic_ids,
             without refreshing component's `amount_reserved` 
@@ -154,10 +170,7 @@ class ManufacturingOrder(models.Model):
         )
 
     def _get_fields_budget_reservation_refresh(self):
-        return (
-            super()._get_fields_budget_reservation_refresh()
-            + ['move_raw_ids']
-        )
+        return super()._get_fields_budget_reservation_refresh() + ['move_raw_ids']
 
     def _get_domain_is_temporary_gain(self):
         return [('state', '!=', 'done'),]
@@ -178,6 +191,14 @@ class ManufacturingOrder(models.Model):
             reservations_components = mo._get_reservations_auto_update()
             reservations_components.date = mo.date_budget
             (mo.reservation_ids - reservations_components).date = mo.date_budget_workorders
+
+    def _compute_other_expense_ids(self):
+        super()._compute_other_expense_ids()
+        
+        budget_types_components = self._get_component_budget_types()
+        for mo in self:
+            mo.other_expense_ids_components = mo.other_expense_ids.filtered(lambda x: x.budget_type in budget_types_components)
+            mo.other_expense_ids_workorders = mo.expense_ids - mo.other_expense_ids_components
 
     def _get_auto_budget_analytic_ids(self):
         """ Only for components
@@ -200,23 +221,21 @@ class ManufacturingOrder(models.Model):
                 mo.total_budget_reserved_workorders,
                 precision_digits = prec
             )
-    def _compute_budget_totals_one(self, totals, expense_ids, prec, pivot_analytic_to_budget_type):
-        """ 1. Split `totals` and `expense_ids` between components and workorders
+    def _compute_budget_totals_one(self, totals, prec, pivot_analytic_to_budget_type):
+        """ 1. Split `totals` between components and workorders
             2. Computes both totals
         """
         # 1.
         components_budget_types = self._get_component_budget_types()
-        totals_workorders, expense_ids_workorders = {}, {}
+        totals_workorders = {}
         for aac_id in totals.copy():
             budget_type = pivot_analytic_to_budget_type.get(aac_id)
             if budget_type not in components_budget_types:
                 totals_workorders[aac_id] = totals.pop(aac_id)
-                if aac_id in expense_ids:
-                    expense_ids_workorders[aac_id] = expense_ids.pop(aac_id)
 
         # 2.
-        super()._compute_budget_totals_one(totals, expense_ids, prec)
-        super()._compute_budget_totals_one(totals_workorders, expense_ids_workorders, prec, field_suffix='_workorders')
+        super()._compute_budget_totals_one(totals, prec)
+        super()._compute_budget_totals_one(totals_workorders, prec, field_suffix='_workorders')
 
 
     #===== Views =====#

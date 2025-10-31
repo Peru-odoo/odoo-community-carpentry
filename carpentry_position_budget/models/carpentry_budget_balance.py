@@ -18,6 +18,7 @@ class CarpentryBudgetBalance(models.Model):
     name = fields.Char()
     project_id = fields.Many2one(readonly=True)
     reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     launch_ids = fields.Many2many(
         string='Launchs',
         comodel_name='carpentry.group.launch',
@@ -51,9 +52,13 @@ class CarpentryBudgetBalance(models.Model):
         """ For balance: either launchs, either project """
         return self.launch_ids.ids or [False]
     
-    @api.depends('project_id', 'launch_ids')
-    def _compute_budget_analytic_ids(self):
-        return super()._compute_budget_analytic_ids()
+    def write(self, vals):
+        """ Update budget_analytic_ids when changing mode launch/project """
+        res = super().write(vals)
+        if 'launch_ids' in vals:
+            self._refresh_budget_analytics()
+        return res
+    
     def _get_auto_budget_analytic_ids(self):
         """ Budget centers are either all launch's or project's:
              a) all project's global budgets, if no launch selected

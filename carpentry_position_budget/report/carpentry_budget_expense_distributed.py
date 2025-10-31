@@ -7,8 +7,6 @@ class CarpentryBudgetExpenseDistributed(models.Model):
     """ Estimate the expense of a PO/MO/... distributed per launch,
         i.e. per line of budget reservation using as distribution key:
         [Total reserved on this launch & budget] / [Total reserved on this budget]
-
-        This is needed for planning, to estimate expense per launch
     """
     _name = 'carpentry.budget.expense.distributed'
     _inherit = ['carpentry.budget.expense']

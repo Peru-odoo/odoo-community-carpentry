@@ -100,7 +100,7 @@ class TestCarpentryPurchaseBudget_Reservation(
             'count': 1,
             'aacs': self.aac_other,
             'launchs': self.env['carpentry.group.launch'],
-            'other_expenses_aacs': self.aac_installation, # `installation` should be in `other_expense_ids`
+            'other_expense_aacs': self.aac_installation, # `installation` should be in `other_expense_ids`
             'budget_reserved': self.UNIT_PRICE * 0.50,
             'budgetable': self.UNIT_PRICE,
             'expense_valued': self.UNIT_PRICE,
@@ -112,7 +112,7 @@ class TestCarpentryPurchaseBudget_Reservation(
             'count': 2,
             'aacs': self.aac_other + self.aac_installation,
             'launchs': self.launch,
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budget_reserved': self.UNIT_PRICE,
             'budgetable': self.UNIT_PRICE,
             'expense_valued': self.UNIT_PRICE,
@@ -125,7 +125,7 @@ class TestCarpentryPurchaseBudget_Reservation(
             'count': 3,
             'aacs': all_aacs,
             'launchs': self.launch,
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'gain': 0, # budget is available => gain still == 0
         }
 
@@ -153,7 +153,7 @@ class TestCarpentryPurchaseBudget_Reservation(
         expense_ratio = self.line.price_unit * 33.33 / 100 * 3
 
         return {
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budget_reserved': self.project.budget_total,
             'budgetable': expense_ratio,
             'expense_valued': expense_ratio,

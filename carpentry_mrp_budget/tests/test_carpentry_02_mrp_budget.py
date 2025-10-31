@@ -63,11 +63,12 @@ class TestCarpentryMrpBudget_Reservation(
 
     def _test_01_results(self):
         """ In MO:
-            - `installation` goes to budget_analytic_ids_workorders instead of other expenses
+            - `installation` goes to other expenses
             - `total_xxx` fields are splitted between components and workorders
         """
         return super()._test_01_results() | {
-            'other_expenses_aacs': self.Analytic,
+            'expense_aacs': self.aac_other + self.aac_installation,
+            'other_expense_aacs': self.aac_installation,
             'gain': self.amount_other - self.expense, # -50.0 (only components)
         }
     

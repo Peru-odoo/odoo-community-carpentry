@@ -263,24 +263,9 @@ class CarpentryAffectation(models.Model):
                 " it cannot be unaffected from this phase"
             ))
 
-    #===== Compute: base fields =====#
-    # def _search_affected(self, operator, value):
-    #     operator = operator.replace('in', '=').replace('not in', '!=')
-    #     if operator not in ('=', '!=') or value not in (True, False):
-    #         raise exceptions.UserError(_("Operation not supported"))
-        
-    #     positive = (operator == '=' and value) or (operator == '!=' and not value)
-    #     operator_phase = '!=' if positive else '='
-    #     return [
-    #         '|',
-    #             '&', ('mode', '=', 'phase'), ('quantity_affected', operator_phase, 0),
-    #             '&', ('mode', '=', 'launch'), ('affected', operator, value),
-    #     ]
-
     @api.depends(
         # (!) stored
-        # those depends fields because of `quantity_remaining_to_affect`
-        # it still remains simplier than a complex _search method
+        # must includes at least the @api.depends of `quantity_remaining_to_affect`
         'affected', 'launch_sibling_ids.affected', # for launchs
         'quantity_affected', 'phase_sibling_ids.quantity_affected', 'quantity_position', # for phases
     )

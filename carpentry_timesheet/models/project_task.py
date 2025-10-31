@@ -18,6 +18,7 @@ class Task(models.Model):
     )
     # budget reservation
     reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
     launch_ids = fields.Many2many(
         string='Launch(s)',
         comodel_name='carpentry.group.launch',
@@ -88,7 +89,7 @@ class Task(models.Model):
     
     def _get_fields_budget_reservation_refresh(self):
         return super()._get_fields_budget_reservation_refresh() + [
-            'analytic_account_id', 'planned_hours', 'allow_timesheets'
+            'analytic_account_id', 'planned_hours', 'allow_timesheets', 'stage_id.fold',
         ]
     
     def _depends_can_reserve_budget(self):

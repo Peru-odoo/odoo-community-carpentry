@@ -113,7 +113,7 @@ class TestCarpentryTaskBudget_Reservation(
             'count': 1,
             'aacs': self.aac_service,
             'launchs': self.env['carpentry.group.launch'],
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budgetable': self.DURATION_HOURS,
             'budget_reserved': self.DURATION_HOURS,
             'expense_valued': self.DURATION_HOURS * self.UNIT_PRICE,
@@ -143,7 +143,7 @@ class TestCarpentryTaskBudget_Reservation(
     def _test_05_results(self):
         """ Same than 01 with timesheets went higher than budget => loss """
         return {
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budget_reserved': self.DURATION_HOURS,
             'budgetable': self.DURATION_HOURS, # budgetable is `planned_hours`, not expense
             'expense_valued': self.line.unit_amount * self.UNIT_PRICE,
@@ -160,7 +160,7 @@ class TestCarpentryTaskBudget_Reservation(
         return {
             'count': 0,
             'aacs': self.Analytic,
-            'other_expenses_aacs': self.Analytic, # timesheets are on task's analytic -> empty here
+            'other_expense_aacs': self.Analytic, # timesheets are on task's analytic -> empty here
             'budget_reserved': 0.0,
             'budgetable': self.line.unit_amount,
             'expense_valued': self.line.unit_amount * self.UNIT_PRICE,

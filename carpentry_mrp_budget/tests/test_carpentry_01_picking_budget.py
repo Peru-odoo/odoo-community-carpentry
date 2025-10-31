@@ -75,6 +75,15 @@ class TestCarpentryPickingBudget_Reservation(
         print('picking', cls.section.read(['total_budget_reserved']))
         print('lines', cls.section.move_ids.read(['analytic_distribution', 'product_id', 'product_uom_qty', 'state']))
         print('products', cls.section.move_ids.product_id.read(['name', 'standard_price']))
+    
+    @classmethod
+    def _print_debug_expense(cls):
+        expenses = cls.env['carpentry.budget.expense'].with_context(active_test=False)
+        print('picking', cls.section.read(['expense_ids', 'other_expense_ids']))
+        print('expenses', expenses.search_read(
+            domain=[('section_id', '=', cls.section.id), ('section_res_model', '=', 'stock.picking')],
+            fields=['analytic_account_id', 'amount_expense', 'amount_reserved'],
+        ))
 
     #===== Auto/suggestion mode =====#
     # See `carpentry_position_budget/TestCarpentryPositionBudget_Reservation`
@@ -89,7 +98,8 @@ class TestCarpentryPickingBudget_Reservation(
             'count': 1,
             'aacs': self.aac_other,
             'launchs': self.env['carpentry.group.launch'],
-            'other_expenses_aacs': self.aac_installation, # `installation` should be in `other_expense_ids`
+            'expense_aacs': self.aac_other + self.aac_installation,
+            'other_expense_aacs': self.aac_installation, # `installation` should be in `other_expense_ids`
             'budget_reserved': self.reserved,
             'budgetable': self.expense,
             'expense_valued': self.expense,
@@ -110,7 +120,7 @@ class TestCarpentryPickingBudget_Reservation(
             'count': 2,
             'aacs': self.aac_other + self.aac_installation,
             'launchs': self.launch,
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budget_reserved': self.reserved,
             'budgetable': self.expense,
             'expense_valued': self.expense,
@@ -123,7 +133,7 @@ class TestCarpentryPickingBudget_Reservation(
             'count': 3,
             'aacs': all_aacs,
             'launchs': self.launch,
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'gain': self.reserved - self.expense, # no change
         }
     
@@ -134,7 +144,7 @@ class TestCarpentryPickingBudget_Reservation(
         """
         expense = self.product.standard_price * 2
         return {
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
             'budget_reserved': self.reserved,
             'budgetable': expense,
             'expense_valued': expense,
@@ -157,6 +167,8 @@ class TestCarpentryPickingBudget_Reservation(
             - does not trigger reservation amount auto-update
               (user can do it with the button)
         """
+        self._print_debug_expense()
+
         # 1 line has aac distrib with 2 aac on 50% and 1 on 100%
         # the 2nd line is standard at 100%
         # => UNIT_PRICE is counted 3 times
@@ -170,10 +182,8 @@ class TestCarpentryPickingBudget_Reservation(
 
     #===== Picking specific =====#
     def test_80_validate_picking(self):
-        """ Ensure changing product's `standard_price`
-            does not change picking expense when done
-            thanks to stock.valuation.layer
-            (instead as in test_05)
+        """ Ensure changing product's `standard_price` does not change picking expense when
+            the picking is done, thanks to stock.valuation.layer (instead as in test_05)
         """
         # initial state:
         # validate the picking & change product's standard_price

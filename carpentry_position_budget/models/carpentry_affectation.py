@@ -63,7 +63,7 @@ class CarpentryAffectation(models.Model):
         # 2.
         Remaining = self.env['carpentry.budget.remaining']
         self.env.flush_all() # required before view requests
-        Remaining.invalidate_model()
+        Remaining.invalidate_model(['amount_subtotal'])
 
         rg_result = Remaining._read_group(
             domain=domain,

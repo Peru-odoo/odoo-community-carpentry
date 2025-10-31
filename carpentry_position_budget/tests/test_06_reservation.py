@@ -52,10 +52,15 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
             self.assertEqual(reservations.analytic_account_id, kwargs['aacs'])
         if 'launchs' in kwargs:
             self.assertEqual(reservations.launch_id, kwargs['launchs'])
-        if 'other_expenses_aacs' in kwargs:
+        if 'expense_aacs' in kwargs:
+            self.assertEqual(
+                self.section.expense_ids.analytic_account_id,
+                kwargs['expense_aacs'],
+            )
+        if 'other_expense_aacs' in kwargs:
             self.assertEqual(
                 self.section.other_expense_ids.analytic_account_id,
-                kwargs['other_expenses_aacs'],
+                kwargs['other_expense_aacs'],
             )
 
         # amounts
@@ -176,7 +181,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         return {
             'count': 2,
             'aacs': self.aac_other + self.aac_installation,
-            'other_expenses_aacs': self.Analytic,
+            'other_expense_aacs': self.Analytic,
         }
     
     # def test_07_multiple_project_splitted_expense(self):
@@ -206,13 +211,15 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
 
         # setup: put expense on unknown budget in the project
         self.line.analytic_distribution |= {self.aac_goods.id: 100}
+        self.env['carpentry.budget.expense'].invalidate_model() # like user 'save'
         self._test_reservation('08')
 
     def _test_08_results(self):
         return {
             'count': 2,
             'aacs': self.aac_other + self.aac_installation, # not in project => not added in budget_analytic_ids
-            'other_expenses_aacs': self.aac_goods, # not in reservations (because not available, or here, not in project) => in other expense
+            'expense_aacs': self.aac_other + self.aac_installation + self.aac_goods,
+            'other_expense_aacs': self.aac_goods, # not in reservations (because not available, or here, not in project) => in other expense
         }
     
     #===== Other & UI =====#
