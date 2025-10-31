@@ -10,6 +10,9 @@ class PurchaseOrderLine(models.Model):
         res = super()._compute_analytic_distribution()
         self._compute_analytic_distribution_carpentry()
         return res
+    
+    def _should_enforce_internal_analytic(self):
+        return hasattr(self, 'product_id') and self.product_id.type == 'product'
 
     #==== Budget reservation ====#
     def _cascade_order_budgets_to_line_analytic(self, new_budgets, budget_analytics_ids):

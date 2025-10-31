@@ -11,3 +11,6 @@ class AccountMoveLine(models.Model):
         self._compute_analytic_distribution_carpentry()
         return res
     
+    def _should_enforce_internal_analytic(self):
+        return hasattr(self, 'product_id') and self.product_id.type == 'product'
+    

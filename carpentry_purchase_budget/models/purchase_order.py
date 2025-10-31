@@ -7,9 +7,13 @@ class PurchaseOrder(models.Model):
     _inherit = ['purchase.order', 'carpentry.budget.mixin']
     _carpentry_budget_notebook_page_xpath = '//page[@name="products"]'
     _carpentry_budget_last_valuation_step = _('billing')
+    # _carpentry_budget_alert_banner_xpath = False
+    # _carpentry_budget_smartbuttons_xpath = False
+    # _carpentry_budget_notebook_page_xpath = False
 
     #====== Fields ======#
     reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)],)
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_budget_purchase_analytic_rel',
         column1='order_id',
@@ -25,6 +29,9 @@ class PurchaseOrder(models.Model):
     
     def _cascade_order_budgets_to_line_analytic(self):
         """ Manual budget choice => update line's analytic distribution """
+        if self._context.get('budget_analytic_ids_computed_auto'):
+            return
+        
         domain=[('is_project_budget', '=', True)]
         budget_analytics_ids = self.env['account.analytic.account'].search(domain).ids
 
@@ -40,7 +47,7 @@ class PurchaseOrder(models.Model):
     
     def _get_fields_budget_reservation_refresh(self):
         return super()._get_fields_budget_reservation_refresh() + [
-            'order_line', 'order_line.product_id', 'order_line.price_subtotal'
+            'order_line', 'amount_untaxed', 'invoice_count',
         ]
     
     def _should_value_budget_reservation(self):
@@ -57,9 +64,6 @@ class PurchaseOrder(models.Model):
         ]
     def _get_domain_is_temporary_gain(self):
         return [('invoice_status', '!=', 'invoiced')]
-    
-    def _should_enforce_internal_analytic(self):
-        return hasattr(self, 'product_id') and self.product_id.type == 'product'
     
     #===== Compute: date & amounts =====#
     @api.depends('date_approve')
