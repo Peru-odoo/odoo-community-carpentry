@@ -75,6 +75,12 @@
                                 '|', ('is_computed_carpentry', '=', True), ('type', '!=', 'amount')
                             ]}" />
                             
+                            <!-- Tracability -->
+                            <field name="name" optional="show" string="Comment" />
+                            <field name="create_date" widget="date" optional="hide" />
+                            <field name="write_date" widget="date" optional="hide" />
+                            <field name="write_uid" widget="many2one_avatar_user" optional="hide" />
+                        
                             <button name="unlink" type="object" icon="fa-trash" title="Remove"
                                 attrs="{'invisible': [('is_computed_carpentry', '=', True)]}"
                                 confirm="Are you sure?"

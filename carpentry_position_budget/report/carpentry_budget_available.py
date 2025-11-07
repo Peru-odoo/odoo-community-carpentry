@@ -17,6 +17,13 @@ class CarpentryBudgetAvailable(models.Model):
     _description = 'Project & launches budgets'
     _auto = False
     
+    #===== Fields methods =====#
+    def _selection_record_ref(self):
+        return [
+            (x['model'], x['name'])
+            for x in self.env['ir.model'].sudo().search_read([], ['model', 'name'])
+        ]
+    
     #===== Fields =====#
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -82,13 +89,18 @@ class CarpentryBudgetAvailable(models.Model):
         readonly=True,
     )
     # model
-    group_model_id = fields.Many2one(
+    record_model_id = fields.Many2one(
         comodel_name='ir.model',
-        string='Document',
+        string='Document ID',
         readonly=True,
     )
-    group_res_model = fields.Char(
-        related='group_model_id.model',
+    record_res_model = fields.Char(
+        string='Document (model)',
+        related='record_model_id.model',
+    )
+    record_model_name = fields.Char(
+        string='Document Type',
+        related='record_model_id.name',
     )
 
     #===== View build =====#
@@ -113,7 +125,7 @@ class CarpentryBudgetAvailable(models.Model):
                         result.launch_id,
                         result.phase_id,
                         result.position_id,
-                        result.group_model_id,
+                        result.record_model_id,
                         result.analytic_account_id,
                         result.budget_type,
                         result.active,
@@ -140,7 +152,7 @@ class CarpentryBudgetAvailable(models.Model):
                         result.launch_id,
                         result.phase_id,
                         result.position_id,
-                        result.group_model_id,
+                        result.record_model_id,
                         result.analytic_account_id,
                         result.budget_type,
                         result.active,
@@ -189,7 +201,7 @@ class CarpentryBudgetAvailable(models.Model):
                     project.id AS project_id,
                     NULL AS launch_id,
                     NULL AS phase_id,
-                    {models['project.project']} AS group_model_id,
+                    {models['project.project']} AS record_model_id,
                     TRUE AS active,
 
                     -- affectation: position & qty affected
@@ -225,7 +237,7 @@ class CarpentryBudgetAvailable(models.Model):
                     carpentry_group.project_id,
                     {'carpentry_group.id' if model == 'carpentry.group.launch' else 'NULL::integer'} AS launch_id,
                     {'carpentry_group.id' if model == 'carpentry.group.phase'  else 'NULL::integer'} AS phase_id,
-                    {models[model]} AS group_model_id,
+                    {models[model]} AS record_model_id,
                     carpentry_group.active,
 
                     -- affectation: position & qty affected
@@ -321,11 +333,11 @@ class CarpentryBudgetAvailable(models.Model):
         res = super().read_group(domain, fields, groupby, offset, limit, orderby, lazy)
         
         mode = self._context.get('active_model', '').replace('carpentry.group.', '')
-        group_id = self._context.get('active_id')
+        record_id = self._context.get('active_id')
         if (
             bool(res) and 'position_id' in res[0] # groupby by `position_id`
             and self._context.get('display_model_shortname') # not programatic call
-            and bool(mode) and bool(group_id) # pivot view on a single launch or phase
+            and bool(mode) and bool(record_id) # pivot view on a single launch or phase
         ):
             field = mode + '_id'
             # count position's affected quantities per launch
@@ -333,7 +345,7 @@ class CarpentryBudgetAvailable(models.Model):
             rg_result = self.env['carpentry.affectation'].read_group(
                 domain=[
                     ('mode', '=', mode),
-                    (field, '=', group_id),
+                    (field, '=', record_id),
                     ('position_id', 'in', position_ids_)
                 ],
                 fields=['quantity_affected:sum'],
@@ -355,12 +367,12 @@ class CarpentryBudgetAvailable(models.Model):
                 position_id, position_name = res_position
                 display_name = '{} ({})' . format(
                     position_name,
-                    round(mapped_quantities.get((group_id, position_id), 0.0))
+                    round(mapped_quantities.get((record_id, position_id), 0.0))
                 )
                 data['position_id'] = (position_id, display_name)
         
         return res
-
+    
     #===== Button =====#
     def open_position_budget(self, position_id=None):
         """ Open document providing budget (position or project) """

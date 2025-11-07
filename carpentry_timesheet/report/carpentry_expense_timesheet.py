@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo import models
 
 class CarpentryExpense(models.Model):
     _inherit = ['carpentry.budget.expense.history']
@@ -13,37 +13,36 @@ class CarpentryExpense(models.Model):
         if model == 'project.task':
             return f"""
                 SELECT
-                    section.project_id,
-                    section.date_budget AS date,
-                    section.active,
-                    section.id AS section_id,
-                    {models[model]} AS section_model_id,
+                    record.project_id,
+                    record.date_budget AS date,
+                    record.active,
+                    record.id AS record_id,
+                    {models[model]} AS record_model_id,
                     
                     -- cost center is **ALWAYS** task's one,
                     -- even for employees' timesheets of other departments
-                    section.analytic_account_id,
+                    record.analytic_account_id,
                     analytic.budget_type,
 
                     -- amount_reserved:
                     -- 1. if effective_hours < amount_reserved:
                     --    displays expense == budget_reservation in the project's budget report
-                    --    by cancelling amount_reserved of `carpentry.budget.reservation`
                     -- 2. if planned_hours != amount_reserved:
                     --    fakely raise/reduce amount_reserved by the difference
                     CASE
-                        WHEN section.is_closed IS FALSE AND section.effective_hours < (SUM(reservation.amount_reserved) / COUNT(reservation.id))
-                        THEN section.effective_hours - (SUM(reservation.amount_reserved) / COUNT(reservation.id)) -- replace `sum(amount_reserved)` by `effective_hours`
-                        ELSE 0.0
+                        WHEN record.is_closed IS FALSE AND record.effective_hours < record.total_budget_reserved
+                        THEN record.effective_hours -- replace `sum(amount_reserved)` by `effective_hours`
+                        ELSE record.total_budget_reserved
                     END -
                     CASE
-                        WHEN section.planned_hours != (SUM(reservation.amount_reserved) / COUNT(reservation.id))
-                         AND section.effective_hours < LEAST(SUM(reservation.amount_reserved) / COUNT(reservation.id), section.planned_hours)
-                        THEN section.planned_hours - (SUM(reservation.amount_reserved) / COUNT(reservation.id))
+                        WHEN record.planned_hours != record.total_budget_reserved
+                         AND record.effective_hours < LEAST(record.total_budget_reserved, record.planned_hours)
+                        THEN record.planned_hours - record.total_budget_reserved
                         ELSE 0.0
                     END AS amount_reserved,
-                    FALSE AS should_devalue_workforce_expense,
 
                     -- expense
+                    NULL AS value_or_devalue_workforce_expense,
                     SUM(line.unit_amount) AS amount_expense,
                     SUM(line.amount) * -1 AS amount_expense_valued
             """
@@ -57,16 +56,11 @@ class CarpentryExpense(models.Model):
             sql += f"""
                 -- timesheet lines
                 LEFT JOIN account_analytic_line AS line
-                    ON line.task_id = section.id
+                    ON line.task_id = record.id
                 
                 -- analytic
                 LEFT JOIN account_analytic_account AS analytic
-                    ON analytic.id = section.analytic_account_id
-                
-                -- reservation (we need them to calculate the expense conditionnally)
-                LEFT JOIN carpentry_budget_reservation AS reservation
-                    ON  reservation.section_model_id = {models['project.task']}
-                    AND reservation.section_id = section.id
+                    ON analytic.id = record.analytic_account_id
             """
         
         return sql + super()._join(model, models)
@@ -77,8 +71,8 @@ class CarpentryExpense(models.Model):
         if model == 'project.task':
             return """
                 WHERE
-                    section.active IS TRUE AND
-                    section.allow_timesheets IS TRUE
+                    record.active IS TRUE AND
+                    record.allow_timesheets IS TRUE
             """
 
         return super()._where(model, models)

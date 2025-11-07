@@ -5,6 +5,8 @@ from odoo import models, fields, api, Command
 class Task(models.Model):
     _name = 'project.task'
     _inherit = ['project.task', 'carpentry.budget.mixin']
+    _record_field = 'task_id'
+    _record_fields_expense = ['timesheet_ids']
     _carpentry_budget_notebook_page_xpath = "//page[@id='timesheets_tab']"
     _carpentry_budget_choice = False
 
@@ -17,8 +19,8 @@ class Task(models.Model):
         readonly=False
     )
     # budget reservation
-    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    reservation_ids = fields.One2many(inverse_name='task_id')
+    expense_ids = fields.One2many(inverse_name='task_id')
     launch_ids = fields.Many2many(
         string='Launch(s)',
         comodel_name='carpentry.group.launch',
@@ -87,9 +89,13 @@ class Task(models.Model):
     def _get_budget_types(self):
         return ['service', 'installation']
     
-    def _get_fields_budget_reservation_refresh(self):
-        return super()._get_fields_budget_reservation_refresh() + [
-            'analytic_account_id', 'planned_hours', 'allow_timesheets', 'stage_id.fold',
+    def _depends_expense_temporary(self):
+        return super()._depends_expense_temporary() + [
+            'analytic_account_id', 'planned_hours', 'allow_timesheets',
+        ]
+    def _depends_expense_permanent(self):
+        return super()._depends_expense_permanent() + [
+            'stage_id.fold', 'timesheet_ids',
         ]
     
     def _depends_can_reserve_budget(self):

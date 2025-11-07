@@ -10,7 +10,7 @@
     'installable': True,
     'auto_install': False,
     'category': 'Carpentry/Carpentry',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.2.0',
 
     'depends': [
         'project', 'purchase', 'purchase_requisition', 'stock', # odoo

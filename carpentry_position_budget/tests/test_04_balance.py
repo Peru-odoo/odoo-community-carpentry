@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import exceptions, fields, _, Command
+from odoo.tests.common import Form
 
 from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 from odoo.addons.carpentry_position_budget.models.carpentry_planning_column import human_readable
@@ -23,6 +24,11 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         }])
 
         cls.fields = ['launch_id', 'analytic_account_id', 'amount_reserved']
+
+    @classmethod
+    def _print_debug(cls):
+        print('cls.balance', cls.balance.read(['budget_analytic_ids']))
+        print('cls.project.budget_line_ids', cls.project.budget_line_ids.read(['analytic_account_id', 'is_computed_carpentry']))
 
     #===== Reservations =====#
     @classmethod
@@ -86,6 +92,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
     def test_04_switch_to_launch(self):
         """ Test when choosing 1 launch, it passes in 'launch-only' mode """
         self.balance.launch_ids = self.launchs
+        
         self.assertEqual(self.balance.budget_analytic_ids, self.aac_installation + self.aac_production)
         self.assertFalse(self.balance.reservation_ids.filtered(
             # all reservation are on launch(s)
@@ -116,7 +123,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
 
     def test_06_reservation_lines_sibling(self):
         """ Tests again amounts of `carpentry.group.reservation`
-            when having 2 balances' section
+            when having 2 balances
         """
         reservation = fields.first(self.balance2.reservation_ids)
         self.assertEqual(reservation.amount_remaining, 0.0)
@@ -144,7 +151,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
             self.budget_installation.amount_unitary += 1.0
         except exceptions.RedirectWarning:
             self.fail('Should be OK to raise budget')
-
+        
         with self.assertRaises(exceptions.RedirectWarning):
             self.budget_installation.unlink()
         with self.assertRaises(exceptions.RedirectWarning):
@@ -179,7 +186,23 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         with self.assertRaises(exceptions.RedirectWarning):
             fields.first(self.launch.affectation_ids).affected = False
 
-    def test_09_affectation_change_ok(self):
+    def test_09_affectation_constrain_param(self):
+        """ Ensure budget constrain can be silenced with an ir.config_parameter """
+        param = 'carpentry.allow_negative_budget'
+        IrConfig = self.env['ir.config_parameter'].sudo()
+        
+        IrConfig.set_param(param, 'True')
+        prev = self.budget_installation.amount_unitary
+        try:
+            self.budget_installation.amount_unitary = 0.0
+        except:
+            self.fail('Should be OK to create negative budget')
+
+        # back to normal
+        IrConfig.search([('key', '=', param)]).unlink()
+        self.budget_installation.amount_unitary = prev
+    
+    def test_10_affectation_change_ok(self):
         """ Test it's OK to change affectation if it doesn't lower the budget too much """
         # unreserve known amount of budget
         _lambda = lambda x: x.analytic_account_id == self.budget_production
@@ -192,7 +215,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         except:
             self.fail('Lowering budget of acceptable amount should be OK')
     
-    def test_10_reservation_clean_on_affectation_removal(self):
+    def test_11_reservation_clean_on_affectation_removal(self):
         """ Ensure when a budget is removed, *empty/ghost* reservation
             linked to it but not reserving budget should be cleaned
             (see `_clean_reservation_and_constrain_budget`)
@@ -210,6 +233,13 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
 
         self.assertFalse(reservations)
     
+    def test_12_access_right(self):
+        try:
+            self.balance.with_user(self.project_user).read(['reservation_ids'])
+            # self.balance.reservation_ids.read([])
+        except exceptions.AccessError:
+            self.fail('User access rights issue')
+
     #===== Planning columns =====#
     def _get_planning_result(self, launch):
         return (
@@ -217,7 +247,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
             .get(self.column.id, {}).get('budget', {})
         )
 
-    def test_11_planning_column_unit(self):
+    def test_13_planning_column_unit(self):
         """ Test units of budget columns: 'h' if only 'h' ; else '€' """
         self.env['carpentry.budget.balance'].search([]).unlink()
         self._reset_affectations() # affect everything to 1st phase, position & launch
@@ -229,7 +259,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         result = self._get_planning_result(self.launch)
         self.assertEqual(result.get('unit'), '€')
 
-    def test_12_planning_column_totals(self):
+    def test_14_planning_column_totals(self):
         """ Test total amounts in planning columns """
         # launch2: with no budget
         result = self._get_planning_result(self.launchs[1])

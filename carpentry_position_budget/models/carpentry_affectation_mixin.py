@@ -37,7 +37,7 @@ class CarpentryAffectationMixin(models.AbstractModel):
         """
         field = self._name.replace('carpentry.', '').replace('group.', '') + '_id'
         rg_result = self.env['carpentry.budget.available']._read_group(
-            domain=[(field, 'in', self.ids), ('group_res_model', '=', self._name)],
+            domain=[(field, 'in', self.ids), ('record_res_model', '=', self._name)],
             groupby=[field, 'budget_type'],
             fields=['amount_subtotal:sum', 'amount_subtotal_valued:sum', 'project_id'],
             lazy=False,

@@ -17,9 +17,6 @@ class CarpentryBudgetExpenseDistributed(models.Model):
 
     #===== View build =====#
     def init(self):
-        # prerequisites
-        self.env['carpentry.budget.expense.history'].init()
-        self.env['carpentry.budget.expense'].init()
         tools.drop_view_if_exists(self.env.cr, self._table)
 
         self._cr.execute("""
@@ -46,123 +43,92 @@ class CarpentryBudgetExpenseDistributed(models.Model):
         return f"""
             SELECT
                 row_number() OVER (ORDER BY 
-                    reservation.section_id,
-                    reservation.section_model_id,
-                    reservation.analytic_account_id,
-                    reservation.launch_id
+                    reservation.sequence_record,
+                    reservation.sequence_aac,
+                    reservation.sequence_launch,
+                    reservation.id
                 ) AS id,
                 reservation.project_id,
-                reservation.section_id,
-                reservation.section_model_id,
+                reservation.launch_id,
+                {self._get_sql_record_fields()},
                 reservation.active,
                 
                 reservation.budget_type,
                 reservation.analytic_account_id,
 
-                reservation.launch_id,
-
                 -- amount_reserved
-                SUM(reservation.amount_reserved) / (
-                    CASE
-                        WHEN COUNT(reservation_total.id) = 0
-                        THEN 1
-                        ELSE COUNT(reservation_total.id)
-                    END
-                ) AS amount_reserved,
-
-                -- amount_reserved_valued
-                SUM(reservation.amount_reserved) / (
-                    CASE
-                        WHEN COUNT(reservation_total.id) = 0
-                        THEN 1
-                        ELSE COUNT(reservation_total.id)
-                    END
-                ) * (
+                SUM(reservation.amount_reserved) AS amount_reserved,
+                SUM(reservation.amount_reserved)  * (
                     CASE
                         WHEN reservation.budget_type IN {tuple(budget_types)}
-                        THEN hourly_cost.coef
+                        THEN AVG(expense.hourly_cost_coef)
                         ELSE 1.0
                     END
                 ) AS amount_reserved_valued,
                 
                 -- amount_expense
-                CASE
-                    WHEN COUNT(reservation_total.id) = 0 OR SUM(reservation_total.amount_reserved) = 0.0
-                    THEN SUM(expense.amount_expense)
-                    ELSE (
-                        SUM(expense.amount_expense) / COUNT(reservation_total.id) * (
-                            SUM(reservation.amount_reserved) / COUNT(reservation_total.id) / -- reserved budget of this launch on this aac
-                            SUM(reservation_total.amount_reserved) -- reserved budget on this aac, for all launches
-                        )
-                    )
+                SUM(expense.amount_expense) * CASE
+                    WHEN SUM(expense.amount_reserved) = 0.0
+                    THEN 1.0
+                    --   reserved budget of this launch on this aac
+                    --   / reserved budget on this aac, for all launches
+                    ELSE SUM(reservation.amount_reserved) / SUM(expense.amount_reserved)
                 END AS amount_expense,
                 
                 -- amount_expense_valued
-                CASE
-                    WHEN COUNT(reservation_total.id) = 0 OR SUM(reservation_total.amount_reserved) = 0.0
-                    THEN SUM(expense.amount_expense_valued)
-                    ELSE (
-                        SUM(expense.amount_expense_valued) / COUNT(reservation_total.id) * (
-                            SUM(reservation.amount_reserved) / COUNT(reservation_total.id) / -- reserved budget of this launch on this aac
-                            SUM(reservation_total.amount_reserved) -- reserved budget on this aac, for all launches
-                        )
-                    )
+                SUM(expense.amount_expense_valued) * CASE
+                    WHEN SUM(expense.amount_reserved) = 0.0
+                    THEN 1.0
+                    ELSE SUM(reservation.amount_reserved) / SUM(expense.amount_reserved)
                 END AS amount_expense_valued,
                 
                 -- amount_gain
-                CASE
-                    WHEN COUNT(reservation_total.id) = 0 OR SUM(reservation_total.amount_reserved) = 0.0
-                    THEN SUM(expense.amount_gain)
-                    ELSE (
-                        SUM(expense.amount_gain) / COUNT(reservation_total.id) * (
-                            SUM(reservation.amount_reserved) / COUNT(reservation_total.id) / -- reserved budget of this launch on this aac
-                            SUM(reservation_total.amount_reserved) -- reserved budget on this aac, for all launches
-                        )
-                    )
+                SUM(expense.amount_gain) * CASE
+                    WHEN SUM(expense.amount_reserved) = 0.0
+                    THEN 1.0
+                    ELSE SUM(reservation.amount_reserved) / SUM(expense.amount_reserved)
                 END AS amount_gain
         """
 
     def _from(self):
-        return 'FROM carpentry_budget_expense AS expense'
+        return 'FROM carpentry_budget_reservation AS reservation'
 
     def _join(self):
-        return """
-            LEFT JOIN carpentry_budget_reservation AS reservation
-                -- expense is section's line, which amount must be distributed
-                -- on the several section's launchs as per launch's reserved budget / total reserved budget
+        # SQL for balance_id, purchase_id, production_id, task_id, ...
+        record_fields = self.env['carpentry.budget.reservation']._get_record_fields()
+        sql_record_fields = ' OR ' . join([f'expense.{field} = reservation.{field}' for field in record_fields])
+        
+        return f"""
+            INNER JOIN carpentry_budget_expense AS expense
+                -- expense is record's line, which amount must be distributed
+                -- on the several record's launchs as per launch's reserved budget / total reserved budget
                 -- for the line's analytic account
-                ON  reservation.section_id = expense.section_id
-                AND reservation.section_model_id = expense.section_model_id
-                AND reservation.analytic_account_id = expense.analytic_account_id
-
-            LEFT JOIN carpentry_budget_reservation AS reservation_total
-                -- same document/section (e.g. PO)
-                ON  reservation_total.section_id = reservation.section_id
-                AND reservation_total.section_model_id = reservation.section_model_id
-                -- same budget (and possibly several launches)
-                AND reservation_total.analytic_account_id = reservation.analytic_account_id
-                AND reservation_total.amount_reserved != 0.0
-            
-            -- for (h) to (€) valuation when needed
-            LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
-                ON  hourly_cost.project_id = reservation.project_id
-                AND hourly_cost.analytic_account_id = reservation.analytic_account_id
+                ON  expense.analytic_account_id = reservation.analytic_account_id
+                AND {sql_record_fields}
         """
 
     def _where(self):
         return ''
     
     def _groupby(self):
-        return """
+        
+        return f"""
             GROUP BY
+                -- record is not grouped by launch,
+                -- but reservation is => we can distribute thanks to
+                -- record.amount_reserved / reservation.amount_reserved
+                expense.id,
+                reservation.id,
                 reservation.project_id,
-                reservation.section_id,
-                reservation.section_model_id,
+                {self._get_sql_record_fields()},
                 reservation.active,
                 reservation.budget_type,
                 reservation.analytic_account_id,
                 reservation.launch_id,
-                hourly_cost.coef
+                -- sequences
+                reservation.sequence_record,
+                reservation.sequence_aac,
+                reservation.sequence_launch
         """
     
     def _orderby(self):
@@ -171,3 +137,6 @@ class CarpentryBudgetExpenseDistributed(models.Model):
     def _having(self):
         return ''
     
+    def _get_sql_record_fields(self):
+        record_fields = self.env['carpentry.budget.reservation']._get_record_fields()
+        return ', ' . join(['reservation.' + field for field in record_fields])

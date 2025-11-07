@@ -9,8 +9,7 @@ from odoo.addons.carpentry_position_budget.tests.test_05_analytic_project import
 from .test_carpentry_01_picking_budget import TestCarpentryPickingBudget_Reservation
 
 class TestCarpentryMrpBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
-    model_section = 'mrp.production'
-    field_section = 'production_id'
+    record_model = 'mrp.production'
     field_lines = 'move_raw_ids'
 
     @classmethod
@@ -18,15 +17,15 @@ class TestCarpentryMrpBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
         super().setUpClass()
 
     @classmethod
-    def _get_vals_section(cls):
-        vals = super()._get_vals_section()
+    def _get_vals_record(cls):
+        vals = super()._get_vals_record()
         vals.pop('partner_id')
         return vals | {'product_id': cls.product_storable.id}
     
     @classmethod
-    def _get_vals_new_line(cls, product=None, qty=1.0, section=None):
-        section = section or cls.section
-        return section._get_move_raw_values(
+    def _get_vals_new_line(cls, product=None, qty=1.0, record=None):
+        record = record or cls.record
+        return record._get_move_raw_values(
             product_id=cls.product,
             product_uom_qty=1.0,
             product_uom=cls.product.uom_id
@@ -58,8 +57,8 @@ class TestCarpentryMrpBudget_Reservation(
         cls.expense = cls.UNIT_PRICE # of components only
     
     @classmethod
-    def _create_section_product(cls):
-        super()._create_section_product()
+    def _create_record_product(cls):
+        super()._create_record_product()
 
     def _test_01_results(self):
         """ In MO:
@@ -105,15 +104,15 @@ class TestCarpentryMrpBudget_Reservation(
     
     #===== MO specific ======#
     @classmethod
-    def _set_section_done(cls):
-        cls.section.action_confirm()
-        cls.section[cls.field_lines].quantity_done = 1.0
-        cls.section.write({
+    def _set_record_done(cls):
+        cls.record.action_confirm()
+        cls.record[cls.field_lines].quantity_done = 1.0
+        cls.record.write({
             'qty_producing': 1.0,
             'product_qty': 1.0,
         })
-        cls.section[cls.field_lines]._action_done()
-        cls.section.button_mark_done()
+        cls.record[cls.field_lines]._action_done()
+        cls.record.button_mark_done()
 
     def test_80_workorder_budget_manual_add(self):
         """ Ensure when adding a new budget center of workorder,
@@ -121,16 +120,16 @@ class TestCarpentryMrpBudget_Reservation(
             and that reservations lines & expense distribution are recomputed
         """
         # initial state: production is not in the MO
-        self.assertFalse(self.aac_production in self.section.budget_analytic_ids)
+        self.assertFalse(self.aac_production in self.record.budget_analytic_ids)
 
         # add production in budget_analytic_ids_workorders
         # => it should stay
-        self.section.budget_analytic_ids_workorders |= self.aac_production
-        self.assertTrue(self.aac_production in self.section.budget_analytic_ids)
+        self.record.budget_analytic_ids_workorders |= self.aac_production
+        self.assertTrue(self.aac_production in self.record.budget_analytic_ids)
 
         # remove it production => it should leave
-        self.section.budget_analytic_ids_workorders -= self.aac_production
-        self.assertFalse(self.aac_production in self.section.budget_analytic_ids)
+        self.record.budget_analytic_ids_workorders -= self.aac_production
+        self.assertFalse(self.aac_production in self.record.budget_analytic_ids)
 
     def test_81_workorder_budget_dont_update_component(self):
         """ When choosing workorder budget, do not change anything to
@@ -143,7 +142,7 @@ class TestCarpentryMrpBudget_Reservation(
         print('prev_reservations', prev_reservations.read(['amount_reserved', 'budget_type']))
 
         # touch workorders budget center => should not change anything
-        self.section.budget_analytic_ids_workorders |= self.aac_production
+        self.record.budget_analytic_ids_workorders |= self.aac_production
         self.env.invalidate_all()
         reservations = self._get_component_reservations()
         # same components reservations, no populate neither auto_reservation
@@ -152,10 +151,10 @@ class TestCarpentryMrpBudget_Reservation(
         self.assertTrue(all(x == 0.0 for x in reservations.mapped('amount_reserved')))
     
     def _get_component_reservations(self):
-        return self.section.reservation_ids.filtered(
+        return self.record.reservation_ids.filtered(
             lambda x: x.analytic_account_id in (
-                self.section.budget_analytic_ids
-                - self.section.budget_analytic_ids_workorders
+                self.record.budget_analytic_ids
+                - self.record.budget_analytic_ids_workorders
             )
         )
 
@@ -164,20 +163,20 @@ class TestCarpentryMrpBudget_Reservation(
             don't update workorder reservation table or amounts
         """
         # start situation: some workorder budget centers & `amount_reserved`
-        reservations = self.section.reservation_ids - self._get_component_reservations()
-        self.assertTrue(self.aac_production in self.section.budget_analytic_ids_workorders)
+        reservations = self.record.reservation_ids - self._get_component_reservations()
+        self.assertTrue(self.aac_production in self.record.budget_analytic_ids_workorders)
         reservations.amount_reserved = 1.0
 
         # button_force_refresh (components only)
-        self.section.button_force_refresh()
+        self.record.button_force_refresh()
         self.assertEqual(set(reservations.mapped('amount_reserved')), {1.0})
 
         # components's choice of budget centers
-        self.section.budget_analytic_ids -= self.aac_other
+        self.record.budget_analytic_ids -= self.aac_other
         self.assertTrue(len(reservations))
         self.assertEqual(set(reservations.mapped('amount_reserved')), {1.0})
 
         # new raw material
-        self.section.move_raw_ids |= fields.first(self.section.move_raw_ids).copy()
+        self.record.move_raw_ids |= fields.first(self.record.move_raw_ids).copy()
         self.assertTrue(len(reservations))
         self.assertEqual(set(reservations.mapped('amount_reserved')), {1.0})

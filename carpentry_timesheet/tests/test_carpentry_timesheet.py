@@ -10,8 +10,7 @@ from odoo.addons.carpentry_position_budget.tests.test_06_reservation import (
 )
 
 class TestCarpentryTaskBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
-    model_section = 'project.task'
-    field_section = 'task_id'
+    record_model = 'project.task'
     field_lines = 'timesheet_ids'
 
     amount_service = 20.0 # 20h
@@ -33,7 +32,7 @@ class TestCarpentryTaskBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
         super()._create_budget_project()
 
     @classmethod
-    def _create_section_product(cls):
+    def _create_record_product(cls):
         # employees
         cls.employee = cls.env['hr.employee'].create({
             'name': 'User Empl Employee',
@@ -47,7 +46,7 @@ class TestCarpentryTaskBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
             'task_ok': True,
         }])
 
-        cls.section = cls.env['project.task'].with_user(user=cls.env.user.id).create({
+        cls.record = cls.env['project.task'].with_user(user=cls.env.user.id).create({
             'project_id': cls.project.id,
             'name': 'Task Test',
             'type_id': cls.task_type.id,
@@ -60,7 +59,7 @@ class TestCarpentryTaskBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
                 'unit_amount': cls.DURATION_HOURS,
             })]
         })
-        cls.line = cls.section.timesheet_ids
+        cls.line = cls.record.timesheet_ids
 
         cls.stage_closed = cls.env['project.task.type'].create({
             'name': 'Closed Stage Test',
@@ -82,15 +81,15 @@ class TestCarpentryTaskBudget_Reservation(
             ['budget_type', 'coef']
         ))
         print('expense', cls.env['carpentry.budget.expense'].search_read(
-            [('section_id', '=', cls.section.id)],
+            [('record_id', '=', cls.record.id)],
             ['amount_reserved', 'amount_reserved_valued', 'amount_expense', 'amount_expense_valued', 'analytic_account_id']
         ))
         print('lines', cls.env['account.analytic.line'].search_read(
             [('account_id', '=', cls.aac_service.id)],
             ['unit_amount', 'amount', 'user_id']
         ))
-        print('section', cls.section.read(['is_closed', 'effective_hours', 'planned_hours', 'total_budget_reserved']))
-        print('reservations', cls.section.reservation_ids.read(['analytic_account_id', 'amount_reserved']))
+        print('record', cls.record.read(['is_closed', 'effective_hours', 'planned_hours', 'total_budget_reserved']))
+        print('reservations', cls.record.reservation_ids.read(['analytic_account_id', 'amount_reserved']))
         print('self.amount_service', cls.amount_service)
         print('self.line.unit_amount', cls.line.unit_amount)
 
@@ -105,7 +104,7 @@ class TestCarpentryTaskBudget_Reservation(
             => No gain until task isn't closed.
             => Loss as soon as timesheets > reserved budget & planned hours (test05)
         """
-        self.assertEqual(self.section.effective_hours, self.DURATION_HOURS)
+        self.assertEqual(self.record.effective_hours, self.DURATION_HOURS)
         self._test_reservation('01')
         
     def _test_01_results(self):
@@ -148,13 +147,13 @@ class TestCarpentryTaskBudget_Reservation(
             'budgetable': self.DURATION_HOURS, # budgetable is `planned_hours`, not expense
             'expense_valued': self.line.unit_amount * self.UNIT_PRICE,
             'gain': (
-                self.section.planned_hours * self.HOUR_COST
+                self.record.planned_hours * self.HOUR_COST
                 - self.line.unit_amount * self.UNIT_PRICE
             ), # negative => loss
         }
     
     def test_06_manual_budget_remove(self):
-        self.section.analytic_account_id = False
+        self.record.analytic_account_id = False
         self._test_reservation('06')
     def _test_06_results(self):
         return {
@@ -182,7 +181,7 @@ class TestCarpentryTaskBudget_Reservation(
         """ Change to `aac_installation` which needs launchs on tasks to
             form budget reservation matrix
         """
-        self.section.write({
+        self.record.write({
             'launch_ids': False,
             'analytic_account_id': self.aac_installation.id,
         })
@@ -192,7 +191,7 @@ class TestCarpentryTaskBudget_Reservation(
             budget_reserved=0.0,
         )
 
-        self.section.write({
+        self.record.write({
             'launch_ids': self.launch.ids,
             'planned_hours': self.DURATION_HOURS,
         })
@@ -204,7 +203,7 @@ class TestCarpentryTaskBudget_Reservation(
 
     def test_21_task_without_timesheets(self):
         """ Ensure the budget reservation still forms well (like on new task) """
-        new_task = self.section.copy({
+        new_task = self.record.copy({
             'planned_hours': 1.0,
             'timesheet_ids': False,
             'analytic_account_id': self.aac_service.id,
@@ -223,7 +222,7 @@ class TestCarpentryTaskBudget_Reservation(
             => budget_reserved is thresholded at effective_hours
                - 1.0 already declared loss
         """
-        self.section.write({
+        self.record.write({
             'analytic_account_id': self.aac_service.id,
             'planned_hours': self.amount_service + 1.0, # 1h loss
         })
@@ -253,7 +252,7 @@ class TestCarpentryTaskBudget_Reservation(
         reserved = self.amount_service
         return {
             'budget_reserved': reserved,
-            'budgetable': self.section.planned_hours,
+            'budgetable': self.record.planned_hours,
             'expense_valued': 10000 * self.UNIT_PRICE,
             'gain': (
                 reserved * self.HOUR_COST
@@ -267,8 +266,8 @@ class TestCarpentryTaskBudget_Reservation(
             (or lowing `planned_hours` below budget)
         """
         self._set_expense_valued(self.DURATION_HOURS * self.UNIT_PRICE)
-        self.section.planned_hours = self.amount_service - 5.0
-        self.section.reservation_ids.amount_reserved = self.amount_service
+        self.record.planned_hours = self.amount_service - 5.0
+        self.record.reservation_ids.amount_reserved = self.amount_service
         self._test_reservation('53')
     def _test_53_results(self):
         reserved = self.DURATION_HOURS + 5.0
@@ -290,7 +289,7 @@ class TestCarpentryTaskBudget_Reservation(
             => if the 2 cases, the forecasted gain/loss is canceled
             (go back to normal)
         """
-        expense_brut = self.section.planned_hours + 3.0
+        expense_brut = self.record.planned_hours + 3.0
         self._set_expense_valued(expense_brut * self.UNIT_PRICE)
         self._test_reservation('54', expense_brut=expense_brut)
 
@@ -303,7 +302,7 @@ class TestCarpentryTaskBudget_Reservation(
         expense = expense_brut * self.UNIT_PRICE
         return {
             'budget_reserved': budget_brut, # at its max
-            'budgetable': self.section.planned_hours,
+            'budgetable': self.record.planned_hours,
             'expense_valued': expense,
             'gain': (
                 budget_brut * self.HOUR_COST - expense
@@ -315,7 +314,7 @@ class TestCarpentryTaskBudget_Reservation(
             (no matter `planned_hours`)
             => no change
         """
-        self.section.stage_id = self.stage_closed
+        self.record.stage_id = self.stage_closed
         self._test_reservation_idem()
 
     
@@ -324,7 +323,7 @@ class TestCarpentryTaskBudget_Reservation(
             (no matter `planned_hours`)
             => generates gain!
         """
-        self.section.planned_hours = self.amount_service - 5.0
+        self.record.planned_hours = self.amount_service - 5.0
         self._set_expense_valued(self.DURATION_HOURS * self.UNIT_PRICE)
         self._test_reservation('56')
     def _test_56_results(self):

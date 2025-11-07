@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import exceptions, fields, _, Command
-from odoo.tests import common
+from odoo.tests import common, new_test_user
 
 from odoo.addons.carpentry_position.tests.test_carpentry_00_base import TestCarpentryGroup_Base
 
@@ -24,6 +24,10 @@ class TestCarpentryPositionBudget_Base(TestCarpentryGroup_Base):
         cls.Available = cls.env['carpentry.budget.available']
         cls.Remaining = cls.env['carpentry.budget.remaining']
         cls.Expense = cls.env['carpentry.budget.expense']
+
+        cls.project_user = new_test_user(
+            cls.env, "project_user", "project.group_project_user" # base.group_user
+        )
 
         cls._configure_analytics()
         cls._create_budget_project()

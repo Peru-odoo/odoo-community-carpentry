@@ -12,18 +12,18 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         cls.last_kwargs = {}
     
     @classmethod
-    def _create_section_product(cls):
+    def _create_record_product(cls):
         cls._quick_affect() # affect all budget to launch1
-        super()._create_section_product()
+        super()._create_record_product()
 
     #===== Helper method =====#
     @classmethod
-    def _print_section_debug(cls):
+    def _print_record_debug(cls):
         debug = False
         if debug:
-            print('analytics', cls.section.budget_analytic_ids.read(['name']))
-            print('analytic_distribution', cls.section[cls.field_lines].read(['product_id', 'analytic_distribution']))
-            print('product_id', cls.section[cls.field_lines].product_id.read(['standard_price']))
+            print('analytics', cls.record.budget_analytic_ids.read(['name']))
+            print('analytic_distribution', cls.record[cls.field_lines].read(['product_id', 'analytic_distribution']))
+            print('product_id', cls.record[cls.field_lines].product_id.read(['standard_price']))
 
     def _test_reservation(self, code, **kwargs_results):
         """ Call `_test_reservation_values` with the expected results
@@ -37,12 +37,12 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
 
     def _test_reservation_values(self, **kwargs):
         """ Shortcut to test count, aac, launch & amount of reservations """
-        reservations = self.section.reservation_ids
+        reservations = self.record.reservation_ids
 
         debug = True
         if debug:
             print(' == _test_reservation_values == ')
-            self._print_section_debug()
+            self._print_record_debug()
             print('reservations', reservations.read(['launch_id', 'analytic_account_id', 'amount_reserved']))
 
         # reservations
@@ -54,12 +54,12 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
             self.assertEqual(reservations.launch_id, kwargs['launchs'])
         if 'expense_aacs' in kwargs:
             self.assertEqual(
-                self.section.expense_ids.analytic_account_id,
+                self.record.expense_ids.analytic_account_id,
                 kwargs['expense_aacs'],
             )
         if 'other_expense_aacs' in kwargs:
             self.assertEqual(
-                self.section.other_expense_ids.analytic_account_id,
+                self.record.other_expense_ids.analytic_account_id,
                 kwargs['other_expense_aacs'],
             )
 
@@ -77,7 +77,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
                 print('kwarg', kwarg)
             self.assertEqual(
                 # `round` is good enough here, we're not testing precision
-                round(self.section[prefix + '_' + kwarg]), round(kwargs[kwarg])
+                round(self.record[prefix + '_' + kwarg]), round(kwargs[kwarg])
             )
         
         self._save_last_kwargs(kwargs)
@@ -96,12 +96,12 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         """ Ensure when adding real expenses (like products),
             budget & reservations are automatically selected/created
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         # 2 budgets automatically selected (because in product's analytic distrib)...
-        # print('self.section.project', self.section.project_id)
+        # print('self.record.project', self.record.project_id)
         self.assertEqual(
-            self.section.budget_analytic_ids,
+            self.record.budget_analytic_ids,
             self.aac_other + self.aac_installation,
         )
 
@@ -112,20 +112,20 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         """ Test adding a launch with no budget replay auto-reservation
             but does change anything
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         # launch2 has no budget: should not change anything
-        self.section.reservation_ids.amount_reserved = 0.0
-        self.section.launch_ids = self.launchs[1]
+        self.record.reservation_ids.amount_reserved = 0.0
+        self.record.launch_ids = self.launchs[1]
         self._test_reservation_idem()
 
     def test_03_auto_budget_add_launch(self):
         """ launch1 has `installation` and `production` budget:
             `installation` should be added (in distrib model of cls.product)
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
-        self.section.launch_ids |= self.launch
+        self.record.launch_ids |= self.launch
         self._test_reservation('03')
     
     #===== Manual mode =====#
@@ -134,28 +134,28 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
             previous and new one are all kept,
             and that reservations lines & expense distribution are recomputed
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         # user updates reservation amount: nothing should happen to budget_analytic_ids
-        resa_install = self.section.reservation_ids.filtered(
+        resa_install = self.record.reservation_ids.filtered(
             lambda x: x.analytic_account_id == self.aac_installation
         )
         resa_install.amount_reserved = 0.0
         self.assertEqual(
-            self.section.budget_analytic_ids,
+            self.record.budget_analytic_ids,
             self.aac_other + self.aac_installation,
         )
 
         # user adds budget (available but with no expense):
         # it should be kept, and reservation should be recomputed
-        self.section.budget_analytic_ids |= self.aac_production
+        self.record.budget_analytic_ids |= self.aac_production
         all_aacs = self.aac_other + self.aac_installation + self.aac_production
-        self.assertEqual(self.section.budget_analytic_ids, all_aacs)
+        self.assertEqual(self.record.budget_analytic_ids, all_aacs)
         self._test_reservation('04', all_aacs=all_aacs)
 
     def test_05_exceeding_expense(self):
         """ Ensure loss is generated when expense > available """
-        if not self.model_section: return
+        if not self.record_model: return
 
         # not enough budget for the expense
         expense = self.UNIT_PRICE * 10000 # 150*10 000 = 1 500 000
@@ -172,9 +172,9 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
     
     def test_06_manual_budget_remove(self):
         """ Ensure manually removing budgets works """
-        if not self.model_section: return
+        if not self.record_model: return
 
-        self.section.budget_analytic_ids -= self.aac_production
+        self.record.budget_analytic_ids -= self.aac_production
         self._test_reservation('06')
     
     def _test_06_results(self):
@@ -190,10 +190,10 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
     #         project distribution
     #     """
     #     # TODO @arnaudlayec
-    #     if not self.model_section: return
+    #     if not self.record_model: return
 
     #     # initial state: expense on 2 budgets, 1 project
-    #     domain = [('section_id', '=', self.section.id), ('section_res_model', '=', self.section._name)]
+    #     domain = [('record_id', '=', self.record.id), ('record_res_model', '=', self.record._name)]
     #     expenses = self.Expense.with_context(active_test=False).search(domain)
     #     print('expense_multiple', expenses.read([]))
     #     self.assertEqual(len(expenses), 2)
@@ -207,7 +207,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
 
     def test_08_unknown_expense(self):
         """ Add expense of a unknown budget in the project """
-        if not self.model_section: return
+        if not self.record_model: return
 
         # setup: put expense on unknown budget in the project
         self.line.analytic_distribution |= {self.aac_goods.id: 100}
@@ -223,22 +223,22 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         }
     
     #===== Other & UI =====#
-    def test_09_reservation_fields_from_section(self):
-        """ Ensure that section fields cascade to reservations, for: sequence, budget_date, active """
-        if not self.model_section or not self.section.reservation_ids:
+    def test_09_reservation_fields_from_record(self):
+        """ Ensure that record fields cascade to reservations, for: sequence, budget_date, active """
+        if not self.record_model or not self.record.reservation_ids:
             return
 
-        if hasattr(self.section, 'sequence'):
-            self.section.sequence = 99
-            self.assertEqual(set(self.section.reservation_ids.mapped('sequence_section')), {99})
+        if hasattr(self.record, 'sequence'):
+            self.record.sequence = 99
+            self.assertEqual(set(self.record.reservation_ids.mapped('sequence_record')), {99})
 
-        if hasattr(self.section, 'active'):
-            self.section.active = False
-            self.assertEqual(set(self.section.reservation_ids.mapped('active')), {False})
-            self.section.active = True
+        if hasattr(self.record, 'active'):
+            self.record.active = False
+            self.assertEqual(set(self.record.reservation_ids.mapped('active')), {False})
+            self.record.active = True
 
     def test_10_readonly_reservation_budget(self):
         """ Ensure either budget center choice (left), either reservation table (right)
             are readonly as soon as 1 modification needs a *flush* (save)
         """
-        if not self.model_section: return
+        if not self.record_model: return

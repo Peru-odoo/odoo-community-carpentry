@@ -9,18 +9,17 @@ class TestCarpentryPositionBudget_AnalyticBase(TestCarpentryPositionBudget_Base)
 
     # configuration for inheriting modules
     UNIT_PRICE = 150.0
-    model_section = None # like 'purchase_order'
-    field_section = None # like 'order_id'
+    record_model = None # like 'purchase_order'
     field_lines = None # like 'order_line'
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        if cls.model_section:
-            cls.Section = cls.env[cls.model_section]
+        if cls.record_model:
+            cls.Model = cls.env[cls.record_model]
             if cls.field_lines:
-                cls.model_line = cls.env[cls.model_section][cls.field_lines]._name
+                cls.model_line = cls.env[cls.record_model][cls.field_lines]._name
                 cls.Line = cls.env[cls.model_line]
         
         # other projects to play changes with
@@ -31,12 +30,11 @@ class TestCarpentryPositionBudget_AnalyticBase(TestCarpentryPositionBudget_Base)
         cls.project2_aac = cls.project2.analytic_account_id
         cls.project3_aac = cls.project3.analytic_account_id
 
-        cls._create_section_product()
+        cls._create_record_product()
 
     @classmethod
-    def _create_section_product(cls):
-        """ Section is generic name for PO, MO, account move, picking, ... """
-        if not cls.model_section: return
+    def _create_record_product(cls):
+        if not cls.record_model: return
 
         # product
         vals = {
@@ -58,21 +56,21 @@ class TestCarpentryPositionBudget_AnalyticBase(TestCarpentryPositionBudget_Base)
             }
         }])
     
-        # section
-        cls.section = cls.env[cls.model_section].create(cls._get_vals_section())
+        # record
+        cls.record = cls.env[cls.record_model].create(cls._get_vals_record())
         if cls.field_lines:
-            cls.section[cls.field_lines] = [
+            cls.record[cls.field_lines] = [
                 Command.create(cls._get_vals_new_line()),
                 Command.create(cls._get_vals_new_line(cls.product_storable)),
             ]
-            cls.line, cls.line_storable = cls.section[cls.field_lines]
+            cls.line, cls.line_storable = cls.record[cls.field_lines]
 
         #==== For Enforcement ====#
         company = cls.env.user.company_id
         cls.project_internal = hasattr(company, 'internal_project_id') and company.internal_project_id
     
     @classmethod
-    def _get_vals_section(cls):
+    def _get_vals_record(cls):
         return {
             'project_id': cls.project.id,
             'partner_id': cls.env.user.partner_id.id,
@@ -132,31 +130,31 @@ class TestCarpentryPositionBudget_AnalyticProject(TestCarpentryPositionBudget_An
         self.assertEqual(self.aac_installation._get_default_line_type(), 'workforce')
         self.assertTrue('workforce' in self.project.budget_line_ids.mapped('type'))
 
-    #===== Line's project computation logics: from `analytic_distribution` then *section* =====#
+    #===== Line's project computation logics: from `analytic_distribution` then *record* =====#
     def test_02_line_initial_project(self):
         """ Ensure when created by ORM, project is correctly cascade to the line """
-        if not self.model_section: return
+        if not self.record_model: return
 
         self._test_line_projects(self.project)
 
-    def test_03_line_project_follows_on_section_change(self):
-        """ Change section's project: line's project should follow """
-        if not self.model_section: return
+    def test_03_line_project_follows_on_record_change(self):
+        """ Change record's project: line's project should follow """
+        if not self.record_model: return
 
         # change the project
-        self.section.project_id = self.project2
+        self.record.project_id = self.project2
         self._test_line_projects(self.project2)
 
     def __old_test_04_remove_line_analytic(self):
-        """ **LEGACY** Logics of section's project cascade to line's analytic
+        """ **LEGACY** Logics of record's project cascade to line's analytic
              is not triggered anymore on analytic distrib' change, to let user
              modify it, e.g. to multiple project or even different project than
-             section
+             record
 
             Remove line's analytic: line's project should
-            fallback to section's project immediatly
+            fallback to record's project immediatly
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         distrib = self.line.analytic_distribution
         distrib.pop(str(self.project2_aac.id))
@@ -164,35 +162,35 @@ class TestCarpentryPositionBudget_AnalyticProject(TestCarpentryPositionBudget_An
 
         self._test_line_projects(self.project2)
     
-    def test_05_set_line_analytic_different_to_section(self):
+    def test_05_set_line_analytic_different_to_record(self):
         """ Simulate that user sets a different project analytic
-            on line's distrib than section's: this should be kept
+            on line's distrib than record's: this should be kept
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         distrib = self.line.analytic_distribution
-        distrib.pop(str(self.section.project_id.analytic_account_id.id))
+        distrib.pop(str(self.record.project_id.analytic_account_id.id))
         distrib |= {self.project3_aac.id: 100}
         self.line.analytic_distribution = distrib
 
-        # priority on project from analytic distribution over section's
+        # priority on project from analytic distribution over record's
         self._test_line_projects(self.project3)
-        self._test_line_projects(self.section.project_id, equal=False)
+        self._test_line_projects(self.record.project_id, equal=False)
     
     def test_06_non_persistent_line_analytic(self):
-        """ Change section's project while line is on different analytic:
-            line's analytic should *not resist*: section's project should cascade
+        """ Change record's project while line is on different analytic:
+            line's analytic should *not resist*: record's project should cascade
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
-        self.section.project_id = self.project
+        self.record.project_id = self.project
         self._test_line_projects(self.project)
 
     def __old_test_07_remove_line_analytic_from_different_project(self):
         """ **LEGACY**
-            Same than a previous test but line with originally different project than section's
+            Same than a previous test but line with originally different project than record's
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
         distrib = self.line.analytic_distribution
         distrib.pop(str(self.project3_aac.id))
@@ -201,64 +199,64 @@ class TestCarpentryPositionBudget_AnalyticProject(TestCarpentryPositionBudget_An
         self._test_line_projects(self.project)
 
     # ===== Multiple project distribution =====#
-    def test_08_update_section_project_multiple_distribution(self):
+    def test_08_update_record_project_multiple_distribution(self):
         """ Ensure than in multiple project distribution done by user,
-            **all** projects analytics is replaced by section's one
+            **all** projects analytics is replaced by record's one
         """
-        if not self.model_section: return
+        if not self.record_model: return
 
-        # ensure start state: section is on 'project', line is on 'project' and 'project2'
+        # ensure start state: record is on 'project', line is on 'project' and 'project2'
         self._add_analytic({self.project2_aac.id: 100})
-        self.assertEqual(self.section.project_id, self.project)
+        self.assertEqual(self.record.project_id, self.project)
         self._test_line_projects(self.project + self.project2)
 
-        # change section's project: line should align *only* to section
-        self.section.project_id = self.project3
+        # change record's project: line should align *only* to record
+        self.record.project_id = self.project3
         self._test_line_projects(self.project3)
         
         # same test, but with start state (projects 2 and 3) containing the target's project (project2)
         self._add_analytic({self.project2_aac.id: 100})
-        self.section.project_id = self.project2
+        self.record.project_id = self.project2
         self._test_line_projects(self.project2)
 
-    # def __old_test_09_update_section_project_multiple_distribution(self):
-    #     """ **LEGACY** was relevant when section's project update
+    # def __old_test_09_update_record_project_multiple_distribution(self):
+    #     """ **LEGACY** was relevant when record's project update
     #         was only modifying from old_aac_id to new_aac_id
 
     #         (Ensure than even in multiple distribution,
-    #         changing section's project either:
+    #         changing record's project either:
     #         - line's distrib follow the change if the project was in it 
     #         - has no impact if not present in line's distrib)
     #     """
-    #     if not self.model_section: return
+    #     if not self.record_model: return
 
-    #     # ensure start state: section is on 'project', line is on 'project' and 'project2'
+    #     # ensure start state: record is on 'project', line is on 'project' and 'project2'
     #     self._add_analytic({self.project2_aac.id: -300})
-    #     self.assertEqual(self.section.project_id, self.project)
+    #     self.assertEqual(self.record.project_id, self.project)
     #     self._test_line_projects(self.project + self.project2)
 
-    #     # change section's project: line should follow
-    #     self.section.project_id = self.project3
+    #     # change record's project: line should follow
+    #     self.record.project_id = self.project3
     #     self._test_line_projects(self.project3 + self.project2)
         
     #     # only project2 in line's analytic
-    #     self.section.project_id = self.project2
+    #     self.record.project_id = self.project2
     #     self._test_line_projects(self.project2)
 
     #===== New line =====#
     def test_10_new_line_create(self):
-        """ Ensure new lines follows section's project """
-        if not self.model_section: return
+        """ Ensure new lines follows record's project """
+        if not self.record_model: return
         
-        # create new line: it should follow section's project
-        self.section[self.field_lines] = [Command.create(self._get_vals_new_line(qty=5.0))]
-        new_line = self.section[self.field_lines][-1]
-        self._test_line_projects(self.section.project_id, line=new_line)
+        # create new line: it should follow record's project
+        self.record[self.field_lines] = [Command.create(self._get_vals_new_line(qty=5.0))]
+        new_line = self.record[self.field_lines][-1]
+        self._test_line_projects(self.record.project_id, line=new_line)
 
     #===== Other analytic plans =====#
     def test_11_line_other_analytic_is_kept(self):
         """ Ensure analytics of other plans (like budgets) were not touched by project changes """
-        if not self.model_section: return
+        if not self.record_model: return
         
         self.assertTrue(
             str(self.aac_other.id) in self.line.analytic_distribution.keys()
@@ -278,7 +276,7 @@ class TestCarpentryPositionBudget_AnalyticEnforcement(TestCarpentryPositionBudge
             if *internal* enforcement rules is different than the native
         """
         return (
-            bool(cls.model_section) and
+            bool(cls.record_model) and
             bool(cls.project_internal) and
             hasattr(cls.Line, '_should_enforce_internal_analytic')
         )
@@ -294,26 +292,26 @@ class TestCarpentryPositionBudget_AnalyticEnforcement(TestCarpentryPositionBudge
         self._test_line_projects(self.project2,         line=self.line_storable, equal=False)
         self._test_line_projects(self.project_internal, line=self.line_storable)
 
-    def test_02_enforce_resist_on_section_project_change(self):
-        """ Test that changing section's project keeps enforcement """
+    def test_02_enforce_resist_on_record_project_change(self):
+        """ Test that changing record's project keeps enforcement """
         if not self._should_test_enforcement(): return
         
-        self.section.project_id = self.project3
+        self.record.project_id = self.project3
         self._test_line_projects(self.project3,         line=self.line_storable, equal=False)
         self._test_line_projects(self.project_internal, line=self.line_storable)
 
     def test_03_stop_to_enforce(self):
-        """ Ensure analytic switch back to section's when removing enforcment """
+        """ Ensure analytic switch back to record's when removing enforcment """
         if not self._should_test_enforcement(): return
 
-        # change line's product to consummable => line's project should follow back section's
+        # change line's product to consummable => line's project should follow back record's
         self.line_storable.product_id = self.product
-        self._test_line_projects(self.section.project_id, line=self.line_storable)
+        self._test_line_projects(self.record.project_id, line=self.line_storable)
 
     def test_04_enforce_on_product_change(self):
         """ Ensure existing line is enforced when changing product """
         if not self._should_test_enforcement(): return
 
-        # change line's product to consummable => line's project should follow back section's
+        # change line's product to consummable => line's project should follow back record's
         self.line.product_id = self.product_storable
         self._test_line_projects(self.project_internal)

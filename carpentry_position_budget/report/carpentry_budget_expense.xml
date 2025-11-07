@@ -28,7 +28,7 @@
                 <field name="currency_id" invisible="1" />
                 <field name="analytic_account_id" invisible="1" />
                 
-                <field name="section_model_id" type="col" />
+                <field name="record_model_id" type="col" />
 
                 <field name="budget_type" type="row" />
                 <field name="analytic_account_id" type="row" />
@@ -46,7 +46,7 @@
         <field name="arch" type="xml">
             <graph type="bar" stacked="1" cumulated="0" disable_linking="0">
                 <field name="currency_id" invisible="1" />
-                <field name="group_model_id" invisible="1" />
+                <field name="record_model_id" invisible="1" />
                 
                 <field name="amount_gain" type="measure" widget="monetary" />
                 
@@ -63,7 +63,7 @@
         
         <field name="arch" type="xml">
             <tree
-                action="open_section_ref" type="object"
+                action="open_record_ref" type="object"
                 import="0" create="0" delete="0" 
                 decoration-success="amount_gain &gt; 0.01"
                 decoration-danger="amount_gain &lt; -0.01"
@@ -73,8 +73,8 @@
 
                 <field name="analytic_account_id" />
                 <field name="launch_ids" widget="many2many_tags" optional="show" />
-                <field name="section_model_name" string="Document" />
-                <field name="section_ref" context="{'display_description': 1}" />
+                <field name="record_model_name" string="Document" />
+                <field name="record_ref" context="{'display_description': 1}" />
                 <field name="amount_reserved" sum="1" optional="hide" />
                 <field name="amount_reserved_valued" widget="monetary" sum="1" optional="show" />
                 <field name="amount_expense" sum="1" optional="hide" />
@@ -104,17 +104,17 @@
                 <filter string="Without reservation"      name="filter_reservation_empty" domain="[('amount_reserved', '=',  0.0)]" />
 
                 <separator name="models" />
-                <filter string="Purchase Orders"      name="filter_purchase" domain="[('section_model_id.model', 'in', ['purchase.order'])]" />
-                <filter string="Invoice"              name="filter_invoice"  domain="[('section_model_id.model', 'in', ['account.move'])]" />
-                <filter string="Stock Picking"        name="filter_picking"  domain="[('section_model_id.model', 'in', ['stock.picking'])]" />
-                <filter string="Manufacturing Orders" name="filter_mrp"      domain="[('section_model_id.model', 'in', ['mrp.production', 'mrp.workorder'])]" />
-                <filter string="Tasks"                name="filter_tasks"    domain="[('section_model_id.model', 'in', ['project.task'])]" />
+                <filter string="Purchase Orders"      name="filter_purchase" domain="[('record_model_id.model', 'in', ['purchase.order'])]" />
+                <filter string="Invoice"              name="filter_invoice"  domain="[('record_model_id.model', 'in', ['account.move'])]" />
+                <filter string="Stock Picking"        name="filter_picking"  domain="[('record_model_id.model', 'in', ['stock.picking'])]" />
+                <filter string="Manufacturing Orders" name="filter_mrp"      domain="[('record_model_id.model', 'in', ['mrp.production', 'mrp.workorder'])]" />
+                <filter string="Tasks"                name="filter_tasks"    domain="[('record_model_id.model', 'in', ['project.task'])]" />
             </filter>
             
             <!-- Groupby -->
             <filter name="filter_groupby_launch" position="replace" />
             <filter name="filter_groupby_model" position="attributes">
-                <attribute name="context">{'group_by': 'section_model_id'}</attribute>
+                <attribute name="context">{'group_by': 'record_model_id'}</attribute>
             </filter>
         </field>
     </record>
@@ -148,7 +148,7 @@
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
-            <field name="section_model_id" position="replace">
+            <field name="record_model_id" position="replace">
                 <field name="budget_type" type="col" />
                 <field name="analytic_account_id" type="col" />
             </field>
@@ -167,7 +167,7 @@
                 <attribute name="cumulated">1</attribute>
                 <attribute name="stacked">0</attribute>
             </graph>
-            <field name="group_model_id" position="after">
+            <field name="record_model_id" position="after">
                 <field name="date" interval="month" />
             </field>
         </field>
@@ -180,7 +180,7 @@
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
-            <field name="section_ref" position="after">
+            <field name="record_ref" position="after">
                 <field name="date" />
             </field>
         </field>

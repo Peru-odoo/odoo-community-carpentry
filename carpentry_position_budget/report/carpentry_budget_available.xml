@@ -14,7 +14,7 @@
         <field name="name">Available budget</field>
         <field name="res_model">carpentry.budget.available</field>
         <field name="view_mode">pivot,tree</field>
-        <field name="domain">[('group_res_model', 'in', ['project.project', 'carpentry.group.launch'])]</field>
+        <field name="domain">[('record_res_model', 'in', ['project.project', 'carpentry.group.launch'])]</field>
         <field name="context">{
             'search_default_filter_groupby_model': 1,
             'search_default_filter_groupby_launch': 1,
@@ -32,7 +32,7 @@
                 <field name="budget_type" type="col" />
                 <field name="analytic_account_id" type="col" />
 
-                <field name="group_model_id" type="row" />
+                <field name="record_model_id" type="row" />
                 
                 <field name="amount_subtotal" type="measure" />
             </pivot>
@@ -86,7 +86,7 @@
                 <filter string="Ignored"      name="filter_active" domain="['|', ('active', '=', True), ('active', '=', False)]" />
                 
                 <!-- Group by -->
-                <filter string="Document"     name="filter_groupby_model" context="{'group_by': 'group_model_id'}" />
+                <filter string="Document"     name="filter_groupby_model" context="{'group_by': 'record_model_id'}" />
                 <filter string="Launchs"      name="filter_groupby_launch" context="{'group_by': 'launch_id'}" />
                 <filter string="Budget type"  name="filter_groupby_budget_type" context="{'group_by': 'budget_type'}" />
                 <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
@@ -110,8 +110,8 @@
         <field name="arch" type="xml">
             <filter name="filter_other" position="after">
                 <separator />
-                <filter string="Projects" name="filter_project" domain="[('group_res_model', '=', 'project.project')]" />
-                <filter string="Launchs"  name="filter_launch"  domain="[('group_res_model', '=', 'carpentry.group.launch')]" />
+                <filter string="Projects" name="filter_project" domain="[('record_res_model', '=', 'project.project')]" />
+                <filter string="Launchs"  name="filter_launch"  domain="[('record_res_model', '=', 'carpentry.group.launch')]" />
             </filter>
             
             <filter name="filter_groupby_launch" position="after">

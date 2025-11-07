@@ -10,8 +10,8 @@ class StockPicking(models.Model):
     _carpentry_budget_last_valuation_step = _('products revaluation')
 
     #====== Fields ======#
-    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    reservation_ids = fields.One2many(inverse_name='picking_id')
+    expense_ids = fields.One2many(inverse_name='picking_id')
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_budget_picking_analytic_rel',
         column1='picking_id',
@@ -22,24 +22,19 @@ class StockPicking(models.Model):
     @api.onchange('project_id')
     def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
         return super()._cascade_project_to_line_analytic_distrib(new_project_id)
-    
-    #===== Affectations =====#
-    def _compute_state(self):
-        """ Ensure `affectations_ids.active` follows `stock_picking.state`,
-            which is a computed stored field and thus not catched in `write`
-        """
-        res = super()._compute_state()
-        self.reservation_ids._compute_section_fields()
-        return res
 
     #===== Budget reservation configuration =====#
     def _get_budget_types(self):
         return ['goods', 'other']
     
-    def _get_fields_budget_reservation_refresh(self):
-        return super()._get_fields_budget_reservation_refresh() + [
-            'move_ids', 'state',
+    def _depends_expense_temporary(self):
+        return super()._depends_expense_temporary() + [
+            'move_ids',
+            'move_ids.product_uom_qty',
+            'move_ids.analytic_distribution',
         ]
+    def _depends_expense_permanent(self):
+        return super()._depends_expense_permanent() + ['state',]
     
     def _should_value_budget_reservation(self):
         return True

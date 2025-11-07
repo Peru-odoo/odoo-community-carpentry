@@ -47,18 +47,15 @@ class CarpentryBudgetExpenseHistory(models.Model):
         readonly=True,
         help='Budget reservation - Real expense',
     )
-
     # cancel fields
     state = fields.Selection(store=False)
     launch_id = fields.Many2one(store=False)
-    group_model_id = fields.Many2one(store=False)
-    group_res_model = fields.Char(related='', store=False)
     amount_subtotal = fields.Float(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
         """ Inherited in sub-modules (purchase, mrp, timesheet) """
-        return ('carpentry.budget.reservation', 'carpentry.budget.balance',)
+        return ('carpentry.budget.balance',)
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -70,18 +67,20 @@ class CarpentryBudgetExpenseHistory(models.Model):
                 CREATE or REPLACE VIEW %(view_name)s AS (
                     SELECT
                         row_number() OVER (ORDER BY
-                            expense.section_id,
-                            expense.section_model_id,
+                            expense.record_id,
+                            expense.record_model_id,
                             expense.analytic_account_id
                         ) AS id,
                         expense.project_id,
                         expense.date,
                         expense.active,
                         
-                        expense.section_id,
-                        expense.section_model_id,
+                        expense.record_id,
+                        expense.record_model_id,
+                        %(sql_record_fields)s
                         expense.analytic_account_id,
                         expense.budget_type,
+                        hourly_cost.coef AS hourly_cost_coef, -- for `carpentry.budget.expense.distributed`
                         
                         -- reserved budget
                         SUM(expense.amount_reserved) AS amount_reserved,
@@ -96,14 +95,25 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         -- expense
                         SUM(expense.amount_expense) *
                         CASE
-                            WHEN expense.budget_type IN %(budget_types)s AND TRUE = ANY(ARRAY_AGG(should_devalue_workforce_expense))
+                            WHEN expense.budget_type IN %(budget_types)s AND 'DEVALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
                             THEN CASE
                                 WHEN COUNT(hourly_cost.coef) > 0 AND hourly_cost.coef != 0.0
                                 THEN 1 / hourly_cost.coef
                                 ELSE 0.0
                             END ELSE 1.0
                         END AS amount_expense,
-                        SUM(expense.amount_expense_valued) AS amount_expense_valued,
+                        
+                        -- expense valued: can be computed from `amount_expense`, and valued from it if needed
+                        CASE 
+                            WHEN NULL = ANY(ARRAY_AGG(amount_expense_valued)) -- if need computation from `amount_expense`
+                            THEN SUM(expense.amount_expense) *
+                                CASE
+                                    WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
+                                    THEN hourly_cost.coef
+                                    ELSE 1.0
+                                END
+                            ELSE SUM(expense.amount_expense_valued)
+                        END AS amount_expense_valued,
                         
                         -- gain
                         SUM(amount_reserved) * (
@@ -112,66 +122,81 @@ class CarpentryBudgetExpenseHistory(models.Model):
                                 THEN hourly_cost.coef
                                 ELSE 1.0
                             END
-                        ) - SUM(amount_expense_valued) AS amount_gain
+                        )
+                        - CASE -- amount_expense_valued
+                            WHEN NULL = ANY(ARRAY_AGG(amount_expense_valued)) -- computed from `amount_expense`
+                            THEN SUM(expense.amount_expense) *
+                                CASE
+                                    WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
+                                    THEN hourly_cost.coef
+                                    ELSE 1.0
+                                END
+                            ELSE SUM(expense.amount_expense_valued)
+                        END AS amount_gain
                     
                     FROM (
                         (%(union)s)
                     ) AS expense
                     
-                    -- for (h) to (€) valuation when needed (on PO)
+                    -- for (h) to (€) (de)valuation when needed (on PO: € -> h)
                     LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
                         ON  hourly_cost.project_id = expense.project_id
                         AND hourly_cost.analytic_account_id = expense.analytic_account_id
+                        AND expense.budget_type IN %(budget_types)s
                     
                     GROUP BY
                         expense.project_id,
                         expense.date,
                         expense.active,
-                        expense.section_id,
-                        expense.section_model_id,
+                        expense.record_id,
+                        expense.record_model_id,
                         expense.analytic_account_id,
                         expense.budget_type,
                         hourly_cost.coef
                     ORDER BY
-                        expense.section_id
+                        expense.record_id
                 )""", {
                     'view_name': AsIs(self._table),
+                    'sql_record_fields': AsIs(self._get_sql_record_fields_main_view('expense.')),
                     'budget_types': tuple(budget_types),
                     'union': AsIs(') UNION ALL (' . join(queries)),
             })
+    
+    def _get_sql_record_fields_main_view(self, view=''):
+        """ SQL for balance_id, purchase_id, production_id, task_id, ... """
+        Reservation = self.env['carpentry.budget.reservation']
+        sql_record_fields = ''
+        for field in Reservation._get_record_fields():
+            model = Reservation[field]._name
+            if model == 'carpentry.budget.balance':
+                model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
+            else:
+                model_id = self.env['ir.model']._get_id(model)
+            
+            sql_record_fields += f"""
+                CASE
+                    WHEN {view}record_model_id = {model_id}
+                    THEN {view}record_id
+                    ELSE NULL
+                END AS {field},
+            """
+        return sql_record_fields
 
     def _select(self, model, models):
-        if model == 'carpentry.budget.reservation':
-            sql = """
-                SELECT
-                    reservation.project_id,
-                    reservation.date,
-                    reservation.active,
-                    reservation.section_id AS section_id,
-                    reservation.section_model_id,
-                    reservation.analytic_account_id,
-                    reservation.budget_type,
-                    
-                    reservation.amount_reserved,
-                    FALSE AS should_devalue_workforce_expense,
-
-                    0.0 AS amount_expense,
-                    0.0 AS amount_expense_valued
-            """
-        elif model == 'carpentry.budget.balance':
+        if model == 'carpentry.budget.balance':
             sql = f"""
                 SELECT
-                    section.project_id,
-                    section.date_budget AS date,
+                    record.project_id,
+                    record.date_budget AS date,
                     TRUE as active,
-                    section.id AS section_id,
-                    (SELECT id FROM ir_model WHERE model = '{model}') AS section_model_id,
+                    record.id AS record_id,
+                    (SELECT id FROM ir_model WHERE model = '{model}') AS record_model_id,
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    0.0 AS amount_reserved,
-                    FALSE AS should_devalue_workforce_expense,
+                    record.total_budget_reserved AS amount_reserved,
 
+                    NULL AS value_or_devalue_workforce_expense,
                     0.0 AS amount_expense,
                     0.0 AS amount_expense_valued
             """
@@ -179,28 +204,19 @@ class CarpentryBudgetExpenseHistory(models.Model):
         return sql
 
     def _from(self, model, models):
-        if model == 'carpentry.budget.reservation':
-            return 'FROM carpentry_budget_reservation AS reservation'
-        else:
-            return f"FROM {model.replace('.', '_')} AS section"
+        return f"FROM {model.replace('.', '_')} AS record"
 
     def _join(self, model, models):
-        if model == 'carpentry.budget.reservation':
-            return """
-                INNER JOIN ir_model AS model
-                    ON model.id = reservation.section_model_id
-            """
-        elif model == 'carpentry.budget.balance':
+        if model == 'carpentry.budget.balance':
             return """
                 INNER JOIN carpentry_budget_reservation AS reservation
-                    ON reservation.section_id = section.id
-                    AND reservation.section_model_id = section_model_id
+                    ON reservation.balance_id = record.id
                 
                 INNER JOIN account_analytic_account AS analytic
                     ON analytic.id = reservation.analytic_account_id
             """
-        else:
-            return ''
+        
+        return ''
 
     def _join_product_analytic_distribution(self):
         return """
@@ -220,16 +236,10 @@ class CarpentryBudgetExpenseHistory(models.Model):
         """
     
     def _where(self, model, models):
-        if model == 'carpentry.budget.reservation':
-            return ''
-        
         return 'WHERE analytic.budget_type IS NOT NULL'
     
     def _groupby(self, model, models):
-        if model == 'carpentry.budget.reservation':
-            return ''
-        
-        return 'GROUP BY analytic.budget_type, analytic.id, section.id, section.project_id'
+        return 'GROUP BY analytic.budget_type, analytic.id, record.id, record.project_id'
     
     def _orderby(self, model, models):
         return ''
@@ -238,13 +248,13 @@ class CarpentryBudgetExpenseHistory(models.Model):
         return ''
 
     #===== Compute =====#
-    @api.depends('section_id', 'section_model_id')
+    @api.depends('record_id', 'record_model_id')
     def _compute_launch_ids(self):
         for expense in self:
             expense.launch_ids = (
-                expense.section_ref and
-                'launch_ids' in expense.section_ref and # for position, launch_ids does not exist
-                expense.section_ref.launch_ids
+                expense.record_ref and
+                'launch_ids' in expense.record_ref and # for position, launch_ids does not exist
+                expense.record_ref.launch_ids
             )
 
 class CarpentryBudgetExpense(models.Model):
@@ -257,23 +267,26 @@ class CarpentryBudgetExpense(models.Model):
     date = fields.Date(store=False)
 
     def init(self):
+        super().init()
         tools.drop_view_if_exists(self.env.cr, self._table)
         
         self._cr.execute("""
             CREATE or REPLACE VIEW %(view_name)s AS (
                 SELECT
                     row_number() OVER (ORDER BY
-                        section_id,
-                        section_model_id,
+                        record_id,
+                        record_model_id,
                         analytic_account_id
                     ) AS id,
                     project_id,
                     active,
                     
-                    section_id,
-                    section_model_id,
+                    record_id,
+                    record_model_id,
+                    %(sql_record_fields)s
                     analytic_account_id,
                     budget_type,
+                    AVG(hourly_cost_coef) AS hourly_cost_coef, -- for `carpentry.budget.expense.distributed`
                     
                     SUM(amount_reserved) AS amount_reserved,
                     SUM(amount_reserved_valued) AS amount_reserved_valued,
@@ -285,13 +298,13 @@ class CarpentryBudgetExpense(models.Model):
                 
                 GROUP BY
                     project_id,
-                    section_id,
-                    section_model_id,
+                    record_id,
+                    record_model_id,
                     analytic_account_id,
                     budget_type,
                     active
             )""", {
                 'view_name': AsIs(self._table),
+                'sql_record_fields': AsIs(self._get_sql_record_fields_main_view())
             }
         )
-

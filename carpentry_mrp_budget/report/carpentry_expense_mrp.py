@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import models, fields
 
 class CarpentryExpense(models.Model):
     _inherit = ['carpentry.budget.expense.history']
@@ -23,9 +23,9 @@ class CarpentryExpense(models.Model):
         )
     
     def _select(self, model, models):
-        sql_active = "section.state NOT IN ('cancel')"
+        sql_active = "record.state NOT IN ('cancel')"
         if model in ('mrp.production', 'mrp.workorder'):
-            sql_active + " AND section.active"
+            sql_active + " AND record.active"
         
         if model in ('stock.picking', 'mrp.production'):
             sign = (
@@ -36,21 +36,21 @@ class CarpentryExpense(models.Model):
             
             return f"""
                 SELECT
-                    section.project_id,
-                    section.date_budget AS date,
+                    record.project_id,
+                    record.date_budget AS date,
                     {sql_active} AS active,
-                    section.id AS section_id,
-                    {models[model]} AS section_model_id,
+                    record.id AS record_id,
+                    {models[model]} AS record_model_id,
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    0.0 AS amount_reserved,
-                    TRUE AS should_devalue_workforce_expense,
+                    SUM(reservation.amount_reserved) AS amount_reserved,
                     
-                    -- expense
+                    -- expense: will be devaluated for workforce
+                    'DEVALUE' AS value_or_devalue_workforce_expense,
                     SUM(
                         CASE
-                            WHEN section.state = 'done'
+                            WHEN record.state = 'done'
                             THEN ABS(svl.value) -- accounting value
                             ELSE line.product_uom_qty::float * property.value_float::float -- estimation
                         END
@@ -58,60 +58,46 @@ class CarpentryExpense(models.Model):
                         / 100.0
                     ) * {sign} AS amount_expense,
 
-                    -- valued expense
-                    SUM(
-                        CASE
-                            WHEN section.state = 'done'
-                            THEN ABS(svl.value) -- accounting value
-                            ELSE line.product_uom_qty::float * property.value_float::float -- estimation
-                        END
-                        * analytic_distribution.percentage::float
-                        / 100.0
-                    ) * {sign} AS amount_expense_valued
+                    -- valued expense: will be calculated from `amount_expense` (without devaluation)
+                    NULL AS amount_expense_valued
             """
         
         elif model == 'mrp.workorder':
             return f"""
                 SELECT
-                    section.project_id AS project_id,
-                    section.date_budget_workorders AS date,
+                    record.project_id AS project_id,
+                    record.date_budget_workorders AS date,
                     {sql_active} AS active,
-                    section.id AS section_id,
-                    {models['mrp.production']} AS section_model_id,
+                    record.id AS record_id,
+                    {models['mrp.production']} AS record_model_id,
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
                     
                     -- amount_reserved:
                     -- 1. if effective_hours < amount_reserved:
                     --    displays expense == budget_reservation in the project's budget report
-                    --    by cancelling amount_reserved of `carpentry.budget.reservation`
                     CASE
-                        WHEN section.state != 'done' AND SUM(line.duration) / 60 < SUM(reservation.amount_reserved)
-                        THEN SUM(line.duration) / 60 - SUM(reservation.amount_reserved) -- replace `sum(amount_reserved)` by `effective_hours`
-                        ELSE 0.0
+                        WHEN record.state != 'done' AND SUM(line.duration) / 60 < SUM(reservation.amount_reserved) / COUNT(reservation.id)
+                        THEN SUM(line.duration) / 60
+                        ELSE SUM(reservation.amount_reserved) / COUNT(reservation.id)
                     END *
                     CASE -- prorata per workorder's reserved budget
-                        WHEN section.total_budget_reserved != 0.0
-                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
+                        WHEN record.total_budget_reserved != 0.0
+                        THEN SUM(reservation.amount_reserved) / record.total_budget_reserved / COUNT(reservation.id)
                         ELSE 0.0
                     END AS amount_reserved,
-                    FALSE AS should_devalue_workforce_expense,
                     
                     -- expense
+                    'VALUE' AS value_or_devalue_workforce_expense,
                     SUM(line.duration) / 60 *
                     CASE -- prorata per workorder's reserved budget
-                        WHEN section.total_budget_reserved != 0.0
-                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
+                        WHEN record.total_budget_reserved != 0.0
+                        THEN SUM(reservation.amount_reserved) / record.total_budget_reserved / COUNT(reservation.id)
                         ELSE 0.0
                     END AS amount_expense,
 
-                    -- expense valued
-                    SUM(line.duration) / 60 *
-                    CASE -- prorata per workorder's reserved budget
-                        WHEN section.total_budget_reserved != 0.0
-                        THEN SUM(reservation.amount_reserved) / section.total_budget_reserved
-                        ELSE 0.0
-                    END * hourly_cost.coef AS amount_expense_valued
+                    -- expense valued: will be calculated from `amount_expense` and valued (for workforce)
+                    NULL AS amount_expense_valued
             """
         
         return super()._select(model, models)
@@ -127,60 +113,47 @@ class CarpentryExpense(models.Model):
     def _join(self, model, models):
         sql = ''
 
-        if model == 'mrp.workorder':
-            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
-            sql = f"""
-                INNER JOIN mrp_production AS section
-                    ON section.id = line.production_id
-                
-                -- reservation (we need them to calculate the expense conditionnally)
-                LEFT JOIN carpentry_budget_reservation AS reservation
-                    ON  reservation.section_model_id = {models['mrp.production']}
-                    AND reservation.section_id = section.id
-                    AND reservation.budget_type IN {tuple(budget_types)}
-
-                LEFT JOIN account_analytic_account AS analytic
-                    ON analytic.id = reservation.analytic_account_id
-                
-                LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
-                    ON  hourly_cost.project_id = section.project_id
-                    AND hourly_cost.analytic_account_id = analytic.id
-            """
-
-
-                
-                # -- analytic
-                # INNER JOIN mrp_workcenter AS workcenter
-                #     ON workcenter.id = line.workcenter_id
-                # LEFT JOIN account_analytic_account AS analytic
-                #     ON analytic.id = workcenter.costs_hour_account_id
-
-                # -- for (h) to (€) valuation
-
-        elif model in ('stock.picking', 'mrp.production'):
+        if model in ('stock.picking', 'mrp.production'):
             if model == 'stock.picking':
                 sql = """
-                    INNER JOIN stock_picking AS section
-                        ON section.id = line.picking_id
+                    INNER JOIN stock_picking AS record
+                        ON record.id = line.picking_id
                     INNER JOIN stock_picking_type AS picking_type
-                        ON picking_type.id = section.picking_type_id
+                        ON picking_type.id = record.picking_type_id
                 """
             else:
                 sql = """
-                    INNER JOIN mrp_production AS section
-                        ON section.id = line.raw_material_production_id
+                    INNER JOIN mrp_production AS record
+                        ON record.id = line.raw_material_production_id
                 """
-            
-            sql += self._join_product_analytic_distribution() + """
+            sql += f"""
                 LEFT JOIN stock_valuation_layer AS svl
                     ON svl.stock_move_id = line.id
                 
                 INNER JOIN project_project AS project
-                    ON project.id = section.project_id
+                    ON project.id = record.project_id
                 LEFT JOIN ir_property AS property
                     ON  property.res_id = 'product.product,' || product_product.id
                     AND property.company_id = project.company_id
             """
+        
+        elif model == 'mrp.workorder':
+            sql = f"""
+                INNER JOIN mrp_production AS record
+                    ON record.id = line.production_id
+                
+                LEFT JOIN account_analytic_account AS analytic
+                    ON analytic.id = reservation.analytic_account_id
+            """
+        
+        # reservations
+        sql += f"""
+            LEFT JOIN carpentry_budget_reservation AS reservation
+                ON reservation.{self.env[model]._record_field} = record.id
+        """
+        if model == 'mrp.workorder':
+            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+            sql += f" AND reservation.budget_type IN {tuple(budget_types)}"
         
         return sql + super()._join(model, models)
         
@@ -195,6 +168,7 @@ class CarpentryExpense(models.Model):
                 AND line.production_id IS NULL
                 AND line.raw_material_production_id IS NULL
             """
+        
         return sql
 
     def _groupby(self, model, models):
