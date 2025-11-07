@@ -54,8 +54,7 @@ class ManufacturingOrder(models.Model):
         compute_sudo=True,
     )
     difference_workorder_duration_budget = fields.Float(
-        compute='_compute_budget_totals',
-        compute_sudo=True,
+        compute='_compute_difference_workorder_duration_budget',
     )
     total_expense_valued = fields.Monetary(string='Total cost (components)', compute_sudo=True,)
     total_expense_valued_workorders = fields.Monetary(
@@ -212,15 +211,23 @@ class ManufacturingOrder(models.Model):
         return (workcenter_budgets + components_budgets)._origin.ids
 
     #====== Compute amount ======#
-    def _compute_budget_totals(self):
-        super()._compute_budget_totals()
+    @api.depends(
+        'reservation_ids_workorders.amount_reserved',
+        'workorder_ids.duration_expected',
+    )
+    def _compute_difference_workorder_duration_budget(self):
+        """ Difference displayed in *workorders* tab
+            Don't use `total_budget_reserved_workorders` because it
+            is not always the sum of `amount_reserved`
+        """
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         for mo in self:
             mo.difference_workorder_duration_budget = float_round(
-                mo.production_duration_hours_expected -
-                mo.total_budget_reserved_workorders,
+                mo.production_duration_expected / 60 -
+                sum(mo.reservation_ids_workorders.mapped('amount_reserved')),
                 precision_digits = prec
             )
+    
     def _compute_budget_totals_one(self, totals, prec, pivot_analytic_to_budget_type):
         """ 1. Split `totals` between components and workorders
             2. Computes both totals

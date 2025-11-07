@@ -57,10 +57,12 @@ class TestCarpentryMrpBudget_Reservation(
 
         cls.expense = cls.UNIT_PRICE # of components only
     
+    #===== Helper methods =====#
     @classmethod
     def _create_section_product(cls):
         super()._create_section_product()
 
+    #===== Normalized tests =====#
     def _test_01_results(self):
         """ In MO:
             - `installation` goes to other expenses
@@ -140,7 +142,6 @@ class TestCarpentryMrpBudget_Reservation(
         prev_reservations = self._get_component_reservations()
         self.assertTrue(prev_reservations)
         prev_reservations.amount_reserved = 0.0
-        print('prev_reservations', prev_reservations.read(['amount_reserved', 'budget_type']))
 
         # touch workorders budget center => should not change anything
         self.section.budget_analytic_ids_workorders |= self.aac_production
@@ -148,7 +149,6 @@ class TestCarpentryMrpBudget_Reservation(
         reservations = self._get_component_reservations()
         # same components reservations, no populate neither auto_reservation
         self.assertEqual(reservations, prev_reservations)
-        print('reservations', reservations.read(['amount_reserved', 'budget_type']))
         self.assertTrue(all(x == 0.0 for x in reservations.mapped('amount_reserved')))
     
     def _get_component_reservations(self):
@@ -181,3 +181,16 @@ class TestCarpentryMrpBudget_Reservation(
         self.section.move_raw_ids |= fields.first(self.section.move_raw_ids).copy()
         self.assertTrue(len(reservations))
         self.assertEqual(set(reservations.mapped('amount_reserved')), {1.0})
+
+    def test_83_difference_workorder_duration_budget(self):
+        # start situation
+        reservations = self.section.reservation_ids - self._get_component_reservations()
+        self.assertTrue(bool(reservations))
+        reservations.amount_reserved = 1.0
+
+        # just test the compute
+        self.assertEqual(
+            self.difference_workorder_duration_budget,
+            sum(reservations.mapped('amount_reserved'))
+            - (self.reservation_ids_workorders.amount_reserved)
+        )
