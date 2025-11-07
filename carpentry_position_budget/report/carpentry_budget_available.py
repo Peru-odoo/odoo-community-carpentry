@@ -233,18 +233,21 @@ class CarpentryBudgetAvailable(models.Model):
                     {
                         'SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
                         'SUM(affectation.quantity_affected)'
-                    } / COUNT(*) AS quantity_affected,
+                    } -- / COUNT(*)
+                    AS quantity_affected,
 
                     -- budget
                     budget.analytic_account_id,
                     budget.budget_type,
 
                     -- amounts
-                    SUM(budget.amount_unitary) / COUNT(*) AS amount_unitary,
+                    SUM(budget.amount_unitary) -- / COUNT(*)
+                    AS amount_unitary,
                     {
                         'SUM(carpentry_group.quantity * budget.amount_unitary)' if model == 'carpentry.position' else
                         'SUM(affectation.quantity_affected * budget.amount_unitary)'
-                    } / COUNT(*) AS amount_subtotal
+                    } -- / COUNT(*)
+                    AS amount_subtotal
             """
 
     def _from(self, model, models):

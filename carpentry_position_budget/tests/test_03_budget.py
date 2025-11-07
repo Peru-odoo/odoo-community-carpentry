@@ -188,3 +188,25 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
             display_name.split(' ')[-1].replace('(', '').replace(')', ''),
             str(self.position.quantity),
         )
+
+    #===== Bug solving =====#
+    def test_81_launch_budget_complex(self):
+        """ (2025-11-07)
+            Situation:
+             * a position's qty is splitted over several phases
+             * each phase has a launch mirror, with the position affected in each launch
+             * so the position has several *AFFECTED* launch affectation
+            -> Ensure correction launch/phase/budget budget computation when its position (COUNT(*) in SQL)
+        """
+        self._reset_affectations()
+        self._create_budget_project()
+
+        # affect 1 qty of position3 in each 3 phases, 
+        for i, phase in enumerate(self.phases):
+            phase._create_affectations(self.position[2])
+            phase.affectation_ids.quantity = 1
+            self.launchs[i].phase_ids = phase
+        self.launchs.affected = True
+
+        self.assertEqual(self.phase.budget_production,   self.amount_production)
+        self.assertEqual(self.launch.budget_production,  self.amount_production)
