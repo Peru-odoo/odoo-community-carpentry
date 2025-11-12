@@ -212,13 +212,20 @@ class ManufacturingOrder(models.Model):
         return (workcenter_budgets + components_budgets)._origin.ids
 
     #====== Compute amount ======#
-    @api.depends('workorder_ids.duration_expected', 'total_budget_reserved_workorders')
+    @api.depends(
+        'reservation_ids_workorders.amount_reserved',
+        'workorder_ids.duration_expected',
+    )
     def _compute_difference_workorder_duration_budget(self):
+        """ Difference displayed in *workorders* tab
+            Don't use `total_budget_reserved_workorders` because it
+            is not always the sum of `amount_reserved`
+        """
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         for mo in self:
             mo.difference_workorder_duration_budget = float_round(
-                mo.production_duration_hours_expected -
-                mo.total_budget_reserved_workorders,
+                mo.production_duration_expected / 60 -
+                sum(mo.reservation_ids_workorders.mapped('amount_reserved')),
                 precision_digits = prec
             )
 
