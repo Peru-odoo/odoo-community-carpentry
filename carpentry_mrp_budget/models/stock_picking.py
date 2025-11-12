@@ -6,6 +6,8 @@ class StockPicking(models.Model):
     """ Budget Reservation on pickings """
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'carpentry.budget.mixin']
+    _record_field = 'picking_id'
+    _record_fields_expense = ['move_ids']
     _carpentry_budget_notebook_page_xpath = '//page[@name="operations"]'
     _carpentry_budget_last_valuation_step = _('products revaluation')
 
@@ -18,23 +20,24 @@ class StockPicking(models.Model):
         column2='analytic_id',
     )
     
-    #====== Analytic mixin ======#
-    @api.onchange('project_id')
-    def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
-        return super()._cascade_project_to_line_analytic_distrib(new_project_id)
-
     #===== Budget reservation configuration =====#
     def _get_budget_types(self):
         return ['goods', 'other']
     
-    def _depends_expense_temporary(self):
-        return super()._depends_expense_temporary() + [
-            'move_ids',
+    def _depends_reservation_refresh(self):
+        return super()._depends_reservation_refresh() + [
             'move_ids.product_uom_qty',
             'move_ids.analytic_distribution',
         ]
-    def _depends_expense_permanent(self):
-        return super()._depends_expense_permanent() + ['state',]
+    def _depends_expense_totals(self):
+        return super()._depends_expense_totals() + [
+            'state',
+            'move_ids.product_id.standard_price',
+        ]
+    def _flush_budget(self):
+        """ Needed for correct computation of totals """
+        self.env['ir.property'].flush_model(['value_float']) # standard_price
+        return super()._flush_budget()
     
     def _should_value_budget_reservation(self):
         return True

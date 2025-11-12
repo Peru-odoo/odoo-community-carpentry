@@ -17,6 +17,9 @@ class Project(models.Model):
     #-- cancel fields from mixin --
     quantity_remaining_to_affect = fields.Integer(compute='',store=False,)
     
+    # cancel from mixin
+    _sql_constraints = [('name_per_project', 'check(1=1)', ''),]
+
     #===== Compute =====
     @api.depends('position_ids.state')
     def _compute_affectation_status(self):

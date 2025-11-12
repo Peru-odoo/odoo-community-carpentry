@@ -88,9 +88,10 @@ class CarpentryBudgetHourlyCost(models.Model):
     
     def _where(self):
         budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+        sql_budget_types = "'" + "','" . join(budget_types) + "'"
         return f"""
             WHERE
-                budget_line.budget_type IN {tuple(budget_types)} AND
+                budget_line.budget_type IN ({sql_budget_types}) AND
                 project.date_start IS NOT NULL AND project.date IS NOT NULL AND (
                     history.starting_date IS NOT NULL AND (
                         history.starting_date BETWEEN project.date_start AND project.date OR

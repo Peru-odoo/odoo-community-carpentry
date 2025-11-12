@@ -39,7 +39,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         """ Shortcut to test count, aac, launch & amount of reservations """
         reservations = self.record.reservation_ids
 
-        debug = True
+        debug = False
         if debug:
             print(' == _test_reservation_values == ')
             self._print_record_debug()
@@ -99,7 +99,6 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         if not self.record_model: return
 
         # 2 budgets automatically selected (because in product's analytic distrib)...
-        # print('self.record.project', self.record.project_id)
         self.assertEqual(
             self.record.budget_analytic_ids,
             self.aac_other + self.aac_installation,
@@ -116,7 +115,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
 
         # launch2 has no budget: should not change anything
         self.record.reservation_ids.amount_reserved = 0.0
-        self.record.launch_ids = self.launchs[1]
+        self.record.launch_ids |= self.launchs[1]
         self._test_reservation_idem()
 
     def test_03_auto_budget_add_launch(self):
@@ -222,8 +221,23 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
             'other_expense_aacs': self.aac_goods, # not in reservations (because not available, or here, not in project) => in other expense
         }
     
+    def _test_09_valuation_change(self):
+        """ Test that `total_expense_valued`
+            updates well when cost valuation changes
+        """
+        before = self.record.total_expense_valued
+        self.aac_installation.timesheet_cost_history_ids = [Command.create({
+            'starting_date': '2022-01-01',
+            "hourly_cost": self.HOUR_COST*2,
+            'currency_id': self.project.currency_id.id,
+        })]
+        self.assertNotEqual(self.record.total_expense_valued, before)
+        
+        # clean
+        self.aac_installation.timesheet_cost_history_ids[-1].unlink()
+
     #===== Other & UI =====#
-    def test_09_reservation_fields_from_record(self):
+    def test_10_reservation_fields_from_record(self):
         """ Ensure that record fields cascade to reservations, for: sequence, budget_date, active """
         if not self.record_model or not self.record.reservation_ids:
             return
@@ -237,7 +251,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
             self.assertEqual(set(self.record.reservation_ids.mapped('active')), {False})
             self.record.active = True
 
-    def test_10_readonly_reservation_budget(self):
+    def test_11_readonly_reservation_budget(self):
         """ Ensure either budget center choice (left), either reservation table (right)
             are readonly as soon as 1 modification needs a *flush* (save)
         """

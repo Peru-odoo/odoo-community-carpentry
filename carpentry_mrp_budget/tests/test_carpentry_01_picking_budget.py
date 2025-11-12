@@ -70,20 +70,23 @@ class TestCarpentryPickingBudget_Reservation(
         cls.reserved = value
     
     @classmethod
-    def _print_debug(cls):
-        print('picking', cls.record.read(['total_budget_reserved']))
-        print('lines', cls.record.move_ids.read(['analytic_distribution', 'product_id', 'product_uom_qty', 'state']))
-        print('products', cls.record.move_ids.product_id.read(['name', 'standard_price']))
-    
-    @classmethod
-    def _print_debug_expense(cls):
-        expenses = cls.env['carpentry.budget.expense'].with_context(active_test=False)
-        print('picking', cls.record.read(['expense_ids', 'other_expense_ids']))
-        print('expenses', expenses.search_read(
-            domain=[('picking_id', '=', cls.record.id)],
-            fields=['analytic_account_id', 'amount_expense', 'amount_reserved'],
-        ))
+    def _print_debug(cls, modes=[]):
+        if 'expense' in modes:
+            expenses = cls.env['carpentry.budget.expense'].with_context(active_test=False)
+            print('picking', cls.record.read(['expense_ids', 'other_expense_ids']))
+            print('expenses', expenses.search_read(
+                domain=[('picking_id', '=', cls.record.id)],
+                fields=['analytic_account_id', 'amount_expense', 'amount_reserved'],
+            ))
 
+        if 'resa' in modes:
+            print('reservations', cls.record.reservation_ids.read(['analytic_account_id', 'amount_reserved']))
+
+        if 'default' in modes or not modes:
+            print('picking', cls.record.read(['total_budget_reserved']))
+            print('lines', cls.record.move_ids.read(['analytic_distribution', 'product_id', 'product_uom_qty', 'state']))
+            print('products', cls.record.move_ids.product_id.read(['name', 'standard_price']))
+    
     #===== Auto/suggestion mode =====#
     # See `carpentry_position_budget/TestCarpentryPositionBudget_Reservation`
     def _test_01_results(self):
@@ -102,7 +105,7 @@ class TestCarpentryPickingBudget_Reservation(
             'budget_reserved': self.reserved,
             'budgetable': self.expense,
             'expense_valued': self.expense,
-            'gain': self.amount_other - self.expense, # -200.0
+            'gain': self.amount_other - self.expense, # 100.0 - 300.0 = -200.0
         }
     
     def _test_03_results(self):
@@ -166,8 +169,6 @@ class TestCarpentryPickingBudget_Reservation(
             - does not trigger reservation amount auto-update
               (user can do it with the button)
         """
-        self._print_debug_expense()
-
         # 1 line has aac distrib with 2 aac on 50% and 1 on 100%
         # the 2nd line is standard at 100%
         # => UNIT_PRICE is counted 3 times

@@ -2,7 +2,6 @@
 
 from odoo import models, fields, api, exceptions, _
 from odoo.osv import expression
-from collections import defaultdict
 
 class CarpentryBudgetReservation(models.Model):
     """ This model is quite similar to `carpentry.affectation`,
@@ -68,7 +67,7 @@ class CarpentryBudgetReservation(models.Model):
     sequence_record = fields.Integer(string='Record sequence',)
     date = fields.Date(string='Date', copy=False,)
     active = fields.Boolean(string='Active', copy=False,)
-    # quantities
+    # amounts
     amount_reserved = fields.Float(
         string="Budget reservation",
         digits='Product Unit of Measure',
@@ -78,19 +77,19 @@ class CarpentryBudgetReservation(models.Model):
         string="Budget initially available",
         digits='Product Unit of Measure',
         group_operator='sum',
-        compute='_compute_quantities',
+        compute='_compute_amounts',
     )
     amount_reserved_siblings = fields.Float(
         string="Budget reserved by other documents",
         digits='Product Unit of Measure',
         group_operator='sum',
-        compute='_compute_quantities',
+        compute='_compute_amounts',
     )
     amount_remaining = fields.Float(
         string="Remaining budget",
         digits='Product Unit of Measure',
         group_operator='sum',
-        compute='_compute_quantities',
+        compute='_compute_amounts',
     )
     amount_expense_valued = fields.Monetary(
         string="Expense",
@@ -110,34 +109,30 @@ class CarpentryBudgetReservation(models.Model):
         super().init()
         
         # project & launch reservations index (also ensures unicity)
-        fields = ['project_id'] + self._get_record_fields()
+        fields = self._get_record_fields()
         for field in fields:
             model = field.replace('_id', '')
-            _not, record_field = '', ''
-            if field == 'project_id':
-                _not = 'NOT'
-
             self.env.cr.execute(f"""
                 DROP INDEX IF EXISTS idx_carpentry_budget_reservation_integrity_{model};
                 
                 CREATE UNIQUE INDEX idx_carpentry_budget_reservation_integrity_{model} 
-                ON carpentry_budget_reservation (analytic_account_id, project_id {record_field})
-                WHERE (project_budget IS {_not} TRUE);
+                ON carpentry_budget_reservation (project_id, launch_id, analytic_account_id, {field});
             """)
     
     #===== Constrain: no overconsumption =====#
     @api.onchange('amount_reserved')
-    @api.constrains(lambda self: self._get_depends_quantities())
+    @api.constrains(lambda self: self._depends_amounts())
     def _constrain_amount_reserved(self):
         reservation = fields.first(self.filtered(lambda x: x.amount_remaining < 0))
         if reservation:
+            print('self', self.read(['analytic_account_id', 'launch_id', 'amount_reserved']))
             raise exceptions.ValidationError(_(
                 "The reserved budget is higher than the one available in the project:\n\n"
                 "Launchs: %(launchs)s\n"
                 "Budget centers: %(analytics)s\n"
                 "Initial budget in the project: %(initial_budget)s\n"
                 "Budget reserved on other documents: %(reservation_other)s\n"
-                "Budget reservation in the current document: %(reservation_current)s\n"
+                "Temptative of budget reservation: %(reservation_current)s\n"
                 "Overconsumption: %(overconsumption)s",
                 launchs=' ,' . join(reservation.launch_id.mapped('name')),
                 analytics=' ,' . join(reservation.analytic_account_id.mapped('name')),
@@ -170,14 +165,16 @@ class CarpentryBudgetReservation(models.Model):
     def _get_key(self, **kwargs):
         return self.env['carpentry.budget.mixin']._get_key(**kwargs)
     
+    @api.depends(lambda self: self._get_record_fields())
     def _compute_record_field(self):
-        fields = self._get_record_fields()
-        first = self.first(self)._found_record_field_one(fields)
-        if fields[0] != first: # optim: put 1st record_field at beginning of fields
-            fields = [first] + [x for x in fields if x != first]
+        """ :return: like 'balance_id' or 'purchase_id' or ... """
+        record_fields = self._get_record_fields()
+        first = fields.first(self)._found_record_field_one(record_fields)
+        if record_fields[0] != first: # optim: put 1st record_field at beginning of fields
+            record_fields = [first] + [x for x in record_fields if x != first]
         
         for reservation in self:
-            reservation.record_field = reservation._found_record_field_one(fields)
+            reservation.record_field = reservation._found_record_field_one(record_fields)
     def _found_record_field_one(self, fields):
         for field in fields:
             if bool(self[field]):
@@ -187,7 +184,7 @@ class CarpentryBudgetReservation(models.Model):
     def _update_record_fields(self):
         """ Called from `carpentry.budget.mixin` """
         for reservation in self:
-            record = reservation._origin[self.record_field]
+            record = reservation._origin[reservation.record_field]
 
             reservation['sequence_record'] = record._get_default_sequence()
             reservation['active'] = record._get_default_active()
@@ -200,83 +197,120 @@ class CarpentryBudgetReservation(models.Model):
     #===== Compute: amounts =====#
     def _get_domain_budget_reservation(self, exclude=False, with_record=True):
         operator = 'not in' if exclude else 'in'
-        return [
+        base_domain = [
             ('project_id', 'in', self.project_id._origin.ids),
             ('analytic_account_id', 'in', self.analytic_account_id._origin.ids),
             ('launch_id', 'in', [False] + self.launch_id._origin.ids),
-        ] + (
-            [(self.record_field, operator, self[self.record_field]._origin.ids)]
-            if with_record else []
-        )
-    
-    @api.depends('analytic_account_id', 'launch_id')
-    def _compute_amount_expense_gain_valued(self):
-        """ Display *real* expense (and gain) for information,
-            in budget reservation table, from
-            view `carpentry.budget.expense.distributed`
-        """
-        print(' ==== start _compute_amount_expense_gain_valued ==== ')
-        fields = ('analytic_account_id', 'launch_id', self.record_field)
-        Expense = self.env['carpentry.budget.expense.distributed'].with_context(active_test=False)
-        rg_result = Expense.read_group(
-            domain=self._get_domain_budget_reservation(),
-            fields=['amount_expense_valued:sum', 'amount_gain:sum'],
-            groupby=['project_id', 'launch_id', 'analytic_account_id', self.record_field],
-            lazy=False,
-        )
-        mapped_data = {
-            tuple([data[field] and data[field][0] for field in fields]):
-            (data['amount_expense_valued'], data['amount_gain'])
-            for data in rg_result
-        }
-        for reservation in self:
-            key = reservation._get_key(rec=reservation)
-            (
-                reservation.amount_expense_valued, reservation.amount_gain,
-            ) = mapped_data.get(key, (0.0, 0.0))
+        ]
+        if not with_record:
+            return base_domain
+        
+        domain_records = []
+        for record_field in self.mapped('record_field'):
+            domain_records = expression.OR([
+                domain_records,
+                [(record_field, operator, self[record_field]._origin.ids)]
+            ])
+        return base_domain + domain_records
 
-    def _get_depends_quantities(self):
-        return [
-            'amount_reserved', 'launch_id', 'analytic_account_id',
-        ] + self._get_record_fields()
-    
-    @api.depends(lambda self: self._get_depends_quantities())
-    def _compute_quantities(self):
+    def _depends_amounts(self):
+        return (
+            ['amount_reserved',
+             'project_id', 'launch_id', 'analytic_account_id',]
+            + self._get_record_fields()
+        )
+    @api.depends(lambda self: self._depends_amounts())
+    def _compute_amounts(self):
         """ Budget mode: default to 'brut'
             can be enforced in the view with context="{'brut_or_valued': 'brut' or 'valued'}"
         """
-        self = self.with_context(active_test=True)
+        if self._context.get('carpentry_budget_no_compute'): # optim
+            # (!) those are fake values!
+            # they are re-computed after creation, on `amount_reserved` write (auto-reservation)
+            self.amount_initially_available = 0.0
+            self.amount_reserved_siblings = 0.0
+            self.amount_remaining = 0.0
+            return
         
-        valued = bool(self._context.get('brut_or_valued', 'brut') == 'valued')
-        amount_fields = ['amount_subtotal'] + (['amount_subtotal_valued'] if valued else [])
-        rg_fields = ['project_id', 'launch_id', 'analytic_account_id']
+        self = self.with_context(active_test=True)
 
+        self.flush_model(['amount_reserved'])
+        domain=self._get_domain_budget_reservation(with_record=False) + [
+            '|',
+            ('record_res_model', 'in', ['project.project', 'carpentry.group.launch']), # exclude positions
+            ('state', '=', 'reservation'),
+        ]
+        _valued = '_valued' if self._context.get('brut_or_valued', 'brut') == 'valued' else ''
+        amount_field = 'amount_subtotal' + _valued
+        rg_fields = ['project_id', 'launch_id', 'analytic_account_id']
         rg_result = self.env['carpentry.budget.remaining']._read_group(
-            domain=self._get_domain_budget_reservation(with_section=False) + [
-                '|',
-                ('record_res_model', 'in', ['project.project', 'carpentry.group.launch']), # exclude positions
-                ('state', '=', 'reservation'),
-            ],
+            domain=domain,
             groupby=['state'] + rg_fields,
-            fields=[x + ':sum' for x in amount_fields],
+            fields=[amount_field + ':sum', 'ids:array_agg(id)', 'aggr:array_agg(' + amount_field + ')'],
             lazy=False,
         )
         mapped_budgets = {'budget': {}, 'reservation': {}}
         for x in rg_result:
             key = tuple([x[field] and x[field][0] for field in rg_fields])
-            budgets = tuple([x[field] for field in amount_fields])
-            mapped_budgets[x['state']][key] = budgets
+            mapped_budgets[x['state']][key] = x[amount_field]
 
+        debug = False
+        if debug:
+            print(' == _compute_amounts == ')
+            print('reservation', self.search_read([], rg_fields + ['balance_id', 'purchase_id', 'amount_reserved']))
+            print('domain', domain)
+            print('search_domain', self.env['carpentry.budget.remaining'].search_read(domain, ['state'] + rg_fields + [amount_field]))
+            print('rg_result', rg_result)
+            print('mapped_budgets', mapped_budgets)
+        
         for reservation in self:
             amount_reserved = reservation._origin.amount_reserved
             key = tuple([x[field] and x[field][0] for field in rg_fields])
 
             reservation.amount_initially_available = mapped_budgets['budget'].get(key, 0.0)
             reservation.amount_reserved_siblings = (
-                mapped_budgets['reservation'].get(key, 0.0) - amount_reserved
+                -1 * mapped_budgets['reservation'].get(key, 0.0) - amount_reserved
             )
             reservation.amount_remaining = (
                 reservation.amount_initially_available
                 - reservation.amount_reserved_siblings
                 - reservation.amount_reserved
             )
+
+            if debug:
+                print('amount_reserved', amount_reserved)
+                print('amount_inially_available', mapped_budgets['budget'].get(key, 0.0))
+                print('mapped_budget[reservation]', mapped_budgets['reservation'].get(key, 0.0))
+                print('amount_reserved_siblings', reservation.amount_reserved_siblings)
+                print('amount_remaining', reservation.amount_remaining)
+
+    @api.depends('analytic_account_id', 'launch_id')
+    def _compute_amount_expense_gain_valued(self):
+        """ Display *real* expense (and gain) for information,
+            in budget reservation table, from
+            view `carpentry.budget.expense.distributed`
+        """
+        debug = False
+        rg_groupby = ['launch_id', 'analytic_account_id'] + list(set(self.mapped('record_field')))
+        Expense = self.env['carpentry.budget.expense.distributed'].with_context(active_test=False)
+        rg_result = Expense.read_group(
+            domain=self._get_domain_budget_reservation(),
+            fields=['amount_expense_valued:sum', 'amount_gain:sum'],
+            groupby=rg_groupby,
+            lazy=False,
+        )
+        mapped_data = {
+            tuple([x[field] and x[field][0] for field in rg_groupby]):
+            (x['amount_expense_valued'], x['amount_gain'])
+            for x in rg_result
+        }
+        if debug:
+            print(' == _compute_amount_expense_gain_valued == ')
+            print('mapped_data', mapped_data)
+        for reservation in self:
+            key = tuple([reservation[field].id for field in rg_groupby])
+            (
+                reservation.amount_expense_valued, reservation.amount_gain,
+            ) = mapped_data.get(key, (0.0, 0.0))
+            if debug:
+                print('key', key)

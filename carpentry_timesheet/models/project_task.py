@@ -89,13 +89,15 @@ class Task(models.Model):
     def _get_budget_types(self):
         return ['service', 'installation']
     
-    def _depends_expense_temporary(self):
-        return super()._depends_expense_temporary() + [
+    def _depends_reservation_refresh(self):
+        return super()._depends_reservation_refresh() + [
             'analytic_account_id', 'planned_hours', 'allow_timesheets',
         ]
-    def _depends_expense_permanent(self):
-        return super()._depends_expense_permanent() + [
-            'stage_id.fold', 'timesheet_ids',
+    def _depends_expense_totals(self):
+        return super()._depends_expense_totals() + [
+            'stage_id.fold',
+            'timesheet_ids.unit_amount',
+            'timesheet_ids.amount',
         ]
     
     def _depends_can_reserve_budget(self):
@@ -105,18 +107,16 @@ class Task(models.Model):
     def _get_domain_is_temporary_gain(self):
         return [('stage_id.fold', '=', False)]
     
-    def _compute_view_fields_totals_one(self, prec, _):
-        super()._compute_view_fields_totals_one(prec)
+    def _compute_view_fields_one(self, prec, fields_suffix):
+        super()._compute_view_fields_one(prec, fields_suffix)
         self.total_budgetable = self.planned_hours
-
-        return self.analytic_account_id.ids
     
-    def _get_total_budgetable_by_analytic(self):
+    def _get_total_budgetable_by_analytic(self, _):
         """ [OVERRIDE]
             Auto-budget reservation of tasks is based on `planned_hours`
         """
         return {
-            (task.project_id.id, task.analytic_account_id.id):
+            (task._origin.id, task.analytic_account_id.id):
             task.planned_hours
             for task in self.filtered('analytic_account_id')
         }

@@ -116,8 +116,8 @@ class CarpentryBudgetAvailable(models.Model):
         if queries:
             budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
 
-            self._cr.execute(f"""
-                CREATE or REPLACE VIEW %s AS (
+            self._cr.execute("""
+                CREATE or REPLACE VIEW %(table_name)s AS (
                     
                     SELECT
                         row_number() OVER (ORDER BY result.unique_key) AS id,
@@ -133,13 +133,13 @@ class CarpentryBudgetAvailable(models.Model):
                         SUM(result.amount_unitary) AS amount_unitary,
                         SUM(result.amount_subtotal) AS amount_subtotal,
                         CASE
-                            WHEN result.budget_type IN {tuple(budget_types)}
+                            WHEN result.budget_type = ANY(%(budget_types)s)
                             THEN SUM(result.amount_subtotal) * hourly_cost.coef
                             ELSE SUM(result.amount_subtotal)
                         END AS amount_subtotal_valued
                     
                     FROM (
-                        (%s)
+                        (%(sql_union)s)
                     ) AS result
                     
                     LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
@@ -157,10 +157,11 @@ class CarpentryBudgetAvailable(models.Model):
                         result.budget_type,
                         result.active,
                         hourly_cost.coef
-                )""", (
-                    AsIs(self._table),
-                    AsIs(') UNION ALL (' . join(queries))
-                )
+                )""", {
+                    'table_name': AsIs(self._table),
+                    'sql_union': AsIs(') UNION ALL (' . join(queries)),
+                    'budget_types': budget_types
+                }
             )
     
     def _get_queries(self):

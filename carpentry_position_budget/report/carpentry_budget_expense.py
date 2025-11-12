@@ -103,9 +103,9 @@ class CarpentryBudgetExpenseHistory(models.Model):
                             END ELSE 1.0
                         END AS amount_expense,
                         
-                        -- expense valued: can be computed from `amount_expense`, and valued from it if needed
+                        -- expense valued: computed from `amount_expense` if NULL, and valued from it if needed
                         CASE 
-                            WHEN NULL = ANY(ARRAY_AGG(amount_expense_valued)) -- if need computation from `amount_expense`
+                            WHEN TRUE = ANY(ARRAY_AGG(amount_expense_valued IS NULL)) -- if need computation from `amount_expense`
                             THEN SUM(expense.amount_expense) *
                                 CASE
                                     WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
@@ -116,15 +116,15 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         END AS amount_expense_valued,
                         
                         -- gain
-                        SUM(amount_reserved) * (
+                        SUM(expense.amount_reserved) * (
                             CASE
                                 WHEN expense.budget_type IN %(budget_types)s
                                 THEN hourly_cost.coef
                                 ELSE 1.0
                             END
                         )
-                        - CASE -- amount_expense_valued
-                            WHEN NULL = ANY(ARRAY_AGG(amount_expense_valued)) -- computed from `amount_expense`
+                        - CASE 
+                            WHEN TRUE = ANY(ARRAY_AGG(amount_expense_valued IS NULL)) -- if need computation from `amount_expense`
                             THEN SUM(expense.amount_expense) *
                                 CASE
                                     WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))

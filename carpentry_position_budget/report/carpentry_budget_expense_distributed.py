@@ -40,6 +40,7 @@ class CarpentryBudgetExpenseDistributed(models.Model):
 
     def _select(self):
         budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+        sql_budget_types = "'" + "','" . join(budget_types) + "'"
         return f"""
             SELECT
                 row_number() OVER (ORDER BY 
@@ -60,7 +61,7 @@ class CarpentryBudgetExpenseDistributed(models.Model):
                 SUM(reservation.amount_reserved) AS amount_reserved,
                 SUM(reservation.amount_reserved)  * (
                     CASE
-                        WHEN reservation.budget_type IN {tuple(budget_types)}
+                        WHEN reservation.budget_type IN ({sql_budget_types})
                         THEN AVG(expense.hourly_cost_coef)
                         ELSE 1.0
                     END

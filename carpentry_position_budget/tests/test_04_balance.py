@@ -29,12 +29,15 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
     def _print_debug(cls):
         print('cls.balance', cls.balance.read(['budget_analytic_ids']))
         print('cls.project.budget_line_ids', cls.project.budget_line_ids.read(['analytic_account_id', 'is_computed_carpentry']))
+        print('reservations', cls.balance.reservation_ids.read(['analytic_account_id', 'launch_id', 'amount_reserved']))
 
     #===== Reservations =====#
     @classmethod
     def _sum_report_remaining_budget(cls, mode):
         operator = '=' if mode == 'project' else '!='
         domain = [('project_id', '=', cls.project.id), ('launch_id', operator, False),]
+        cls.env.flush_all()
+        cls.Remaining.invalidate_model()
         remainings = cls.Remaining.search(domain)
         return sum(remainings.mapped('amount_subtotal'))
 

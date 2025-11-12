@@ -52,6 +52,7 @@ class CarpentryAffectation(models.Model):
             domain += [('project_id', 'in', project_ids)]
 
         # 1. reservations not possible with no budget reservation => just clean them with no noise
+        self.env.flush_all()
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         reservations = self.env['carpentry.budget.reservation'].search(domain)
         reservations.filtered(
@@ -67,9 +68,6 @@ class CarpentryAffectation(models.Model):
             return
         
         Remaining = self.env['carpentry.budget.remaining']
-        self.env.flush_all() # required before view requests
-        Remaining.invalidate_model(['amount_subtotal'])
-
         rg_result = Remaining._read_group(
             domain=domain,
             groupby=['project_id', 'launch_id', 'analytic_account_id'],

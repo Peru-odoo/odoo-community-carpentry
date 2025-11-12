@@ -20,17 +20,22 @@ class PurchaseOrder(models.Model):
     )
 
     #====== CRUD ======#
-    def write(self, vals):
-        res = super().write(vals)
-        if 'budget_analytic_ids' in vals:
-            self._cascade_order_budgets_to_line_analytic()
-        return res
+    def _compute_reservation_ids(self, vals={}):
+        if (
+            isinstance(fields.first(self), models.NewId)
+            or self._context.get('carpentry_dont_refresh_reservations')
+        ):
+            return
+        
+        if 'budget_analytic_ids' in vals: # user choosed manually the budget centers
+            # ctx: avoid calling twice `_compute_reservation_ids`,
+            # since `line.analytic_distribution` is also in @depends
+            ctx_self = self.with_context(carpentry_dont_refresh_reservations=True)
+            ctx_self._cascade_order_budgets_to_line_analytic()
+        return super()._compute_reservation_ids(vals)
     
     def _cascade_order_budgets_to_line_analytic(self):
         """ Manual budget choice => update line's analytic distribution """
-        if self._context.get('budget_analytic_ids_computed_auto'):
-            return
-        
         domain=[('is_project_budget', '=', True)]
         budget_analytics_ids = self.env['account.analytic.account'].search(domain).ids
 
@@ -47,12 +52,12 @@ class PurchaseOrder(models.Model):
     def _should_value_budget_reservation(self):
         return True
     
-    def _depends_expense_temporary(self):
-        return super()._depends_expense_temporary() + [
-            'order_line', 'order_line.analytic_distribution', 'amount_untaxed',
+    def _depends_reservation_refresh(self):
+        return super()._depends_reservation_refresh() + [
+            'order_line.analytic_distribution', 'amount_untaxed',
         ]
-    def _depends_expense_permanent(self):
-        return super()._depends_expense_permanent() + [
+    def _depends_expense_totals(self):
+        return super()._depends_expense_totals() + [
             # mo
             'invoice_ids.amount_untaxed',
             'invoice_ids.line_ids.analytic_distribution',
@@ -69,14 +74,14 @@ class PurchaseOrder(models.Model):
     def _get_domain_is_temporary_gain(self):
         return [('invoice_status', '!=', 'invoiced')]
     
-    def _get_auto_budget_analytic_ids(self, _):
-        """ Used in `_populate_budget_analytics`,
-            for `budget_analytic_ids` to follow the expense
-        """
-        return (
-            self.order_line.analytic_account_ids
-            + self.invoice_ids.line_ids.analytic_account_ids
-        ).filtered('is_project_budget').ids
+    # def _get_auto_budget_analytic_ids(self, _):
+    #     """ Used in `_populate_budget_analytics`,
+    #         for `budget_analytic_ids` to follow the expense
+    #     """
+    #     return (
+    #         self.order_line.analytic_account_ids
+    #         + self.invoice_ids.line_ids.analytic_account_ids
+    #     ).filtered('is_project_budget').ids
     
     #===== Compute: date & amounts =====#
     @api.depends('date_approve')

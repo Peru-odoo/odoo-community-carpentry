@@ -31,7 +31,7 @@ class BaseModel(models.AbstractModel):
 
     # @api.onchange('project_id') # must be set in child modules
     def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
-        debug = True
+        debug = False
         field_lines = self._get_fields_related_with(
             ['analytic_distribution', '_synch_project_analytic_distrib_from_record']
         )
@@ -70,25 +70,12 @@ class AnalyticMixin(models.AbstractModel):
 
     #====== CRUD ======#
     def write(self, vals):
-        """ 1. Simulate `onchange`
-            2. Auto update budget reservation of parent (e.g. PO) on change
-               of cost, product or analytic of line (e.g. PO line)
-        """
+        """ Simulate `onchange` """
         res = super().write(vals)
-
-        print(' == write analytic_mxin == ')
 
         # 1. after `write()`
         if 'analytic_distribution' in vals and not self._context.get('has_enforced_aac_distrib'):
-            print('write:_enforce_internal_analytic')
             self._enforce_internal_analytic()
-        # 2.
-        if any(x in vals for x in self._depends_expense_temporary()):
-            print('write:_refresh_reservations')
-            self_sudo = self.sudo() # avoid access error
-            for field_parent in self._get_fields_related_with(['project_id']):
-                if hasattr(self_sudo[field_parent], '_refresh_reservations'):
-                    self[field_parent] = self[field_parent]._refresh_reservations()
         
         return res
     
@@ -111,7 +98,7 @@ class AnalyticMixin(models.AbstractModel):
         mapped_projects_analytics = self._get_mapped_projects_analytics()
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
         
-        debug = True
+        debug = False
         if debug:
             print(' == _synch_project_analytic_distrib_from_record == ')
             print('mapped_projects_analytics', mapped_projects_analytics)
@@ -122,7 +109,6 @@ class AnalyticMixin(models.AbstractModel):
             if record._should_enforce_internal_analytic():
                 new_aac_id = replace_dict_enforce.get(new_aac_id) or new_aac_id
 
-            print('record', record)
             record._cascade_parent_project_to_analytic(new_aac_id, mapped_projects_analytics)
 
     def _get_mapped_projects_analytics(self):
@@ -153,7 +139,7 @@ class AnalyticMixin(models.AbstractModel):
         """
         self.ensure_one()
 
-        debug = True
+        debug = False
         if debug:
             print(' === _cascade_parent_project_to_analytic === ')
             print('self.analytic_distribution', self.analytic_distribution)
@@ -237,8 +223,3 @@ class AnalyticMixin(models.AbstractModel):
             for project_aac_id in [x['analytic_account_id'][0] for x in sr_result]
             if project_aac_id != internal_aac_id
         }
-
-    #==== CRUD: budget affectation refresh ====#
-    def _depends_expense_temporary(self):
-        return ['product_id', 'product_qty', 'price_unit', 'discount', 'analytic_distribution',]
-    

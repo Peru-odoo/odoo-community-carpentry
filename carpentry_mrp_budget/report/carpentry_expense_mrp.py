@@ -44,7 +44,11 @@ class CarpentryExpense(models.Model):
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    SUM(reservation.amount_reserved) AS amount_reserved,
+                    CASE
+                        WHEN COALESCE(COUNT(reservation.id), 0.0) != 0
+                        THEN SUM(reservation.amount_reserved) / COUNT(reservation.id)
+                        ELSE 0.0
+                    END AS amount_reserved,
                     
                     -- expense: will be devaluated for workforce
                     'DEVALUE' AS value_or_devalue_workforce_expense,
@@ -77,13 +81,13 @@ class CarpentryExpense(models.Model):
                     -- 1. if effective_hours < amount_reserved:
                     --    displays expense == budget_reservation in the project's budget report
                     CASE
-                        WHEN record.state != 'done' AND SUM(line.duration) / 60 < SUM(reservation.amount_reserved) / COUNT(reservation.id)
+                        WHEN record.state != 'done' AND SUM(line.duration) / 60 < COALESCE(SUM(reservation.amount_reserved), 0.0)
                         THEN SUM(line.duration) / 60
-                        ELSE SUM(reservation.amount_reserved) / COUNT(reservation.id)
+                        ELSE COALESCE(SUM(reservation.amount_reserved), 0.0)
                     END *
                     CASE -- prorata per workorder's reserved budget
                         WHEN record.total_budget_reserved != 0.0
-                        THEN SUM(reservation.amount_reserved) / record.total_budget_reserved / COUNT(reservation.id)
+                        THEN COALESCE(SUM(reservation.amount_reserved), 0.0) / record.total_budget_reserved
                         ELSE 0.0
                     END AS amount_reserved,
                     
@@ -92,8 +96,8 @@ class CarpentryExpense(models.Model):
                     SUM(line.duration) / 60 *
                     CASE -- prorata per workorder's reserved budget
                         WHEN record.total_budget_reserved != 0.0
-                        THEN SUM(reservation.amount_reserved) / record.total_budget_reserved / COUNT(reservation.id)
-                        ELSE 0.0
+                        THEN COALESCE(SUM(reservation.amount_reserved), 0.0) / record.total_budget_reserved 
+                        ELSE 1.0
                     END AS amount_expense,
 
                     -- expense valued: will be calculated from `amount_expense` and valued (for workforce)
@@ -114,15 +118,17 @@ class CarpentryExpense(models.Model):
         sql = ''
 
         if model in ('stock.picking', 'mrp.production'):
+            sql += self._join_product_analytic_distribution()
+
             if model == 'stock.picking':
-                sql = """
+                sql += """
                     INNER JOIN stock_picking AS record
                         ON record.id = line.picking_id
                     INNER JOIN stock_picking_type AS picking_type
                         ON picking_type.id = record.picking_type_id
                 """
             else:
-                sql = """
+                sql += """
                     INNER JOIN mrp_production AS record
                         ON record.id = line.raw_material_production_id
                 """
@@ -138,22 +144,26 @@ class CarpentryExpense(models.Model):
             """
         
         elif model == 'mrp.workorder':
-            sql = f"""
+            sql += f"""
                 INNER JOIN mrp_production AS record
                     ON record.id = line.production_id
-                
-                LEFT JOIN account_analytic_account AS analytic
-                    ON analytic.id = reservation.analytic_account_id
             """
         
         # reservations
-        sql += f"""
-            LEFT JOIN carpentry_budget_reservation AS reservation
-                ON reservation.{self.env[model]._record_field} = record.id
-        """
-        if model == 'mrp.workorder':
-            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
-            sql += f" AND reservation.budget_type IN {tuple(budget_types)}"
+        if model in ('stock.picking', 'mrp.production', 'mrp.workorder'):
+            sql += f"""
+                LEFT JOIN carpentry_budget_reservation AS reservation
+                    ON  reservation.{self.env[model]._record_field} = record.id
+            """
+            if model in ('stock.picking', 'mrp.production'):
+                sql += " AND reservation.analytic_account_id = analytic.id"
+            elif model == 'mrp.workorder':
+                budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
+                sql += f"""
+                        AND reservation.budget_type IN {tuple(budget_types)}
+                    LEFT JOIN account_analytic_account AS analytic
+                        ON analytic.id = reservation.analytic_account_id
+                """
         
         return sql + super()._join(model, models)
         
@@ -175,7 +185,7 @@ class CarpentryExpense(models.Model):
         res = super()._groupby(model, models)
         
         if model == 'mrp.workorder':
-            res += ', line.project_id, line.productivity_tracking, hourly_cost.coef'
+            res += ', line.project_id, line.productivity_tracking'
         elif model == 'stock.picking':
             res += ', picking_type.code'
         

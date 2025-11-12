@@ -44,6 +44,7 @@ class CarpentryBudgetRemaining(models.Model):
     position_id = fields.Many2one(store=False)
     amount_unitary = fields.Float(store=False)
     quantity_affected = fields.Float(store=False)
+    amount_subtotal_valued = fields.Monetary(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -62,16 +63,20 @@ class CarpentryBudgetRemaining(models.Model):
             sql_record_fields = ''
             for field in Reservation._get_record_fields():
                 model = Reservation[field]._name
+                if model == 'carpentry.budget.balance':
+                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
+                else:
+                    model_id = self.env['ir.model']._get_id(model)
                 sql_record_fields += f"""
-                    CASE
-                        WHEN expense.record_model_id = '{model}'
-                        THEN expense.record_id
+                    , CASE
+                        WHEN record_model_id = {model_id}
+                        THEN record_id
                         ELSE NULL
                     END AS {field}
                 """
 
-            self._cr.execute(f"""
-                CREATE or REPLACE VIEW %s AS (
+            self._cr.execute("""
+                CREATE or REPLACE VIEW %(table_name)s AS (
                     SELECT
                         row_number() OVER (ORDER BY unique_key) AS id,
                         state,
@@ -86,13 +91,15 @@ class CarpentryBudgetRemaining(models.Model):
                         
                         record_model_id,
                         record_id
+                        %(sql_record_fields)s
                     FROM (
-                        (%s)
+                        (%(sql_union)s)
                     ) AS result
-                )""", (
-                    AsIs(self._table),
-                    AsIs(') UNION ALL (' . join(queries))
-                )
+                )""", {
+                    'table_name': AsIs(self._table),
+                    'sql_record_fields': AsIs(sql_record_fields),
+                    'sql_union': AsIs(') UNION ALL (' . join(queries)),
+                }
             )
 
     def _select(self, model, models):
@@ -116,7 +123,6 @@ class CarpentryBudgetRemaining(models.Model):
                     -- budget
                     available.analytic_account_id,
                     available.amount_subtotal AS amount_subtotal,
-                    available.amount_subtotal_valued AS amount_subtotal_valued,
                     available.budget_type,
 
                     -- record_id: position or project
@@ -158,7 +164,6 @@ class CarpentryBudgetRemaining(models.Model):
                     -- budget
                     reservation.analytic_account_id,
                     -1 * reservation.amount_reserved AS amount_subtotal,
-                    NULL AS amount_subtotal_valued, -- never needed, don't do it
                     reservation.budget_type,
 
                     -- record
@@ -168,13 +173,10 @@ class CarpentryBudgetRemaining(models.Model):
             """
 
     def _from(self, model, models):
-        return (
-            'FROM carpentry_budget_available AS available'
-
-            if model == 'carpentry.budget.available' else
-	        
-            'FROM carpentry_budget_reservation AS reservation'
-        )
+        if model == 'carpentry.budget.available':
+            return 'FROM carpentry_budget_available AS available'
+        else:
+            return 'FROM carpentry_budget_reservation AS reservation'
 
     def _join(self, model, models):
         return ''
@@ -189,7 +191,7 @@ class CarpentryBudgetRemaining(models.Model):
                 )
             """
         else:
-            return "WHERE amount_reserved != 0.0"
+            return ''
     
     def _groupby(self, model, models):
         return ''

@@ -55,7 +55,6 @@ class TestCarpentryPurchaseBudget_AnalyticProject(
 
         # set a project on PO after PO's creation: line's project should take it
         self.po.project_id = self.project
-        print('self.po_line', self.po_line.read([]))
         self._test_line_projects(self.project, line=self.po_line)
 
     def test_02_remove_record_project(self):

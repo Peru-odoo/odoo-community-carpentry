@@ -123,7 +123,7 @@ class AccountMoveBudgetLine(models.Model):
         # Ensure correct values in database
         # (!) needed here, because `read_group` on view
         #                           & write of storable fields
-        self.env.invalidate_all()
+        self.env.flush_all()
 
         # Get budget project's groupped by analytic account
         domain = [

@@ -128,11 +128,9 @@ class AnalyticAccount(models.Model):
             :arg project_id: explicit
             :return: Dict like {analytic_id: amount}
         """
-        self.env.flush_all()
-        # self.env['carpentry.budget.remaining'].invalidate_model()
         rg_result = self.env['carpentry.budget.remaining'].read_group(
             domain=[
-                ('project_id', 'in', project_id),
+                ('project_id', '=', project_id),
                 ('launch_id', 'in', [False] + launch_ids),
                 ('analytic_account_id', '!=', False),
                 (record_field, '!=', record_id),

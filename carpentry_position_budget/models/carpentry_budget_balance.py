@@ -24,7 +24,7 @@ class CarpentryBudgetBalance(models.Model):
         string='Launchs',
         comodel_name='carpentry.group.launch',
         compute='_compute_launch_ids',
-        inverse='_populate_budget_analytics',
+        inverse='_inverse_launch_ids',
         readonly=False,
         domain="[('project_id', '=', project_id)]",
     )
@@ -50,34 +50,34 @@ class CarpentryBudgetBalance(models.Model):
         for balance in self:
             balance.launch_ids = balance.reservation_ids.launch_id
     
+    def _inverse_launch_ids(self):
+        """ Switch between project/launch mode:
+            - update budget centers
+            - refresh lines of reservations table
+        """
+        self._compute_reservation_ids()
+    
     def _get_launch_ids(self):
         """ For balance: either launchs, either project """
         return self.launch_ids.ids or [False]
     
     def _get_auto_budget_analytic_ids(self, _):
         """ Budget centers are either all launch's or project's:
-             a) all project's global budgets, if no launch selected
-             b) all launch's budgets, if at least 1 `launch_ids` is selected
+             a) all launch's budgets, if at least 1 `launch_ids` is selected
+             b) all project's global budgets, if no launch selected
             Thus: budget balance are either for project's or launchs' budgets.
         """
         if self.launch_ids:
             # Select budgets related to the launchs
-            position_ids = self.launch_ids.affectation_ids.position_id
-            rg_result = self.env['carpentry.position.budget'].read_group(
-                domain=[('position_id', 'in', position_ids.ids)],
-                groupby=['project_id'],
-                fields=['analytic_account_id:array_agg'],
-            )
-            mapped_data = {
-                x['project_id'][0]: x['analytic_account_id']
-                for x in rg_result
-            }
+            return (
+                self.launch_ids.affectation_ids.position_id
+                .position_budget_ids.analytic_account_id
+            ).ids
         else:
             # Select project's budgets
             domain = [('is_computed_carpentry', '=', False)]
             mapped_data = self._get_mapped_project_analytics(domain)
-
-        return mapped_data.get(self.project_id.id, [])
+            return mapped_data.get(self.project_id.id, [])
 
     def _get_total_budgetable_by_analytic(self, _):
         """ [OVERRIDE]
@@ -91,7 +91,17 @@ class CarpentryBudgetBalance(models.Model):
             record_id=self._origin.id,
             record_field=self._record_field,
         )
-        return {
-            (self.project_id.id, aac_id): amount_subtotal
-            for aac_id, amount_subtotal in remaining_budget.items() 
+
+        res = {
+            (self._origin.id, aac_id): amount_subtotal
+            for aac_id, amount_subtotal in remaining_budget.items()
+            if bool(amount_subtotal)
         }
+
+        debug = False
+        if debug:
+            print(' == _get_total_budgetable_by_analytic (balance) == ')
+            print('remaining_budget', remaining_budget)
+            print('res', res)
+        
+        return res

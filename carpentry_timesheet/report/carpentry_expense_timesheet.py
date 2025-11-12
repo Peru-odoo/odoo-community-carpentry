@@ -31,20 +31,20 @@ class CarpentryExpense(models.Model):
                     --    fakely raise/reduce amount_reserved by the difference
                     CASE
                         WHEN record.is_closed IS FALSE AND record.effective_hours < record.total_budget_reserved
-                        THEN record.effective_hours -- replace `sum(amount_reserved)` by `effective_hours`
+                        THEN record.effective_hours
                         ELSE record.total_budget_reserved
                     END -
                     CASE
                         WHEN record.planned_hours != record.total_budget_reserved
-                         AND record.effective_hours < LEAST(record.total_budget_reserved, record.planned_hours)
+                         AND record.effective_hours < record.planned_hours
                         THEN record.planned_hours - record.total_budget_reserved
                         ELSE 0.0
                     END AS amount_reserved,
 
                     -- expense
                     NULL AS value_or_devalue_workforce_expense,
-                    SUM(line.unit_amount) AS amount_expense,
-                    SUM(line.amount) * -1 AS amount_expense_valued
+                    COALESCE(SUM(line.unit_amount), 0.0) AS amount_expense,
+                    COALESCE(SUM(line.amount), 0.0) * -1 AS amount_expense_valued
             """
 
         return super()._select(model, models)
