@@ -21,24 +21,28 @@ class CarpentryExpenseHistory(models.Model):
                 else 1.0
             )
 
-            sql_section_id = 'section.id'
+            sql_record_id = 'record.id'
             if model == 'account.move':
-                sql_section_id = 'purchase_order_line.order_id'
+                sql_record_id = 'purchase_order_line.order_id'
             
             return f"""
                 SELECT
-                    section.project_id,
-                    section.date_budget AS date,
-                    section.state NOT IN ('cancel') as active,
-                    {sql_section_id} AS section_id,
-                    {models['purchase.order']} AS section_model_id,
+                    record.project_id,
+                    record.date_budget AS date,
+                    record.state NOT IN ('cancel') as active,
+                    {sql_record_id} AS record_id,
+                    {models['purchase.order']} AS record_model_id,
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    0.0 AS amount_reserved,
-                    TRUE AS should_devalue_workforce_expense,
+                    CASE
+                        WHEN COALESCE(COUNT(reservation.id), 0.0) != 0
+                        THEN SUM(reservation.amount_reserved) / COUNT(reservation.id)
+                        ELSE 0.0
+                    END AS amount_reserved,
 
                     -- expense
+                    'DEVALUE' AS value_or_devalue_workforce_expense,
                     SUM(
                         line.price_subtotal::float
                         * {ratio_invoiced}
@@ -46,13 +50,8 @@ class CarpentryExpenseHistory(models.Model):
                         / 100.0
                     ) AS amount_expense,
                     
-                    -- expense valued
-                    SUM(
-                        line.price_subtotal::float
-                        * {ratio_invoiced}
-                        * analytic_distribution.percentage::float
-                        / 100.0
-                    ) AS amount_expense_valued
+                    -- expense valued: will be calculated from `amount_expense` (without devaluation)
+                    NULL AS amount_expense_valued
             """
         
         return super()._select(model, models)
@@ -70,16 +69,26 @@ class CarpentryExpenseHistory(models.Model):
             
             if model == 'purchase.order':
                 sql += """
-                    INNER JOIN purchase_order AS section
-                        ON section.id = line.order_id
+                    INNER JOIN purchase_order AS record
+                        ON record.id = line.order_id
                 """
             elif model == 'account.move':
                 sql += """
-                    INNER JOIN account_move AS section
-                        ON section.id = line.move_id
+                    INNER JOIN account_move AS record
+                        ON record.id = line.move_id
                     INNER JOIN purchase_order_line
                         ON purchase_order_line.id = line.purchase_line_id
                 """
+            
+            # reservations
+            sql_record_id = 'record.id'
+            if model == 'account.move':
+                sql_record_id = 'purchase_order_line.order_id'
+            sql += f"""
+                LEFT JOIN carpentry_budget_reservation AS reservation
+                    ON  reservation.purchase_id = {sql_record_id}
+                    AND reservation.analytic_account_id = analytic.id
+            """
         
         return sql + super()._join(model, models)
     

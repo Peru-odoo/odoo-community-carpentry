@@ -11,6 +11,7 @@ from . import carpentry_group_lot
 from . import carpentry_budget_reservation
 from . import carpentry_budget_mixin # for PO, MO, picking, ...
 from . import carpentry_budget_balance
+from . import cost_history
 
 from . import carpentry_position_budget_interface
 

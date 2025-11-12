@@ -4,7 +4,7 @@ from odoo import models, fields, api, tools
 from psycopg2.extensions import AsIs
 
 class CarpentryBudgetProject(models.Model):
-    """ Should be overriden in each Carpentry module with expense """
+    """ Final budget report of budget/expense per project """
     _name = 'carpentry.budget.project'
     _inherit = ['carpentry.budget.expense']
     _description = 'Budget project balance'
@@ -35,8 +35,6 @@ class CarpentryBudgetProject(models.Model):
         return ('account.move.budget.line', 'carpentry.budget.expense',)
     
     def init(self):
-        # prerequisites
-        self.env['carpentry.budget.expense.distributed'].init()
         tools.drop_view_if_exists(self.env.cr, self._table)
         
         queries = self._get_queries()
@@ -77,8 +75,8 @@ class CarpentryBudgetProject(models.Model):
                 sequence,
                 result.active,
                 
-                section_id AS section_id,
-                section_model_id,
+                record_id AS record_id,
+                record_model_id,
                 
                 SUM(available_valued) AS available_valued,
                 SUM(amount_reserved) AS amount_reserved,
@@ -99,8 +97,8 @@ class CarpentryBudgetProject(models.Model):
                 project_id,
                 result.budget_type,
                 analytic_account_id,
-                section_id,
-                section_model_id,
+                record_id,
+                record_model_id,
                 sequence,
                 result.active
         """
@@ -116,8 +114,8 @@ class CarpentryBudgetProject(models.Model):
                     project_id,
                     budget_type,
                     analytic_account_id,
-                    id AS section_id,
-                    {models['account.move.budget.line']} AS section_model_id,
+                    id AS record_id,
+                    {models['account.move.budget.line']} AS record_model_id,
                     TRUE AS active,
 
                     balance AS available_valued, -- always valued
@@ -135,8 +133,8 @@ class CarpentryBudgetProject(models.Model):
                     project_id,
                     budget_type,
                     analytic_account_id,
-                    section_id,
-                    section_model_id,
+                    record_id,
+                    record_model_id,
                     active,
 
                     0.0 AS available_valued,

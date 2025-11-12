@@ -2,6 +2,7 @@
 
 from odoo import api, models, exceptions, _
 from odoo.tools import float_is_zero, float_compare
+from odoo.tools.misc import str2bool
 
 class CarpentryAffectation(models.Model):
     _inherit = ["carpentry.affectation"]
@@ -51,6 +52,7 @@ class CarpentryAffectation(models.Model):
             domain += [('project_id', 'in', project_ids)]
 
         # 1. reservations not possible with no budget reservation => just clean them with no noise
+        self.env.flush_all()
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         reservations = self.env['carpentry.budget.reservation'].search(domain)
         reservations.filtered(
@@ -61,10 +63,11 @@ class CarpentryAffectation(models.Model):
         ).unlink()
 
         # 2.
+        IrConfig = self.env['ir.config_parameter'].sudo()
+        if str2bool(IrConfig.get_param('carpentry.allow_negative_budget', default='False')):
+            return
+        
         Remaining = self.env['carpentry.budget.remaining']
-        self.env.flush_all() # required before view requests
-        Remaining.invalidate_model(['amount_subtotal'])
-
         rg_result = Remaining._read_group(
             domain=domain,
             groupby=['project_id', 'launch_id', 'analytic_account_id'],
@@ -76,7 +79,7 @@ class CarpentryAffectation(models.Model):
             if float_compare(x['amount_subtotal'], 0.0, precision_digits=prec) == -1:
                 remaining_ids += x['remaining_ids']
         
-        debug = True
+        debug = False
         if debug:
             fields = ['project_id', 'launch_id', 'analytic_account_id', 'amount_subtotal',]
             print('domain', domain)

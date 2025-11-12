@@ -5,15 +5,14 @@ from odoo import models, fields, api, _
 class PurchaseOrder(models.Model):
     _name = "purchase.order"
     _inherit = ['purchase.order', 'carpentry.budget.mixin']
+    _record_field = 'purchase_id'
+    _record_fields_expense = ['order_line', 'invoice_ids']
     _carpentry_budget_notebook_page_xpath = '//page[@name="products"]'
     _carpentry_budget_last_valuation_step = _('billing')
-    # _carpentry_budget_alert_banner_xpath = False
-    # _carpentry_budget_smartbuttons_xpath = False
-    # _carpentry_budget_notebook_page_xpath = False
 
     #====== Fields ======#
-    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)],)
+    reservation_ids = fields.One2many(inverse_name='purchase_id')
+    expense_ids = fields.One2many(inverse_name='purchase_id',)
     budget_analytic_ids = fields.Many2many(
         relation='carpentry_budget_purchase_analytic_rel',
         column1='order_id',
@@ -21,17 +20,22 @@ class PurchaseOrder(models.Model):
     )
 
     #====== CRUD ======#
-    def write(self, vals):
-        res = super().write(vals)
-        if 'budget_analytic_ids' in vals:
-            self._cascade_order_budgets_to_line_analytic()
-        return res
+    def _compute_reservation_ids(self, vals={}):
+        if (
+            isinstance(fields.first(self), models.NewId)
+            or self._context.get('carpentry_dont_refresh_reservations')
+        ):
+            return
+        
+        if 'budget_analytic_ids' in vals: # user choosed manually the budget centers
+            # ctx: avoid calling twice `_compute_reservation_ids`,
+            # since `line.analytic_distribution` is also in @depends
+            ctx_self = self.with_context(carpentry_dont_refresh_reservations=True)
+            ctx_self._cascade_order_budgets_to_line_analytic()
+        return super()._compute_reservation_ids(vals)
     
     def _cascade_order_budgets_to_line_analytic(self):
         """ Manual budget choice => update line's analytic distribution """
-        if self._context.get('budget_analytic_ids_computed_auto'):
-            return
-        
         domain=[('is_project_budget', '=', True)]
         budget_analytics_ids = self.env['account.analytic.account'].search(domain).ids
 
@@ -45,14 +49,19 @@ class PurchaseOrder(models.Model):
     def _get_budget_types(self):
         return ['goods', 'other']
     
-    def _get_fields_budget_reservation_refresh(self):
-        return super()._get_fields_budget_reservation_refresh() + [
-            'order_line', 'amount_untaxed', 'invoice_count',
-        ]
-    
     def _should_value_budget_reservation(self):
         return True
     
+    def _depends_reservation_refresh(self):
+        return super()._depends_reservation_refresh() + [
+            'order_line.analytic_distribution', 'amount_untaxed',
+        ]
+    def _depends_expense_totals(self):
+        return super()._depends_expense_totals() + [
+            # mo
+            'invoice_ids.amount_untaxed',
+            'invoice_ids.line_ids.analytic_distribution',
+        ]
     def _depends_can_reserve_budget(self):
         return super()._depends_can_reserve_budget() + ['order_line']
     def _get_domain_can_reserve_budget(self):
@@ -64,6 +73,15 @@ class PurchaseOrder(models.Model):
         ]
     def _get_domain_is_temporary_gain(self):
         return [('invoice_status', '!=', 'invoiced')]
+    
+    # def _get_auto_budget_analytic_ids(self, _):
+    #     """ Used in `_populate_budget_analytics`,
+    #         for `budget_analytic_ids` to follow the expense
+    #     """
+    #     return (
+    #         self.order_line.analytic_account_ids
+    #         + self.invoice_ids.line_ids.analytic_account_ids
+    #     ).filtered('is_project_budget').ids
     
     #===== Compute: date & amounts =====#
     @api.depends('date_approve')

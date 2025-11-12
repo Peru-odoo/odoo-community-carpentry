@@ -10,7 +10,7 @@ class PurchaseOrder(models.Model):
     #====== Fields' methods ======#
     def name_get(self):
         """ Force to follow `_compute_display_name`
-            required because of `section_ref` field in `carpentry.budget.remaining`
+            required because of `record_ref` field in `carpentry.budget.remaining`
         """
         if not self._context.get('display_description'):
             return super().name_get()

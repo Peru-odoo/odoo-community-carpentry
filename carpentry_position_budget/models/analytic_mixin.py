@@ -31,50 +31,51 @@ class BaseModel(models.AbstractModel):
 
     # @api.onchange('project_id') # must be set in child modules
     def _cascade_project_to_line_analytic_distrib(self, new_project_id=None):
+        debug = False
         field_lines = self._get_fields_related_with(
-            ['analytic_distribution', '_synch_project_analytic_distrib_from_section']
+            ['analytic_distribution', '_synch_project_analytic_distrib_from_record']
         )
+
+        if debug:
+            print(' == _cascade_project_to_line_analytic_distrib == ')
+            print('field_lines', field_lines)
+
         if not field_lines:
             return
         
         onchange = bool(new_project_id == None)
         if not onchange: # from `write()`
             new_project = self.env['project.project'].browse(new_project_id)
+
+        if debug:
+            print('onchange', onchange)
+            print('new_project', new_project)
+            print('self', self)
         
         for parent in self:
             if onchange:
                 new_project = parent.project_id
             
             for field_line in field_lines:
-                parent[field_line]._synch_project_analytic_distrib_from_section(new_project)
+                parent[field_line]._synch_project_analytic_distrib_from_record(new_project)
 
 class AnalyticMixin(models.AbstractModel):
     """
         Designed for `line`-type model (like `account_move_line`)
         Update lines's analytic:
-        - Cascading section's project (on some events) - only for project plan
+        - Cascading record's project (on some events) - only for project plan
         - Forcing analytic to INTERNAL project & budget - both project & budget plan
     """
     _inherit = ['analytic.mixin']
 
     #====== CRUD ======#
     def write(self, vals):
-        """ 1. Simulate `onchange`
-            2. Auto update budget reservation of parent (e.g. PO) on change
-               of cost, product or analytic of line (e.g. PO line)
-        """
+        """ Simulate `onchange` """
         res = super().write(vals)
 
         # 1. after `write()`
         if 'analytic_distribution' in vals and not self._context.get('has_enforced_aac_distrib'):
             self._enforce_internal_analytic()
-        # 2.
-        if any(x in vals for x in self._get_fields_budget_reservation_refresh()):
-            self_sudo = self.sudo()
-            for field_parent in self._get_fields_related_with(['project_id']):
-                if hasattr(self_sudo[field_parent], '_refresh_budget_reservations'):
-                    self_sudo[field_parent]._refresh_budget_analytics()
-                    self_sudo[field_parent]._refresh_budget_reservations()
         
         return res
     
@@ -86,15 +87,22 @@ class AnalyticMixin(models.AbstractModel):
         """
         for record in self:
             project = record._get_project_from_parent()._origin
-            record._synch_project_analytic_distrib_from_section(project)
+            record._synch_project_analytic_distrib_from_record(project)
 
     #====== Compute ======#
-    def _synch_project_analytic_distrib_from_section(self, new_project):
+    def _synch_project_analytic_distrib_from_record(self, new_project):
         """ Cascade `project_id` of the parent record (if changed)
             to the line's analytic distribution 
         """
+        self = self.with_context(has_enforced_aac_distrib=True)
         mapped_projects_analytics = self._get_mapped_projects_analytics()
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
+        
+        debug = False
+        if debug:
+            print(' == _synch_project_analytic_distrib_from_record == ')
+            print('mapped_projects_analytics', mapped_projects_analytics)
+            print('replace_dict_enforce', replace_dict_enforce)
         
         for record in self:
             new_aac_id = new_project.analytic_account_id.id
@@ -125,21 +133,33 @@ class AnalyticMixin(models.AbstractModel):
         return projects_analytics
 
     def _cascade_parent_project_to_analytic(self, new_aac_id, mapped_projects_analytics):
-        """ Cascade section's project to line:
+        """ Cascade record's project to line:
             1. Remove all project-related analytics on the line
             2. Set up the cascaded project
         """
         self.ensure_one()
 
+        debug = False
+        if debug:
+            print(' === _cascade_parent_project_to_analytic === ')
+            print('self.analytic_distribution', self.analytic_distribution)
+            print('new_aac_id', new_aac_id)
+            
         distrib = self.analytic_distribution or {}
         for aac_id in mapped_projects_analytics.keys():
             if str(aac_id) in distrib:
                 distrib.pop(str(aac_id))
         
+        if debug:
+            print('distrib-medium', distrib)
+
         if new_aac_id:
             distrib |= {new_aac_id: 100}
 
         self.analytic_distribution = distrib
+        if debug:
+            print('distrib-new_aac_id', distrib)
+            print('self.analytic_distribution (end)', self.analytic_distribution)
 
 
     #====== Helper methods ======#
@@ -201,9 +221,5 @@ class AnalyticMixin(models.AbstractModel):
         return {
             project_aac_id: internal_aac_id
             for project_aac_id in [x['analytic_account_id'][0] for x in sr_result]
+            if project_aac_id != internal_aac_id
         }
-
-    #==== CRUD: budget affectation refresh ====#
-    def _get_fields_budget_reservation_refresh(self):
-        return ['product_id', 'product_qty', 'price_unit', 'discount', 'analytic_distribution',]
-    

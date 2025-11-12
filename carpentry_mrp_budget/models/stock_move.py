@@ -33,8 +33,4 @@ class StockMove(models.Model):
         
         self._compute_analytic_distribution_carpentry()
     
-    # def _compute_analytic_distribution(self):
-    #     res = super()._compute_analytic_distribution()
-    #     self._compute_analytic_distribution_carpentry()
-    #     return res
     

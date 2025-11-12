@@ -4,12 +4,13 @@ from re import A
 from odoo import models, fields, api, Command, exceptions, _
 
 class CarpentryBudgetBalance(models.Model):
-    """ This model acts as a real `section` (models.Models), like PO, MO, ...
+    """ This model acts like PO, MO, ...
         to adjust budget and make balances
     """
     _name = "carpentry.budget.balance"
     _inherit = ['project.default.mixin', 'carpentry.budget.mixin']
     _description = "Budget Balance"
+    _record_field = 'balance_id'
     _carpentry_budget_alert_banner_xpath = False # don't use budget view templates
     _carpentry_budget_smartbuttons_xpath = False
     _carpentry_budget_notebook_page_xpath = False
@@ -17,12 +18,13 @@ class CarpentryBudgetBalance(models.Model):
     #===== Fields =====#
     name = fields.Char()
     project_id = fields.Many2one(readonly=True)
-    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
+    reservation_ids = fields.One2many(inverse_name='balance_id')
+    expense_ids = fields.One2many(inverse_name='balance_id')
     launch_ids = fields.Many2many(
         string='Launchs',
         comodel_name='carpentry.group.launch',
         compute='_compute_launch_ids',
+        inverse='_inverse_launch_ids',
         readonly=False,
         domain="[('project_id', '=', project_id)]",
     )
@@ -48,51 +50,58 @@ class CarpentryBudgetBalance(models.Model):
         for balance in self:
             balance.launch_ids = balance.reservation_ids.launch_id
     
+    def _inverse_launch_ids(self):
+        """ Switch between project/launch mode:
+            - update budget centers
+            - refresh lines of reservations table
+        """
+        self._compute_reservation_ids()
+    
     def _get_launch_ids(self):
         """ For balance: either launchs, either project """
         return self.launch_ids.ids or [False]
     
-    def write(self, vals):
-        """ Update budget_analytic_ids when changing mode launch/project """
-        res = super().write(vals)
-        if 'launch_ids' in vals:
-            self._refresh_budget_analytics()
-        return res
-    
-    def _get_auto_budget_analytic_ids(self):
+    def _get_auto_budget_analytic_ids(self, _):
         """ Budget centers are either all launch's or project's:
-             a) all project's global budgets, if no launch selected
-             b) all launch's budgets, if at least 1 `launch_ids` is selected
+             a) all launch's budgets, if at least 1 `launch_ids` is selected
+             b) all project's global budgets, if no launch selected
             Thus: budget balance are either for project's or launchs' budgets.
         """
         if self.launch_ids:
             # Select budgets related to the launchs
-            position_ids = self.launch_ids.affectation_ids.position_id
-            rg_result = self.env['carpentry.position.budget'].read_group(
-                domain=[('position_id', 'in', position_ids.ids)],
-                groupby=['project_id'],
-                fields=['analytic_account_id:array_agg'],
-            )
-            mapped_data = {
-                x['project_id'][0]: x['analytic_account_id']
-                for x in rg_result
-            }
+            return (
+                self.launch_ids.affectation_ids.position_id
+                .position_budget_ids.analytic_account_id
+            ).ids
         else:
             # Select project's budgets
             domain = [('is_computed_carpentry', '=', False)]
             mapped_data = self._get_mapped_project_analytics(domain)
+            return mapped_data.get(self.project_id.id, [])
 
-        return mapped_data.get(self.project_id.id, [])
-
-    def _get_total_budgetable_by_analytic(self):
+    def _get_total_budgetable_by_analytic(self, _):
         """ [OVERRIDE]
             Balance => budget to reserve is *all* remaining budget (instead of expense)
         """
         self.ensure_one()
-        remaining_budget = self.budget_analytic_ids._get_remaining_budget_by_analytic(
-            launchs=self.launch_ids, sections=self
+        Analytic = self.env['account.analytic.account']
+        remaining_budget = Analytic._get_remaining_budget_by_analytic(
+            project_id=self.project_id._origin.id,
+            launch_ids=self.launch_ids._origin.ids,
+            record_id=self._origin.id,
+            record_field=self._record_field,
         )
-        return {
-            (self.project_id.id, aac_id): amount_subtotal
-            for aac_id, amount_subtotal in remaining_budget.items() 
+
+        res = {
+            (self._origin.id, aac_id): amount_subtotal
+            for aac_id, amount_subtotal in remaining_budget.items()
+            if bool(amount_subtotal)
         }
+
+        debug = False
+        if debug:
+            print(' == _get_total_budgetable_by_analytic (balance) == ')
+            print('remaining_budget', remaining_budget)
+            print('res', res)
+        
+        return res

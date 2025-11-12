@@ -12,8 +12,7 @@ from odoo.addons.carpentry_position_budget.tests.test_06_reservation import (
 )
 
 class TestCarpentryPurchaseBudget_Base(TestCarpentryPositionBudget_AnalyticBase):
-    model_section = 'purchase.order'
-    field_section = 'order_id'
+    record_model = 'purchase.order'
     field_lines = 'order_line'
 
     @classmethod
@@ -29,7 +28,7 @@ class TestCarpentryPurchaseBudget_AnalyticProject(
         super(TestCarpentryPurchaseBudget_AnalyticProject, cls).setUpClass()
 
         # PO without `project_id` to start with
-        cls.po = cls.Section.create({
+        cls.po = cls.Model.create({
             'partner_id': cls.env.user.partner_id.id,
         })
         cls.po_line, _ = cls.Line.create([{
@@ -44,12 +43,12 @@ class TestCarpentryPurchaseBudget_AnalyticProject(
             'price_unit': cls.UNIT_PRICE,
         }])
     
-    def test_01_set_section_project_after_line_creation(self):
+    def test_01_set_record_project_after_line_creation(self):
         """ On PO, project can be set *after* the PO and lines creation
             (replenishment from stock).
             
-            => Test that, from a section with existing and non-modified lines,
-               setting the section's project cascades well to lines
+            => Test that, from a record with existing lines,
+               setting the record's project cascades well to lines
         """
         # no projects analytics at first
         self._test_line_projects(self.env['project.project'], line=self.po_line)
@@ -58,20 +57,20 @@ class TestCarpentryPurchaseBudget_AnalyticProject(
         self.po.project_id = self.project
         self._test_line_projects(self.project, line=self.po_line)
 
-    def test_02_remove_section_project(self):
-        """ Ensure section's project removal is cascaded to lines """
+    def test_02_remove_record_project(self):
+        """ Ensure record's project removal is cascaded to lines """
         self.po.project_id = False
         self._test_line_projects(self.env['project.project'], line=self.po_line)
 
-    def test_03_project_on_analytic_distrib_before_section(self):
-        """ Test case where line analytic is set *before* section's `project_id`
-            -> Changing section's project **MUST** cascade on line
+    def test_03_project_on_analytic_distrib_before_record(self):
+        """ Test case where line analytic is set *before* record's `project_id`
+            -> Changing record's project **MUST** cascade on line
         """
-        # set line's analytic *before* the section's, with different projects
+        # set line's analytic *before* the record's, with different projects
         self._add_analytic({self.project2_aac.id: 100}, self.po_line)
         self.po.project_id = self.project
 
-        # the section's project should have cascaded
+        # the record's project should have cascaded
         self._test_line_projects(self.project, line=self.po_line)
 
 class TestCarpentryPurchaseBudget_AnalyticEnforcement(
@@ -180,8 +179,8 @@ class TestCarpentryPurchaseBudget_Reservation(
         """
         # po has 2 products: 1 consumable, 1 internal
         self.line.analytic_distribution = {self.aac_goods.id: 100} # ensure normal analytic of consu line
-        self.assertEqual(self.section.total_budgetable, self.UNIT_PRICE)
-        self.assertEqual(self.section.amount_untaxed, self.UNIT_PRICE * 2)
+        self.assertEqual(self.record.total_budgetable, self.UNIT_PRICE)
+        self.assertEqual(self.record.amount_untaxed, self.UNIT_PRICE * 2)
 
     def test_81_other_expense_bill(self):
         """ Ensure if the analytic is changed on account.move and

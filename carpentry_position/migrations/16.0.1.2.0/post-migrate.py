@@ -28,6 +28,7 @@ def _migrate_carpentry_affectation(cr, env):
             END,
             affectation.quantity_affected,
             affectation.affected,
+            parent_affectation.id,
             parent_affectation.quantity_affected
         FROM
             carpentry_group_affectation AS affectation
@@ -36,20 +37,21 @@ def _migrate_carpentry_affectation(cr, env):
             ON group_model.id = affectation.group_model_id
         LEFT JOIN
             carpentry_group_affectation AS parent_affectation
-            ON  parent_affectation.id = affectation.record_id
+            ON  parent_affectation.id = affectation.record_id AND group_model.model = 'carpentry.group.phase'
         WHERE group_model.model IN ('carpentry.group.phase', 'carpentry.group.launch')
     """)
     vals_list = []
     for row in cr.fetchall():
         (
             mode, group_id, parent_group_id, position_id,
-            quantity_affected, affected, parent_quantity_affected
+            quantity_affected, affected,
+            parent_affectation_id, parent_affectation_qty_affected
         ) = row
         position = env['carpentry.position'].browse(position_id)
         phase    = env['carpentry.group.phase'].browse(group_id if mode == 'phase' else parent_group_id)
         launch   = env['carpentry.group.launch'].browse(group_id if mode == 'launch' else 0)
 
-        if not position.exists() or not phase.exists() or not launch.exists():
+        if not position.exists() or not phase.exists():
             continue
 
         vals = {
@@ -59,11 +61,12 @@ def _migrate_carpentry_affectation(cr, env):
             'lot_id': position.lot_id.id,
             'phase_id': phase.id,
             'launch_id': launch.id,
+            'parent_id': parent_affectation_id,
             'sequence_position': position.sequence,
             'sequence_group': phase.sequence if mode == 'phase' else launch.sequence,
             'sequence_parent_group': position.lot_id.sequence if mode == 'phase' else phase.sequence,
             'affected': affected if mode == 'launch' else False,
-            'quantity_affected': quantity_affected if mode == 'phase' else parent_quantity_affected,
+            'quantity_affected': quantity_affected if mode == 'phase' else parent_affectation_qty_affected,
             'active': all([
                 position.active,
                 position.project_id.active,

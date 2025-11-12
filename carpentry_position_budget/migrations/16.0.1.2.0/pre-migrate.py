@@ -12,6 +12,7 @@ def migrate(cr, version):
     cr.execute("""
         DELETE FROM ir_ui_view WHERE arch_prev LIKE '%%amount_budgetable%%';
         DELETE FROM ir_ui_view WHERE arch_prev LIKE '%total_budget_reserved%' AND type = 'tree';
+        DELETE FROM ir_ui_view WHERE name = 'carpentry.group.launch.form.budget';
     """)
 
     # tables: positions, affectations, ...

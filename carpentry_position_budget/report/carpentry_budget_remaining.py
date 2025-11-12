@@ -12,13 +12,6 @@ class CarpentryBudgetRemaining(models.Model):
     _description = 'Project & launches remaining budgets'
     _auto = False
 
-    #===== Fields methods =====#
-    def _selection_section_ref(self):
-        return [
-            (model.model, model.name)
-            for model in self.env['ir.model'].sudo().search([])
-        ]
-
     #===== Fields =====#
     state = fields.Selection(
         selection=[('budget', 'Budget'), ('reservation', 'Reservation')],
@@ -28,36 +21,30 @@ class CarpentryBudgetRemaining(models.Model):
     amount_subtotal = fields.Float(
         string='Remaining',
     )
-    section_id = fields.Many2oneReference(
-        string='Section ID',
-        model_field='section_res_model',
+    # records
+    balance_id = fields.Many2one(
+        comodel_name='carpentry.budget.balance',
+        string='Balance',
         readonly=True,
     )
-    section_ref = fields.Reference(
+    # models
+    record_id = fields.Many2oneReference(
+        string='Record ID',
+        model_field='record_res_model',
+        readonly=True,
+    )
+    record_ref = fields.Reference(
         string='Name',
-        selection='_selection_section_ref',
+        selection='_selection_record_ref',
+        compute='_compute_record_ref',
         readonly=True,
-        compute='_compute_section_ref',
-    )
-    section_model_id = fields.Many2one(
-        string='Document Model',
-        comodel_name='ir.model',
-        readonly=True,
-    )
-    section_res_model = fields.Char(
-        string='Section Model',
-        related='section_model_id.model',
-    )
-    section_model_name = fields.Char(
-        string='Document (section)',
-        related='section_model_id.name',
     )
     # fields cancelling (necessary so they are not in SQL from ORM)
     phase_id = fields.Many2one(store=False)
     position_id = fields.Many2one(store=False)
     amount_unitary = fields.Float(store=False)
-    amount_subtotal_valued = fields.Float(store=False)
     quantity_affected = fields.Float(store=False)
+    amount_subtotal_valued = fields.Monetary(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -71,113 +58,140 @@ class CarpentryBudgetRemaining(models.Model):
         
         queries = self._get_queries()
         if queries:
-            self._cr.execute(f"""
-                CREATE or REPLACE VIEW %s AS (
+            # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
+            Reservation = self.env['carpentry.budget.reservation']
+            sql_record_fields = ''
+            for field in Reservation._get_record_fields():
+                model = Reservation[field]._name
+                if model == 'carpentry.budget.balance':
+                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
+                else:
+                    model_id = self.env['ir.model']._get_id(model)
+                sql_record_fields += f"""
+                    , CASE
+                        WHEN record_model_id = {model_id}
+                        THEN record_id
+                        ELSE NULL
+                    END AS {field}
+                """
+
+            self._cr.execute("""
+                CREATE or REPLACE VIEW %(table_name)s AS (
                     SELECT
                         row_number() OVER (ORDER BY unique_key) AS id,
-                        
                         state,
+                        
                         project_id,
                         launch_id,
-                        group_model_id,
                         active,
-
-                        section_model_id,
-                        section_id,
 
                         analytic_account_id,
                         amount_subtotal,
-                        budget_type
+                        budget_type,
+                        
+                        record_model_id,
+                        record_id
+                        %(sql_record_fields)s
                     FROM (
-                        (%s)
+                        (%(sql_union)s)
                     ) AS result
-                )""", (
-                    AsIs(self._table),
-                    AsIs(') UNION ALL (' . join(queries))
-                )
+                )""", {
+                    'table_name': AsIs(self._table),
+                    'sql_record_fields': AsIs(sql_record_fields),
+                    'sql_union': AsIs(') UNION ALL (' . join(queries)),
+                }
             )
 
     def _select(self, model, models):
-        return f"""
-            SELECT
-                'available-' || available.id AS unique_key,
-                'budget' AS state,
-                
-                -- project & launch
-            	available.project_id,
-            	available.launch_id,
-                available.group_model_id,
-                available.active,
+        # SQL for balance_id, purchase_id, production_id, task_id, ...
+        Reservation = self.env['carpentry.budget.reservation']
+        record_fields = Reservation._get_record_fields()
+        prefix = 'NULL AS ' if model == 'carpentry.budget.available' else 'reservation.'
+        sql_record_fields = ', ' . join([prefix + field for field in record_fields])
 
-                -- section_model_id: carpentry.position or project.project
-                CASE
-                    WHEN available.launch_id IS NOT NULL
-                    THEN {models['carpentry.position']}
-                    ELSE available.group_model_id -- project.project
-                END AS section_model_id,
-                -- section_id: position or project
-                CASE
-                    WHEN available.launch_id IS NOT NULL
-                    THEN available.position_id
-                    ELSE available.project_id
-                END AS section_id,
+        if model == 'carpentry.budget.available':
+            return f"""
+                SELECT
+                    'available-' || available.id AS unique_key,
+                    'budget' AS state,
+                    
+                    -- project & launch
+                    available.project_id,
+                    available.launch_id,
+                    available.active,
 
-                -- budget
-                available.analytic_account_id,
-                available.amount_subtotal AS amount_subtotal,
-                available.budget_type
+                    -- budget
+                    available.analytic_account_id,
+                    available.amount_subtotal AS amount_subtotal,
+                    available.budget_type,
+
+                    -- record_id: position or project
+                    available.record_model_id,
+                    CASE
+                        WHEN available.launch_id IS NOT NULL
+                        THEN available.position_id
+                        ELSE available.project_id
+                    END AS record_id,
+                    {sql_record_fields} -- balance_id, purchase_id, ...
+            """
+        else:
+            sql_record_model_id = ''
+            for field in record_fields:
+                model = Reservation[field]._name
+                if model == 'carpentry.budget.balance':
+                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
+                else:
+                    model_id = models[model]
+                sql_record_model_id += f"""
+                    CASE
+                        WHEN reservation.{field} IS NOT NULL
+                        THEN {model_id}
+                        ELSE
+                """
+            if sql_record_model_id:
+                sql_record_model_id += ' NULL ' + (' END ' * len(record_fields))
             
-        """ if model == 'carpentry.budget.available' else f"""
+            return f"""
+                SELECT
+                    'reservation-' || reservation.id AS unique_key,
+                    'reservation' AS state,
 
-            SELECT
-                'reservation-' || reservation.id AS unique_key,
-                'reservation' AS state,
+                    -- project & launch
+                    reservation.project_id,
+                    reservation.launch_id,
+                    reservation.active,
+                    
+                    -- budget
+                    reservation.analytic_account_id,
+                    -1 * reservation.amount_reserved AS amount_subtotal,
+                    reservation.budget_type,
 
-                -- project & launch
-                reservation.project_id,
-                reservation.launch_id,
-                CASE
-                    WHEN reservation.launch_id IS NOT NULL
-                    THEN {models['carpentry.group.launch']}
-                    ELSE {models['project.project']}
-                END AS group_model_id,
-                reservation.active,
-
-                -- section
-                reservation.section_model_id,
-                reservation.section_id,
-                
-                -- budget
-                reservation.analytic_account_id,
-                -1 * reservation.amount_reserved AS amount_subtotal,
-                reservation.budget_type
-
-        """
+                    -- record
+                    {sql_record_model_id} AS record_model_id,
+                    COALESCE({', '.join(record_fields)}) AS record_id,
+                    {sql_record_fields} -- balance_id, purchase_id, ...
+            """
 
     def _from(self, model, models):
-        return (
-            'FROM carpentry_budget_available AS available'
-
-            if model == 'carpentry.budget.available' else
-	        
-            'FROM carpentry_budget_reservation AS reservation'
-        )
+        if model == 'carpentry.budget.available':
+            return 'FROM carpentry_budget_available AS available'
+        else:
+            return 'FROM carpentry_budget_reservation AS reservation'
 
     def _join(self, model, models):
         return ''
     
     def _where(self, model, models):
-        return f"""
-            -- no available budget from position, only project and launch
-            WHERE available.group_model_id IN (
-                {models['project.project']},
-                {models['carpentry.group.launch']}
-            )
-            
-            """ if model == 'carpentry.budget.available' else f"""
-
-            WHERE amount_reserved != 0.0
+        if model == 'carpentry.budget.available':
+            return f"""
+                -- no available budget only from project and launchs
+                WHERE available.record_model_id IN (
+                    {models['project.project']},
+                    {models['carpentry.group.launch']}
+                )
             """
+        else:
+            return ''
     
     def _groupby(self, model, models):
         return ''
@@ -186,18 +200,18 @@ class CarpentryBudgetRemaining(models.Model):
         return ''
 
     #===== Compute =====#
-    @api.depends('section_id', 'section_model_id')
-    def _compute_section_ref(self):
-        for remaining in self:
-            remaining.section_ref = (
+    @api.depends('record_id', 'record_model_id')
+    def _compute_record_ref(self):
+        for available in self:
+            available.record_ref = (
                 '{},{}' . format(
-                    remaining.section_model_id.model,
-                    remaining.section_id,
+                    available.record_model_id.model,
+                    available.record_id,
                 )
-                if remaining.section_model_id and remaining.section_id
+                if available.record_model_id and available.record_id
                 else False
             )
-
+    
     #===== Actions & Buttons =====#
     def _get_raise_to_reservations(self, message):
         """ Used when trying to delete source of budget, like when:
@@ -222,33 +236,33 @@ class CarpentryBudgetRemaining(models.Model):
             'domain': [('id', 'in', self.ids)],
         }
     
-    def open_section_ref(self, reservation=None):
+    def open_record_ref(self, reservation=None):
         if reservation:
             # see `carpentry.budget.reservation`
             self = reservation
         
         """ Opens a document providing or reserving some budget """
-        if not self.section_model_id:
+        if not self.record_model_id:
             return {}
         
-        if self.section_ref and hasattr(self.section_ref, '_carpentry_budget_reservation'):
+        if self.record_ref and hasattr(self.record_ref, '_carpentry_budget_reservation'):
             # budget reservation
             return {
                 'type': 'ir.actions.act_window',
-                'name': self.section_ref._description,
-                'res_model': self.section_ref._name,
-                'res_id': self.section_ref.id,
+                'name': self.record_ref._description,
+                'res_model': self.record_ref._name,
+                'res_id': self.record_ref.id,
                 'view_mode': 'form',
             }
         
-        elif self.section_model_id.model in ('carpentry.position', 'project.project'):
+        elif self.record_model_id.model in ('carpentry.position', 'project.project'):
             # available budget
-            position_id = self.section_ref._name == 'carpentry.position' and self.section_ref
+            position_id = self.record_ref._name == 'carpentry.position' and self.record_ref
             return self.open_position_budget(position_id)
         
-        elif self.section_model_id.model in ('account.move.budget.line'):
+        elif self.record_model_id.model in ('account.move.budget.line'):
             # available budget (at project level)
-            project = self.section_ref and self.section_ref.project_id
+            project = self.record_ref and self.record_ref.project_id
             if project:
                 return {
                     'type': 'ir.actions.act_window',

@@ -123,12 +123,12 @@ class AccountMoveBudgetLine(models.Model):
         # Ensure correct values in database
         # (!) needed here, because `read_group` on view
         #                           & write of storable fields
-        self.env.invalidate_all()
+        self.env.flush_all()
 
         # Get budget project's groupped by analytic account
         domain = [
             ('project_id', 'in', self.project_id._origin.ids),
-            ('group_res_model', '=', 'carpentry.position'),
+            ('record_res_model', '=', 'carpentry.position'),
             ('analytic_account_id', '!=', False),
         ]
         rg_result = self.env['carpentry.budget.available']._read_group(

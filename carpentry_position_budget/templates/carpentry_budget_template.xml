@@ -94,8 +94,10 @@
                     }"
                     t-attf-context="{
                         'analytic_display_budget': 1,
-                        'section_res_model': '{{model_name}}',
-                        'section_id': id, 
+                        'project_id': project_id,
+                        'launch_ids': launch_ids,
+                        'record_id': id,
+                        'record_field': '{{record_field}}',
                     }"
                     t-attf-domain="[
                         ('budget_project_ids', '=', project_id),

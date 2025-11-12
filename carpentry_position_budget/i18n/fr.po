@@ -459,7 +459,7 @@ msgstr "Annuler"
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_budget_interface__display_name
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_position_merge_wizard__display_name
 msgid "Display Name"
-msgstr "Groupement"
+msgstr "Document"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense_distributed__expense_distributed
@@ -478,7 +478,7 @@ msgstr "Dépense répartie"
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_remaining_tree
 #: model_terms:ir.ui.view,arch_db:carpentry_position_budget.carpentry_budget_report_search_common
 msgid "Document"
-msgstr "Groupement"
+msgstr "Document"
 
 #. module: carpentry_position_budget
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_expense__section_model_name
@@ -826,7 +826,7 @@ msgstr "Fusionner pour résoudre le conflit avec d'autres repères portant le m�
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_available_valued__group_res_model
 #: model:ir.model.fields,field_description:carpentry_position_budget.field_carpentry_budget_remaining__group_res_model
 msgid "Model"
-msgstr "Type de groupement"
+msgstr "Document"
 
 #. module: carpentry_position_budget
 #: model:ir.model,name:carpentry_position_budget.model_ir_model

@@ -15,17 +15,18 @@ class AnalyticAccount(models.Model):
             - suffix: ... remaining budget 0,00€
         """
         res = super().name_get()
-        if not self._context.get('analytic_display_budget'):
+        ctx_keys = ('project_id', 'launch_ids', 'record_id', 'record_field',)
+        if (
+            not self._context.get('analytic_display_budget')
+            or not all(field in self._context for field in ctx_keys)
+        ):
             return res
 
         analytics = self.browse(list(dict(res).keys()))
-        section_res_model, section_id = self._context.get('section_res_model'), self._context.get('section_id')
-        remaining_budget = {}
-        if section_res_model and section_id:
-            section = self.env[section_res_model].sudo().browse(section_id)
-            remaining_budget = analytics._get_remaining_budget_by_analytic(section.launch_ids, section)
-        
+        kargs = [self._context[x] for x in ctx_keys]
+        remaining_budget = self._get_remaining_budget_by_analytic(*kargs)
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
+        
         res_updated = []
         for id_, name in res:
             analytic = analytics.browse(id_)
@@ -116,21 +117,24 @@ class AnalyticAccount(models.Model):
         return super()._search(domain, offset, limit, order, count, access_rights_uid)
 
     #==== Budget sums computation =====#
-    def _get_remaining_budget_by_analytic(self, launchs, sections):
-        """ Group remaining budget by `analytic`, according to required `launchs` & `section`
+    @api.model
+    def _get_remaining_budget_by_analytic(self, project_id, launch_ids, record_id, record_field):
+        """ Group remaining budget by `analytic`, according to required `launchs` & `record`
             (!!!) Always in *BRUT*
 
+            :arg record_field: like 'purchase_id'
+            :arg record_id: like ID for `purchase.order`
+            :arg launch_ids: explicit
+            :arg project_id: explicit
             :return: Dict like {analytic_id: amount}
         """
-        self.env.flush_all()
-        self.env['carpentry.budget.remaining'].invalidate_model()
-        
         rg_result = self.env['carpentry.budget.remaining'].read_group(
             domain=[
-                ('project_id', 'in', sections.project_id._origin.ids),
-                ('launch_id', 'in', [False] + launchs.ids),
+                ('project_id', '=', project_id),
+                ('launch_id', 'in', [False] + launch_ids),
                 ('analytic_account_id', '!=', False),
-            ] + sections._get_domain_exclude_sections(),
+                (record_field, '!=', record_id),
+            ],
             fields=['amount_subtotal:sum'],
             groupby=['analytic_account_id'],
         )

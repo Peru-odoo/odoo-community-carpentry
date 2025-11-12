@@ -2,29 +2,30 @@
 
 from odoo import models, fields, api, exceptions, _, Command
 from odoo.tools import float_round
-from collections import defaultdict
 
 class ManufacturingOrder(models.Model):
     """ Budget Reservation on MOs """
     _name = 'mrp.production'
     _inherit = ['mrp.production', 'carpentry.budget.mixin']
+    _record_field = 'production_id'
+    _record_fields_expense = ['move_raw_ids', 'workorder_ids']
     _carpentry_budget_notebook_page_xpath = '//page[@name="components"]'
     _carpentry_budget_sheet_name = 'Budget (components)'
     _carpentry_budget_last_valuation_step = _('products revaluation')
 
     #====== Fields ======#
-    reservation_ids = fields.One2many(domain=[('section_res_model', '=', _name)])
-    expense_ids = fields.One2many(domain=[('section_res_model', '=', _name)],)
+    reservation_ids = fields.One2many(inverse_name='production_id')
+    expense_ids = fields.One2many(inverse_name='production_id')
     reservation_ids_components = fields.One2many(
         comodel_name='carpentry.budget.reservation',
-        inverse_name='section_id',
-        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['goods', 'other'])],
+        inverse_name='production_id',
+        domain=[('budget_type', 'in', ['goods', 'other'])],
         context={'active_test': False},
     )
     reservation_ids_workorders = fields.One2many(
         comodel_name='carpentry.budget.reservation',
-        inverse_name='section_id',
-        domain=[('section_res_model', '=', _name), ('budget_type', 'in', ['production'])],
+        inverse_name='production_id',
+        domain=[('budget_type', 'in', ['production'])],
         context={'active_test': False},
     )
     budget_analytic_ids = fields.Many2many(
@@ -45,29 +46,27 @@ class ManufacturingOrder(models.Model):
     total_budget_reserved = fields.Float(
         string='Budget (components)',
         help='Sum of budget reservation for components only',
-        store=True, # needed in expense report
     )
     total_budget_reserved_workorders = fields.Float(
         string='Budget (workorders)',
         help='Sum of budget reservation in hours for workorders only',
-        compute='_compute_budget_totals',
-        compute_sudo=True,
+        compute='_compute_total_expense_gain',
+        store=True,
     )
     difference_workorder_duration_budget = fields.Float(
         compute='_compute_difference_workorder_duration_budget',
     )
-    total_expense_valued = fields.Monetary(string='Total cost (components)', compute_sudo=True,)
+    total_expense_valued = fields.Monetary(string='Total cost (components)',)
     total_expense_valued_workorders = fields.Monetary(
         string='Total cost (work orders)',
-        compute='_compute_budget_totals',
-        compute_sudo=True,
+        compute='_compute_total_expense_gain',
+        store=True,
     )
     budget_unit_workorders = fields.Char(default='h')
-    amount_gain = fields.Monetary(string='Gain (components)', compute_sudo=True,)
-    amount_loss = fields.Monetary(compute_sudo=True,)
+    amount_gain = fields.Monetary(string='Gain (components)',)
     amount_gain_workorders = fields.Monetary(
-        compute='_compute_budget_totals',
-        compute_sudo=True,
+        compute='_compute_total_expense_gain',
+        store=True,
     )
     other_expense_ids_components = fields.Many2many(
         comodel_name='carpentry.budget.expense',
@@ -87,28 +86,16 @@ class ManufacturingOrder(models.Model):
         store=True,
     )
     # -- view fields --
-    show_gain = fields.Boolean(compute_sudo=True,)
-    is_temporary_gain = fields.Boolean(compute_sudo=True,)
-    show_gain = fields.Boolean(compute_sudo=True,)
-    text_no_reservation = fields.Char(compute='_compute_budget_totals',compute_sudo=True,)
-    total_budgetable = fields.Float(compute_sudo=True,)
-    total_budgetable_workorders = fields.Float(compute='_compute_budget_totals', compute_sudo=True,)
-    show_gain_workorders = fields.Boolean(compute='_compute_budget_totals', compute_sudo=True,)
-    text_no_reservation_workorders = fields.Char(compute='_compute_budget_totals', compute_sudo=True,)
+    amount_loss_workorders = fields.Monetary(compute='_compute_view_fields')
+    total_budgetable_workorders = fields.Float(compute='_compute_view_fields',)
+    show_gain_workorders = fields.Boolean(compute='_compute_view_fields',)
+    text_no_reservation_workorders = fields.Char(compute='_compute_view_fields',)
     is_temporary_gain_workorders = fields.Boolean(
         store=False,
         default=False,
     )
 
     #===== Compute =====#
-    def _compute_state(self):
-        """ Ensure `reservation_ids.active` follows `mrp_production.state`,
-            which is a computed stored field and thus not catched in `write`
-        """
-        res = super()._compute_state()
-        self.reservation_ids._compute_section_fields()
-        return res
-    
     @api.depends('budget_analytic_ids')
     def _compute_budget_analytic_ids_workorders(self):
         debug = False
@@ -147,12 +134,12 @@ class ManufacturingOrder(models.Model):
         mo.invalidate_recordset(['budget_analytic_ids']) # ensure correct value in next logics
     
     #===== Budgets customization =====#
-    def _auto_update_budget_distribution(self):
+    def _auto_update_budget_reservation(self, rg_result):
         """ Don't update components amounts while update workorders budgets """
         if self._context.get('budget_analytic_ids_workorders_inverse'):
             return
         
-        super()._auto_update_budget_distribution()
+        super()._auto_update_budget_reservation(rg_result)
 
     #===== Budgets configuration =====#
     def _get_budget_types(self):
@@ -161,18 +148,32 @@ class ManufacturingOrder(models.Model):
         return ['production']
     def _get_component_budget_types(self):
         return ['goods', 'other']
+
+    def _depends_reservation_refresh(self):
+        return super()._depends_reservation_refresh() + [
+            'move_raw_ids.product_uom_qty',
+            'move_raw_ids.analytic_distribution',
+        ]
+    def _depends_expense_totals(self):
+        return super()._depends_expense_totals() + [
+            'move_raw_ids.product_id.standard_price',
+            # done
+            'state',
+            'move_finished_ids.product_uom_qty',
+            'move_finished_ids.analytic_distribution',
+            'move_finished_ids.stock_valuation_layer_ids.value',
+            # workorders
+            'workorder_ids.duration',
+        ]
+
+    def _get_domain_is_temporary_gain(self):
+        return [('state', '!=', 'done'),]
     
     def _get_reservations_auto_update(self):
         """ Filter reservations of workorders so their amount is never updated """
         return self.reservation_ids.filtered(
             lambda x: x.budget_type in self._get_component_budget_types()
         )
-
-    def _get_fields_budget_reservation_refresh(self):
-        return super()._get_fields_budget_reservation_refresh() + ['move_raw_ids']
-
-    def _get_domain_is_temporary_gain(self):
-        return [('state', '!=', 'done'),]
     
     #===== Budget reservation: date & compute =====#
     @api.depends(
@@ -199,7 +200,7 @@ class ManufacturingOrder(models.Model):
             mo.other_expense_ids_components = mo.other_expense_ids.filtered(lambda x: x.budget_type in budget_types_components)
             mo.other_expense_ids_workorders = mo.expense_ids - mo.other_expense_ids_components
 
-    def _get_auto_budget_analytic_ids(self):
+    def _get_auto_budget_analytic_ids(self, _):
         """ Only for components
             For workcenters: keep manually chosen budgets
         """
@@ -227,8 +228,23 @@ class ManufacturingOrder(models.Model):
                 sum(mo.reservation_ids_workorders.mapped('amount_reserved')),
                 precision_digits = prec
             )
+
+    def _get_rg_result_expense(self, fields=[]):
+        return super()._get_rg_result_expense(['budget_type:array_agg'])
+    def _flush_budget(self):
+        """ Needed for correct computation of totals """
+        self.env['ir.property'].flush_model(['value_float']) # standard_price
+        return super()._flush_budget()
+
+    def _compute_total_expense_gain(self, groupby_analytic=False, rg_result=None):
+        """ Group by analytic for xxx_one """
+        return super()._compute_total_expense_gain(
+            groupby_analytic=True, rg_result=rg_result,
+        )
     
-    def _compute_budget_totals_one(self, totals, prec, pivot_analytic_to_budget_type):
+    def _compute_total_expense_gain_one(self, totals,
+        pivot_analytic_to_budget_type, field_suffix=''
+    ):
         """ 1. Split `totals` between components and workorders
             2. Computes both totals
         """
@@ -241,9 +257,14 @@ class ManufacturingOrder(models.Model):
                 totals_workorders[aac_id] = totals.pop(aac_id)
 
         # 2.
-        super()._compute_budget_totals_one(totals, prec)
-        super()._compute_budget_totals_one(totals_workorders, prec, field_suffix='_workorders')
+        super()._compute_total_expense_gain_one(totals)
+        super()._compute_total_expense_gain_one(totals_workorders, field_suffix='_workorders')
 
+    def _compute_view_fields_one(self, prec, field_suffix):
+        """ Compute UI fields for both components and workorders """
+        super()._compute_view_fields_one(prec, field_suffix)
+        if not field_suffix:
+            super()._compute_view_fields_one(prec, '_workorders')
 
     #===== Views =====#
     def _get_view_carpentry_config(self):
