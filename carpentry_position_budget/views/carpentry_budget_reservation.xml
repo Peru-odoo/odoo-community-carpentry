@@ -25,7 +25,10 @@
                 <field name="budget_unit" nolabel="1" />
                 <field name="amount_reserved_valued" required="1" sum="1" optional="hide" />
                 <field name="amount_expense_valued" readonly="1" sum="1" optional="show" />
-                <field name="amount_gain" readonly="1" sum="1" optional="show" />
+                <field name="amount_gain" readonly="1" sum="1" optional="show" 
+                    decoration-success="amount_gain &gt; 0.0"
+                    decoration-danger="amount_gain &lt; 0.0"
+                />
             </tree>
         </field>
     </record>
