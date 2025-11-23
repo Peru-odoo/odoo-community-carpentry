@@ -49,13 +49,14 @@ class CarpentryBudgetExpenseHistory(models.Model):
     )
     # cancel fields
     state = fields.Selection(store=False)
+    position_id = fields.Many2one(store=False)
     launch_id = fields.Many2one(store=False)
     amount_subtotal = fields.Float(store=False)
 
     #===== View build =====#
     def _get_queries_models(self):
         """ Inherited in sub-modules (purchase, mrp, timesheet) """
-        return ('carpentry.budget.balance',)
+        return ('carpentry.budget.reservation',)
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -97,7 +98,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         CASE
                             WHEN expense.budget_type IN %(budget_types)s AND 'DEVALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
                             THEN CASE
-                                WHEN COUNT(hourly_cost.coef) > 0 AND hourly_cost.coef != 0.0
+                                WHEN COALESCE(hourly_cost.coef, 0.0) != 0.0
                                 THEN 1 / hourly_cost.coef
                                 ELSE 0.0
                             END ELSE 1.0
@@ -116,14 +117,14 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         END AS amount_expense_valued,
                         
                         -- gain
-                        SUM(expense.amount_reserved) * (
+                        COALESCE(SUM(expense.amount_reserved) * (
                             CASE
                                 WHEN expense.budget_type IN %(budget_types)s
                                 THEN hourly_cost.coef
                                 ELSE 1.0
                             END
-                        )
-                        - CASE 
+                        ), 0.0)
+                        - COALESCE(CASE
                             WHEN TRUE = ANY(ARRAY_AGG(amount_expense_valued IS NULL)) -- if need computation from `amount_expense`
                             THEN SUM(expense.amount_expense) *
                                 CASE
@@ -132,7 +133,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                                     ELSE 1.0
                                 END
                             ELSE SUM(expense.amount_expense_valued)
-                        END AS amount_gain
+                        END, 0.0) AS amount_gain
                     
                     FROM (
                         (%(union)s)
@@ -183,18 +184,37 @@ class CarpentryBudgetExpenseHistory(models.Model):
         return sql_record_fields
 
     def _select(self, model, models):
-        if model == 'carpentry.budget.balance':
+        if model == 'carpentry.budget.reservation':
+            Reservation = self.env['carpentry.budget.reservation']
+            record_fields = Reservation._get_record_fields()
+            
+            sql_record_model_id = ''
+            for record_field in record_fields:
+                model = Reservation[record_field]._name
+                if model == 'carpentry.budget.balance':
+                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
+                else:
+                    model_id = self.env['ir.model']._get_id(model)
+                
+                sql_record_model_id += f"""
+                    CASE
+                        WHEN {record_field} IS NOT NULL
+                        THEN {model_id}
+                        ELSE
+                """
+            sql_record_model_id += ' NULL ' + ' END ' * len(record_fields)
+
             sql = f"""
                 SELECT
-                    record.project_id,
-                    record.date_budget AS date,
-                    TRUE as active,
-                    record.id AS record_id,
-                    (SELECT id FROM ir_model WHERE model = '{model}') AS record_model_id,
-                    analytic.id AS analytic_account_id,
-                    analytic.budget_type,
+                    project_id,
+                    date,
+                    active AS active,
+                    COALESCE({', ' . join (record_fields)}) AS record_id,
+                    {sql_record_model_id} AS record_model_id,
+                    analytic_account_id,
+                    budget_type,
 
-                    record.total_budget_reserved AS amount_reserved,
+                    amount_reserved,
 
                     NULL AS value_or_devalue_workforce_expense,
                     0.0 AS amount_expense,
@@ -204,18 +224,12 @@ class CarpentryBudgetExpenseHistory(models.Model):
         return sql
 
     def _from(self, model, models):
-        return f"FROM {model.replace('.', '_')} AS record"
+        if model == 'carpentry.budget.reservation':
+            return "FROM carpentry_budget_reservation AS reservation"
+        else:
+            return f"FROM {model.replace('.', '_')} AS record"
 
     def _join(self, model, models):
-        if model == 'carpentry.budget.balance':
-            return """
-                INNER JOIN carpentry_budget_reservation AS reservation
-                    ON reservation.balance_id = record.id
-                
-                INNER JOIN account_analytic_account AS analytic
-                    ON analytic.id = reservation.analytic_account_id
-            """
-        
         return ''
 
     def _join_product_analytic_distribution(self):
@@ -236,10 +250,16 @@ class CarpentryBudgetExpenseHistory(models.Model):
         """
     
     def _where(self, model, models):
-        return 'WHERE analytic.budget_type IS NOT NULL'
+        if model == 'carpentry.budget.reservation':
+            return 'WHERE TRUE'
+        else:
+            return 'WHERE analytic.budget_type IS NOT NULL'
     
     def _groupby(self, model, models):
-        return 'GROUP BY analytic.budget_type, analytic.id, record.id, record.project_id'
+        if model == 'carpentry.budget.reservation':
+            return ''
+        else:
+            return 'GROUP BY analytic.budget_type, analytic.id, record.id, record.project_id'
     
     def _orderby(self, model, models):
         return ''
@@ -248,7 +268,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
         return ''
 
     #===== Compute =====#
-    @api.depends('record_id', 'record_model_id')
+    @api.depends('record_model_id')
     def _compute_launch_ids(self):
         for expense in self:
             expense.launch_ids = (
@@ -267,7 +287,6 @@ class CarpentryBudgetExpense(models.Model):
     date = fields.Date(store=False)
 
     def init(self):
-        super().init()
         tools.drop_view_if_exists(self.env.cr, self._table)
         
         self._cr.execute("""
@@ -286,7 +305,7 @@ class CarpentryBudgetExpense(models.Model):
                     %(sql_record_fields)s
                     analytic_account_id,
                     budget_type,
-                    AVG(hourly_cost_coef) AS hourly_cost_coef, -- for `carpentry.budget.expense.distributed`
+                    -- AVG(hourly_cost_coef) AS hourly_cost_coef, -- for `carpentry.budget.expense.distributed`
                     
                     SUM(amount_reserved) AS amount_reserved,
                     SUM(amount_reserved_valued) AS amount_reserved_valued,

@@ -6,6 +6,8 @@ from odoo.tests.common import Form
 from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 from odoo.addons.carpentry_position_budget.models.carpentry_planning_column import human_readable
 
+import datetime
+
 class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
 
     @classmethod
@@ -49,6 +51,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         self.assertEqual(len(resa), 1)
         self.assertEqual(resa.analytic_account_id, self.aac_other)
         self.assertEqual(resa.amount_reserved, self.amount_other)
+        self.assertEqual(resa.amount_reserved, resa.amount_initially_available)
 
         # no remaining budget on global project's budgets
         self.assertFalse(resa.amount_remaining)
@@ -217,8 +220,59 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
                 budget.amount_unitary -= 1
         except:
             self.fail('Lowering budget of acceptable amount should be OK')
+
+    def test_11_access_right(self):
+        try:
+            self.balance.reservation_ids.read([])
+        except exceptions.AccessError:
+            self.fail('User access rights issue')
     
-    def test_11_reservation_clean_on_affectation_removal(self):
+    #===== Planning columns =====#
+    def _get_planning_result(self, launch):
+        return (
+            self.column.get_headers_data(launch.id)
+            .get(self.column.id, {}).get('budget', {})
+        )
+
+    def test_20_planning_column_unit(self):
+        """ Test units of budget columns: 'h' if only 'h' ; else '€' """
+        self.env['carpentry.budget.balance'].search([]).unlink()
+        # affect everything to 1st phase, position & launch
+        self._reset_affectations()
+        self._create_budget_project()
+
+        result = self._get_planning_result(self.launch)
+        self.assertEqual(result.get('unit'), 'h') # installation only
+        
+        self.column.budget_types += ',production,other'
+        result = self._get_planning_result(self.launch)
+        self.assertEqual(result.get('unit'), '€')
+
+    def test_21_planning_column_totals(self):
+        """ Test total amounts in planning columns """
+        self.column.budget_types = 'installation,production'
+
+        # launch2: with no budget
+        self.assertFalse(self.launchs[1].budget_total) # situation check
+        result = self._get_planning_result(self.launchs[1])
+        self.assertEqual(result.get('available'), human_readable(0.0))
+
+        
+        # launch1: has all project's budget, with no reservations yet
+        launch_available = self.launch.budget_installation + self.launch.budget_production
+        self.assertTrue(launch_available) # situation check
+        result = self._get_planning_result(self.launch)
+        self.assertEqual(result.get('available'), launch_available)
+        self.assertFalse(result.get('reserved'))
+
+        # make a reservation (balance all budget of launch1)
+        balance3 = self.balance.create({'name': 'Balance3', 'project_id': self.project.id})
+        balance3.launch_ids = self.launch
+        result = self._get_planning_result(self.launch)
+        self.assertEqual(result.get('reserved'), launch_available)
+
+    #===== Final tests =====#
+    def test_99_reservation_clean_on_affectation_removal(self):
         """ Ensure when a budget is removed, *empty/ghost* reservation
             linked to it but not reserving budget should be cleaned
             (see `_clean_reservation_and_constrain_budget`)
@@ -235,46 +289,3 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
             self.fail('Unlinking budgets with no reservations should be OK')
 
         self.assertFalse(reservations)
-    
-    def test_12_access_right(self):
-        try:
-            self.balance.with_user(self.project_user).read(['reservation_ids'])
-            # self.balance.reservation_ids.read([])
-        except exceptions.AccessError:
-            self.fail('User access rights issue')
-
-    #===== Planning columns =====#
-    def _get_planning_result(self, launch):
-        return (
-            self.column.get_headers_data(launch.id)
-            .get(self.column.id, {}).get('budget', {})
-        )
-
-    def test_13_planning_column_unit(self):
-        """ Test units of budget columns: 'h' if only 'h' ; else '€' """
-        self.env['carpentry.budget.balance'].search([]).unlink()
-        self._reset_affectations() # affect everything to 1st phase, position & launch
-
-        result = self._get_planning_result(self.launch)
-        self.assertEqual(result.get('unit'), 'h') # installation only
-        
-        self.column.budget_types += ',production,other'
-        result = self._get_planning_result(self.launch)
-        self.assertEqual(result.get('unit'), '€')
-
-    def test_14_planning_column_totals(self):
-        """ Test total amounts in planning columns """
-        # launch2: with no budget
-        result = self._get_planning_result(self.launchs[1])
-        self.assertEqual(result.get('available'), human_readable(0.0))
-        
-        # launch1: has all project's budget, with no reservations yet
-        result = self._get_planning_result(self.launch)
-        self.assertEqual(result.get('available'), self.project.budget_total)
-        self.assertFalse(result.get('reserved'))
-    
-        # make a reservation (balance all budget of launch1)
-        balance3 = self.balance.create({'name': 'Balance3', 'project_id': self.project.id})
-        balance3.launch_ids = self.launch
-        result = self._get_planning_result(self.launch)
-        self.assertEqual(result.get('reserved'), self.launch.budget_total)

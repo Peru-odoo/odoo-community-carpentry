@@ -91,10 +91,19 @@ class TestCarpentryPurchaseBudget_Reservation(
     def setUpClass(cls):
         super().setUpClass()
 
+    @classmethod
+    def _print_test(cls):
+        print('expenses', cls.record.expense_ids.read(
+            ['amount_reserved', 'amount_reserved_valued',
+             'amount_expense', 'amount_expense_valued',
+             'amount_gain'
+            ]
+        ))
     
     #===== Auto/suggestion mode =====#
     # See `carpentry_position_budget/TestCarpentryPositionBudget_Reservation`
     def _test_01_results(self):
+        self._print_test()
         return {
             'count': 1,
             'aacs': self.aac_other,
@@ -182,7 +191,52 @@ class TestCarpentryPurchaseBudget_Reservation(
         self.assertEqual(self.record.total_budgetable, self.UNIT_PRICE)
         self.assertEqual(self.record.amount_untaxed, self.UNIT_PRICE * 2)
 
-    def test_81_other_expense_bill(self):
+    def test_81_factor_budget_reserved(self):
+        """ In PostgreSQL report/view, finding right */ COUNT
+            between the many LEFT JOIN and GROUP BY was complex
+            because:
+            * FROM is on po_line
+            * LEFT JOINed analytic_account of analytic_distrib, for expense
+            * LEFT JOIN budget_reservation, for reserved amount
+            * group by analytic_account
+            
+            Situation 1:
+             * 2 PO lines on a same budget center
+             * 2 lines in reservations table on this budget center, because 2 launchs selected
+            => ensure no multiplication of budget reserved neither expense by number of reservations or PO lines
+            
+            Situation 2:
+             * expense but no reserved budget
+            => ensure no cancelling of expense / budget reserved
+        """
+        # situation: `aac_other` is both global and launch budget
+        self.record.launch_ids = self.launch
+        self._create_budget_position(self.position, self.aac_other, self.amount_other)
+
+        # 1. 2 affectations and 2 PO lines
+        self.line.analytic_distribution = {self.aac_other.id: 100}
+        self.line.copy()
+        self._test_reservation('81a')
+
+        # 2.
+        self.record.reservation_ids.unlink()
+        self._test_reservation('81b')
+
+    def _test_81a_results(self):
+        return {
+            'count': 2,
+            'budget_reserved': self.amount_other * 2, # amount_other is 100.0 while line.price_subtotal is 150.0
+            'expense_valued': self.line.price_subtotal * 2,
+        }
+    def _test_81b_results(self):
+        return {
+            'count': 0,
+            'budget_reserved': 0.0,
+            'expense_valued': self.line.price_subtotal * 2,
+        }
+    
+    
+    def test_82_other_expense_bill(self):
         """ Ensure if the analytic is changed on account.move and
             is different to PO's lines, it takes precedence and
             goes to `other_expense_ids`
@@ -190,7 +244,7 @@ class TestCarpentryPurchaseBudget_Reservation(
         pass
         # TODO @arnaudlayec
 
-    def test_82_can_chose_budgets_when_billed(self):
+    def test_83_can_chose_budgets_when_billed(self):
         """ Ensure even if some real expenses comes from the account.move.line,
             analytics of the bill does not interfer in recomputation of `budget_analytic_ids`
         """

@@ -222,19 +222,42 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         }
     
     def _test_09_valuation_change(self):
-        """ Test that `total_expense_valued`
-            updates well when cost valuation changes
+        """ Test that both:
+             * records's totals (budget, expense, gain)
+             * `carpentry.budget.reservation`.`amount_reserved_valued`
+            updates well when cost valuation changes:
+             1. new cost or update
+             2. project dates
         """
-        before = self.record.total_expense_valued
+        def _get_amounts():
+            return (
+                self.record.total_budget_reserved,
+                self.record.total_expense_valued,
+                resa.amount_reserved_valued,
+            )
+
+        # initial situation
+        resa = fields.first(self.record.reservation_ids.filtered(lambda x: x.budget_type == 'installation'))
+        before = _get_amounts()
+        self.assertTrue(all(before))
+
+        # 1.
         self.aac_installation.timesheet_cost_history_ids = [Command.create({
             'starting_date': '2022-01-01',
             "hourly_cost": self.HOUR_COST*2,
             'currency_id': self.project.currency_id.id,
         })]
-        self.assertNotEqual(self.record.total_expense_valued, before)
-        
+        self.assertNotEqual(_get_amounts(), before)
         # clean
         self.aac_installation.timesheet_cost_history_ids[-1].unlink()
+        self.assertEqual(_get_amounts(), before)
+
+        # 2. project date
+        date_start = self.project.date_start
+        self.project.date_start = '2000-01-01'
+        self.assertNotEqual(_get_amounts(), before)
+        self.project.date_start = date_start
+
 
     #===== Other & UI =====#
     def test_10_reservation_fields_from_record(self):

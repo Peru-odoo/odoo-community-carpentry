@@ -94,14 +94,12 @@
                     }"
                     t-attf-context="{
                         'analytic_display_budget': 1,
-                        'project_id': project_id,
-                        'launch_ids': launch_ids,
                         'record_id': id,
-                        'record_field': '{{record_field}}',
+                        'record_res_model': '{{model_name}}',
                     }"
                     t-attf-domain="[
                         ('budget_project_ids', '=', project_id),
-                        ('budget_type', 'in', {{budget_types}})
+                        '|', ('budget_type', 'in', {{budget_types}}), ('id', 'in', {{fields['budget_analytic_ids']}})
                     ]"
                 />
             </group>
@@ -174,7 +172,7 @@
                 <button name="button_force_refresh" type="object"
                     t-if="button_refresh"
                     class="text-primary oe_right" colspan="2"
-                    string="Refresh reservation" icon="fa-refresh"
+                    string="Refresh reserved amounts" icon="fa-refresh"
                     help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
                     confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
                     t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"

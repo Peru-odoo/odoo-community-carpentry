@@ -12,5 +12,4 @@ def _rebuild_budget_expense(cr):
     env = api.Environment(cr, SUPERUSER_ID, {})
     env['carpentry.budget.expense.history'].init()
     env['carpentry.budget.expense'].init()
-    env['carpentry.budget.expense.distributed'].init()
     env['carpentry.budget.project'].init()

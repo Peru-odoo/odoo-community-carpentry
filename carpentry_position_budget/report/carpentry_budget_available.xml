@@ -60,8 +60,8 @@
     </record>
 
     <!-- Search (common) -->
-    <record id="carpentry_budget_report_search_common" model="ir.ui.view">
-        <field name="name">carpentry.budget.available.search</field>
+    <record id="carpentry_budget_available_search_common" model="ir.ui.view">
+        <field name="name">carpentry.budget.available.search.common</field>
         <field name="model">carpentry.budget.available</field>
         <field name="priority">999</field>
         
@@ -103,7 +103,7 @@
     <record id="carpentry_budget_report_available_search" model="ir.ui.view">
         <field name="name">carpentry.budget.available.search</field>
         <field name="model">carpentry.budget.available</field>
-        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_available_search_common" />
         <field name="mode">primary</field>
         <field name="priority">10</field>
         

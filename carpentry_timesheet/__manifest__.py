@@ -28,6 +28,7 @@
         'views/project_task.xml',
         'views/project_project.xml',
         # report
+        'report/carpentry_budget_remaining.xml',
         'report/hr_timesheet_report_view.xml',
     ],
     'assets': {

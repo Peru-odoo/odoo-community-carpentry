@@ -36,6 +36,11 @@ class CarpentryBudgetProject(models.Model):
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
+
+        prerequisites = ('carpentry.budget.expense',)
+        for model in prerequisites:
+            if not model in self.env:
+                self.env[model].init()
         
         queries = self._get_queries()
         if queries:
@@ -62,7 +67,12 @@ class CarpentryBudgetProject(models.Model):
     
     #===== View definition =====#
     def _view_select(self):
-        return """
+        # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
+        Reservation = self.env['carpentry.budget.reservation']
+        record_fields = Reservation._get_record_fields()
+        sql_record_fields = ', ' . join([field for field in record_fields])
+        
+        return f"""
             SELECT
                 row_number() OVER (ORDER BY
                     project_id,
@@ -77,6 +87,7 @@ class CarpentryBudgetProject(models.Model):
                 
                 record_id AS record_id,
                 record_model_id,
+                {sql_record_fields},
                 
                 SUM(available_valued) AS available_valued,
                 SUM(amount_reserved) AS amount_reserved,
@@ -86,19 +97,24 @@ class CarpentryBudgetProject(models.Model):
                 SUM(amount_gain) AS amount_gain,
                 CASE
                     WHEN SUM(amount_reserved_valued) != 0
-                    THEN SUM(amount_gain) / SUM(amount_reserved_valued) * 100.0 
-                    ELSE 0.0
+                    THEN SUM(amount_gain) / SUM(amount_reserved_valued)
+                    ELSE NULL
                 END AS percent_gain
         """
     
     def _view_groupby(self):
-        return """
+        # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
+        Reservation = self.env['carpentry.budget.reservation']
+        record_fields = Reservation._get_record_fields()
+        
+        return f"""
             GROUP BY
                 project_id,
                 result.budget_type,
                 analytic_account_id,
                 record_id,
                 record_model_id,
+                {', ' . join(record_fields)},
                 sequence,
                 result.active
         """
@@ -106,6 +122,12 @@ class CarpentryBudgetProject(models.Model):
     
     #===== Union sub-queries definition =====#
     def _select(self, model, models):
+        # SQL for balance_id, purchase_id, production_id, task_id, ...
+        Reservation = self.env['carpentry.budget.reservation']
+        record_fields = Reservation._get_record_fields()
+        prefix = 'NULL AS ' if model == 'account.move.budget.line' else ''
+        sql_record_fields = ', ' . join([prefix + field for field in record_fields])
+
         if model == 'account.move.budget.line':
             return f"""
                 SELECT 
@@ -116,6 +138,7 @@ class CarpentryBudgetProject(models.Model):
                     analytic_account_id,
                     id AS record_id,
                     {models['account.move.budget.line']} AS record_model_id,
+                    {sql_record_fields},
                     TRUE AS active,
 
                     balance AS available_valued, -- always valued
@@ -126,7 +149,7 @@ class CarpentryBudgetProject(models.Model):
                     0.0 AS amount_gain
             """
         else:
-            return """
+            return f"""
                 SELECT
                     'expense' AS state,
 
@@ -135,6 +158,7 @@ class CarpentryBudgetProject(models.Model):
                     analytic_account_id,
                     record_id,
                     record_model_id,
+                    {sql_record_fields},
                     active,
 
                     0.0 AS available_valued,

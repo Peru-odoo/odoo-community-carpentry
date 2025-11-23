@@ -186,7 +186,7 @@ class AnalyticMixin(models.AbstractModel):
 
 
     #====== Internal analytics enforcment ======#
-    @api.onchange('analytic_distribution')
+    # @api.onchange('analytic_distribution')
     def _enforce_internal_analytic(self):
         """ Forces analytic (e.g. to *internal* project for all *storable* lines) """
         self = self.filtered(lambda x: x._should_enforce_internal_analytic())

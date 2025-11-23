@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models, _
+from odoo import api, fields, models, exceptions, _
 from odoo.tools.misc import format_amount
 from odoo.tools import float_is_zero
 
@@ -15,16 +15,22 @@ class AnalyticAccount(models.Model):
             - suffix: ... remaining budget 0,00€
         """
         res = super().name_get()
-        ctx_keys = ('project_id', 'launch_ids', 'record_id', 'record_field',)
-        if (
-            not self._context.get('analytic_display_budget')
-            or not all(field in self._context for field in ctx_keys)
-        ):
+        if not self._context.get('analytic_display_budget'):
             return res
+        
+        record_id = self._context.get('record_id')
+        record_res_model = self._context.get('record_res_model')
 
+        if not record_id or not record_res_model or not record_res_model in self.env:
+            print("record_id", record_id)
+            print("record_res_model", record_res_model)
+            return res
+        
         analytics = self.browse(list(dict(res).keys()))
-        kargs = [self._context[x] for x in ctx_keys]
-        remaining_budget = self._get_remaining_budget_by_analytic(*kargs)
+        record = self.env[record_res_model].browse(record_id)
+        remaining_budget = self._get_remaining_budget_by_analytic(
+            record.project_id.id, record.launch_ids.ids, record.id, record._record_field,
+        )
         budget_type_selection = dict(self._fields['budget_type']._description_selection(self.env))
         
         res_updated = []

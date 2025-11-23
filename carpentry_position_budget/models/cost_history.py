@@ -7,19 +7,22 @@ class HrEmployeeTimesheetCostHistory(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        return super().create(vals_list)._update_budget_totals()
+        histories = super().create(vals_list)
+        histories._update_budget_totals()
+        return histories
 
     def write(self, vals):
         res = super().write(vals)
-        fields = ('starting_date', 'date_to', 'hourly_cost')
+        fields = ('analytic_account_id', 'starting_date', 'date_to', 'hourly_cost')
         if any(x in vals for x in fields):
             self._update_budget_totals()
         return res
     
     def unlink(self):
-        aacs = self.analytic_account_ids
+        aacs = self.analytic_account_id
         res = super().unlink()
-        self._update_budget_totals(aacs)
+        if aacs:
+            self._update_budget_totals(aacs)
         return res
     
     def copy(self, vals={}):
@@ -28,17 +31,27 @@ class HrEmployeeTimesheetCostHistory(models.Model):
         return res
     
     def _update_budget_totals(self, aacs=None):
-        """ Updated totals of records' budget reservations/expenses
-            on changes of valuation
+        """ On valuattion changes, update:
+            * records' totals (budget reservations/expenses)
+            * reservation's valued amount
         """
         aacs = aacs or self.analytic_account_id
+        if not aacs:
+            return
+
+        # update reservations
         reservations = self.env['carpentry.budget.reservation'].search(
             [('analytic_account_id' , 'in', aacs.ids)]
         )
+        if not reservations:
+            return
+        reservations._compute_amount_reserved_valued()
+
+        # update records
         record_fields = reservations._get_record_fields()
         for field in record_fields:
             records = reservations[field]
             if records:
-                records._compute_total_budget_reserved()
-                records._compute_total_expense_gain()
-    
+                rg_result = records._get_rg_result_expense()
+                records._compute_total_budget_reserved(rg_result=rg_result)
+                records._compute_total_expense_gain(rg_result=rg_result)

@@ -51,15 +51,19 @@ class CarpentryBudgetBalance(models.Model):
             balance.launch_ids = balance.reservation_ids.launch_id
     
     def _inverse_launch_ids(self):
-        """ Switch between project/launch mode:
-            - update budget centers
-            - refresh lines of reservations table
+        """ Recompute both `budget_analytic_ids` and `reservation_ids` """
+        self._compute_reservation_ids({})
+    
+    def _compute_reservation_ids(self, vals={}):
+        """ Cancel refresh from `write`, so it's managed by
+            `_inverse_launch_ids` with proper `launch_ids` in cache
         """
-        self._compute_reservation_ids()
+        if not 'launch_ids' in vals:
+            super()._compute_reservation_ids({})
     
     def _get_launch_ids(self):
         """ For balance: either launchs, either project """
-        return self.launch_ids.ids or [False]
+        return self.launch_ids._origin.ids or [False]
     
     def _get_auto_budget_analytic_ids(self, _):
         """ Budget centers are either all launch's or project's:

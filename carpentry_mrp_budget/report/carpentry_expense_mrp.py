@@ -44,11 +44,7 @@ class CarpentryExpense(models.Model):
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    CASE
-                        WHEN COALESCE(COUNT(reservation.id), 0.0) != 0
-                        THEN SUM(reservation.amount_reserved) / COUNT(reservation.id)
-                        ELSE 0.0
-                    END AS amount_reserved,
+                    0.0 AS amount_reserved,
                     
                     -- expense: will be devaluated for workforce
                     'DEVALUE' AS value_or_devalue_workforce_expense,
@@ -60,7 +56,9 @@ class CarpentryExpense(models.Model):
                         END
                         * analytic_distribution.percentage::float
                         / 100.0
-                    ) * {sign} AS amount_expense,
+                    ) * {sign} * (
+                        COUNT(DISTINCT line.id)::float / COUNT(*)::float
+                    ) AS amount_expense,
 
                     -- valued expense: will be calculated from `amount_expense` (without devaluation)
                     NULL AS amount_expense_valued
@@ -74,31 +72,38 @@ class CarpentryExpense(models.Model):
                     {sql_active} AS active,
                     record.id AS record_id,
                     {models['mrp.production']} AS record_model_id,
-                    analytic.id AS analytic_account_id,
-                    analytic.budget_type,
+                    reservation.analytic_account_id,
+                    reservation.budget_type,
                     
                     -- amount_reserved:
-                    -- 1. if effective_hours < amount_reserved:
-                    --    displays expense == budget_reservation in the project's budget report
+                    -- if: effective_hours < amount_reserved
+                    -- then: displays expense == budget_reservation in the project's budget report
+                    -- else: follow SUM from `carpentry.budget.reservation`
                     CASE
-                        WHEN record.state != 'done' AND SUM(line.duration) / 60 < COALESCE(SUM(reservation.amount_reserved), 0.0)
-                        THEN SUM(line.duration) / 60
-                        ELSE COALESCE(SUM(reservation.amount_reserved), 0.0)
-                    END *
-                    CASE -- prorata per workorder's reserved budget
-                        WHEN record.total_budget_reserved != 0.0
-                        THEN COALESCE(SUM(reservation.amount_reserved), 0.0) / record.total_budget_reserved
+                        WHEN
+                            record.state != 'done' AND SUM(line.duration) / 60
+                            < COALESCE(SUM(reservation.amount_reserved), 0.0)
+                              * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
+                        THEN SUM(line.duration) / 60 - (
+                            COALESCE(SUM(reservation.amount_reserved), 0.0)
+                            * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
+                        )
                         ELSE 0.0
                     END AS amount_reserved,
                     
                     -- expense
                     'VALUE' AS value_or_devalue_workforce_expense,
-                    SUM(line.duration) / 60 *
-                    CASE -- prorata per workorder's reserved budget
-                        WHEN record.total_budget_reserved != 0.0
-                        THEN COALESCE(SUM(reservation.amount_reserved), 0.0) / record.total_budget_reserved 
-                        ELSE 1.0
-                    END AS amount_expense,
+                    SUM(line.duration) / 60 * (
+                        CASE -- prorata per workorder's reserved budget
+                            WHEN record.total_budget_reserved_workorders != 0.0
+                            THEN (
+                                COALESCE(SUM(reservation.amount_reserved), 0.0)
+                                * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
+                                / record.total_budget_reserved_workorders
+                            )
+                            ELSE 1.0
+                        END
+                    ) AS amount_expense,
 
                     -- expense valued: will be calculated from `amount_expense` and valued (for workforce)
                     NULL AS amount_expense_valued
@@ -144,26 +149,15 @@ class CarpentryExpense(models.Model):
             """
         
         elif model == 'mrp.workorder':
+            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
             sql += f"""
                 INNER JOIN mrp_production AS record
                     ON record.id = line.production_id
-            """
-        
-        # reservations
-        if model in ('stock.picking', 'mrp.production', 'mrp.workorder'):
-            sql += f"""
+                
                 LEFT JOIN carpentry_budget_reservation AS reservation
-                    ON  reservation.{self.env[model]._record_field} = record.id
+                    ON  reservation.production_id = record.id
+                    AND reservation.budget_type IN {tuple(budget_types)}
             """
-            if model in ('stock.picking', 'mrp.production'):
-                sql += " AND reservation.analytic_account_id = analytic.id"
-            elif model == 'mrp.workorder':
-                budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
-                sql += f"""
-                        AND reservation.budget_type IN {tuple(budget_types)}
-                    LEFT JOIN account_analytic_account AS analytic
-                        ON analytic.id = reservation.analytic_account_id
-                """
         
         return sql + super()._join(model, models)
         
@@ -178,6 +172,8 @@ class CarpentryExpense(models.Model):
                 AND line.production_id IS NULL
                 AND line.raw_material_production_id IS NULL
             """
+        elif model == 'mrp.workorder':
+            sql = ''
         
         return sql
 
@@ -185,7 +181,7 @@ class CarpentryExpense(models.Model):
         res = super()._groupby(model, models)
         
         if model == 'mrp.workorder':
-            res += ', line.project_id, line.productivity_tracking'
+            res = 'GROUP BY reservation.budget_type, reservation.analytic_account_id, record.id, record.project_id'
         elif model == 'stock.picking':
             res += ', picking_type.code'
         

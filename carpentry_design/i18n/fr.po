@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-27 16:09+0000\n"
-"PO-Revision-Date: 2025-03-27 17:10+0100\n"
+"POT-Creation-Date: 2025-10-25 10:36+0000\n"
+"PO-Revision-Date: 2025-11-12 21:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. module: carpentry_design
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_planning_kanban
@@ -70,9 +70,14 @@ msgid "Activity Type Icon"
 msgstr "Icone du type d'activité"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__affectation_ids
+msgid "Affectations"
+msgstr ""
+
+#. module: carpentry_design
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
 msgid "Archived included"
-msgstr "Archivé inclus"
+msgstr "Archivés inclus"
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_attachment_count
@@ -112,6 +117,11 @@ msgstr "Créé par"
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__create_date
 msgid "Created on"
 msgstr "Créé le"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__currency_id
+msgid "Currency"
+msgstr "Monnaie"
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__date_plan_publish
@@ -157,6 +167,11 @@ msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Îcone font-awesome, par exemple fa-task"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_goods
+msgid "Goods"
+msgstr "Biens"
+
+#. module: carpentry_design
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_search
 msgid "Group By"
@@ -199,6 +214,11 @@ msgid "Index"
 msgstr "Indice"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_installation
+msgid "Install"
+msgstr "Pose"
+
+#. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_is_follower
 msgid "Is Follower"
 msgstr "Est abonné"
@@ -227,7 +247,7 @@ msgstr "Dernière version"
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__last_release_state
 msgid "Last State"
-msgstr "Dernier État"
+msgstr "Dernier état"
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__write_uid
@@ -251,6 +271,11 @@ msgstr "Dernier visa"
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__launch_ids
 msgid "Launches"
 msgstr "Lancements"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__lot_ids
+msgid "Lots"
+msgstr ""
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__message_main_attachment_id
@@ -278,11 +303,6 @@ msgstr "Date butoir de l'activité"
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_set_form
 msgid "Name"
 msgstr "Nom"
-
-#. module: carpentry_design
-#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_calendar_event_id
-msgid "Next Activity Calendar Event"
-msgstr "Prochaine activité du calendrier"
 
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_date_deadline
@@ -320,16 +340,21 @@ msgid "Number of messages with delivery error"
 msgstr "Nombre de messages en échec d'envoi"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_other
+msgid "Other costs"
+msgstr "Autres coûts"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__phase_ids
+msgid "Phases"
+msgstr ""
+
+#. module: carpentry_design
 #: model:ir.model,name:carpentry_design.model_carpentry_plan_release
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_planning_card__plan_release_id
 #: model_terms:ir.ui.view,arch_db:carpentry_design.carpentry_plan_release_search
 msgid "Plan Release"
 msgstr "Publication de jeux de plans"
-
-#. module: carpentry_design
-#: model:carpentry.planning.column,name:carpentry_design.planning_column_need_method
-msgid "Plan Releases"
-msgstr "Jeux de plans (publications)"
 
 #. module: carpentry_design
 #: model:ir.model,name:carpentry_design.model_carpentry_plan_set
@@ -377,6 +402,21 @@ msgid "Plans Sets"
 msgstr "Jeux de plans"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__position_ids
+msgid "Positions"
+msgstr "Repères"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__position_count
+msgid "Positions Count"
+msgstr "Nb. repères"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_production
+msgid "Prod"
+msgstr "Fab"
+
+#. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_release__project_id
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__project_id
 msgid "Project"
@@ -385,7 +425,17 @@ msgstr "Projet"
 #. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__project_id_domain
 msgid "Project Id Domain"
-msgstr ""
+msgstr "Domaine du projet"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__readonly_affectation
+msgid "Readonly Affectation"
+msgstr "Affectation en lecture seule"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__readonly_parent_group
+msgid "Readonly Parent Group"
+msgstr "Groupe du parent en lecture seule"
 
 #. module: carpentry_design
 #: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__danger
@@ -400,6 +450,11 @@ msgid "Releases"
 msgstr "Publications"
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__quantity_remaining_to_affect
+msgid "Remaining to affect"
+msgstr "Restant à affecter"
+
+#. module: carpentry_design
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__activity_user_id
 msgid "Responsible User"
 msgstr "Utilisateur responsable"
@@ -409,6 +464,11 @@ msgstr "Utilisateur responsable"
 #: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__sequence
 msgid "Sequence"
 msgstr "Séquence"
+
+#. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_service
+msgid "Service"
+msgstr ""
 
 #. module: carpentry_design
 #: model:ir.model.fields.selection,name:carpentry_design.selection__carpentry_plan_release__state__muted
@@ -444,9 +504,14 @@ msgid "This plan Index is already used in this Plan Set."
 msgstr "Cet indice de publication est déjà utilisé dans ce jeu de plans."
 
 #. module: carpentry_design
+#: model:ir.model.fields,field_description:carpentry_design.field_carpentry_plan_set__budget_total
+msgid "Total"
+msgstr ""
+
+#. module: carpentry_design
 #: model:ir.model.fields,help:carpentry_design.field_carpentry_plan_set__activity_exception_decoration
 msgid "Type of the exception activity on record."
-msgstr "Type de l'activité-alerte sur l'enregistrement."
+msgstr "Type de l'activité sur l'enregistrement."
 
 #. module: carpentry_design
 #: model:res.groups,name:carpentry_design.group_design_user

@@ -154,15 +154,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
              because `rg_result` optim. Indeed, `_compute_total_expense_gain` is called
              from `reservation_ids._compute_amount_reserved` with the `rg_result` cursor
         """
-        return self._depends_project_valuation()
-    def _depends_project_valuation(self):
-        return (
-            ['project_id', 'project_id.date', 'project_id.date_start',]
-            if self._should_value_budget_reservation() else []
-        )
-        # 'reservation_ids.analytic_account_id.timesheet_cost_history_ids.starting_date',
-        # 'reservation_ids.analytic_account_id.timesheet_cost_history_ids.date_to',
-        # 'reservation_ids.analytic_account_id.timesheet_cost_history_ids.hourly_cost',
+        return []
     
     #====== Analytic mixin ======#
     @api.onchange('project_id')
@@ -192,6 +184,11 @@ class CarpentryBudgetMixin(models.AbstractModel):
     
     @api.depends('project_id', 'launch_ids', 'budget_analytic_ids')
     def _compute_other_expense_ids(self):
+        # optim: only compute at 'Save'
+        if isinstance(fields.first(self).id, models.NewId) and bool(self._origin):
+            self.other_expense_ids = self._origin.other_expense_ids
+            return
+        
         for record in self:
             record.other_expense_ids = record.expense_ids._origin.filtered(
                 lambda x: x.analytic_account_id not in record.reservation_ids.analytic_account_id
@@ -300,22 +297,25 @@ class CarpentryBudgetMixin(models.AbstractModel):
         """ True on PO and picking: always in € """
         return False
 
-    @api.depends(lambda self:
-        ['launch_ids', 'reservation_ids.amount_reserved']
-        + self._depends_project_valuation()
+    @api.depends(
+        'launch_ids',
+        'reservation_ids.amount_reserved', 'reservation_ids.amount_reserved_valued',
     )
-    def _compute_total_budget_reserved(self):
-        """ Sum(reservation_ids.amount_reserved), brut or valued """
-        # optim: don't call the heavy SQL on user action and wait for the form to be saved
-        if (
-            isinstance(fields.first(self), models.NewId)
-            or self._context.get('carpentry_budget_no_compute')
-        ):
-            return
-        
+    def _compute_total_budget_reserved(self, rg_result=None):
+        """ Sum(reservation_ids.amount_reserved), brut or valued
+            :option rg_result: for cost_history
+        """
         debug = False
         if debug:
             print(' == _compute_total_budget_reserved == ')
+            print('self', self)
+        
+        # optim: don't call the heavy SQL on user action and wait for the form to be saved
+        if (isinstance(fields.first(self).id, models.NewId)
+            or self._context.get('carpentry_budget_no_compute')
+        ):
+            if debug: print('stopped')
+            return
         
         # shortcut
         records = self.filtered('reservation_ids')
@@ -323,47 +323,24 @@ class CarpentryBudgetMixin(models.AbstractModel):
         if not records:
             return
         
-        # brut
-        if not self._should_value_budget_reservation():
-            if debug:
-                print('_should_value_budget_reservation')
-            for record in records:
-                record.total_budget_reserved = sum(record.reservation_ids.mapped('amount_reserved'))
-        # valued
+        for record in records:
+            record._compute_total_budget_reserved_one()
+        
+        # update reservation's expense & gain
+        if rg_result:
+            self.reservation_ids._compute_amount_expense_gain_valued(rg_result)
         else:
-            budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
-            self._flush_budget()
-            self._cr.execute("""
-                SELECT
-                    reservation.%(record_field)s,
-                    SUM(reservation.amount_reserved * (
-                        CASE
-                            WHEN reservation.budget_type IN %(budget_types)s
-                            THEN hourly_cost.coef
-                            ELSE 1.0
-                        END
-                    ))
-                FROM carpentry_budget_reservation AS reservation
-                LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
-                    ON  hourly_cost.project_id = reservation.project_id
-                    AND hourly_cost.analytic_account_id = reservation.analytic_account_id
-                WHERE reservation.id IN %(reservation_ids)s
-                GROUP BY reservation.%(record_field)s
-            """, {
-                'record_field': AsIs(records._record_field),
-                'budget_types': tuple(budget_types),
-                'reservation_ids': tuple(records.reservation_ids.ids),
-            })
-            mapped_total = {row[0]: row[1] for row in self._cr.fetchall()}
-            if debug:
-                print('mapped_total', mapped_total)
-            for record in self:
-                record.total_budget_reserved = mapped_total.get(record.id, 0.0)
+            self._get_rg_result_expense() # _compute is included in it
+    
+    def _compute_total_budget_reserved_one(self):
+        """ Inherited in MRP """
+        _valued = '_valued' if self._should_value_budget_reservation() else ''
+        self.total_budget_reserved = sum(self.reservation_ids.mapped('amount_reserved' + _valued))
 
     @api.depends(lambda self:
-        ['launch_ids', 'reservation_ids.amount_reserved']
+        ['launch_ids',
+         'reservation_ids.amount_reserved', 'reservation_ids.amount_reserved_valued']
         + self._depends_expense_totals()
-        + self._depends_project_valuation()
     )
     def _compute_total_expense_gain(self, groupby_analytic=False, rg_result=None):
         """ Call `carpentry.budget.expense` to compute:
@@ -376,12 +353,15 @@ class CarpentryBudgetMixin(models.AbstractModel):
         debug = False
         if debug:
             print(' === _compute_total_expense_gain (start) ===')
+            print('self', self)
 
         # optim: don't call the heavy SQL on user action and wait for the form to be saved
         if (
-            isinstance(fields.first(self), models.NewId)
+            not self
+            or isinstance(fields.first(self).id, models.NewId)
             or self._context.get('carpentry_budget_no_compute')
         ):
+            if debug: print('stopped')
             return
         
         mapped_totals = defaultdict(dict) if groupby_analytic else {}
@@ -412,6 +392,10 @@ class CarpentryBudgetMixin(models.AbstractModel):
             if debug:
                 print(' === _compute_total_expense_gain (result) === ')
                 print('rg_result', rg_result)
+                print('search_read', self.env['carpentry.budget.expense'].search_read(
+                    domain=[(record._record_field, '=', record._origin.id)],
+                    fields=['amount_reserved', 'amount_expense', 'amount_gain'],
+                ))
                 print('mapped_totals', mapped_totals.get(record.id, []))
             
             record._compute_total_expense_gain_one(
@@ -449,7 +433,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         for k, v in fields.items():
             if k + field_suffix in self:
                 self[k + field_suffix] = v
-            elif k in self:
+            else:
                 self[k] = v
         
         debug = False
@@ -458,9 +442,10 @@ class CarpentryBudgetMixin(models.AbstractModel):
             print('fields', fields)
             print('field_suffix', field_suffix)
             print('totals', totals)
-
+    
     def _get_rg_result_expense(self, rg_fields=[]):
         """ Return `rg_result` for `_compute_total_expense_gain` and `_get_total_budgetable_by_analytic`
+            :option `record_ids`: `carpentry.budget.reservation`
             :option `rg_fields`: for MRP
         """
         debug = False
@@ -479,9 +464,12 @@ class CarpentryBudgetMixin(models.AbstractModel):
             ],
             lazy=False,
         )
+        
+        # update reservation's expense & gain
+        if self.reservation_ids:
+            self.reservation_ids._compute_amount_expense_gain_valued(rg_result)
 
         if debug:
-            self.env.invalidate_all()
             print(' == _get_rg_result_expense (result) == ')
             print('reservations', self.reservation_ids.read(['analytic_account_id', 'amount_reserved', self._record_field]))
             print('expense_all', Expense.search_read(
@@ -494,13 +482,13 @@ class CarpentryBudgetMixin(models.AbstractModel):
     def _flush_budget(self):
         # Record & reservations
         self.flush_recordset()
-        self.reservation_ids.flush_recordset()
+        self.reservation_ids.flush_recordset(['amount_reserved', 'amount_reserved_valued'])
         # Expenses
         for field in self._record_fields_expense:
             self[field].flush_recordset()
         # valuation
         self.project_id.flush_recordset(['date_start', 'date'])
-        self.env['hr.employee.timesheet.cost.history'].flush_model()
+        self.env['hr.employee.timesheet.cost.history'].flush_model(['hourly_cost', 'starting_date', 'date_to'])
     
     #===== Reservation provisioning, budgets centers refresh, auto-reservation amounts =====#
     def _refresh_budget_analytic_ids(self, rg_result):
@@ -524,6 +512,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
             if debug:
                 print(' == _refresh_budget_analytic_ids == ')
                 print('project_budgets', project_budgets)
+                print('rg_result', rg_result)
                 print('record._get_auto_budget_analytic_ids()', record._get_auto_budget_analytic_ids(rg_result))
                 print('list(set(record._get_auto_budget_analytic_ids()) & set(project_budgets))', list(set(record._get_auto_budget_analytic_ids(rg_result)) & set(project_budgets)))
                 print('record.budget_analytic_ids', record.budget_analytic_ids)
@@ -545,6 +534,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
             :option vals: when called from `write`
         """
+        debug = False
+
         # ctx is to not update yet:
         # - record.total_budget_reserved
         # - reservations's amounts (see `_compute_amounts`)
@@ -552,13 +543,15 @@ class CarpentryBudgetMixin(models.AbstractModel):
         self = self.with_context(carpentry_budget_no_compute=True)
         
         update_budget_centers = not vals or all(not x in vals for x in ('launch_ids', 'budget_analytic_ids'))
-        debug = False
         if debug:
             print(' ===== _compute_reservation_ids (start) ===== ')
+            print('self', self)
             print('update_budget_centers', update_budget_centers)
 
         # optim: wait for form saving by user
-        if isinstance(fields.first(self), models.NewId):
+        if not self or isinstance(fields.first(self).id, models.NewId):
+            if debug:
+                print('stopped')
             return
         
         # prerequisites: update `budget_analytic_ids` first
@@ -573,6 +566,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
             not self.filtered_domain(self._get_domain_can_reserve_budget())
             or not self.budget_analytic_ids
         ):
+            if debug: print('shortcut, self.budget_analytic_ids', self.budget_analytic_ids)
             self = self.with_context(carpentry_budget_no_compute=False)
             self.reservation_ids = [Command.clear()]
             return
@@ -613,9 +607,9 @@ class CarpentryBudgetMixin(models.AbstractModel):
             print('to_unlink', to_unlink)
         
         if vals_list:
-            self.reservation_ids = [Command.create(vals) for vals in vals_list]
+            Reservation.create(vals_list)
         if to_unlink:
-            self.reservation_ids = [Command.unlink(to_unlink.ids)]
+            to_unlink.unlink()
         
         # allow computation and recompute
         self = self.with_context(carpentry_budget_no_compute=False)
@@ -751,6 +745,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
             fields = ['project_id', 'launch_id', 'analytic_account_id']
         elif mode == 'full':
             fields = ['project_id', 'launch_id', 'analytic_account_id', self._record_field]
+        elif mode == 'planning':
+            fields = ['project_id', 'launch_id'] # +budget_type, added manually
         else:
             raise exceptions.UserError(_("Operation not supported."))
 
@@ -760,6 +756,9 @@ class CarpentryBudgetMixin(models.AbstractModel):
             if has_field:
                 id_ = rec[field].id if rec else vals[field] and vals[field][0]
                 key.append(id_)
+        
+        if mode == 'planning':
+            key.append(rec['budget_type'] if rec else vals['budget_type'])
         
         return tuple(key)
     
@@ -788,16 +787,9 @@ class CarpentryBudgetMixin(models.AbstractModel):
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         mapped_remaining_budget = self._get_remaining_budget() # independant of `self.id`
         total_by_analytic = self._get_total_budgetable_by_analytic(rg_result)
-
-        # Group by total of remaining budget per analytic
-        # (removes `launch_id` in the key),
-        # to be able to spread expense per launch's remaining budget
-        mapped_total_remaining_budget = defaultdict(float)
-        for (project_id, launch_id, analytic_id), remaining_budget in mapped_remaining_budget.items():
-            if launch_id:
-                mapped_total_remaining_budget[(project_id, analytic_id)] += remaining_budget
         
         for record in self:
+            mapped_budget_ratio = self._get_budget_distribution(mapped_remaining_budget)
             for reservation in record._get_reservations_auto_update():
                 key_budget = reservation._get_key(rec=reservation, mode='budget')
                 key_resa = tuple(list(key_budget) + [record.id])
@@ -808,12 +800,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
                 remaining_budget = mapped_remaining_budget.get(key_budget, 0.0)
 
                 # 1. Spread the expense over launch (if needed)
-                expense_spread = total_price
-                if reservation.launch_id:
-                    key_total = (reservation.project_id.id, reservation.analytic_account_id.id)
-                    total_budget = mapped_total_remaining_budget.get(key_total)
-                    #                 launch remaining / aac's total remaining
-                    expense_spread *= (remaining_budget / total_budget) if total_budget else 0.0
+                expense_spread = total_price * mapped_budget_ratio.get(key_budget, 0.0)
                 
                 # 2. Maximize expense to remaining available budget
                 amount = float_round(
@@ -825,8 +812,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
                 # update cursors for next iter
                 mapped_remaining_budget[key_budget] -= amount
-                if reservation.launch_id:
-                    mapped_total_remaining_budget[key_total] -= amount
 
                 if debug:
                     print(' === _auto_update_budget_reservation (result) === ')
@@ -899,6 +884,36 @@ class CarpentryBudgetMixin(models.AbstractModel):
             self._get_key(vals=x, mode='budget'): x['amount_remaining']
             for x in rg_result
         }
+    
+    def _get_budget_distribution(self, mapped_budget):
+        """ Returns a coef per launch to spread `mapped_budget` on its launch.
+            Useful when an available/remaining/reserved budget
+            of a same budget center is distributed on several launch.
+
+            :arg mapped_budget: output of of `_get_remaining_budget`
+            :return: dict like {(project_id, launch_id, aac_id): coef}
+        """
+        # 1st group-sum the total per analytic
+        total_aac_budget = defaultdict(float)
+        for (project_id, launch_id, aac_id), launch_aac_budget in mapped_budget.items():
+            if launch_id:
+                total_aac_budget[(project_id, aac_id)] += launch_aac_budget
+        
+        # then compute distribution coef '{launch & aac} / aac budget'
+        mapped_coef = {}
+        for key_budget, launch_aac_budget in mapped_budget.items():
+            (project_id, launch_id, aac_id) = key_budget
+
+            if not launch_id:
+                # project budget: not distributed over launchs
+                coef = 1.0
+            else:
+                total_aac = total_aac_budget.get((project_id, aac_id), 1.0)
+                coef = launch_aac_budget / total_aac if bool(total_aac) else 0.0
+
+            mapped_coef[key_budget] = coef
+
+        return mapped_coef
 
     #===== Button =====#
     def save_refresh(self):

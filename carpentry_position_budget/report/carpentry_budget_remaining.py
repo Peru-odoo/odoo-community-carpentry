@@ -27,21 +27,19 @@ class CarpentryBudgetRemaining(models.Model):
         string='Balance',
         readonly=True,
     )
-    # models
-    record_id = fields.Many2oneReference(
-        string='Record ID',
-        model_field='record_res_model',
-        readonly=True,
-    )
     record_ref = fields.Reference(
         string='Name',
         selection='_selection_record_ref',
         compute='_compute_record_ref',
         readonly=True,
     )
+    record_model_name = fields.Char(
+        string='Record',
+        compute='_compute_record_ref',
+        readonly=True,
+    )
     # fields cancelling (necessary so they are not in SQL from ORM)
     phase_id = fields.Many2one(store=False)
-    position_id = fields.Many2one(store=False)
     amount_unitary = fields.Float(store=False)
     quantity_affected = fields.Float(store=False)
     amount_subtotal_valued = fields.Monetary(store=False)
@@ -60,20 +58,8 @@ class CarpentryBudgetRemaining(models.Model):
         if queries:
             # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
             Reservation = self.env['carpentry.budget.reservation']
-            sql_record_fields = ''
-            for field in Reservation._get_record_fields():
-                model = Reservation[field]._name
-                if model == 'carpentry.budget.balance':
-                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
-                else:
-                    model_id = self.env['ir.model']._get_id(model)
-                sql_record_fields += f"""
-                    , CASE
-                        WHEN record_model_id = {model_id}
-                        THEN record_id
-                        ELSE NULL
-                    END AS {field}
-                """
+            record_fields = Reservation._get_record_fields()
+            sql_record_fields = ', ' . join([field for field in record_fields])
 
             self._cr.execute("""
                 CREATE or REPLACE VIEW %(table_name)s AS (
@@ -83,6 +69,7 @@ class CarpentryBudgetRemaining(models.Model):
                         
                         project_id,
                         launch_id,
+                        position_id,
                         active,
 
                         analytic_account_id,
@@ -90,7 +77,6 @@ class CarpentryBudgetRemaining(models.Model):
                         budget_type,
                         
                         record_model_id,
-                        record_id
                         %(sql_record_fields)s
                     FROM (
                         (%(sql_union)s)
@@ -118,6 +104,7 @@ class CarpentryBudgetRemaining(models.Model):
                     -- project & launch
                     available.project_id,
                     available.launch_id,
+                    available.position_id,
                     available.active,
 
                     -- budget
@@ -125,32 +112,10 @@ class CarpentryBudgetRemaining(models.Model):
                     available.amount_subtotal AS amount_subtotal,
                     available.budget_type,
 
-                    -- record_id: position or project
-                    available.record_model_id,
-                    CASE
-                        WHEN available.launch_id IS NOT NULL
-                        THEN available.position_id
-                        ELSE available.project_id
-                    END AS record_id,
+                    available.record_model_id, -- launch or project
                     {sql_record_fields} -- balance_id, purchase_id, ...
             """
         else:
-            sql_record_model_id = ''
-            for field in record_fields:
-                model = Reservation[field]._name
-                if model == 'carpentry.budget.balance':
-                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
-                else:
-                    model_id = models[model]
-                sql_record_model_id += f"""
-                    CASE
-                        WHEN reservation.{field} IS NOT NULL
-                        THEN {model_id}
-                        ELSE
-                """
-            if sql_record_model_id:
-                sql_record_model_id += ' NULL ' + (' END ' * len(record_fields))
-            
             return f"""
                 SELECT
                     'reservation-' || reservation.id AS unique_key,
@@ -159,6 +124,7 @@ class CarpentryBudgetRemaining(models.Model):
                     -- project & launch
                     reservation.project_id,
                     reservation.launch_id,
+                    NULL AS position_id,
                     reservation.active,
                     
                     -- budget
@@ -167,8 +133,11 @@ class CarpentryBudgetRemaining(models.Model):
                     reservation.budget_type,
 
                     -- record
-                    {sql_record_model_id} AS record_model_id,
-                    COALESCE({', '.join(record_fields)}) AS record_id,
+                    CASE
+                        WHEN reservation.launch_id IS NOT NULL
+                        THEN {models['carpentry.group.launch']}
+                        ELSE {models['project.project']}
+                    END AS record_model_id,
                     {sql_record_fields} -- balance_id, purchase_id, ...
             """
 
@@ -200,17 +169,24 @@ class CarpentryBudgetRemaining(models.Model):
         return ''
 
     #===== Compute =====#
-    @api.depends('record_id', 'record_model_id')
+    @api.depends('record_model_id')
     def _compute_record_ref(self):
-        for available in self:
-            available.record_ref = (
-                '{},{}' . format(
-                    available.record_model_id.model,
-                    available.record_id,
-                )
-                if available.record_model_id and available.record_id
-                else False
-            )
+        Reservation = self.env['carpentry.budget.reservation']
+        record_fields = Reservation._get_record_fields()
+
+        for remaining in self:
+            if remaining.state == 'budget':
+                record = remaining.position_id if remaining.position_id else remaining.project_id
+            else:
+                # get record
+                record = False
+                for record_field in record_fields:
+                    record = remaining[record_field]
+                    if record.exists():
+                        break
+            
+            remaining.record_ref = '{},{}' . format(record._name, record.id)  if record else False
+            remaining.record_model_name = self.env[record._name]._description if record else False
     
     #===== Actions & Buttons =====#
     def _get_raise_to_reservations(self, message):

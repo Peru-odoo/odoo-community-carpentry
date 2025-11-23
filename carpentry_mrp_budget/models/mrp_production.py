@@ -50,7 +50,7 @@ class ManufacturingOrder(models.Model):
     total_budget_reserved_workorders = fields.Float(
         string='Budget (workorders)',
         help='Sum of budget reservation in hours for workorders only',
-        compute='_compute_total_expense_gain',
+        compute='_compute_total_budget_reserved',
         store=True,
     )
     difference_workorder_duration_budget = fields.Float(
@@ -229,13 +229,20 @@ class ManufacturingOrder(models.Model):
                 precision_digits = prec
             )
 
-    def _get_rg_result_expense(self, fields=[]):
-        return super()._get_rg_result_expense(['budget_type:array_agg'])
+    def _get_rg_result_expense(self, rg_fields=[]):
+        return super()._get_rg_result_expense(rg_fields=['budget_type:array_agg'])
     def _flush_budget(self):
         """ Needed for correct computation of totals """
         self.env['ir.property'].flush_model(['value_float']) # standard_price
         return super()._flush_budget()
 
+    def _compute_total_budget_reserved_one(self):
+        """ Overwrite """
+        components_reservations = self._get_reservations_auto_update()
+        workorders_reservations = self.reservation_ids - components_reservations
+        self.total_budget_reserved = sum(components_reservations.mapped('amount_reserved_valued'))
+        self.total_budget_reserved_workorders = sum(workorders_reservations.mapped('amount_reserved'))
+    
     def _compute_total_expense_gain(self, groupby_analytic=False, rg_result=None):
         """ Group by analytic for xxx_one """
         return super()._compute_total_expense_gain(

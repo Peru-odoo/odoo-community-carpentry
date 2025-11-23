@@ -70,7 +70,7 @@ class CarpentryBudgetAvailable(models.Model):
         readonly=True,
     )
     amount_unitary = fields.Float(
-        string='Unitary budget amount',
+        string='Unitary Budget',
         readonly=True,
     )
     amount_subtotal = fields.Float(
@@ -97,10 +97,6 @@ class CarpentryBudgetAvailable(models.Model):
     record_res_model = fields.Char(
         string='Document (model)',
         related='record_model_id.model',
-    )
-    record_model_name = fields.Char(
-        string='Document Type',
-        related='record_model_id.name',
     )
 
     #===== View build =====#
@@ -172,7 +168,7 @@ class CarpentryBudgetAvailable(models.Model):
     
     def _init_query(self, model):
         # (!) Warning: `models` only contains models created before module `carpentry_position_budget`
-        models = {x['model']: x['id'] for x in self.env['ir.model'].search_read([], ['model'])}
+        models = {x['model']: x['id'] for x in self.env['ir.model'].sudo().search_read([], ['model'])}
 
         return """
             {select}
@@ -244,23 +240,21 @@ class CarpentryBudgetAvailable(models.Model):
                     -- affectation: position & qty affected
                     budget.position_id,
                     {
-                        'SUM(carpentry_group.quantity)' if model == 'carpentry.position' else
+                        'SUM(carpentry_group.quantity)'
+                        if model == 'carpentry.position' else
                         'SUM(affectation.quantity_affected)'
-                    } -- / COUNT(*)
-                    AS quantity_affected,
+                    } AS quantity_affected,
 
                     -- budget
                     budget.analytic_account_id,
                     budget.budget_type,
 
                     -- amounts
-                    SUM(budget.amount_unitary) -- / COUNT(*)
-                    AS amount_unitary,
+                    SUM(budget.amount_unitary) AS amount_unitary,
                     {
                         'SUM(carpentry_group.quantity * budget.amount_unitary)' if model == 'carpentry.position' else
                         'SUM(affectation.quantity_affected * budget.amount_unitary)'
-                    } -- / COUNT(*)
-                    AS amount_subtotal
+                    } AS amount_subtotal
             """
 
     def _from(self, model, models):
@@ -292,35 +286,42 @@ class CarpentryBudgetAvailable(models.Model):
             """
     
     def _where(self, model, models):
+        sql_where = ''
+
         if model == 'project.project':
-            return """
+            sql_where += """
                 WHERE
                     budget_project.balance != 0 AND
                     is_computed_carpentry IS FALSE
                 """
 
         elif model in ('carpentry.group.launch', 'carpentry.group.phase'):
-            return f"""
+            mode = model.replace('carpentry.group.', '')
+            sql_where += f"""
                 WHERE
-                    quantity_affected != 0 AND
+                    affectation.quantity_affected != 0 AND
                     affectation.active IS TRUE AND
-                    (affectation.mode != 'launch' OR affectation.affected IS TRUE)
+                    affectation.mode = '{mode}'
                 """
+            
+            if mode == 'launch':
+                sql_where += ' AND affectation.affected IS TRUE'
 
-        else:
-            return ''
+        return sql_where
 
     def _groupby(self, model, models):
-        return '' if model == 'project.project' else """
-
-            GROUP BY 
-               carpentry_group.project_id,
-               carpentry_group.id,
-               budget.id,
-               budget.position_id,
-               budget.budget_type,
-               budget.analytic_account_id
-        """
+        if model == 'project.project':
+            return ''
+        else:
+            return """
+                GROUP BY 
+                    carpentry_group.project_id,
+                    carpentry_group.id,
+                    budget.id,
+                    budget.position_id,
+                    budget.budget_type,
+                    budget.analytic_account_id
+            """
     
     def _orderby(self, model, models):
         return ''

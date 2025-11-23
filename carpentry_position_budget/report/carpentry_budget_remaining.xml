@@ -63,11 +63,26 @@
         </field>
     </record>
     
-    <!-- Search: `carpentry.budget.remaining` from common -->
+    <!-- Search: `carpentry.budget.remaining` -->
+    <!-- Common: used by expense -->
+    <record id="carpentry_budget_remaining_search_common" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.search.common</field>
+        <field name="model">carpentry.budget.remaining</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_available_search_common" />
+        <field name="mode">primary</field>
+        <field name="priority">999</field>
+        
+        <field name="arch" type="xml">
+            <field name="budget_type" position="before">
+                <field name="balance_id" />
+            </field>
+        </field>
+    </record>
+    <!-- Real search for remaining -->
     <record id="carpentry_budget_report_remaining_search" model="ir.ui.view">
         <field name="name">carpentry.budget.remaining.search</field>
         <field name="model">carpentry.budget.remaining</field>
-        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_remaining_search_common" />
         <field name="mode">primary</field>
         <field name="priority">10</field>
         

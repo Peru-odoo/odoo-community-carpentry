@@ -35,11 +35,7 @@ class CarpentryExpenseHistory(models.Model):
                     analytic.id AS analytic_account_id,
                     analytic.budget_type,
 
-                    CASE
-                        WHEN COALESCE(COUNT(reservation.id), 0.0) != 0
-                        THEN SUM(reservation.amount_reserved) / COUNT(reservation.id)
-                        ELSE 0.0
-                    END AS amount_reserved,
+                    0.0 AS amount_reserved,
 
                     -- expense
                     'DEVALUE' AS value_or_devalue_workforce_expense,
@@ -48,6 +44,8 @@ class CarpentryExpenseHistory(models.Model):
                         * {ratio_invoiced}
                         * analytic_distribution.percentage::float
                         / 100.0
+                    ) * (
+                        COUNT(DISTINCT line.id)::float / COUNT(*)::float
                     ) AS amount_expense,
                     
                     -- expense valued: will be calculated from `amount_expense` (without devaluation)
@@ -79,16 +77,6 @@ class CarpentryExpenseHistory(models.Model):
                     INNER JOIN purchase_order_line
                         ON purchase_order_line.id = line.purchase_line_id
                 """
-            
-            # reservations
-            sql_record_id = 'record.id'
-            if model == 'account.move':
-                sql_record_id = 'purchase_order_line.order_id'
-            sql += f"""
-                LEFT JOIN carpentry_budget_reservation AS reservation
-                    ON  reservation.purchase_id = {sql_record_id}
-                    AND reservation.analytic_account_id = analytic.id
-            """
         
         return sql + super()._join(model, models)
     

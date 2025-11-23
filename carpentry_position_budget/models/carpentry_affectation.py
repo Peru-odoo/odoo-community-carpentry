@@ -32,9 +32,7 @@ class CarpentryAffectation(models.Model):
     @api.ondelete(at_uninstall=False)
     def _get_launchs_and_children_launchs(self):
         affectations_phase, affectations_launch = self._split()
-        if affectations_phase:
-            affectations_launch += affectations_phase.children_ids
-        return affectations_launch.launch_id
+        return (affectations_phase.children_ids + affectations_launch).launch_id
 
     #===== Logics =====#
     def _clean_reservation_and_constrain_budget(self, launch_ids=[False], project_ids=[]):

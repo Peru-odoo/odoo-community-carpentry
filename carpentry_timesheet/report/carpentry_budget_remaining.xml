@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Search: `carpentry.budget.remaining` -->
+    <record id="carpentry_budget_remaining_search_common" model="ir.ui.view">
+        <field name="name">carpentry.budget.remaining.search.common.timesheet</field>
+        <field name="model">carpentry.budget.remaining</field>
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_remaining_search_common" />
+        
+        <field name="arch" type="xml">
+            <field name="budget_type" position="before">
+                <field name="task_id" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

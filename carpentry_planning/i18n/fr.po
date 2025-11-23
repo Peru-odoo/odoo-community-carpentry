@@ -6,19 +6,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-30 12:49+0000\n"
-"PO-Revision-Date: 2025-06-30 14:54+0200\n"
+"POT-Creation-Date: 2025-10-25 10:36+0000\n"
+"PO-Revision-Date: 2025-10-25 10:36+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.6\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
 
 #. module: carpentry_planning
 #. odoo-python
+#: code:addons/carpentry_planning/models/project_project.py:0
 #: code:addons/carpentry_planning/models/project_project.py:0
 #, python-format
 msgid " (W%s)"
@@ -49,6 +48,7 @@ msgstr "Planning de menuiserie"
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "Click to toggle status"
 msgstr "Cliquez pour basculer l'état"
@@ -60,6 +60,7 @@ msgstr "Fermer"
 
 #. module: carpentry_planning
 #. odoo-python
+#: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
 #: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
 #, python-format
 msgid "Column %s requires an Identifier"
@@ -120,6 +121,7 @@ msgstr "Fin"
 
 #. module: carpentry_planning
 #. odoo-python
+#: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
 #: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
 #, python-format
 msgid "End date must be after the start date."
@@ -202,6 +204,7 @@ msgstr ""
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #, python-format
 msgid "Initially available budget"
 msgstr "Budget initialement disponible"
@@ -239,6 +242,7 @@ msgstr "Lancement"
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_card__launch_ids
 #, python-format
 msgid "Launches"
@@ -246,6 +250,7 @@ msgstr "Lancements"
 
 #. module: carpentry_planning
 #. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #, python-format
 msgid "Launches planning"
@@ -279,12 +284,13 @@ msgstr "Modèle"
 #. module: carpentry_planning
 #. odoo-python
 #: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
 #, python-format
 msgid ""
 "Model of identifier %s cannot be chosen (not foreseen for it). Column: %s"
 msgstr ""
-"Le modèle de l'identifiant %s n'est pas prévu pour cette opération. "
-"Colonne: %s"
+"Le modèle de l'identifiant %s n'est pas prévu pour cette opération. Colonne:"
+" %s"
 
 #. module: carpentry_planning
 #: model:ir.model.fields,field_description:carpentry_planning.field_carpentry_planning_column__name
@@ -301,12 +307,14 @@ msgstr "Nouvelle date"
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "Next"
 msgstr "Suivant"
 
 #. module: carpentry_planning
 #. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "No launches to display."
@@ -319,6 +327,7 @@ msgstr "Décalage en semaine(s)"
 
 #. module: carpentry_planning
 #. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "Open details"
@@ -411,6 +420,7 @@ msgstr "Dates du planning"
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_left_side_panel.xml:0
 #, python-format
 msgid "Previous"
 msgstr "Précédent"
@@ -424,6 +434,7 @@ msgstr "Projet"
 
 #. module: carpentry_planning
 #. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #, python-format
 msgid "Real expense"
@@ -442,6 +453,7 @@ msgstr "Nom court du modèle de l'enregistrement"
 
 #. module: carpentry_planning
 #. odoo-javascript
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #, python-format
 msgid "Reserved budget so far"
@@ -503,6 +515,7 @@ msgstr ""
 #. module: carpentry_planning
 #. odoo-javascript
 #: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
+#: code:addons/carpentry_planning/static/src/planning/planning_view.xml:0
 #, python-format
 msgid "View dates"
 msgstr "Voir les dates"
@@ -510,6 +523,8 @@ msgstr "Voir les dates"
 #. module: carpentry_planning
 #. odoo-python
 #: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#: code:addons/carpentry_planning/models/carpentry_planning_column.py:0
+#: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
 #: code:addons/carpentry_planning/models/carpentry_planning_milestone.py:0
 #, python-format
 msgid "W%s"

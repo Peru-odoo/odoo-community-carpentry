@@ -340,7 +340,7 @@ class CarpentryAffectation(models.Model):
         """ In a different _compute method than previous fields,
             because of different `precompute` field
         """
-        for child in self.filtered('parent_id'):
+        for child in self:
             child.quantity_affected = child.parent_id.quantity_affected
 
     #===== Quantities: compute & constrain =====#

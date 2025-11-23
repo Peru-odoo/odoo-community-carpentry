@@ -35,17 +35,29 @@ class CarpentryAffectationMixin(models.AbstractModel):
         """ Return brut & valued in a tuple like:
             {group_id: valued amount}
         """
+        debug = False
         field = self._name.replace('carpentry.', '').replace('group.', '') + '_id'
         rg_result = self.env['carpentry.budget.available']._read_group(
             domain=[(field, 'in', self.ids), ('record_res_model', '=', self._name)],
             groupby=[field, 'budget_type'],
-            fields=['amount_subtotal:sum', 'amount_subtotal_valued:sum', 'project_id'],
+            fields=['amount_subtotal:sum', 'amount_subtotal_valued:sum'],
             lazy=False,
         )
         brut, valued = defaultdict(dict), defaultdict(dict)
         for x in rg_result:
             brut[x[field][0]][x['budget_type']] = x['amount_subtotal']
             valued[x[field][0]][x['budget_type']] = x['amount_subtotal_valued']
+        
+        if debug:
+            print(' == _get_budgets_totals == ')
+            print('self._name, self', self._name, self.read(['name']))
+            print('rg_result', rg_result)
+            print('search', self.env['carpentry.budget.available'].search_read(
+                domain=[(field, 'in', self.ids), ('record_res_model', '=', self._name)],
+                fields=['phase_id', 'position_id', 'analytic_account_id', 'quantity_affected', 'amount_unitary', 'amount_subtotal']
+
+            ))
+        
         return brut, valued
     
     def _get_budget_one(self, budget, budget_types):

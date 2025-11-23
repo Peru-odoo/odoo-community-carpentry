@@ -141,21 +141,30 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
 
     #===== Phase & launchs =====#
     def test_13_phase_budget(self):
+        """ Test computation of phase totals """
         self._reset_affectations(spread=True)
         self._create_budget_project()
         self.position.quantity = 3
         fields.first(self.phase.affectation_ids).quantity_affected = 3
-        self.env.flush_all()
+        self.env.invalidate_all()
 
         self.assertEqual(
             self.phase.budget_installation,
             self.amount_installation * 3
         )
 
-    def test_14_launch_budget(self):
+    def test_14_phase_available_positions_from_lots(self):
+        """ Test the number appended to lot's name, in phase form """
+        pass
+
+    def test_15_launch_budget(self):
         self.assertEqual(self.launch.budget_total, self.phase.budget_total)
 
-    def test_15_group_clean(self):
+    def test_16_launch_available_affectation_from_phase(self):
+        """ Test the number appended to phase's name, in launch form """
+        pass
+
+    def test_17_group_clean(self):
         self.launchs.affectation_ids.unlink()
         self.phases.affectation_ids.unlink()
         self.assertFalse(self.phase.budget_total)
@@ -191,22 +200,23 @@ class TestCarpentryPositionBudget_Budget(TestCarpentryPositionBudget_Base):
 
     #===== Bug solving =====#
     def test_81_launch_budget_complex(self):
-        """ (2025-11-07)
+        """ 2025-11-07: COUNT(*) in SQL
             Situation:
              * a position's qty is splitted over several phases
              * each phase has a launch mirror, with the position affected in each launch
              * so the position has several *AFFECTED* launch affectation
-            -> Ensure correction launch/phase/budget budget computation when its position (COUNT(*) in SQL)
+            -> Ensure correction launch/phase/budget budget computation when its position
         """
-        self._reset_affectations()
+        self.project.unlink()
+        self._create_project('Project1')
         self._create_budget_project()
 
-        # affect 1 qty of position3 in each 3 phases, 
+        # affect 1 qty of position3 in each 3 phases and launchs
         for i, phase in enumerate(self.phases):
-            phase._create_affectations(self.position[2])
-            phase.affectation_ids.quantity = 1
+            phase._create_affectations(self.positions[2])
+            phase.affectation_ids.quantity_affected = 1
             self.launchs[i].phase_ids = phase
-        self.launchs.affected = True
+        self.launchs.affectation_ids.affected = True
 
-        self.assertEqual(self.phase.budget_production,   self.amount_production)
+        self.assertEqual(self.phase.budget_production,   self.amount_production) # 20h in each position
         self.assertEqual(self.launch.budget_production,  self.amount_production)

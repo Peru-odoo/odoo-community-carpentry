@@ -183,13 +183,13 @@ class TestCarpentryMrpBudget_Reservation(
 
     def test_83_difference_workorder_duration_budget(self):
         # start situation
-        reservations = self.section.reservation_ids - self._get_component_reservations()
+        reservations = self.record.reservation_ids - self._get_component_reservations()
         self.assertTrue(bool(reservations))
         reservations.amount_reserved = 1.0
 
         # just test the compute
         self.assertEqual(
-            self.difference_workorder_duration_budget,
-            sum(reservations.mapped('amount_reserved'))
-            - (self.reservation_ids_workorders.amount_reserved)
+            self.record.difference_workorder_duration_budget,
+            self.record.production_duration_expected / 60
+            - sum(reservations.mapped('amount_reserved'))
         )

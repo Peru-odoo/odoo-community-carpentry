@@ -14,6 +14,8 @@
 
     'depends': ['carpentry_purchase', 'carpentry_position_budget'],
     'data': [
+        # report
+        'report/carpentry_budget_remaining.xml',
         # security
         'security/ir.model.access.csv',
     ],

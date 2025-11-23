@@ -22,7 +22,8 @@ class PurchaseOrder(models.Model):
     #====== CRUD ======#
     def _compute_reservation_ids(self, vals={}):
         if (
-            isinstance(fields.first(self), models.NewId)
+            not self
+            or isinstance(fields.first(self).id, models.NewId)
             or self._context.get('carpentry_dont_refresh_reservations')
         ):
             return

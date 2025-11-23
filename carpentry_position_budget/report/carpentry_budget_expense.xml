@@ -88,7 +88,7 @@
     <record id="carpentry_budget_report_expense_search" model="ir.ui.view">
         <field name="name">carpentry.budget.expense.search</field>
         <field name="model">carpentry.budget.expense</field>
-        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_search_common" />
+        <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_remaining_search_common" />
         <field name="mode">primary</field>
         <field name="priority">10</field>
         
