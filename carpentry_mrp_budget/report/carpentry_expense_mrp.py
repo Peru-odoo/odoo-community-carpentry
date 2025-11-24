@@ -76,31 +76,32 @@ class CarpentryExpense(models.Model):
                     reservation.budget_type,
                     
                     -- amount_reserved:
-                    -- if: effective_hours < amount_reserved
+                    -- if: MO's sum of effective_hours < sum of amount_reserved
                     -- then: displays expense == budget_reservation in the project's budget report
                     -- else: follow SUM from `carpentry.budget.reservation`
                     CASE
-                        WHEN
-                            record.state != 'done' AND SUM(line.duration) / 60
-                            < COALESCE(SUM(reservation.amount_reserved), 0.0)
-                              * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
-                        THEN SUM(line.duration) / 60 - (
-                            COALESCE(SUM(reservation.amount_reserved), 0.0)
-                            * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
-                        )
+                        WHEN record.state != 'done'
+                         AND record.production_real_duration / 60 < record.total_budget_reserved_workorders
+                        THEN -- prorata per workorder's reserved budget
+                            record.production_real_duration / 60 * (
+                            CASE -- prorata per workorder's reserved budget
+                                WHEN record.total_budget_reserved_workorders != 0.0
+                                THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
+                                    / record.total_budget_reserved_workorders
+                                ELSE 1.0
+                            END)
+                            -- cancel budget_reservation
+                            - COALESCE(SUM(reservation.amount_reserved), 0.0)
                         ELSE 0.0
                     END AS amount_reserved,
                     
                     -- expense
                     'VALUE' AS value_or_devalue_workforce_expense,
-                    SUM(line.duration) / 60 * (
+                    record.production_real_duration / 60 * (
                         CASE -- prorata per workorder's reserved budget
                             WHEN record.total_budget_reserved_workorders != 0.0
-                            THEN (
-                                COALESCE(SUM(reservation.amount_reserved), 0.0)
-                                * COUNT(DISTINCT reservation.id)::float / COUNT(line.id)::float
-                                / record.total_budget_reserved_workorders
-                            )
+                            THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
+                                 / record.total_budget_reserved_workorders
                             ELSE 1.0
                         END
                     ) AS amount_expense,
@@ -115,7 +116,7 @@ class CarpentryExpense(models.Model):
         if model in ('stock.picking', 'mrp.production'):
             return 'FROM stock_move AS line'
         elif model == 'mrp.workorder':
-            return 'FROM mrp_workorder AS line'
+            return 'FROM mrp_production AS record'
         else:
             return super()._from(model, models)
     
@@ -151,9 +152,6 @@ class CarpentryExpense(models.Model):
         elif model == 'mrp.workorder':
             budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
             sql += f"""
-                INNER JOIN mrp_production AS record
-                    ON record.id = line.production_id
-                
                 LEFT JOIN carpentry_budget_reservation AS reservation
                     ON  reservation.production_id = record.id
                     AND reservation.budget_type IN {tuple(budget_types)}

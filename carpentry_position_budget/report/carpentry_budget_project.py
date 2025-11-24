@@ -37,10 +37,10 @@ class CarpentryBudgetProject(models.Model):
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
 
-        prerequisites = ('carpentry.budget.expense',)
-        for model in prerequisites:
-            if not model in self.env:
-                self.env[model].init()
+        # prerequisites = ('carpentry.budget.expense',)
+        # for model in prerequisites:
+        #     if not model in self.env:
+        #         self.env[model].init()
         
         queries = self._get_queries()
         if queries:

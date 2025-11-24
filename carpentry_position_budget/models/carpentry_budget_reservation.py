@@ -103,11 +103,15 @@ class CarpentryBudgetReservation(models.Model):
         string="Expense",
         group_operator='sum',
         help="Distribution of expense on this launch and budget center",
+        compute='_compute_amount_expense_gain_valued',
+        store=True,
     )
     amount_gain = fields.Monetary(
         string='Gain',
         group_operator='sum',
         help='Budget reservation - Real expense',
+        compute='_compute_amount_expense_gain_valued',
+        store=True,
     )
 
     #===== Index (+unique) & constraints =====#
@@ -339,7 +343,7 @@ class CarpentryBudgetReservation(models.Model):
             reservation.amount_reserved_valued = mapped_data.get(reservation.id, 0.0)
 
     # no depends: called from record's _compute methods
-    def _compute_amount_expense_gain_valued(self, rg_result):
+    def _compute_amount_expense_gain_valued(self, rg_result=[]):
         """ Allow to Display *real* expense (and gain) for information,
             in budget reservation table.
 
@@ -351,8 +355,18 @@ class CarpentryBudgetReservation(models.Model):
             print(' == _compute_amount_expense_gain_valued == ')
             print('self', self)
         
+        record_fields = set(self.filtered('record_field').mapped('record_field'))
+        if not rg_result:
+            print('record_fields', record_fields)
+            for record_field in record_fields:
+                print('record_field', record_field)
+                print('self[record_field]', self[record_field])
+                rg_result += self[record_field]._get_rg_result_expense()
+
+                print('rg_result', self[record_field]._get_rg_result_expense())
+
         # format expenses (not per launch yet)
-        rg_groupby = ['analytic_account_id'] + list(set(self.mapped('record_field')))
+        rg_groupby = ['analytic_account_id'] + list(record_fields)
         mapped_expense_gain = {
             tuple([x[field] and x[field][0] for field in rg_groupby]):
             (x['amount_expense_valued'], x['amount_gain'])
@@ -379,7 +393,7 @@ class CarpentryBudgetReservation(models.Model):
             # * reserved budget per aac
             # * if 0.0 reserved, by number of launchs on this budget
             total_reserved = mapped_reserved_budget.get(key, 0.0)
-            if float_is_zero(total_reserved, prec):
+            if float_is_zero(total_reserved, prec) and reservation.record_field:
                 record = reservation[reservation.record_field]
                 siblings = record.reservation_ids.filtered(lambda x:
                     x.analytic_account_id == reservation.analytic_account_id and x.launch_id

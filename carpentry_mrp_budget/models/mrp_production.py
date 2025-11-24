@@ -32,6 +32,10 @@ class ManufacturingOrder(models.Model):
         relation='carpentry_budget_mrp_analytic_rel',
         column1='production_id',
         column2='analytic_id',
+        domain="""[
+            ('budget_project_ids', '=', project_id),
+            ('budget_type', 'not in', budget_analytic_ids_workorders)
+        ]"""
     )
     budget_analytic_ids_workorders = fields.Many2many(
         comodel_name='account.analytic.account',
@@ -85,6 +89,9 @@ class ManufacturingOrder(models.Model):
         string='Last date time',
         store=True,
     )
+    # expense
+    production_real_duration = fields.Float(store=True) # needed in SQL view
+    production_real_duration_hours = fields.Float(compute_sudo=True,)
     # -- view fields --
     amount_loss_workorders = fields.Monetary(compute='_compute_view_fields')
     total_budgetable_workorders = fields.Float(compute='_compute_view_fields',)
@@ -198,7 +205,7 @@ class ManufacturingOrder(models.Model):
         budget_types_components = self._get_component_budget_types()
         for mo in self:
             mo.other_expense_ids_components = mo.other_expense_ids.filtered(lambda x: x.budget_type in budget_types_components)
-            mo.other_expense_ids_workorders = mo.expense_ids - mo.other_expense_ids_components
+            mo.other_expense_ids_workorders = mo.other_expense_ids - mo.other_expense_ids_components
 
     def _get_auto_budget_analytic_ids(self, _):
         """ Only for components
