@@ -946,11 +946,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         return action
     
     def open_budget_available(self):
-        """ Opens available budget report *groupped by positions* and filtered on record's launches """
-        return self.action_open_budget(
-            xml_id='action_open_budget_available',
-            context={'search_default_filter_groupby_launch': 1}
-        )
+        return self.action_open_budget('action_open_budget_report_available')
     
     def open_remaining_budget(self):
         return self.action_open_budget('action_open_budget_report_remaining')

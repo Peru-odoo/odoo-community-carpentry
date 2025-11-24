@@ -85,6 +85,32 @@ class Task(models.Model):
 
         return False
 
+    @api.depends('project_id.task_ids.reservation_ids')
+    def _compute_remaining_budget(self):
+        """ Inherite from `project_budget_timesheet`
+            Displayed in kanban quick-create
+        """
+        # shortcut
+        tasks = self.filtered('analytic_account_id')
+        (self - tasks).remaining_budget = 0.0
+        if not tasks:
+            return
+
+        rg_result = self.env['carpentry.budget.remaining'].read_group(
+            domain=[('project_id', 'in', self.project_id._origin.ids),
+                    ('analytic_account_id', 'in', self.analytic_account_id._origin.ids)],
+            groupby=['project_id', 'analytic_account_id'],
+            fields=['amount_subtotal:sum'],
+            lazy=False,
+        )
+        mapped_remaining = {
+            (x['project_id'][0], x['analytic_account_id'][0]): x['amount_subtotal']
+            for x in rg_result
+        }
+        for task in tasks:
+            task.remaining_budget = mapped_remaining.get(
+                (task.project_id._origin.id, task.analytic_account_id._origin.id), 0.0
+            )
 
     #====== Affectation / budget reservation ======#
     def _get_budget_types(self):

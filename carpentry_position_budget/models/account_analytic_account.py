@@ -2,7 +2,6 @@
 
 from odoo import api, fields, models, exceptions, _
 from odoo.tools.misc import format_amount
-from odoo.tools import float_is_zero
 
 class AnalyticAccount(models.Model):
     _name = 'account.analytic.account'
@@ -22,8 +21,6 @@ class AnalyticAccount(models.Model):
         record_res_model = self._context.get('record_res_model')
 
         if not record_id or not record_res_model or not record_res_model in self.env:
-            print("record_id", record_id)
-            print("record_res_model", record_res_model)
             return res
         
         analytics = self.browse(list(dict(res).keys()))
@@ -42,8 +39,8 @@ class AnalyticAccount(models.Model):
             name = f'[{budget_type}] {name}'
 
             # suffix budget & clock
-            amount_subtotal = remaining_budget.get(id_, 0.0)
-            if not float_is_zero(amount_subtotal, precision_rounding=analytic.currency_id.rounding):
+            amount_subtotal = remaining_budget.get(id_, None)
+            if amount_subtotal != None:
                 amount_str = format_amount(self.env, amount_subtotal, analytic.currency_id)
                 if analytic.budget_unit == 'h':
                     amount_str = amount_str.replace('€', 'h')

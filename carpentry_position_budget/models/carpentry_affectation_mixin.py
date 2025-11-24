@@ -107,9 +107,9 @@ class CarpentryAffectationMixin(models.AbstractModel):
         
     
     #===== Actions & buttons =====#
-    def action_open_budget_available(self):
+    def action_open_budget_available(self, field=None):
         """ Opens available budgets (from the form of a phase or launch) """
-        field = self._name.replace('carpentry.group.', '') + '_id' # launch_id or phase_id
+        field = field or self._name.replace('carpentry.group.', '') + '_id' # launch_id or phase_id
 
         action = {
             'type': 'ir.actions.act_window',
