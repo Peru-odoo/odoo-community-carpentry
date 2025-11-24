@@ -329,7 +329,7 @@ class CarpentryBudgetReservation(models.Model):
                     END
                 ))
             FROM carpentry_budget_reservation AS reservation
-            INNER JOIN carpentry_budget_hourly_cost AS hourly_cost
+            LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
                 ON  hourly_cost.project_id = reservation.project_id
                 AND hourly_cost.analytic_account_id = reservation.analytic_account_id
             WHERE reservation.id IN %(reservation_ids)s

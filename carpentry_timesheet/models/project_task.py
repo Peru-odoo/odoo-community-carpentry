@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, Command
+from odoo.tools import float_compare
 
 class Task(models.Model):
     _name = 'project.task'
@@ -110,7 +111,10 @@ class Task(models.Model):
     def _compute_view_fields_one(self, prec, fields_suffix):
         super()._compute_view_fields_one(prec, fields_suffix)
         self.total_budgetable = self.planned_hours
-    
+        self.show_budget_banner = bool(float_compare(
+            self.planned_hours, self.total_budget_reserved, precision_digits=prec
+        ) != 0)
+
     def _get_total_budgetable_by_analytic(self, _):
         """ [OVERRIDE]
             Auto-budget reservation of tasks is based on `planned_hours`

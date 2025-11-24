@@ -96,6 +96,7 @@ class ManufacturingOrder(models.Model):
     amount_loss_workorders = fields.Monetary(compute='_compute_view_fields')
     total_budgetable_workorders = fields.Float(compute='_compute_view_fields',)
     show_gain_workorders = fields.Boolean(compute='_compute_view_fields',)
+    show_budget_banner_workorders = fields.Boolean(compute='_compute_view_fields',)
     text_no_reservation_workorders = fields.Char(compute='_compute_view_fields',)
     is_temporary_gain_workorders = fields.Boolean(
         store=False,
@@ -169,8 +170,9 @@ class ManufacturingOrder(models.Model):
             'move_finished_ids.product_uom_qty',
             'move_finished_ids.analytic_distribution',
             'move_finished_ids.stock_valuation_layer_ids.value',
-            # workorders
-            'workorder_ids.duration',
+            # workorders: don't use `workorder_ids.duration` so
+            # that `production_real_duration` is flushed
+            'production_real_duration',
         ]
 
     def _get_domain_is_temporary_gain(self):
@@ -275,10 +277,16 @@ class ManufacturingOrder(models.Model):
         super()._compute_total_expense_gain_one(totals_workorders, field_suffix='_workorders')
 
     def _compute_view_fields_one(self, prec, field_suffix):
-        """ Compute UI fields for both components and workorders """
+        """ 1. Compute UI fields for both components and workorders
+            2. Specific workorders logics
+        """
+        # 1.
         super()._compute_view_fields_one(prec, field_suffix)
         if not field_suffix:
             super()._compute_view_fields_one(prec, '_workorders')
+        
+        # 2.
+        self['total_budgetable_workorders'] = sum(self.workorder_ids.mapped('duration_expected_hours'))
 
     #===== Views =====#
     def _get_view_carpentry_config(self):

@@ -107,6 +107,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         search='_search_can_reserve_budget',
     )
     show_gain = fields.Boolean(compute='_compute_view_fields',)
+    show_budget_banner = fields.Boolean(compute='_compute_view_fields',)
     is_temporary_gain = fields.Boolean(compute='_compute_view_fields',)
     text_no_reservation = fields.Char(compute='_compute_view_fields',)
     # currency
@@ -214,10 +215,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
     #--- View fields ---#
     def _depends_can_reserve_budget(self):
         return ['state']
-    
-    def _get_show_gain(self, is_gain_zero):
-        self.ensure_one()
-        return self.can_reserve_budget and not is_gain_zero
 
     def _get_domain_is_temporary_gain(self):
         """ Whether to show alert about *temporary gain/loss* estimation """
@@ -269,7 +266,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
         self['amount_loss' + field_suffix] = -1 * self['amount_gain' + field_suffix]
         self['total_budgetable' + field_suffix] = self['total_expense_valued' + field_suffix]
-        self['show_gain' + field_suffix] = self._get_show_gain(is_gain_zero)
+        self['show_gain' + field_suffix] = self.can_reserve_budget and not is_gain_zero
+        self['show_budget_banner' + field_suffix] = self['show_gain' + field_suffix]
         self['is_temporary_gain' + field_suffix] = is_temporary
 
         # text when no affectation due to launchs or budget centers
@@ -480,9 +478,15 @@ class CarpentryBudgetMixin(models.AbstractModel):
         return rg_result
     
     def _flush_budget(self):
-        # Record & reservations
-        self.flush_recordset()
-        self.reservation_ids.flush_recordset(['amount_reserved', 'amount_reserved_valued'])
+        # Record
+        record_fields = (
+            self._depends_expense_totals() + self._depends_reservation_refresh() +
+            ['active', 'state', 'project_id', 'budget_analytic_ids', 'total_budget_reserved']
+        )
+        self_one = fields.first(self)
+        self.flush_recordset([x for x in record_fields if hasattr(self_one, x)])
+        # Reservations
+        self.reservation_ids.flush_recordset(['amount_reserved'])
         # Expenses
         for field in self._record_fields_expense:
             self[field].flush_recordset()
@@ -1010,7 +1014,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
                     'reservation_ids', 'total_budget_reserved', 'other_expense_ids',
                     'budget_analytic_ids',
                     'amount_gain', 'amount_loss', 'total_expense_valued', 'total_budgetable',
-                    'is_temporary_gain', 'show_gain', 'budget_unit', 'text_no_reservation',
+                    'is_temporary_gain', 'show_gain', 'show_budget_banner', 'budget_unit',
+                    'text_no_reservation',
                 ]
                 config['params']['fields'] = {}
                 for f in fields:

@@ -9,6 +9,7 @@
             <field t-att-name="fields['amount_gain']" invisible="1" />
             <field t-att-name="fields['is_temporary_gain']" invisible="1" />
             <field t-att-name="fields['show_gain']" invisible="1" />
+            <field t-att-name="fields['show_budget_banner']" invisible="1" />
             <field name="currency_id" invisible="1" />
             <field name="can_reserve_budget" invisible="1" />
             <field name="readonly_reservation" invisible="1" />
@@ -17,7 +18,7 @@
             <div name="banner_budget_gain" role="alert" class="alert alert-info"
                 t-attf-attrs="{'invisible': ['|',
                     ('{{fields['is_temporary_gain']}}', '=', False),
-                    ('{{fields['show_gain']}}', '=', False)
+                    ('{{fields['show_budget_banner']}}', '=', False),
                 ]}"
             >
                 <span class="fa fa-info-circle" />
@@ -27,8 +28,8 @@
                     <field t-att-name="fields['budget_unit']" readonly="1" />
                 </strong>)
                 differs from the
-                <span t-attf-attrs="{'invisible': [('{{budget_unit}}', '=',  'h')]}">cost affected to the project</span>
-                <span t-attf-attrs="{'invisible': [('{{budget_unit}}', '!=', 'h')]}">allocated hours</span>
+                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '=',  'h')]}">cost affected to the project</span>
+                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '!=', 'h')]}">allocated hours</span>
                 (<strong>
                     <field t-att-name="fields['total_budgetable']" readonly="1" />
                     <field t-att-name="fields['budget_unit']" readonly="1" />
