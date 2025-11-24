@@ -25,7 +25,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
     _record_field = '' # to inherit, like 'balance_id'
     _record_fields_expense = [] # to inherit, like 'order_line'
 
-    _carpentry_budget_reservation = True # for action in Tree view of report `carpentry.budget.remaining`
+    _carpentry_record = True # for action in Tree view of report `carpentry.budget.remaining`
     _carpentry_budget_alert_banner_xpath = "//div[hasclass('oe_title')]"
     _carpentry_budget_smartbuttons_xpath = '//div[@name="button_box"]/button[last()]'
     _carpentry_budget_notebook_page_xpath = '//page[@name="products"]'
@@ -811,7 +811,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
                 reservation.amount_reserved = amount
 
                 # update cursors for next iter
-                mapped_remaining_budget[key_budget] -= amount
+                if key_budget in mapped_remaining_budget:
+                    mapped_remaining_budget[key_budget] -= amount
 
                 if debug:
                     print(' === _auto_update_budget_reservation (result) === ')
