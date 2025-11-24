@@ -315,7 +315,7 @@ class CarpentryBudgetReservation(models.Model):
         # flush
         reservations.flush_recordset(['amount_reserved'])
         reservations.project_id.flush_recordset(['date_start', 'date'])
-        self.env['hr.employee.timesheet.cost.history'].flush_model(['hourly_cost', 'starting_date', 'date_to'])
+        self.env['hr.employee.timesheet.cost.history'].flush_model()
 
         budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
         self._cr.execute("""
@@ -329,7 +329,7 @@ class CarpentryBudgetReservation(models.Model):
                     END
                 ))
             FROM carpentry_budget_reservation AS reservation
-            LEFT JOIN carpentry_budget_hourly_cost AS hourly_cost
+            INNER JOIN carpentry_budget_hourly_cost AS hourly_cost
                 ON  hourly_cost.project_id = reservation.project_id
                 AND hourly_cost.analytic_account_id = reservation.analytic_account_id
             WHERE reservation.id IN %(reservation_ids)s

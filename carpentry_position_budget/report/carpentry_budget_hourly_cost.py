@@ -94,9 +94,10 @@ class CarpentryBudgetHourlyCost(models.Model):
                 budget_line.budget_type IN ({sql_budget_types}) AND
                 project.date_start IS NOT NULL AND project.date IS NOT NULL AND (
                     history.starting_date IS NOT NULL AND (
-                        history.starting_date BETWEEN project.date_start AND project.date OR
-                        history.date_to       BETWEEN project.date_start AND project.date
+                        history.starting_date   BETWEEN project.date_start AND project.date
+                        OR history.date_to      BETWEEN project.date_start AND project.date
                     )
+                    OR history.date_to IS NULL AND history.starting_date <= project.date
                 )
             """
     
