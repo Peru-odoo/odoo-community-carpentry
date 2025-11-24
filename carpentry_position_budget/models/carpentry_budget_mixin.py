@@ -600,6 +600,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
             to_unlink |= record.reservation_ids.filtered(lambda resa: (
                 self._get_key(resa, mode='budget') not in mapped_possibles
                 or resa.analytic_account_id not in record.budget_analytic_ids
+                or resa.project_id != record.project_id
             ))
 
         if debug:
