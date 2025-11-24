@@ -176,7 +176,7 @@ class CarpentryBudgetRemaining(models.Model):
 
         for remaining in self:
             if remaining.state == 'budget':
-                record = remaining.position_id if remaining.position_id else remaining.project_id
+                record = remaining.position_id if remaining.position_id.exists() else remaining.project_id
             else:
                 # get record
                 record = False
@@ -221,7 +221,7 @@ class CarpentryBudgetRemaining(models.Model):
         if not self.record_model_id:
             return {}
         
-        if self.record_ref and hasattr(self.record_ref, '_carpentry_budget_reservation'):
+        if self.record_ref and hasattr(self.record_ref, '_carpentry_record'):
             # budget reservation
             return {
                 'type': 'ir.actions.act_window',
@@ -238,7 +238,11 @@ class CarpentryBudgetRemaining(models.Model):
         
         elif self.record_model_id.model in ('account.move.budget.line'):
             # available budget (at project level)
-            project = self.record_ref and self.record_ref.project_id
+            project = (
+                self.record_ref if self.record_ref._name == 'project.project'
+                else bool(self.record_ref) and self.record_ref.project_id
+            )
+
             if project:
                 return {
                     'type': 'ir.actions.act_window',

@@ -271,11 +271,10 @@ class CarpentryBudgetExpenseHistory(models.Model):
     @api.depends('record_model_id')
     def _compute_launch_ids(self):
         for expense in self:
-            expense.launch_ids = (
-                expense.record_ref and
-                'launch_ids' in expense.record_ref and # for position, launch_ids does not exist
-                expense.record_ref.launch_ids
-            )
+            record = expense.record_ref
+            expense.launch_ids = bool(
+                record and record._name != 'project.project' and hasattr(record, 'launch_ids')
+            ) and record.launch_ids
 
 class CarpentryBudgetExpense(models.Model):
     """ *Not* grouped by date (without history): for *Loss/Gains* report """

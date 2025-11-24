@@ -9,22 +9,22 @@ class CarpentryBudgetProject(models.Model):
     _inherit = ['carpentry.budget.expense']
     _description = 'Budget project balance'
     _auto = False
-    _order = 'project_id, sequence'
+    _order = 'project_id'
 
     #===== Fields =====#
-    sequence = fields.Integer()
     available_valued = fields.Monetary(
         string='Available budget',
         readonly=True,
     )
-    percent_gain = fields.Float(
-        string='Gain (%)',
-        digits=[10,1],
-        readonly=True,
-        group_operator='avg',
-    )
+    # percent_gain = fields.Float(
+    #     string='Gain (%)',
+    #     digits=[10,1],
+    #     readonly=True,
+    #     group_operator='avg',
+    # )
+    # re-activated fields
+    state = fields.Selection(store=True)
     # cancelled fields
-    state = fields.Selection(store=False)
     date = fields.Date(store=False)
     amount_reserved = fields.Float(store=False)
     amount_expense = fields.Monetary(store=False)
@@ -37,11 +37,6 @@ class CarpentryBudgetProject(models.Model):
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
 
-        # prerequisites = ('carpentry.budget.expense',)
-        # for model in prerequisites:
-        #     if not model in self.env:
-        #         self.env[model].init()
-        
         queries = self._get_queries()
         if queries:
             self._cr.execute("""
@@ -52,9 +47,6 @@ class CarpentryBudgetProject(models.Model):
                     FROM (
                         (%(union)s)
                     ) AS result
-                    
-                    INNER JOIN account_analytic_account AS analytic
-                        ON analytic.id = result.analytic_account_id
 
                     %(groupby)s
                 
@@ -79,10 +71,10 @@ class CarpentryBudgetProject(models.Model):
                     analytic_account_id
                 ) AS id,
                 
+                state,
                 project_id,
                 result.budget_type,
                 analytic_account_id,
-                sequence,
                 result.active,
                 
                 record_id AS record_id,
@@ -94,12 +86,7 @@ class CarpentryBudgetProject(models.Model):
                 SUM(amount_reserved_valued) AS amount_reserved_valued,
                 SUM(amount_expense) AS amount_expense,
                 SUM(amount_expense_valued) AS amount_expense_valued,
-                SUM(amount_gain) AS amount_gain,
-                CASE
-                    WHEN SUM(amount_reserved_valued) != 0
-                    THEN SUM(amount_gain) / SUM(amount_reserved_valued)
-                    ELSE NULL
-                END AS percent_gain
+                SUM(amount_gain) AS amount_gain
         """
     
     def _view_groupby(self):
@@ -109,13 +96,13 @@ class CarpentryBudgetProject(models.Model):
         
         return f"""
             GROUP BY
+                state,
                 project_id,
                 result.budget_type,
                 analytic_account_id,
                 record_id,
                 record_model_id,
                 {', ' . join(record_fields)},
-                sequence,
                 result.active
         """
     

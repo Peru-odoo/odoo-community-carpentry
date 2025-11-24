@@ -355,17 +355,8 @@ class CarpentryBudgetReservation(models.Model):
             print(' == _compute_amount_expense_gain_valued == ')
             print('self', self)
         
-        record_fields = set(self.filtered('record_field').mapped('record_field'))
-        if not rg_result:
-            print('record_fields', record_fields)
-            for record_field in record_fields:
-                print('record_field', record_field)
-                print('self[record_field]', self[record_field])
-                rg_result += self[record_field]._get_rg_result_expense()
-
-                print('rg_result', self[record_field]._get_rg_result_expense())
-
         # format expenses (not per launch yet)
+        record_fields = set(self.mapped('record_field'))
         rg_groupby = ['analytic_account_id'] + list(record_fields)
         mapped_expense_gain = {
             tuple([x[field] and x[field][0] for field in rg_groupby]):
