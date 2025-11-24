@@ -89,12 +89,12 @@ class ManufacturingOrder(models.Model):
         string='Last date time',
         store=True,
     )
-    # expense
-    count_reservation_workorders = fields.Integer(
-        compute='_compute_count_reservation_workorders',
+    # expenses (needed in SQL view)
+    count_budget_analytic_workorders = fields.Integer(
+        compute='_compute_count_budget_analytic_workorders',
         store=True,
     )
-    production_real_duration = fields.Float(store=True) # needed in SQL view
+    production_real_duration = fields.Float(store=True)
     production_real_duration_hours = fields.Float(compute_sudo=True,)
     # -- view fields --
     amount_loss_workorders = fields.Monetary(compute='_compute_view_fields')
@@ -108,11 +108,11 @@ class ManufacturingOrder(models.Model):
     )
 
     #===== Compute =====#
-    @api.depends('reservation_ids')
-    def _compute_count_reservation_workorders(self):
+    @api.depends('budget_analytic_ids')
+    def _compute_count_budget_analytic_workorders(self):
         """ Used in MRP SQL view """
         for record in self:
-            record.count_reservation_workorders = len(record.reservation_ids_workorders)
+            record.count_budget_analytic_workorders = len(record.budget_analytic_ids_workorders)
         
     @api.depends('budget_analytic_ids')
     def _compute_budget_analytic_ids_workorders(self):

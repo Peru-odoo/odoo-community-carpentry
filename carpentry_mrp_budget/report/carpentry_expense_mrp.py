@@ -89,7 +89,7 @@ class CarpentryExpense(models.Model):
                                 THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                     / record.total_budget_reserved_workorders
                                 -- cannot prorata by reserved budget => do it by reservations count
-                                ELSE (CASE WHEN count_reservation_workorders != 0 THEN 1 / count_reservation_workorders::float ELSE 0.0 END) 
+                                ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 0.0 END) 
                             END)
                             -- cancel budget_reservation
                             - COALESCE(SUM(reservation.amount_reserved), 0.0)
@@ -104,7 +104,7 @@ class CarpentryExpense(models.Model):
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_reservation_workorders != 0 THEN 1 / count_reservation_workorders::float ELSE 0.0 END)
+                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 0.0 END)
                         END
                     ) AS amount_expense,
 
