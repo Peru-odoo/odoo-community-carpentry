@@ -14,7 +14,9 @@ class ManufacturingOrder(models.Model):
     _carpentry_budget_last_valuation_step = _('products revaluation')
 
     #====== Fields ======#
-    reservation_ids = fields.One2many(inverse_name='production_id')
+    reservation_ids = fields.One2many(
+        inverse_name='production_id',
+    )
     expense_ids = fields.One2many(inverse_name='production_id')
     reservation_ids_components = fields.One2many(
         comodel_name='carpentry.budget.reservation',
@@ -32,20 +34,18 @@ class ManufacturingOrder(models.Model):
         relation='carpentry_budget_mrp_analytic_rel',
         column1='production_id',
         column2='analytic_id',
-        domain="""[
-            ('budget_project_ids', '=', project_id),
-            ('budget_type', 'not in', budget_analytic_ids_workorders)
-        ]"""
+    )
+    budget_analytic_ids_components = fields.Many2many(
+        comodel_name='account.analytic.account',
+        compute='_compute_budget_analytic_ids_mrp',
+        inverse='_inverse_budget_analytic_ids_mrp',
+        string='Budgets (components)',
     )
     budget_analytic_ids_workorders = fields.Many2many(
         comodel_name='account.analytic.account',
-        compute='_compute_budget_analytic_ids_workorders',
+        compute='_compute_budget_analytic_ids_mrp',
         inverse='_inverse_budget_analytic_ids_workorders',
-        string='Budget (work orders)',
-        domain="""[
-            ('budget_project_ids', '=', project_id),
-            ('budget_type', 'in', ['production'])
-        ]"""
+        string='Budgets (work orders)',
     )
     total_budget_reserved = fields.Float(
         string='Budget (components)',
@@ -115,34 +115,30 @@ class ManufacturingOrder(models.Model):
             record.count_budget_analytic_workorders = len(record.budget_analytic_ids_workorders)
         
     @api.depends('budget_analytic_ids')
-    def _compute_budget_analytic_ids_workorders(self):
-        debug = False
-        if debug:
-            print(' === _compute_budget_analytic_ids_workorders === ')
-        
+    def _compute_budget_analytic_ids_mrp(self):
+        budget_types_components = self._get_component_budget_types()
         budget_types_workorders = self._get_workorder_budget_types()
         for mo in self:
+            mo.budget_analytic_ids_components = mo.budget_analytic_ids.filtered(
+                lambda x: x.budget_type in budget_types_components
+            )
             mo.budget_analytic_ids_workorders = mo.budget_analytic_ids.filtered(
                 lambda x: x.budget_type in budget_types_workorders
             )
-
-            if debug:
-                print('budget_types_workorders', budget_types_workorders)
-                print('mo.budget_analytic_ids', mo.budget_analytic_ids.read(['name', 'budget_type']))
-                print('mo.budget_analytic_ids_workorders', mo.budget_analytic_ids_workorders.read(['name', 'budget_type']))
     
     def _inverse_budget_analytic_ids_workorders(self):
+        self = self.with_context(budget_analytic_ids_workorders_inverse=True)
+        self._inverse_budget_analytic_ids_mrp()
+
+    def _inverse_budget_analytic_ids_mrp(self):
         """ Populate workorders budget center in main field budget_analytic_ids,
             without refreshing component's `amount_reserved` 
         """
-        self = self.with_context(budget_analytic_ids_workorders_inverse=True)
-        budget_types_workorders = self._get_workorder_budget_types()
         for mo in self:
-            existing = mo.budget_analytic_ids.filtered(
-                lambda x: x.budget_type in budget_types_workorders
-            )
-            to_add = mo.budget_analytic_ids_workorders._origin - existing
-            to_remove = existing - mo.budget_analytic_ids_workorders._origin
+            existing = mo.budget_analytic_ids
+            budget_analytic_origin = mo.budget_analytic_ids_workorders._origin + mo.budget_analytic_ids_components._origin
+            to_add = budget_analytic_origin - existing
+            to_remove = existing - budget_analytic_origin
 
             if to_add:
                 mo.budget_analytic_ids += to_add
@@ -305,7 +301,7 @@ class ManufacturingOrder(models.Model):
         res[0]['params'] |= {
             'model_description': _('Components'),
             'fields_suffix': '_components',
-            'budget_types': [x for x in self._get_component_budget_types()],
+            'budget_types': self._get_component_budget_types(),
         }
         return res + [
             {
@@ -317,7 +313,7 @@ class ManufacturingOrder(models.Model):
                     'model_name': self._name,
                     'model_description': _('Work Orders'),
                     'fields_suffix': '_workorders',
-                    'budget_types': [x for x in self._get_budget_types() if x not in self._get_component_budget_types()],
+                    'budget_types': self._get_workorder_budget_types(),
                     'budget_choice': self._carpentry_budget_choice,
                     'sheet_name': _('Budget (work orders)'),
                     'last_valuation_step': False,
