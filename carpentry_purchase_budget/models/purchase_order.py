@@ -59,7 +59,6 @@ class PurchaseOrder(models.Model):
         ]
     def _depends_expense_totals(self):
         return super()._depends_expense_totals() + [
-            # mo
             'invoice_ids.amount_untaxed',
             'invoice_ids.line_ids.analytic_distribution',
         ]

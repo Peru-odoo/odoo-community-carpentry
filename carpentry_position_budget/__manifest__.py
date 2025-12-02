@@ -9,7 +9,7 @@
     'application': False,
     'installable': True,
     'category': 'Carpentry/Carpentry',
-    'version': '16.0.1.2.1',
+    'version': '16.0.1.2.2',
 
     'depends': [
         # odoo
@@ -39,6 +39,7 @@
         'views/account_move_budget_line.xml',
         'views/carpentry_budget_reservation.xml',
         'views/carpentry_budget_balance.xml',
+        'views/account_analytic_line.xml',
         # templates
         'templates/carpentry_budget_template.xml',
         # report

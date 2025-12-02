@@ -9,7 +9,7 @@ class TestCarpentryPositionBudget_AnalyticBase(TestCarpentryPositionBudget_Base)
 
     # configuration for inheriting modules
     UNIT_PRICE = 150.0
-    record_model = None # like 'purchase_order'
+    record_model = None # like 'purchase.order'
     field_lines = None # like 'order_line'
 
     @classmethod
@@ -36,11 +36,29 @@ class TestCarpentryPositionBudget_AnalyticBase(TestCarpentryPositionBudget_Base)
     def _create_record_product(cls):
         if not cls.record_model: return
 
+        # journal (for account.move & purchase)
+        cls.account, _ = cls.env['account.account'].create([{
+            'code': '601000',
+            'name': 'Direct purchase',
+            'account_type': 'expense',
+        },{
+            'code': '401100', # for po -> invoice
+            'name': 'Provider debt',
+            'account_type': 'liability_payable',
+        }])
+        cls.journal = cls.env['account.journal'].create({
+            'name': 'Test Journal',
+            'code': 'JRN',
+            'type': 'purchase',
+            'default_account_id': cls.account.id, # for po -> invoice
+        })
+
         # product
         vals = {
             'uom_id': cls.env.ref('uom.product_uom_unit').id,
             'uom_po_id': cls.env.ref('uom.product_uom_unit').id,
             'standard_price': cls.UNIT_PRICE,
+            'property_account_expense_id': cls.account.id, # for po -> invoice
         }
         cls.product, cls.product_storable = cls.env['product.product'].create([
             {'name': 'Product Consumable', 'type': 'consu'}   | vals,
@@ -219,34 +237,10 @@ class TestCarpentryPositionBudget_AnalyticProject(TestCarpentryPositionBudget_An
         self.record.project_id = self.project2
         self._test_line_projects(self.project2)
 
-    # def __old_test_09_update_record_project_multiple_distribution(self):
-    #     """ **LEGACY** was relevant when record's project update
-    #         was only modifying from old_aac_id to new_aac_id
-
-    #         (Ensure than even in multiple distribution,
-    #         changing record's project either:
-    #         - line's distrib follow the change if the project was in it 
-    #         - has no impact if not present in line's distrib)
-    #     """
-    #     if not self.record_model: return
-
-    #     # ensure start state: record is on 'project', line is on 'project' and 'project2'
-    #     self._add_analytic({self.project2_aac.id: -300})
-    #     self.assertEqual(self.record.project_id, self.project)
-    #     self._test_line_projects(self.project + self.project2)
-
-    #     # change record's project: line should follow
-    #     self.record.project_id = self.project3
-    #     self._test_line_projects(self.project3 + self.project2)
-        
-    #     # only project2 in line's analytic
-    #     self.record.project_id = self.project2
-    #     self._test_line_projects(self.project2)
-
     #===== New line =====#
     def test_10_new_line_create(self):
         """ Ensure new lines follows record's project """
-        if not self.record_model: return
+        if not self.record_model or not self.field_lines: return
         
         # create new line: it should follow record's project
         self.record[self.field_lines] = [Command.create(self._get_vals_new_line(qty=5.0))]

@@ -25,7 +25,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
     _record_field = '' # to inherit, like 'balance_id'
     _record_fields_expense = [] # to inherit, like 'order_line'
 
-    _carpentry_record = True # for action in Tree view of report `carpentry.budget.remaining`
     _carpentry_budget_alert_banner_xpath = "//div[hasclass('oe_title')]"
     _carpentry_budget_smartbuttons_xpath = '//div[@name="button_box"]/button[last()]'
     _carpentry_budget_notebook_page_xpath = '//page[@name="products"]'
@@ -47,7 +46,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
     budget_analytic_ids = fields.Many2many(
         comodel_name='account.analytic.account',
         string='Budgets',
-        domain="[('budget_project_ids', '=', project_id)]",
         copy=False,
     )
     expense_ids = fields.One2many(
@@ -142,9 +140,9 @@ class CarpentryBudgetMixin(models.AbstractModel):
     def _depends_reservation_refresh(self):
         """ To inherite. Fields that triggers automatic budget reservation.
             Used by `reservation_ids._compute_amount_reserved`, which process in order:
-            1. `_comupte_budget_analytic_ids`
-            2. `_auto_update_budget_reservation`
-            3. `_compute_total_expense_gain`
+             1. `_refresh_budget_analytic_ids`
+             2. `_auto_update_budget_reservation`
+             3. `_compute_total_expense_gain`
             Example: ['order_line.analytic_distribution', 'amount_untaxed']
         """
         return []
@@ -452,6 +450,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         
         # read_group (-> this call is very expensive)
         self._flush_budget()
+        self.env.flush_all()
         Expense = self.env['carpentry.budget.expense'].with_context(active_test=False).sudo()
         rg_result = Expense._read_group(
             domain=[(self._record_field, 'in', self._origin.ids)],
@@ -469,6 +468,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
         if debug:
             print(' == _get_rg_result_expense (result) == ')
+            print('_record_field, self.ids', self._record_field, self.ids)
             print('reservations', self.reservation_ids.read(['analytic_account_id', 'amount_reserved', self._record_field]))
             print('expense_all', Expense.search_read(
                 [(self._record_field, 'in', self.ids)],

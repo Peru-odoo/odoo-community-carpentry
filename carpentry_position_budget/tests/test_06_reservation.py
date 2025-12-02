@@ -39,7 +39,7 @@ class TestCarpentryPositionBudget_Reservation(TestCarpentryPositionBudget_Analyt
         """ Shortcut to test count, aac, launch & amount of reservations """
         reservations = self.record.reservation_ids
 
-        debug = False
+        debug = True
         if debug:
             print(' == _test_reservation_values == ')
             self._print_record_debug()

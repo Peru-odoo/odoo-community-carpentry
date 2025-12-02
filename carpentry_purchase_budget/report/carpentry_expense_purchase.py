@@ -11,7 +11,7 @@ class CarpentryExpenseHistory(models.Model):
             - po lines with qty_invoice == 0, open PO on tree view click
             - mo lines, open MO
         """
-        return super()._get_queries_models() + ('purchase.order','account.move',)
+        return super()._get_queries_models() + ('purchase.order',) # 'account.move' [TEMP 2025-11-25 ALY] before full removal
     
     def _select(self, model, models):
         if model in ('purchase.order', 'account.move'):

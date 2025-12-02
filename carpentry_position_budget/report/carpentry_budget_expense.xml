@@ -104,8 +104,9 @@
                 <filter string="Without reservation"      name="filter_reservation_empty" domain="[('amount_reserved', '=',  0.0)]" />
 
                 <separator name="models" />
+                <filter string="Account Move"         name="filter_account"  domain="[('record_model_id.model', 'in', ['account.move', 'account.move.line'])]" />
+                <filter string="Analytic Line"        name="filter_analytic" domain="[('record_model_id.model', 'in', ['account.analytic.line'])]" />
                 <filter string="Purchase Orders"      name="filter_purchase" domain="[('record_model_id.model', 'in', ['purchase.order'])]" />
-                <filter string="Invoice"              name="filter_invoice"  domain="[('record_model_id.model', 'in', ['account.move'])]" />
                 <filter string="Stock Picking"        name="filter_picking"  domain="[('record_model_id.model', 'in', ['stock.picking'])]" />
                 <filter string="Manufacturing Orders" name="filter_mrp"      domain="[('record_model_id.model', 'in', ['mrp.production', 'mrp.workorder'])]" />
                 <filter string="Tasks"                name="filter_tasks"    domain="[('record_model_id.model', 'in', ['project.task'])]" />

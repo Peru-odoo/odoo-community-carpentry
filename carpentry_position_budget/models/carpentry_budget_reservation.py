@@ -354,6 +354,7 @@ class CarpentryBudgetReservation(models.Model):
         if debug:
             print(' == _compute_amount_expense_gain_valued == ')
             print('self', self)
+            print('rg_result', rg_result)
         
         # format expenses (not per launch yet)
         record_fields = set(self.mapped('record_field'))

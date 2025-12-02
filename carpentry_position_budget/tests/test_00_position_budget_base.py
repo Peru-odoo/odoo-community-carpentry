@@ -72,7 +72,7 @@ class TestCarpentryPositionBudget_Base(TestCarpentryGroup_Base):
         cls.budget_types = ('other', 'goods', 'production', 'installation', 'service')
         cls.Analytic = cls.env['account.analytic.account']
         cls.analytic_plan = cls.env['account.analytic.plan'].create({
-            'name': 'Project Budgets Test 01'
+            'name': 'Project Budgets Test 01',
         })
         cls.aacs = (
             cls.Analytic.create([{

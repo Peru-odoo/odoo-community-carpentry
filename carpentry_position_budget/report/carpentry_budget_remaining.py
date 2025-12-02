@@ -58,8 +58,7 @@ class CarpentryBudgetRemaining(models.Model):
         if queries:
             # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
             Reservation = self.env['carpentry.budget.reservation']
-            record_fields = Reservation._get_record_fields()
-            sql_record_fields = ', ' . join([field for field in record_fields])
+            sql_record_fields = ', ' . join([field for field in Reservation._get_record_fields()])
 
             self._cr.execute("""
                 CREATE or REPLACE VIEW %(table_name)s AS (
@@ -91,9 +90,8 @@ class CarpentryBudgetRemaining(models.Model):
     def _select(self, model, models):
         # SQL for balance_id, purchase_id, production_id, task_id, ...
         Reservation = self.env['carpentry.budget.reservation']
-        record_fields = Reservation._get_record_fields()
         prefix = 'NULL AS ' if model == 'carpentry.budget.available' else 'reservation.'
-        sql_record_fields = ', ' . join([prefix + field for field in record_fields])
+        sql_record_fields = ', ' . join([prefix + field for field in Reservation._get_record_fields()])
 
         if model == 'carpentry.budget.available':
             return f"""
@@ -171,9 +169,7 @@ class CarpentryBudgetRemaining(models.Model):
     #===== Compute =====#
     @api.depends('record_model_id')
     def _compute_record_ref(self):
-        Reservation = self.env['carpentry.budget.reservation']
-        record_fields = Reservation._get_record_fields()
-
+        record_fields = self._get_record_fields()
         for remaining in self:
             if remaining.state == 'budget':
                 record = remaining.position_id if remaining.position_id.exists() else remaining.project_id
@@ -221,26 +217,16 @@ class CarpentryBudgetRemaining(models.Model):
         if not self.record_model_id:
             return {}
         
-        if self.record_ref and hasattr(self.record_ref, '_carpentry_record'):
-            # budget reservation
-            return {
-                'type': 'ir.actions.act_window',
-                'name': self.record_ref._description,
-                'res_model': self.record_ref._name,
-                'res_id': self.record_ref.id,
-                'view_mode': 'form',
-            }
-        
         elif self.record_model_id.model in ('carpentry.position', 'project.project'):
             # available budget
             position_id = self.record_ref._name == 'carpentry.position' and self.record_ref
             return self.open_position_budget(position_id)
         
-        elif self.record_model_id.model in ('account.move.budget.line'):
+        elif self.record_model_id.model == 'account.move.budget.line':
             # available budget (at project level)
-            project = (
+            project = bool(self.record_ref) and (
                 self.record_ref if self.record_ref._name == 'project.project'
-                else bool(self.record_ref) and self.record_ref.project_id
+                else self.record_ref.project_id
             )
 
             if project:
@@ -251,5 +237,15 @@ class CarpentryBudgetRemaining(models.Model):
                     'name': project.display_name,
                     'res_id': project.id,
                 }
+        
+        elif self.record_ref:
+            # budget reservation
+            return {
+                'type': 'ir.actions.act_window',
+                'name': self.record_ref._description,
+                'res_model': self.record_ref._name,
+                'res_id': self.record_ref.id,
+                'view_mode': 'form',
+            }
         
         return {}

@@ -109,7 +109,7 @@
                     colspan="2" class="btn btn-primary oe_right" icon="fa-floppy-o"
                 >
                     <!-- attrs="{'invisible': [('readonly_reservation', '=', False)]}" -->
-                    <!-- Please save before continuing -->
+                    <!-- Save before continuing -->
                     Apply
                 </button>
             </group>

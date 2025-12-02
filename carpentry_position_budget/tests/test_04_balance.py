@@ -6,8 +6,6 @@ from odoo.tests.common import Form
 from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
 from odoo.addons.carpentry_position_budget.models.carpentry_planning_column import human_readable
 
-import datetime
-
 class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
 
     @classmethod
@@ -32,8 +30,9 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         print('cls.balance', cls.balance.read(['budget_analytic_ids']))
         print('cls.project.budget_line_ids', cls.project.budget_line_ids.read(['analytic_account_id', 'is_computed_carpentry']))
         print('reservations', cls.balance.reservation_ids.read(['analytic_account_id', 'launch_id', 'amount_reserved']))
+        print('expenses', cls.env['carpentry.budget.expense'].search_read([], ['analytic_account_id', 'balance_id', 'amount_reserved', 'amount_expense', 'amount_gain']))
 
-    #===== Reservations =====#
+    #===== Balance's reservations =====#
     @classmethod
     def _sum_report_remaining_budget(cls, mode):
         operator = '=' if mode == 'project' else '!='
@@ -90,7 +89,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         with self.assertRaises(exceptions.RedirectWarning):
             line.debit -= 2.0
 
-    #===== Launchs reservations =====#
+    #===== Balance's launchs reservations =====#
     @classmethod
     def _create_balance2(cls):
         cls.balance2 = cls.balance.copy({'name': 'Balance2'})
@@ -143,7 +142,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         with self.assertRaises(exceptions.ValidationError):
             reservation.amount_reserved += 1.0
 
-    #===== Budget negative constrain & reservations clean =====#
+    #===== Budget negative constrain & reservations clean (using balances) =====#
     def test_08_affectation_constrain(self):
         """ Ensure it raises if removed affectation creates a <0 remaining budget """
         # start state: all launch budget is reserved
@@ -272,7 +271,7 @@ class TestCarpentryPositionBudget_Balance(TestCarpentryPositionBudget_Base):
         self.assertEqual(result.get('reserved'), launch_available)
 
     #===== Final tests =====#
-    def test_99_reservation_clean_on_affectation_removal(self):
+    def test_90_reservation_clean_on_affectation_removal(self):
         """ Ensure when a budget is removed, *empty/ghost* reservation
             linked to it but not reserving budget should be cleaned
             (see `_clean_reservation_and_constrain_budget`)

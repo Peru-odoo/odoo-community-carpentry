@@ -4,6 +4,9 @@ from . import account_analytic_account
 from . import account_move_budget_line
 from . import analytic_mixin
 
+from . import account_analytic_line
+from . import account_move_line
+
 from . import carpentry_affectation
 from . import carpentry_affectation_mixin
 from . import carpentry_group_lot

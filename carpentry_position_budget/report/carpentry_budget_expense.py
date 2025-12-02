@@ -13,6 +13,12 @@ class CarpentryBudgetExpenseHistory(models.Model):
     _description = 'Expenses History'
     _auto = False
 
+    #===== Fields methods =====#
+    def _get_record_fields(self):
+        return self.env['carpentry.budget.reservation']._get_record_fields() + [
+            'move_id', 'move_line_id', 'analytic_line_id',
+        ]
+
     #===== Fields =====#
     currency_id = fields.Many2one(
         related='project_id.currency_id',
@@ -47,6 +53,22 @@ class CarpentryBudgetExpenseHistory(models.Model):
         readonly=True,
         help='Budget reservation - Real expense',
     )
+    # record fields with expense through analytic (without budget reservation)
+    move_id = fields.Many2one(
+        string='Account Move',
+        comodel_name='account.move',
+        readonly=True,
+    )
+    move_line_id = fields.Many2one(
+        string='Account Move Line',
+        comodel_name='account.move.line',
+        readonly=True,
+    )
+    analytic_line_id = fields.Many2one(
+        string='Analytic Line',
+        comodel_name='account.analytic.line',
+        readonly=True,
+    )
     # cancel fields
     state = fields.Selection(store=False)
     position_id = fields.Many2one(store=False)
@@ -56,7 +78,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
     #===== View build =====#
     def _get_queries_models(self):
         """ Inherited in sub-modules (purchase, mrp, timesheet) """
-        return ('carpentry.budget.reservation',)
+        return ('carpentry.budget.reservation','account.analytic.line',)
     
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -158,17 +180,16 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         expense.record_id
                 )""", {
                     'view_name': AsIs(self._table),
-                    'sql_record_fields': AsIs(self._get_sql_record_fields_main_view('expense.')),
+                    'sql_record_fields': AsIs(self._sql_record_fields('expense.')),
                     'budget_types': tuple(budget_types),
                     'union': AsIs(') UNION ALL (' . join(queries)),
             })
     
-    def _get_sql_record_fields_main_view(self, view=''):
+    def _sql_record_fields(self, view=''):
         """ SQL for balance_id, purchase_id, production_id, task_id, ... """
-        Reservation = self.env['carpentry.budget.reservation']
         sql_record_fields = ''
-        for field in Reservation._get_record_fields():
-            model = Reservation[field]._name
+        for field in self._get_record_fields():
+            model = self[field]._name
             if model == 'carpentry.budget.balance':
                 model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
             else:
@@ -182,27 +203,30 @@ class CarpentryBudgetExpenseHistory(models.Model):
                 END AS {field},
             """
         return sql_record_fields
+    
+    def _sql_record_model_id(self, model, models,
+                             relational_fields, default_model_id,
+                             prefix=''
+    ):
+        """ SQL for `record_model_id` """
+        sql_record_model_id = ''
+        for field in relational_fields:
+            record_model_id = bool(model in self.env) and self.env[model]._fields[field].comodel_name
+            sql_record_model_id += f"""
+                CASE
+                    WHEN {prefix}{field} IS NOT NULL
+                    THEN {models.get(record_model_id, default_model_id)}
+                    ELSE
+            """
+        return sql_record_model_id + ' NULL ' + ('END ' * len(relational_fields))
 
     def _select(self, model, models):
         if model == 'carpentry.budget.reservation':
-            Reservation = self.env['carpentry.budget.reservation']
-            record_fields = Reservation._get_record_fields()
-            
-            sql_record_model_id = ''
-            for record_field in record_fields:
-                model = Reservation[record_field]._name
-                if model == 'carpentry.budget.balance':
-                    model_id = f"(SELECT id FROM ir_model WHERE model = '{model}')"
-                else:
-                    model_id = self.env['ir.model']._get_id(model)
-                
-                sql_record_model_id += f"""
-                    CASE
-                        WHEN {record_field} IS NOT NULL
-                        THEN {model_id}
-                        ELSE
-                """
-            sql_record_model_id += ' NULL ' + ' END ' * len(record_fields)
+            record_fields = self.env[model]._get_record_fields()
+            sql_record_model_id = self._sql_record_model_id(
+                model, models, record_fields,
+                default_model_id=f"(SELECT id FROM ir_model WHERE model = 'carpentry.budget.balance')",
+            )
 
             sql = f"""
                 SELECT
@@ -221,16 +245,48 @@ class CarpentryBudgetExpenseHistory(models.Model):
                     0.0 AS amount_expense_valued
             """
         
+        elif model == 'account.analytic.line':
+            comodel_fields = ['purchase_id', 'move_id', 'move_line_id', 'id']
+            sql_record_id = ', ' . join(['analytic.' + field for field in comodel_fields])
+            sql_record_model_id = self._sql_record_model_id(
+                model, models, comodel_fields, default_model_id=models[model], prefix='analytic.'
+            )
+
+            sql = f"""
+                SELECT
+                    analytic_projects.project_id,
+                    analytic.date,
+                    TRUE AS active,
+                    COALESCE({sql_record_id}) AS record_id,
+                    {sql_record_model_id} AS record_model_id,
+                    analytic.account_id AS analytic_account_id,
+                    analytic.budget_type,
+
+                    0.0 AS amount_reserved,
+
+                    'DEVALUE' AS value_or_devalue_workforce_expense,
+                    -1 * analytic.amount AS amount_expense,
+                    NULL AS amount_expense_valued
+            """
+        
         return sql
 
     def _from(self, model, models):
         if model == 'carpentry.budget.reservation':
             return "FROM carpentry_budget_reservation AS reservation"
+        elif model == 'account.analytic.line':
+            return "FROM account_analytic_line AS analytic"
         else:
             return f"FROM {model.replace('.', '_')} AS record"
 
     def _join(self, model, models):
-        return ''
+        if model == 'account.analytic.line':
+            return """
+                INNER JOIN carpentry_budget_analytic_line_project_rel AS analytic_projects
+                    ON analytic_projects.line_id = analytic.id
+            """
+        else:
+            return ''
 
     def _join_product_analytic_distribution(self):
         return """
@@ -252,12 +308,26 @@ class CarpentryBudgetExpenseHistory(models.Model):
     def _where(self, model, models):
         if model == 'carpentry.budget.reservation':
             return 'WHERE TRUE'
+        elif model == 'account.analytic.line':
+            return 'WHERE TRUE' # see INNER JOIN
         else:
             return 'WHERE analytic.budget_type IS NOT NULL'
     
     def _groupby(self, model, models):
         if model == 'carpentry.budget.reservation':
             return ''
+        elif model == 'account.analytic.line':
+            return """
+                GROUP BY
+                    analytic.budget_type,
+                    analytic.account_id,
+                    analytic_projects.project_id,
+                    analytic.date,
+                    analytic.purchase_id,
+                    analytic.move_id,
+                    analytic.move_line_id,
+                    analytic.id
+            """
         else:
             return 'GROUP BY analytic.budget_type, analytic.id, record.id, record.project_id'
     
@@ -287,7 +357,6 @@ class CarpentryBudgetExpense(models.Model):
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
-        
         self._cr.execute("""
             CREATE or REPLACE VIEW %(view_name)s AS (
                 SELECT
@@ -323,6 +392,6 @@ class CarpentryBudgetExpense(models.Model):
                     active
             )""", {
                 'view_name': AsIs(self._table),
-                'sql_record_fields': AsIs(self._get_sql_record_fields_main_view())
+                'sql_record_fields': AsIs(self._sql_record_fields())
             }
         )

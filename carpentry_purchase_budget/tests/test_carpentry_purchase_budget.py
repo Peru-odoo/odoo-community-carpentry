@@ -96,14 +96,13 @@ class TestCarpentryPurchaseBudget_Reservation(
         print('expenses', cls.record.expense_ids.read(
             ['amount_reserved', 'amount_reserved_valued',
              'amount_expense', 'amount_expense_valued',
-             'amount_gain'
+             'amount_gain', 'analytic_account_id',
             ]
         ))
     
     #===== Auto/suggestion mode =====#
     # See `carpentry_position_budget/TestCarpentryPositionBudget_Reservation`
     def _test_01_results(self):
-        self._print_test()
         return {
             'count': 1,
             'aacs': self.aac_other,
@@ -215,34 +214,52 @@ class TestCarpentryPurchaseBudget_Reservation(
 
         # 1. 2 affectations and 2 PO lines
         self.line.analytic_distribution = {self.aac_other.id: 100}
-        self.line.copy()
-        self._test_reservation('81a')
+        new_line = self.line.copy()
+        self._test_reservation_values(
+            count = 2,
+            budget_reserved = self.amount_other * 2, # amount_other is 100.0 while line.price_subtotal is 150.0
+            expense_valued = self.line.price_subtotal * 2,
+        )
 
         # 2.
         self.record.reservation_ids.unlink()
-        self._test_reservation('81b')
+        self._test_reservation_values(
+            count = 0,
+            budget_reserved = 0.0,
+            expense_valued = self.line.price_subtotal * 2,
+        )
 
-    def _test_81a_results(self):
-        return {
-            'count': 2,
-            'budget_reserved': self.amount_other * 2, # amount_other is 100.0 while line.price_subtotal is 150.0
-            'expense_valued': self.line.price_subtotal * 2,
-        }
-    def _test_81b_results(self):
-        return {
-            'count': 0,
-            'budget_reserved': 0.0,
-            'expense_valued': self.line.price_subtotal * 2,
-        }
-    
+        new_line.unlink() # clean
     
     def test_82_other_expense_bill(self):
-        """ Ensure if the analytic is changed on account.move and
-            is different to PO's lines, it takes precedence and
+        """ Ensure if the analytic is changed on account.move.line and
+            is different to PO's lines, it takes precedence for expense and
             goes to `other_expense_ids`
         """
-        pass
-        # TODO @arnaudlayec
+        self.record.button_confirm()
+        self.record.order_line.analytic_distribution = {self.aac_other.id: 100}
+        self.record.flush_recordset() # like 'save'
+        for line in self.record.order_line:
+            line.qty_received_method = 'manual'
+            line.qty_received_manual = line.product_qty
+        self.record.action_create_invoice()
+        invoice = self.record.invoice_ids
+        invoice.invoice_date = invoice.date
+        self._test_reservation_values(
+            aacs=self.aac_other,
+            other_expense_aacs=self.Analytic,
+        )
+        
+        invoice.line_ids.analytic_distribution = {
+            self.project.analytic_account_id.id: 100,
+            self.aac_goods.id: 100,
+        }
+        invoice.action_post()
+        self.env.invalidate_all() # like 'save'
+        self._test_reservation_values(
+            aacs=self.aac_other,
+            other_expense_aacs=self.aac_goods,
+        )
 
     def test_83_can_chose_budgets_when_billed(self):
         """ Ensure even if some real expenses comes from the account.move.line,
@@ -250,7 +267,12 @@ class TestCarpentryPurchaseBudget_Reservation(
         """
         pass
         # TODO @arnaudlayec
-        
         # if changed manually: does not interfer
-
         # if retriggered (e.g. change PO's analytic): included
+
+    def test_84_po_partial_invoice(self):
+        """ Even when a qty of a PO is partially invoiced,
+            expense amount from the invoice takes precedence over the PO
+        """
+        pass
+        # TODO @arnaudlayec

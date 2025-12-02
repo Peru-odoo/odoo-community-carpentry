@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Analytic Line (form) -->
+    <record id="view_account_analytic_line_form" model="ir.ui.view">
+        <field name="name">account.analytic.line.form.carpentry_position_budget</field>
+        <field name="model">account.analytic.line</field>
+        <field name="inherit_id" ref="analytic.view_account_analytic_line_form" />
+
+        <field name="arch" type="xml">
+            <group name="analytic_item" position="inside">
+                <field name="budget_type" />
+                <field name="budget_project_ids" widget="many2many_tags"
+                    attrs="{
+                        'invisible': [('budget_type', '=', False)],
+                        'required': [('budget_type', '!=', False)],
+                }" />
+            </group>
+        </field>
+    </record>
+</odoo>

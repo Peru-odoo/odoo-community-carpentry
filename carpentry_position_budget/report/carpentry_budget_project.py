@@ -60,9 +60,7 @@ class CarpentryBudgetProject(models.Model):
     #===== View definition =====#
     def _view_select(self):
         # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
-        Reservation = self.env['carpentry.budget.reservation']
-        record_fields = Reservation._get_record_fields()
-        sql_record_fields = ', ' . join([field for field in record_fields])
+        sql_record_fields = ', ' . join([field for field in self._get_record_fields()])
         
         return f"""
             SELECT
@@ -90,10 +88,6 @@ class CarpentryBudgetProject(models.Model):
         """
     
     def _view_groupby(self):
-        # SELECT SQL for balance_id, purchase_id, production_id, task_id, ...
-        Reservation = self.env['carpentry.budget.reservation']
-        record_fields = Reservation._get_record_fields()
-        
         return f"""
             GROUP BY
                 state,
@@ -102,7 +96,7 @@ class CarpentryBudgetProject(models.Model):
                 analytic_account_id,
                 record_id,
                 record_model_id,
-                {', ' . join(record_fields)},
+                {', ' . join(self._get_record_fields())},
                 result.active
         """
     
@@ -110,10 +104,8 @@ class CarpentryBudgetProject(models.Model):
     #===== Union sub-queries definition =====#
     def _select(self, model, models):
         # SQL for balance_id, purchase_id, production_id, task_id, ...
-        Reservation = self.env['carpentry.budget.reservation']
-        record_fields = Reservation._get_record_fields()
         prefix = 'NULL AS ' if model == 'account.move.budget.line' else ''
-        sql_record_fields = ', ' . join([prefix + field for field in record_fields])
+        sql_record_fields = ', ' . join([prefix + field for field in self._get_record_fields()])
 
         if model == 'account.move.budget.line':
             return f"""
