@@ -80,7 +80,7 @@ class Project(models.Model):
     def _compute_budget_fees_and_margins(self):
         # 2. Reserved budget & real expense
         keys = ['reserved', 'expense']
-        rg_expense = self.env['carpentry.budget.expense']._read_group(
+        rg_expense = self.env['carpentry.budget.expense'].with_context(active_test=True)._read_group(
             domain=[('project_id', 'in', self.ids)],
             fields=['amount_' + k + '_valued:sum' for k in keys],
             groupby=['project_id'],
@@ -132,7 +132,6 @@ class Project(models.Model):
         
         for project in self:
             project.budget_up_to_date = not (project.id in partial_updated_project_ids_)
-
 
     #===== Carpentry Planning =====#
     def get_planning_dashboard_data(self):
