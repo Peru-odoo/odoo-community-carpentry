@@ -46,18 +46,15 @@ class CarpentryPlanningColumn(models.Model):
         fields = ['amount_reserved', 'amount_reserved_valued']
         budget_fields = ['project_id', 'launch_id', 'budget_type']
         rg_reserved = self.env['carpentry.budget.reservation']._read_group(
-            domain=domain, groupby=budget_fields, lazy=False,
+            domain=domain_budget, groupby=budget_fields, lazy=False,
             fields=[field + ':sum' for field in fields],
         )
-        mapped_reserved = {
-            BudgetMixin._get_key(vals=x, mode='planning'):
-            {field: x[field] for field in fields}
-            for x in rg_reserved
-        }
-        mapped_ratio = BudgetMixin._get_budget_distribution({
-            key: vals['amount_reserved_valued']
-            for key, vals in mapped_reserved.items()
-        })
+        mapped_reserved_both, mapped_reserved_value = {}, {}
+        for x in rg_reserved:
+            key = BudgetMixin._get_key(vals=x, mode='planning')
+            mapped_reserved_both[key] = {field: x[field] for field in fields}
+            mapped_reserved_value[key] = x['amount_reserved_valued']
+        mapped_ratio = BudgetMixin._get_budget_distribution(mapped_reserved_value)
 
         # 3. Expense, to be distributed by launch as per mapped_ratio
         fields = ['amount_expense', 'amount_expense_valued']
@@ -88,7 +85,7 @@ class CarpentryPlanningColumn(models.Model):
                 available += mapped_available.get(budget_type, 0.0)
 
                 key_budget = (project_id, launch_id_, budget_type)
-                reserved += mapped_reserved.get(key_budget, {}).get('amount_reserved' + valued, 0.0)
+                reserved += mapped_reserved_both.get(key_budget, {}).get('amount_reserved' + valued, 0.0)
                 ratio = mapped_ratio.get(key_budget, 0.0)
                 expense += mapped_expense.get(budget_type, {}) .get('amount_expense'  + valued, 0.0) * ratio
 
