@@ -195,10 +195,9 @@ class AnalyticMixin(models.AbstractModel):
         
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
         for record in self:
-            replaced = record._get_replaced_analytic_distribution(
+            record.analytic_distribution = record._get_replaced_analytic_distribution(
                 replace_dict_enforce
             )
-            record.analytic_distribution = replaced
     
     def _should_enforce_internal_analytic(self):
         """ **Can be inheritted**
