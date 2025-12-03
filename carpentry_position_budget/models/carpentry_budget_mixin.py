@@ -273,11 +273,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         if not reservations:
             budgets, launchs = self['budget_analytic_ids' + field_suffix], self['launch_ids']
             if budgets and launchs:
-                text = _(
-                    'There is no budget center with remaining budget. '
-                    'Verify if selected budget center(s) do(es) exist in the project '
-                    'and have budget.'
-                )
+                text = _('Verify if selected budget center(s) have budget in the project.')
             else:
                 if not budgets and not launchs:
                     word = _('budget center(s) and possibly launch(s)')
@@ -786,16 +782,20 @@ class CarpentryBudgetMixin(models.AbstractModel):
         if debug:
             print(' === _auto_update_budget_reservation (start) === ')
         
-        if not self._get_reservations_auto_update():
-            return
-        
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         mapped_remaining_budget = self._get_remaining_budget() # independant of `self.id`
         total_by_analytic = self._get_total_budgetable_by_analytic(rg_result)
-        
+        filter_budget_types = self._context.get('filter_budget_types', [])
+
         for record in self:
             mapped_budget_ratio = self._get_budget_distribution(mapped_remaining_budget)
-            for reservation in record._get_reservations_auto_update():
+
+            # for MRP
+            reservations = record.reservation_ids
+            if filter_budget_types:
+                reservations = reservations.filtered(lambda x: x.budget_type in filter_budget_types)
+            
+            for reservation in reservations:
                 key_budget = reservation._get_key(rec=reservation, mode='budget')
                 key_resa = tuple(list(key_budget) + [record.id])
 
@@ -824,12 +824,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
                     print('key', key_resa)
                     print('expense_spread', expense_spread)
                     print('reservation.amount_reserved', reservation.amount_reserved)
-    
-    def _get_reservations_auto_update(self):
-        """ Filters reservations for which `amount_reserved` should not be updated
-            (inherited for workorders)
-        """
-        return self.reservation_ids
     
     def _get_total_budgetable_by_analytic(self, rg_result):
         """ :return: Dict like {analytic_id: real cost} where *real cost* is:
@@ -951,12 +945,23 @@ class CarpentryBudgetMixin(models.AbstractModel):
     def open_remaining_budget(self):
         return self.action_open_budget('action_open_budget_report_remaining')
     
-    def button_force_refresh(self):
+    def button_reservation_refresh(self):
         """ Recomputes budget reservation amounts with
             automatic distribution of expense to budget centers
         """
         rg_result = self._get_rg_result_expense()
         self._auto_update_budget_reservation(rg_result)
+
+    def button_reservation_maximum(self):
+        """ Help user to balance all remaining budget """
+        reservations = self.reservation_ids
+        # filter: for MRP
+        filter_budget_types = self._context.get('filter_budget_types', [])
+        if filter_budget_types:
+            reservations = reservations.filtered(lambda x: x.budget_type in filter_budget_types)
+
+        for reservation in reservations:
+            reservation.amount_reserved += reservation.amount_remaining
 
     #===== Views =====#
     def _get_view_carpentry_config(self):
@@ -979,7 +984,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
                     'budget_choice': self._carpentry_budget_choice,
                     'sheet_name': self._carpentry_budget_sheet_name,
                     'last_valuation_step': self._carpentry_budget_last_valuation_step,
-                    'button_refresh': True,
+                    'button_reservation_refresh': True,
                 }
             },
         ]

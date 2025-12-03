@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
     <!-- Template: budget info banner -->
@@ -21,21 +21,21 @@
                     ('{{fields['show_budget_banner']}}', '=', False),
                 ]}"
             >
-                <span class="fa fa-info-circle" />
-                The budget reservation of <t t-out="model_description" />
-                (<strong>
+                <span class="fa fa-info-circle" /> The budget reservation of <t
+                    t-out="model_description" /> (<strong>
                     <field t-att-name="fields['total_budget_reserved']" readonly="1" />
                     <field t-att-name="fields['budget_unit']" readonly="1" />
                 </strong>)
-                differs from the
-                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '=',  'h')]}">cost affected to the project</span>
-                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '!=', 'h')]}">allocated hours</span>
-                (<strong>
+                differs from the <span
+                    t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '=',  'h')]}">cost
+                affected to the project</span>
+                <span
+                    t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '!=', 'h')]}">allocated
+                hours</span> (<strong>
                     <field t-att-name="fields['total_budgetable']" readonly="1" />
                     <field t-att-name="fields['budget_unit']" readonly="1" />
                 </strong>).
-                If this is not on purpose, review the "Budget" tab.
-            </div>
+                If this is not on purpose, review the "Budget" tab. </div>
         </div>
     </template>
 
@@ -68,13 +68,17 @@
             >
                 <group col="12" t-if="budget_choice">
                     <!-- Left: choice of budget (col) -->
-                    <group name="left" colspan="5" t-attf-string="Choose budgets ({{model_description}})">
-                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_choice" />
+                    <group name="left" colspan="5"
+                        t-attf-string="Choose budgets ({{model_description}})">
+                        <t
+                            t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_choice" />
                     </group>
-                    
+
                     <!-- Right: budget reservation -->
-                    <group name="right" colspan="7" t-attf-string="Reserve budget ({{model_description}})" class="ms-2">
-                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation" />
+                    <group name="right" colspan="7"
+                        t-attf-string="Reserve budget ({{model_description}})" class="ms-2">
+                        <t
+                            t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation" />
                     </group>
                 </group>
                 <t t-else=""
@@ -109,34 +113,44 @@
                     colspan="2" class="btn btn-primary oe_right" icon="fa-floppy-o"
                 >
                     <!-- attrs="{'invisible': [('readonly_reservation', '=', False)]}" -->
-                    <!-- Save before continuing -->
-                    Apply
+                    <!-- Save before continuing --> Apply
                 </button>
             </group>
         </group>
     </template>
-    
+
     <template id="carpentry_budget_template_notebook_group_reservation">
         <p colspan="2">
-            Total expense affected to the project:
+            Expense affected to the project:
             <strong>
                 <field t-att-name="fields['total_expense_valued']" class="oe_inline" readonly="1" />
             </strong>.
+
+            <div name="alert_gain_loss" t-attf-attrs="{'invisible': [('{{fields['show_gain']}}', '=', False)]}">
+                <span t-attf-attrs="{'invisible': [('{{fields['amount_gain']}}', '&lt;', 0.0)]}">
+                    Recorded gain:
+                    <strong class="text-success">
+                        <field t-att-name="fields['amount_gain']" class="oe_inline" readonly="1" />
+                    </strong>.
+                </span>
+                <span t-attf-attrs="{'invisible': [('{{fields['amount_gain']}}', '&gt;', 0.0)]}">
+                    Recorded loss:
+                    <strong class="text-danger">
+                        <field t-att-name="fields['amount_loss']" class="oe_inline" readonly="1" />
+                    </strong>.
+                </span>
+            </div>
+
+            <!-- Temporary message (conditionnal) -->
+            <div name="temporary"
+                t-if="last_valuation_step"
+                t-attf-attrs="{'invisible': [('{{fields['is_temporary_gain']}}', '=', False),]}"
+            >
+                <i class="fa fa-info-circle" />
+                Expense, gain and loss are temporarly estimated and may vary until <t t-esc="last_valuation_step" />.
+            </div>
         </p>
 
-        <p name="alert_gain" role="alert" colspan="2" class="alert alert-success"
-            t-attf-attrs="{'invisible': ['|', ('{{fields['show_gain']}}', '=', False), ('{{fields['amount_gain']}}', '&lt;', 0.0)]}"
-        >
-            Recorded gain:
-            <strong><field t-att-name="fields['amount_gain']" class="oe_inline" readonly="1"  /></strong>.
-        </p>
-        <p name="alert_loss" role="alert" colspan="2" class="alert alert-danger"
-            t-attf-attrs="{'invisible': ['|', ('{{fields['show_gain']}}', '=', False), ('{{fields['amount_gain']}}', '&gt;', 0.0)]}"
-        >
-            Recorded loss:
-            <strong><field t-att-name="fields['amount_loss']" class="oe_inline" readonly="1" /></strong>.
-        </p>
-        
         <p name="noreservation_banner" role="alert" colspan="2" class="alert alert-warning"
             t-attf-attrs="{'invisible': [('{{fields['text_no_reservation']}}', '=', '')]}"
         >
@@ -144,7 +158,7 @@
             <span class="fa fa-exclamation-triangle" />
             <field t-att-name="fields['text_no_reservation']" class="oe_inline mx-1" readonly="1" />
         </p>
-        
+
         <field t-att-name="fields['reservation_ids']"
             nolabel="1" colspan="2"
             options="{'create': False}" widget="one2many"
@@ -155,31 +169,26 @@
             context="{'active_test': False,}"
         />
 
-        <group colspan="2" col="12">
-            <group name="temporary" colspan="8">
-                <!-- Temporary message (conditionnal) -->
-                <span colspan="2"
-                    t-if="last_valuation_step"
-                    t-attf-attrs="{'invisible': ['|',
-                        ('{{fields['is_temporary_gain']}}', '=', False),
-                        ('{{fields['show_gain']}}', '=', False),
-                    ]}"
-                >
-                    <i class="fa fa-info-circle" />
-                    Gain and loss are temporarly estimated and may vary until <t t-esc="last_valuation_step" />.
-                </span>
-            </group>
-            <group name="button_refresh" colspan="4">
-                <button name="button_force_refresh" type="object"
-                    t-if="button_refresh"
-                    class="text-primary oe_right" colspan="2"
-                    string="Refresh reserved amounts" icon="fa-refresh"
-                    help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
-                    confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
-                    t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
-                />
-            </group>
-        </group>
+        <div colspan="2" class="oe_right">
+            <button name="button_reservation_maximum" type="object"
+                string="Reserve all budget"
+                icon="fa-check"
+                class="btn btn-secondary mx-1"
+                t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
+                t-attf-context="{'filter_budget_types': {{budget_types}}}"
+            />
+
+            <button name="button_reservation_refresh" type="object"
+                t-if="button_reservation_refresh"
+                string="Refresh reservations"
+                icon="fa-calculator"
+                class="btn btn-secondary mx-1"
+                help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
+                confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
+                t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
+                t-attf-context="{'filter_budget_types': {{budget_types}}}"
+            />
+        </div>
 
         <div name="other_expenses" colspan="2"
             t-attf-attrs="{'invisible': [('{{fields['other_expense_ids']}}', '=', [])]}"
@@ -187,11 +196,12 @@
             <separator t-attf-string="Other expenses ({{model_description}})" />
 
             <p name="info_expense" colspan="2">
-                <span class="fa fa-info-circle" />
-                Below expense(s) are also affected to this(these) <t t-out="model_description" />, but without budget reservation.
+                <span class="fa fa-exclamation-triangle" />
+                These expense(s) have no budget reservation.
             </p>
 
-            <field t-att-name="fields['other_expense_ids']" readonly="1" 
+            <field
+                t-att-name="fields['other_expense_ids']" readonly="1"
                 nolabel="1" colspan="2" widget="one2many"
                 context="{'tree_view_ref' : 'carpentry_position_budget.carpentry_budget_other_expense_tree'}"
             />

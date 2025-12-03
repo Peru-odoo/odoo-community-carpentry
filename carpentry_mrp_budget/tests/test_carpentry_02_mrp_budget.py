@@ -167,8 +167,8 @@ class TestCarpentryMrpBudget_Reservation(
         self.assertTrue(self.aac_production in self.record.budget_analytic_ids_workorders)
         reservations.amount_reserved = 1.0
 
-        # button_force_refresh (components only)
-        self.record.button_force_refresh()
+        # button_reservation_refresh (components only)
+        self.record.button_reservation_refresh()
         self.assertEqual(set(reservations.mapped('amount_reserved')), {1.0})
 
         # components's choice of budget centers
