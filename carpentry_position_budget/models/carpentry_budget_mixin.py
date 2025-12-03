@@ -450,7 +450,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
         
         # read_group (-> this call is very expensive)
         self._flush_budget()
-        self.env.flush_all()
         Expense = self.env['carpentry.budget.expense'].with_context(active_test=False).sudo()
         rg_result = Expense._read_group(
             domain=[(self._record_field, 'in', self._origin.ids)],
@@ -462,9 +461,10 @@ class CarpentryBudgetMixin(models.AbstractModel):
             lazy=False,
         )
         
-        # update reservation's expense & gain
-        if self.reservation_ids:
-            self.reservation_ids._compute_amount_expense_gain_valued(rg_result)
+        # update reservation's expense & gain (without recomputing! else it recomputes budget_analytic_ids)
+        self_ctx = self.with_context(carpentry_reservation_no_compute=True)
+        if self_ctx.reservation_ids:
+            self_ctx.reservation_ids._compute_amount_expense_gain_valued(rg_result)
 
         if debug:
             print(' == _get_rg_result_expense (result) == ')
@@ -490,7 +490,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         # Expenses
         for field in self._record_fields_expense:
             self[field].flush_recordset()
-        # valuation
+        # Valuation
         self.project_id.flush_recordset(['date_start', 'date'])
         self.env['hr.employee.timesheet.cost.history'].flush_model(['hourly_cost', 'starting_date', 'date_to'])
     
@@ -538,7 +538,11 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
             :option vals: when called from `write`
         """
-        debug = False
+        debug = True
+
+        if self._context.get('carpentry_reservation_no_compute'):
+            if debug: print('kill _compute_reservation_ids')
+            return
 
         # ctx is to not update yet:
         # - record.total_budget_reserved
@@ -550,7 +554,9 @@ class CarpentryBudgetMixin(models.AbstractModel):
         if debug:
             print(' ===== _compute_reservation_ids (start) ===== ')
             print('self', self)
+            print('self._context', self._context)
             print('update_budget_centers', update_budget_centers)
+            print('self.budget_analytic_ids', self.budget_analytic_ids.read(['name']), bool(self.budget_analytic_ids))
 
         # optim: wait for form saving by user
         if not self or isinstance(fields.first(self).id, models.NewId):

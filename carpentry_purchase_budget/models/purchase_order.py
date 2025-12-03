@@ -33,6 +33,7 @@ class PurchaseOrder(models.Model):
             # since `line.analytic_distribution` is also in @depends
             ctx_self = self.with_context(carpentry_dont_refresh_reservations=True)
             ctx_self._cascade_order_budgets_to_line_analytic()
+        
         return super()._compute_reservation_ids(vals)
     
     def _cascade_order_budgets_to_line_analytic(self):
@@ -55,7 +56,8 @@ class PurchaseOrder(models.Model):
     
     def _depends_reservation_refresh(self):
         return super()._depends_reservation_refresh() + [
-            'order_line.analytic_distribution', 'amount_untaxed',
+            'order_line.analytic_distribution',
+            'amount_untaxed',
         ]
     def _depends_expense_totals(self):
         return super()._depends_expense_totals() + [
