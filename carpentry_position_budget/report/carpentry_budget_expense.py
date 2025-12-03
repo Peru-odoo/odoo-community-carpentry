@@ -109,21 +109,30 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         SUM(expense.amount_reserved) AS amount_reserved,
                         SUM(expense.amount_reserved) * (
                             CASE
-                                WHEN expense.budget_type IN %(budget_types)s
-                                THEN hourly_cost.coef
-                                ELSE 1.0
+                                WHEN expense.budget_type IS NULL
+                                THEN 0.0
+                                ELSE CASE
+                                    WHEN expense.budget_type IN %(budget_types)s
+                                    THEN hourly_cost.coef
+                                    ELSE 1.0
+                                END
                             END
                         ) AS amount_reserved_valued,
                         
                         -- expense
                         SUM(expense.amount_expense) *
                         CASE
-                            WHEN expense.budget_type IN %(budget_types)s AND 'DEVALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
-                            THEN CASE
-                                WHEN COALESCE(hourly_cost.coef, 0.0) != 0.0
-                                THEN 1 / hourly_cost.coef
-                                ELSE 0.0
-                            END ELSE 1.0
+                            WHEN expense.budget_type IS NULL
+                            THEN 0.0
+                            ELSE CASE
+                                WHEN expense.budget_type IN %(budget_types)s AND 'DEVALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
+                                THEN CASE
+                                    WHEN COALESCE(hourly_cost.coef, 0.0) != 0.0
+                                    THEN 1 / hourly_cost.coef
+                                    ELSE 0.0
+                                END
+                                ELSE 1.0
+                            END
                         END AS amount_expense,
                         
                         -- expense valued: computed from `amount_expense` if NULL, and valued from it if needed
@@ -131,9 +140,13 @@ class CarpentryBudgetExpenseHistory(models.Model):
                             WHEN TRUE = ANY(ARRAY_AGG(amount_expense_valued IS NULL)) -- if need computation from `amount_expense`
                             THEN SUM(expense.amount_expense) *
                                 CASE
-                                    WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
-                                    THEN hourly_cost.coef
-                                    ELSE 1.0
+                                    WHEN expense.budget_type IS NULL
+                                    THEN 0.0
+                                    ELSE CASE
+                                        WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
+                                        THEN hourly_cost.coef
+                                        ELSE 1.0
+                                    END
                                 END
                             ELSE SUM(expense.amount_expense_valued)
                         END AS amount_expense_valued,
@@ -141,18 +154,26 @@ class CarpentryBudgetExpenseHistory(models.Model):
                         -- gain
                         COALESCE(SUM(expense.amount_reserved) * (
                             CASE
-                                WHEN expense.budget_type IN %(budget_types)s
-                                THEN hourly_cost.coef
-                                ELSE 1.0
+                                WHEN expense.budget_type IS NULL
+                                THEN 0.0
+                                ELSE CASE
+                                    WHEN expense.budget_type IN %(budget_types)s
+                                    THEN hourly_cost.coef
+                                    ELSE 1.0
+                                END
                             END
                         ), 0.0)
-                        - COALESCE(CASE
+                        - COALESCE(CASE 
                             WHEN TRUE = ANY(ARRAY_AGG(amount_expense_valued IS NULL)) -- if need computation from `amount_expense`
                             THEN SUM(expense.amount_expense) *
                                 CASE
-                                    WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
-                                    THEN hourly_cost.coef
-                                    ELSE 1.0
+                                    WHEN expense.budget_type IS NULL
+                                    THEN 0.0
+                                    ELSE CASE
+                                        WHEN expense.budget_type IN %(budget_types)s AND 'VALUE' = ANY(ARRAY_AGG(value_or_devalue_workforce_expense))
+                                        THEN hourly_cost.coef
+                                        ELSE 1.0
+                                    END
                                 END
                             ELSE SUM(expense.amount_expense_valued)
                         END, 0.0) AS amount_gain

@@ -107,6 +107,18 @@ class ManufacturingOrder(models.Model):
         default=False,
     )
 
+    #===== Native =====#
+    @api.depends('project_id')
+    def _compute_analytic_account_id(self):
+        """ Inherite: set a default analytic account on MO
+            to enable analytic line per WO, which computes workforce costs
+        """
+        super()._compute_analytic_account_id()
+
+        for mo in self:
+            if not mo.analytic_account_id:
+                mo.analytic_account_id = mo.project_id.analytic_account_id
+
     #===== Compute =====#
     @api.depends('budget_analytic_ids')
     def _compute_count_budget_analytic_workorders(self):

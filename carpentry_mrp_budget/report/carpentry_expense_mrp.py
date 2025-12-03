@@ -83,35 +83,49 @@ class CarpentryExpense(models.Model):
                         WHEN record.state != 'done'
                          AND record.production_real_duration / 60 < record.total_budget_reserved_workorders
                         THEN -- prorata per workorder's reserved budget
-                            record.production_real_duration / 60 * (
+                            record.production_real_duration / 60 *
                             CASE -- prorata per workorder's reserved budget
                                 WHEN record.total_budget_reserved_workorders != 0.0
                                 THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
-                                    / record.total_budget_reserved_workorders
+                                     / record.total_budget_reserved_workorders
+                                     / COUNT(DISTINCT line.id)
                                 -- cannot prorata by reserved budget => do it by reservations count
-                                ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 0.0 END) 
-                            END)
+                                ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END) 
+                            END
                             -- cancel budget_reservation
                             - COALESCE(SUM(reservation.amount_reserved), 0.0)
                         ELSE 0.0
-                    END AS amount_reserved,
+                    END
+                    AS amount_reserved,
                     
                     -- expense
-                    'VALUE' AS value_or_devalue_workforce_expense,
+                    NULL AS value_or_devalue_workforce_expense,
                     record.production_real_duration / 60 * (
                         CASE -- prorata per workorder's reserved budget
                             WHEN record.total_budget_reserved_workorders != 0.0
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
+                                 / COUNT(DISTINCT line.id)
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 0.0 END)
+                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END)
                         END
                     ) AS amount_expense,
 
-                    -- expense valued: will be calculated from `amount_expense` and valued (for workforce)
-                    NULL AS amount_expense_valued
+                    -- expense valued
+                    COALESCE(SUM(line.amount), 0.0) * (
+                        CASE -- prorata per workorder's reserved budget
+                            WHEN record.total_budget_reserved_workorders != 0.0
+                            THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
+                                 / record.total_budget_reserved_workorders
+                                 / COUNT(DISTINCT line.id)
+                            -- cannot prorata by reserved budget => do it by reservations count
+                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END)
+                        END
+                    ) / (CASE WHEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) != 0.0
+                        THEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) ELSE 1.0 END)
+                    AS amount_expense_valued
             """
-        
+
         return super()._select(model, models)
     
     def _from(self, model, models):
@@ -154,6 +168,13 @@ class CarpentryExpense(models.Model):
         elif model == 'mrp.workorder':
             budget_types = self.env['account.analytic.account']._get_budget_type_workforce()
             sql += f"""
+                -- expense line = wo's aac line
+                INNER JOIN mrp_workorder AS wo
+                    ON wo.production_id = record.id
+                INNER JOIN account_analytic_line AS line
+                    ON line.id = wo.mo_analytic_account_line_id
+                
+                -- budget reservation: needed to spread the expense
                 LEFT JOIN carpentry_budget_reservation AS reservation
                     ON  reservation.production_id = record.id
                     AND reservation.budget_type IN {tuple(budget_types)}
