@@ -88,14 +88,13 @@ class CarpentryExpense(models.Model):
                                 WHEN record.total_budget_reserved_workorders != 0.0
                                 THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                      / record.total_budget_reserved_workorders
-                                     / COUNT(DISTINCT line.id)
                                 -- cannot prorata by reserved budget => do it by reservations count
                                 ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END) 
                             END
                             -- cancel budget_reservation
                             - COALESCE(SUM(reservation.amount_reserved), 0.0)
                         ELSE 0.0
-                    END
+                    END / COUNT(DISTINCT line.id)
                     AS amount_reserved,
                     
                     -- expense
@@ -105,11 +104,10 @@ class CarpentryExpense(models.Model):
                             WHEN record.total_budget_reserved_workorders != 0.0
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
-                                 / COUNT(DISTINCT line.id)
                             -- cannot prorata by reserved budget => do it by reservations count
                             ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
                         END
-                    ) AS amount_expense,
+                    ) / COUNT(DISTINCT line.id) AS amount_expense,
 
                     -- expense valued
                     COALESCE(SUM(line.amount), 0.0) * (
@@ -117,12 +115,12 @@ class CarpentryExpense(models.Model):
                             WHEN record.total_budget_reserved_workorders != 0.0
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
-                                 / COUNT(DISTINCT line.id)
                             -- cannot prorata by reserved budget => do it by reservations count
                             ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
                         END
                     ) / (CASE WHEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) != 0.0
                         THEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) ELSE 1.0 END)
+                      / COUNT(DISTINCT line.id)
                     AS amount_expense_valued
             """
 
