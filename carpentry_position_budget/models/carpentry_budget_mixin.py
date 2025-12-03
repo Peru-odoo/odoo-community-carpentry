@@ -26,7 +26,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
     _record_fields_expense = [] # to inherit, like 'order_line'
 
     _carpentry_budget_alert_banner_xpath = "//div[hasclass('oe_title')]"
-    _carpentry_budget_smartbuttons_xpath = '//div[@name="button_box"]/button[last()]'
     _carpentry_budget_notebook_page_xpath = '//page[@name="products"]'
     _carpentry_budget_sheet_name = 'Budget'
     _carpentry_budget_choice = True
@@ -93,6 +92,11 @@ class CarpentryBudgetMixin(models.AbstractModel):
     )
     amount_gain = fields.Monetary(compute='_compute_total_expense_gain',store=True,)
     amount_loss = fields.Monetary(compute='_compute_view_fields',)
+    budget_verified = fields.Boolean(
+        string='Budget verified?',
+        help="Whether the budget reservation has been verified by a tier.",
+        default=False,
+    )
     # -- view fields --
     readonly_reservation = fields.Boolean(
         compute='_compute_readonly_reservation',
@@ -782,6 +786,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         if debug:
             print(' === _auto_update_budget_reservation (start) === ')
         
+        self.budget_verified = False
         prec = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         mapped_remaining_budget = self._get_remaining_budget() # independant of `self.id`
         total_by_analytic = self._get_total_budgetable_by_analytic(rg_result)
@@ -951,6 +956,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         """
         rg_result = self._get_rg_result_expense()
         self._auto_update_budget_reservation(rg_result)
+        self.budget_verified = True
 
     def button_reservation_maximum(self):
         """ Help user to balance all remaining budget """
@@ -962,6 +968,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
         for reservation in reservations:
             reservation.amount_reserved += reservation.amount_remaining
+        
+        self.budget_verified = True
 
     #===== Views =====#
     def _get_view_carpentry_config(self):
@@ -973,7 +981,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
             {
                 'templates': {
                     'alert_banner': self._carpentry_budget_alert_banner_xpath,
-                    'smart_button': self._carpentry_budget_smartbuttons_xpath,
                     'notebook_page': self._carpentry_budget_notebook_page_xpath,
                 },
                 'params': {
@@ -992,19 +999,55 @@ class CarpentryBudgetMixin(models.AbstractModel):
     @api.model
     def get_view(self, view_id=None, view_type="form", **options):
         res = super().get_view(view_id=view_id, view_type=view_type, **options)
-        if view_type != "form":
-            return res
-        
+
         View = self.env["ir.ui.view"]
-        doc = etree.XML(res["arch"])
+        arch = etree.XML(res["arch"])
         all_models = res["models"].copy() # {modelname(str) ➔ fields(tuple)}
+
+        print('view_type', view_type)
+
+        if view_type == 'form':
+            res = self._get_view_form(res, View, arch, all_models)
+        elif view_type == 'tree':
+            res = self._get_view_add_element(res, View, arch, all_models, '//tree', 'field', {
+                'name': 'budget_verified',
+                'widget': 'boolean_toggle',
+                'optional': 'hide',
+            })
+        elif view_type == 'search':
+            options = [{
+                'name': 'budget_verified_ok',
+                'string': _('Budget verified'),
+                'domain': "[('budget_verified', '=', True)]" 
+            }, {
+                'name': 'budget_verified_nok',
+                'string': _('Budget not verified'),
+                'domain': "[('budget_verified', '=', False)]" 
+            }]
+            for option in options:
+                res = self._get_view_add_element(res, View, arch, all_models, '//search', 'filter', option)
+        return res
+
+    def _get_view_add_element(self, res, View, arch, all_models, xpath, elem, options):
+        """ Add fields/filters in 'tree' and 'search' view """
+        root_node = arch.xpath(xpath)
+        for node in root_node:
+            field_element = etree.SubElement(node, elem, options)
+            _, new_models = View.postprocess_and_fields(field_element, self._name)
+            _merge_view_fields(all_models, new_models)
+        
+        res["arch"] = etree.tostring(arch)
+        res["models"] = frozendict(all_models)
+        return res
+
+    def _get_view_form(self, res, View, arch, all_models):
         changed = False
 
         for config in self._get_view_carpentry_config():
             # add the 3 templates to the `form` view
             for template, xpath in config['templates'].items():
                 # custom layout (e.g. tasks)
-                nodes = xpath and doc.xpath(xpath)
+                nodes = xpath and arch.xpath(xpath)
                 if not nodes:
                     continue
 
@@ -1039,7 +1082,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
                 changed = True
         
         if changed:
-            res["arch"] = etree.tostring(doc)
+            res["arch"] = etree.tostring(arch)
             res["models"] = frozendict(all_models)
         
         return res

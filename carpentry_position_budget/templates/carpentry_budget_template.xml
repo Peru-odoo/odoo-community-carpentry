@@ -39,46 +39,24 @@
         </div>
     </template>
 
-    <!-- Template: smart button -->
-    <template id="carpentry_budget_template_smart_button">
-        <div>
-            <button name="open_remaining_budget" type="object"
-                class="oe_stat_button"
-                icon="fa-money"
-                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
-                string="Remaining budgets"
-                title="[Initially available budgets] - [Other budget reservations]"
-            />
-
-            <button name="open_budget_available" type="object"
-                class="oe_stat_button"
-                icon="fa-money"
-                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
-                string="Available budgets"
-                title="Initially available budgets"
-            />
-        </div>
-    </template>
-
     <!-- Template: budget notebook's page -->
     <template id="carpentry_budget_template_notebook_page">
         <div>
             <page name="budget" t-att-string="sheet_name"
                 attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
             >
-                <group col="12" t-if="budget_choice">
+                <group col="12" t-if="budget_choice" class="m-0">
                     <!-- Left: choice of budget (col) -->
                     <group name="left" colspan="5"
-                        t-attf-string="Choose budgets ({{model_description}})">
-                        <t
-                            t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_choice" />
+                        t-attf-string="Choose budgets ({{model_description}})"
+                    >
+                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_choice" />
                     </group>
 
                     <!-- Right: budget reservation -->
                     <group name="right" colspan="7"
                         t-attf-string="Reserve budget ({{model_description}})" class="ms-2">
-                        <t
-                            t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation" />
+                        <t t-call="carpentry_position_budget.carpentry_budget_template_notebook_group_reservation" />
                     </group>
                 </group>
                 <t t-else=""
@@ -89,34 +67,45 @@
     </template>
 
     <template id="carpentry_budget_template_notebook_group_choice">
-        <group colspan="2" col="12">
-            <group colspan="8" class="m-0">
-                <field t-att-name="fields['budget_analytic_ids']"
-                    widget="many2many_checkboxes"
-                    nolabel="1" colspan="2"
-                    attrs="{
-                        'readonly': [('readonly_budget_analytic_ids', '=', True)],
-                    }"
-                    t-attf-context="{
-                        'analytic_display_budget': 1,
-                        'record_id': id,
-                        'record_res_model': '{{model_name}}',
-                    }"
-                    t-attf-domain="[
-                        ('budget_project_ids', '=', project_id),
-                        '|', ('budget_type', 'in', {{budget_types}}), ('id', 'in', {{fields['budget_analytic_ids']}})
-                    ]"
-                />
-            </group>
-            <group colspan="4" name="save_button" class="m-0">
-                <button name="save_refresh" type="object"
-                    colspan="2" class="btn btn-primary oe_right" icon="fa-floppy-o"
-                >
-                    <!-- attrs="{'invisible': [('readonly_reservation', '=', False)]}" -->
-                    <!-- Save before continuing --> Apply
-                </button>
-            </group>
-        </group>
+        <div colspan="2">
+            <button name="open_budget_available" type="object"
+                colspan="2" icon="fa-money" class="btn btn-secondary mx-1 mb-3"
+                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
+            >
+                Initial budget
+            </button>
+
+            <button name="open_remaining_budget" type="object"
+                colspan="2" icon="fa-money" class="btn btn-secondary mx-1 mb-3"
+                attrs="{'invisible': ['|', ('id', '=', False), ('can_reserve_budget', '=', False)]}"
+            >
+                Remaining budget
+            </button>
+
+            <button name="save_refresh" type="object"
+                class="btn btn-primary oe_right" icon="fa-floppy-o"
+            >
+                <!-- attrs="{'invisible': [('readonly_reservation', '=', False)]}" -->
+                <!-- Save before continuing --> Apply
+            </button>
+
+            <field t-att-name="fields['budget_analytic_ids']"
+                widget="many2many_checkboxes"
+                nolabel="1" colspan="2"
+                attrs="{
+                    'readonly': [('readonly_budget_analytic_ids', '=', True)],
+                }"
+                t-attf-context="{
+                    'analytic_display_budget': 1,
+                    'record_id': id,
+                    'record_res_model': '{{model_name}}',
+                }"
+                t-attf-domain="[
+                    ('budget_project_ids', '=', project_id),
+                    '|', ('budget_type', 'in', {{budget_types}}), ('id', 'in', {{fields['budget_analytic_ids']}})
+                ]"
+            />
+        </div>
     </template>
 
     <template id="carpentry_budget_template_notebook_group_reservation">
@@ -169,26 +158,33 @@
             context="{'active_test': False,}"
         />
 
-        <div colspan="2" class="oe_right">
-            <button name="button_reservation_maximum" type="object"
-                string="Reserve all budget"
-                icon="fa-check"
-                class="btn btn-secondary mx-1"
-                t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
-                t-attf-context="{'filter_budget_types': {{budget_types}}}"
-            />
+        <group colspan="2">
+            <div colspan="2">
+                <field name="budget_verified" widget="boolean_toggle" class="oe_left" />
+                <label for="budget_verified" class="fw-bold" />
 
-            <button name="button_reservation_refresh" type="object"
-                t-if="button_reservation_refresh"
-                string="Refresh reservations"
-                icon="fa-calculator"
-                class="btn btn-secondary mx-1"
-                help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
-                confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
-                t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
-                t-attf-context="{'filter_budget_types': {{budget_types}}}"
-            />
-        </div>
+                <button name="button_reservation_maximum" type="object"
+                    string="Reserve all budget"
+                    icon="fa-check"
+                    class="btn btn-primary oe_right mx-1"
+                    colspan="2"
+                    t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
+                    t-attf-context="{'filter_budget_types': {{budget_types}}}"
+                />
+
+                <button name="button_reservation_refresh" type="object"
+                    t-if="button_reservation_refresh"
+                    string="Refresh reservations"
+                    icon="fa-calculator"
+                    class="btn btn-primary oe_right mx-1"
+                    colspan="2"
+                    help="Automatically recomputes budget reservation according to the real expenses and analytic distributions, in the limits of remaining budgets."
+                    confirm="Are you sure? This will erase any previous manual inputs in the budget reservation."
+                    t-attf-attrs="{'invisible': [('{{fields['reservation_ids']}}', '=', [])],}"
+                    t-attf-context="{'filter_budget_types': {{budget_types}}}"
+                />
+            </div>
+        </group>
 
         <div name="other_expenses" colspan="2"
             t-attf-attrs="{'invisible': [('{{fields['other_expense_ids']}}', '=', [])]}"

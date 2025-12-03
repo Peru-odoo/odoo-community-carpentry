@@ -12,7 +12,6 @@ class CarpentryBudgetBalance(models.Model):
     _description = "Budget Balance"
     _record_field = 'balance_id'
     _carpentry_budget_alert_banner_xpath = False # don't use budget view templates
-    _carpentry_budget_smartbuttons_xpath = False
     _carpentry_budget_notebook_page_xpath = False
 
     #===== Fields =====#
