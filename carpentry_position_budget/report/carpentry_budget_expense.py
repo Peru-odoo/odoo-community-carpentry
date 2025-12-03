@@ -316,13 +316,13 @@ class CarpentryBudgetExpenseHistory(models.Model):
             INNER JOIN product_template
                 ON product_template.id = product_product.product_tmpl_id
             
-            LEFT JOIN LATERAL
+            INNER JOIN LATERAL
                 jsonb_each_text(line.analytic_distribution)
                 AS analytic_distribution (aac_id, percentage)
                 ON true
 
             -- analytic
-            LEFT JOIN account_analytic_account AS analytic
+            INNER JOIN account_analytic_account AS analytic
                 ON analytic.id = analytic_distribution.aac_id::integer
         """
     
