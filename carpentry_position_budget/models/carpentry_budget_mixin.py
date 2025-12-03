@@ -538,7 +538,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
 
             :option vals: when called from `write`
         """
-        debug = True
+        debug = False
 
         if self._context.get('carpentry_reservation_no_compute'):
             if debug: print('kill _compute_reservation_ids')

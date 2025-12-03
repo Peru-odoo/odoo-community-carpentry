@@ -184,9 +184,8 @@ class AnalyticMixin(models.AbstractModel):
                 new_dict[new_account_id] = new_dict.get(new_account_id, 0.0) + percent
         return new_dict
 
-
     #====== Internal analytics enforcment ======#
-    # @api.onchange('analytic_distribution')
+    @api.onchange('analytic_distribution')
     def _enforce_internal_analytic(self):
         """ Forces analytic (e.g. to *internal* project for all *storable* lines) """
         self = self.filtered(lambda x: x._should_enforce_internal_analytic())
@@ -196,9 +195,10 @@ class AnalyticMixin(models.AbstractModel):
         
         replace_dict_enforce = self._get_enforce_dict_analytic_internal()
         for record in self:
-            record.analytic_distribution = record._get_replaced_analytic_distribution(
+            replaced = record._get_replaced_analytic_distribution(
                 replace_dict_enforce
             )
+            record.analytic_distribution = replaced
     
     def _should_enforce_internal_analytic(self):
         """ **Can be inheritted**
