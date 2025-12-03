@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, exceptions, _, Command
-from odoo.tools import float_round
+from odoo.tools import float_round, float_compare
 
 class ManufacturingOrder(models.Model):
     """ Budget Reservation on MOs """
@@ -312,6 +312,9 @@ class ManufacturingOrder(models.Model):
         
         # 2.
         self['total_budgetable_workorders'] = sum(self.workorder_ids.mapped('duration_expected_hours'))
+        
+        compare = float_compare(self.total_budget_reserved_workorders, self.total_budgetable, precision_digits=prec)
+        self['show_budget_banner_workorders'] = bool(compare != 0)
 
     #===== Views =====#
     def _get_view_carpentry_config(self):

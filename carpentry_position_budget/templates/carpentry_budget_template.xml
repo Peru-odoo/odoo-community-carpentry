@@ -21,17 +21,20 @@
                     ('{{fields['show_budget_banner']}}', '=', False),
                 ]}"
             >
-                <span class="fa fa-info-circle" /> The budget reservation of <t
-                    t-out="model_description" /> (<strong>
+                <span class="fa fa-info-circle" />
+                The budget reservation of <t t-out="model_description" />
+                (<strong>
                     <field t-att-name="fields['total_budget_reserved']" readonly="1" />
                     <field t-att-name="fields['budget_unit']" readonly="1" />
                 </strong>)
-                differs from the <span
-                    t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '=',  'h')]}">cost
-                affected to the project</span>
-                <span
-                    t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '!=', 'h')]}">allocated
-                hours</span> (<strong>
+                differs from the
+                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '=',  'h')]}">
+                    cost affected to the project
+                </span>
+                <span t-attf-attrs="{'invisible': [('{{fields['budget_unit']}}', '!=', 'h')]}">
+                    allocated hours
+                </span>
+                (<strong>
                     <field t-att-name="fields['total_budgetable']" readonly="1" />
                     <field t-att-name="fields['budget_unit']" readonly="1" />
                 </strong>).
