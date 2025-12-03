@@ -79,20 +79,22 @@ class Project(models.Model):
     @api.depends('fees_prorata_rate', 'fees_structure_rate', 'market_reviewed', 'budget_line_sum')
     def _compute_budget_fees_and_margins(self):
         # 2. Reserved budget & real expense
+        keys = ['reserved', 'expense']
         rg_expense = self.env['carpentry.budget.expense']._read_group(
             domain=[('project_id', 'in', self.ids)],
-            fields=['amount_reserved_valued:sum', 'amount_expense_valued:sum'],
+            fields=['amount_' + k + '_valued:sum' for k in keys],
             groupby=['project_id'],
         )
         mapped_expense = {
-            x['project_id'][0]: {'reserved': x['amount_reserved_valued'], 'expense': x['amount_expense_valued']}
+            x['project_id'][0]: {k: x['amount_' + k + '_valued'] for k in keys}
             for x in rg_expense
         }
         
         for project in self:
-            project._compute_budget_fees_and_margins_one(mapped_expense)
+            actuals = mapped_expense.get(project._origin.id, {k: 0.0 for k in keys})
+            project._compute_budget_fees_and_margins_one(actuals)
         
-    def _compute_budget_fees_and_margins_one(self, mapped_expense):
+    def _compute_budget_fees_and_margins_one(self, actuals):
         # fees
         self.fees_prorata   = self.fees_prorata_rate * self.market_reviewed / 100
         self.fees_structure = self.fees_structure_rate * self.market_reviewed / 100
@@ -101,9 +103,8 @@ class Project(models.Model):
         self.margin_costs        = self.market_reviewed - self.budget_line_sum - self.fees_prorata - self.fees_structure
         self.margin_contributive = self.market_reviewed - self.budget_line_sum - self.fees_prorata # ie. on direct costs only
         # actual margins
-        x = mapped_expense.get(self._origin.id, {'reserved': 0.0, 'expense': 0.0})
-        self.margin_costs_actual           = x['reserved'] - x['expense'] - self.fees_prorata - self.fees_structure
-        self.margin_contributive_actual    = x['reserved'] - x['expense'] - self.fees_prorata
+        self.margin_costs_actual           = actuals['reserved'] - actuals['expense'] - self.fees_prorata - self.fees_structure
+        self.margin_contributive_actual    = actuals['reserved'] - actuals['expense'] - self.fees_prorata
 
         # rates
         if self.market_reviewed:
