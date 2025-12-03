@@ -1010,8 +1010,6 @@ class CarpentryBudgetMixin(models.AbstractModel):
         arch = etree.XML(res["arch"])
         all_models = res["models"].copy() # {modelname(str) ➔ fields(tuple)}
 
-        print('view_type', view_type)
-
         if view_type == 'form':
             res = self._get_view_form(res, View, arch, all_models)
         elif view_type == 'tree':
