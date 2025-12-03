@@ -160,8 +160,15 @@ class ManufacturingOrder(models.Model):
         mo.invalidate_recordset(['budget_analytic_ids']) # ensure correct value in next logics
     
     #===== Budgets customization =====#
+    def _compute_reservation_ids(self, vals={}):
+        """ Don't update reservation matrix on MO validation """
+        if self._context.get('button_mark_done_production_ids'):
+            return
+        
+        return super()._compute_reservation_ids(vals)
+    
     def _auto_update_budget_reservation(self, rg_result):
-        """ Don't update components amounts while update workorders budgets """
+        """ Don't update components amounts while updating workorders budgets """
         if self._context.get('budget_analytic_ids_workorders_inverse'):
             return
         
@@ -196,7 +203,7 @@ class ManufacturingOrder(models.Model):
     def _get_domain_is_temporary_gain(self):
         return [('state', '!=', 'done'),]
     
-    def _get_reservations_auto_update(self):
+    def _get_reservations_components(self):
         """ Filter reservations of workorders so their amount is never updated """
         return self.reservation_ids.filtered(
             lambda x: x.budget_type in self._get_component_budget_types()
@@ -215,7 +222,7 @@ class ManufacturingOrder(models.Model):
             mo.date_budget_workorders = max(dates_end) if bool(dates_end) else False
             
             # update reservations' dates
-            reservations_components = mo._get_reservations_auto_update()
+            reservations_components = mo._get_reservations_components()
             reservations_components.date = mo.date_budget
             (mo.reservation_ids - reservations_components).date = mo.date_budget_workorders
 
@@ -265,7 +272,7 @@ class ManufacturingOrder(models.Model):
 
     def _compute_total_budget_reserved_one(self):
         """ Overwrite """
-        components_reservations = self._get_reservations_auto_update()
+        components_reservations = self._get_reservations_components()
         workorders_reservations = self.reservation_ids - components_reservations
         self.total_budget_reserved = sum(components_reservations.mapped('amount_reserved_valued'))
         self.total_budget_reserved_workorders = sum(workorders_reservations.mapped('amount_reserved'))
@@ -329,7 +336,7 @@ class ManufacturingOrder(models.Model):
                     'budget_choice': self._carpentry_budget_choice,
                     'sheet_name': _('Budget (work orders)'),
                     'last_valuation_step': False,
-                    'button_refresh': False,
+                    'button_reservation_refresh': False,
                 }
             }
         ,]
