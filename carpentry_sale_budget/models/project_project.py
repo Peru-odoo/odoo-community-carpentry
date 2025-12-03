@@ -122,7 +122,7 @@ class Project(models.Model):
             self.margin_costs_actual_rate        = 0.0
             self.margin_contributive_actual_rate = 0.0
         
-        self.budget_reservation_progress = bool(self.budget_line_sum) and x['reserved'] / self.budget_line_sum * 100
+        self.budget_reservation_progress = bool(self.budget_line_sum) and actuals['reserved'] / self.budget_line_sum * 100
 
     #===== Compute : sale order line budget updated status =====#
     @api.depends('sale_order_ids.order_line', 'sale_order_ids.order_line.budget_updated', 'sale_order_ids.state')
