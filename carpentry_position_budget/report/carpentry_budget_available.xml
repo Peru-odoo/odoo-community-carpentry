@@ -83,7 +83,8 @@
                 <filter string="Other costs"  name="filter_other" domain="[('budget_type', '=', 'other')]" />
                 
                 <separator name="active" />
-                <filter string="Ignored"      name="filter_active" domain="['|', ('active', '=', True), ('active', '=', False)]" />
+                <filter string="Unactive"     name="filter_unactive" domain="[('active', '=', False)]" />
+                <filter string="Active"       name="filter_unactive" domain="[('active', '=', True)]" />
                 
                 <!-- Group by -->
                 <filter string="Document"     name="filter_groupby_model" context="{'group_by': 'record_model_id'}" />
