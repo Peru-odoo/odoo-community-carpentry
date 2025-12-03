@@ -68,17 +68,17 @@
                 <field name="available_valued" sum="1" optional="show"
                     attrs="{'invisible': [('record_res_model', '!=', 'account.move.budget.line')]}"
                 />
-                
-                <!-- Hide other field for `account.move.budget.line` -->
-                <field name="amount_reserved_valued" position="attributes">
-                    <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
-                </field>
-                <field name="amount_expense_valued" position="attributes">
-                    <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
-                </field>
-                <field name="amount_gain" position="attributes">
-                    <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
-                </field>
+            </field>
+
+            <!-- Hide other field for `account.move.budget.line` -->
+            <field name="amount_reserved_valued" position="attributes">
+                <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
+            </field>
+            <field name="amount_expense_valued" position="attributes">
+                <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
+            </field>
+            <field name="amount_gain" position="attributes">
+                <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
             </field>
 
             <!-- <field name="amount_gain" position="after">
