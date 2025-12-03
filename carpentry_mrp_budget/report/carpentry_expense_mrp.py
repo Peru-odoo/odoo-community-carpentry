@@ -90,7 +90,7 @@ class CarpentryExpense(models.Model):
                                      / record.total_budget_reserved_workorders
                                      / COUNT(DISTINCT line.id)
                                 -- cannot prorata by reserved budget => do it by reservations count
-                                ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END) 
+                                ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END) 
                             END
                             -- cancel budget_reservation
                             - COALESCE(SUM(reservation.amount_reserved), 0.0)
@@ -107,7 +107,7 @@ class CarpentryExpense(models.Model):
                                  / record.total_budget_reserved_workorders
                                  / COUNT(DISTINCT line.id)
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END)
+                            ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
                         END
                     ) AS amount_expense,
 
@@ -119,7 +119,7 @@ class CarpentryExpense(models.Model):
                                  / record.total_budget_reserved_workorders
                                  / COUNT(DISTINCT line.id)
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_budget_analytic_workorders != 0 THEN 1 / count_budget_analytic_workorders::float ELSE 1.0 END)
+                            ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
                         END
                     ) / (CASE WHEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) != 0.0
                         THEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) ELSE 1.0 END)
