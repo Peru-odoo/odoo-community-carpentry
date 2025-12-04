@@ -54,7 +54,8 @@ class SaleOrder(models.Model):
     @api.depends('order_line', 'order_line.validated')
     def _compute_lines_validated(self):
         for order in self:
-            validated = set(order.order_line.mapped('validated'))
+            so_line = order.order_line.filtered(lambda x: not x.display_type)
+            validated = set(so_line.mapped('validated'))
             if validated == {True}:
                 state = 'all_validated'
             elif validated == {True, False}:

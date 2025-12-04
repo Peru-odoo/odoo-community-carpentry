@@ -21,7 +21,8 @@ class SaleOrder(models.Model):
     @api.depends('order_line', 'order_line.budget_updated')
     def _compute_lines_budget_updated(self):
         for order in self:
-            updated = set(order.order_line.mapped('budget_updated'))
+            so_line = order.order_line.filtered(lambda x: not x.display_type)
+            updated = set(so_line.mapped('budget_updated'))
             if updated == {True}:
                 state = 'all_updated'
             elif updated == {True, False}:
