@@ -23,11 +23,23 @@ class SaleOrder(models.Model):
         default=False,
     )
 
-    # totals
-    amount_untaxed = fields.Monetary(help="Validated")
-    amount_tax = fields.Monetary(help="Validated")
-    amount_total = fields.Monetary(help="Validated")
-
+    # totals validated
+    amount_untaxed_validated = fields.Monetary(
+        string="Untaxed amount (validated)",
+        store=True,
+        compute='_compute_amounts',
+    )
+    amount_total_validated = fields.Monetary(
+        string="Validated",
+        help="Total validated",
+        store=True,
+        compute='_compute_amounts',
+    )
+    tax_totals_validated = fields.Binary(
+        compute='_compute_tax_totals',
+        exportable=False
+    )
+    # totals to validate
     amount_untaxed_to_validate = fields.Monetary(
         string="Untaxed amount (to validate)",
         store=True,
@@ -39,7 +51,10 @@ class SaleOrder(models.Model):
         store=True,
         compute='_compute_amounts',
     )
-    tax_totals_to_validate = fields.Binary(compute='_compute_tax_totals', exportable=False)
+    tax_totals_to_validate = fields.Binary(
+        compute='_compute_tax_totals',
+        exportable=False
+    )
 
     #===== Compute ======#
     @api.depends('name', 'description')
@@ -98,23 +113,17 @@ class SaleOrder(models.Model):
     #====== Compute: totals (validated / not validated) =====#
     @api.depends('order_line.validated')
     def _compute_amounts(self):
-        """ Replaces native total by *validated* totals
-            and computes *remaining to validate* thresholds
-        """
+        """ Computes both *validated* and *remaining to validate* totals """
         for order in self:
             ol_all, ol_validated = order._get_order_line_filtered()
 
-            # replace native totals
-            order.amount_untaxed, order.amount_tax = order._get_amounts_totals(ol_validated)
-            order.amount_total = order.amount_untaxed + order.amount_tax
-
-            # compute remaining to validate
-            if order.state == 'cancel':
-                order.amount_untaxed_to_validate = 0.0
-                order.amount_total_to_validate = 0.0
-            else:
-                order.amount_untaxed_to_validate, tax_to_validate = order._get_amounts_totals(ol_all - ol_validated)
-                order.amount_total_to_validate = order.amount_untaxed_to_validate + tax_to_validate
+            for suffix in ('_validated', '_to_validate'):
+                lines = ol_validated if suffix == '_validated' else ol_all - ol_validated
+                order['amount_untaxed' + suffix], tax_totals = order._get_amounts_totals(lines)
+                order['tax_totals' + suffix] = tax_totals
+                order['amount_total' + suffix] = order['amount_untaxed' + suffix] + tax_totals
+        
+        return super()._compute_amounts()
     
     def _get_order_line_filtered(self):
         self.ensure_one()
@@ -147,11 +156,15 @@ class SaleOrder(models.Model):
         
         return amount_untaxed, amount_tax
 
+    @api.depends('order_line.validated')
     def _compute_tax_totals(self):
         for order in self:
             ol_all, ol_validated = order._get_order_line_filtered()
-            order.tax_totals = order._get_tax_totals(ol_validated)
+            order.tax_totals_validated = order._get_tax_totals(ol_validated)
             order.tax_totals_to_validate = order._get_tax_totals(ol_all - ol_validated)
+    
+        return super()._compute_tax_totals()
+    
     def _get_tax_totals(self, order_lines):
         self.ensure_one()
         return self.env['account.tax']._prepare_tax_totals(

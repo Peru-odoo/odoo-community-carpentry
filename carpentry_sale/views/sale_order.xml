@@ -12,7 +12,7 @@
                 <field name="description" />
             </field>
 
-            <!-- Add fields *Remaining to validate* aside *validated* totals -->
+            <!-- Add fields *Remaining to validate* next to the standard total -->
             <field name="amount_untaxed" position="after">
                 <field name="lines_validated" invisible="1" />
                 <field name="amount_untaxed_to_validate"
@@ -44,7 +44,7 @@
                 <field name="description" />
             </field>
 
-            <!-- Add fields *Remaining to validate* aside *validated* totals -->
+            <!-- Add fields *Remaining to validate* next to the standard totals -->
             <field name="amount_untaxed" position="after">
                 <field name="lines_validated" invisible="1" />
                 <field name="amount_untaxed_to_validate" optional="hide"
@@ -94,16 +94,36 @@
             <!-- Total(s) -->
             <group name="sale_total" position="before">
                 <field name="lines_validated" invisible="1" />
+                
+                <!-- To validate -->
                 <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total_to_validate"
                     attrs="{'invisible': ['|', ('lines_validated', '=', 'all_validated'), ('state', '=', 'cancel')]}"
                 >
                     <strong class="text-warning">To validate</strong>
                     <field name="tax_totals_to_validate" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1"/>
                 </group>
+                
+                <!-- Validated -->
+                <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total_validated"
+                    attrs="{'invisible': ['|', ('lines_validated', '=', 'all_validated'), ('state', '=', 'cancel')]}"
+                >
+                    <strong class="text-success">Validated</strong>
+                    <field name="tax_totals_validated" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1"/>
+                </group>
             </group>
+
+            <!-- Standard -->
             <field name="tax_totals" position="before">
-                <strong class="text-success">Validated</strong>
+                <strong>Total</strong>
             </field>
+
+            <!-- More rooms for totals, less for 'Terms and conditions' -->
+            <xpath expr="//group[@name='note_group']/group" position="attributes">
+                <attribute name="colspan">3</attribute>
+            </xpath>
+            <xpath expr="//field[@name='tax_totals']/parent::group" position="attributes">
+                <attribute name="colspan">3</attribute>
+            </xpath>
         </field>
     </record>
 

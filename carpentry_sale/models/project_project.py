@@ -35,7 +35,13 @@ class Project(models.Model):
             project.market_reviewed = project.market + project.sale_order_sum
 
 
-    #===== Compute: Sale Order lines =====#
+    #===== Compute: Sale Order =====#
+    def _get_rg_sale_order_fields(self):
+        """ Make `sale_order_sum` the sum of `amount_untaxed_validated` """
+        return super()._get_rg_sale_order_fields() | {
+            'sale_order_sum': ('amount_untaxed_validated:sum', 'amount_untaxed_validated',),
+        }
+    
     @api.depends('sale_order_ids.order_line.validated')
     def _compute_so_lines_validated(self):
         rg_result = self.env['sale.order.line'].sudo().read_group(
