@@ -80,13 +80,6 @@
             <field name="amount_gain" position="attributes">
                 <attribute name="attrs">{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}</attribute>
             </field>
-
-            <!-- <field name="amount_gain" position="after">
-                <field name="percent_gain" avg="1" optional="show"
-                    widget="percentage"
-                    attrs="{'invisible': [('record_res_model', '=', 'account.move.budget.line')]}"
-                />
-            </field> -->
         </field>
     </record>
     <!-- Search -->
@@ -97,13 +90,10 @@
         <field name="mode">primary</field>
         
         <field name="arch" type="xml">
-            <!-- Change 'w/o' reservations filters by 'Budget/reservation' -->
+            <!-- Remove 'w/o' reservations filters -->
             <filter name="filter_reservation" position="replace" />
             <filter name="filter_reservation_empty" position="replace" />
-            <separator name="with_reservation" position="after">
-                <filter string="Budget"      name="filter_budget"      domain="[('state', '=', 'budget')]" />
-                <filter string="Reservation" name="filter_reservation" domain="[('state', '=', 'reservation')]" />
-            </separator>
+            <separator name="with_reservation" position="replace" />
         </field>
     </record>
 
@@ -122,9 +112,10 @@
     <menuitem id="menu_project_budget_report_history"
         parent="menu_project_main_budget"
         sequence="30"
-        name="History"
+        name="Details"
     >
-        <menuitem id="menu_project_budget_report_expense_history" action="action_open_budget_report_expense_history_srv" sequence="10" />
+        <menuitem id="menu_project_budget_report_expense_history"  action="action_open_budget_report_expense_history_srv"  sequence="10" />
+        <menuitem id="menu_project_budget_report_expense_unposted" action="action_open_budget_report_expense_unposted_srv" sequence="20" />
     </menuitem>
 
 </odoo>

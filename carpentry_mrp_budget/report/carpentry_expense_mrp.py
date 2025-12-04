@@ -3,7 +3,7 @@
 from odoo import models, fields
 
 class CarpentryExpense(models.Model):
-    _inherit = ['carpentry.budget.expense.history']
+    _inherit = ['carpentry.budget.expense.detail']
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -36,6 +36,12 @@ class CarpentryExpense(models.Model):
             
             return f"""
                 SELECT
+                    CASE
+                        WHEN record.state = 'done'
+                        THEN 'expense_posted'
+                        ELSE 'expense_unposted'
+                    END AS state,
+
                     record.project_id,
                     record.date_budget AS date,
                     {sql_active} AS active,
@@ -67,6 +73,8 @@ class CarpentryExpense(models.Model):
         elif model == 'mrp.workorder':
             return f"""
                 SELECT
+                    'expense_unposted' AS state,
+
                     record.project_id AS project_id,
                     record.date_budget_workorders AS date,
                     {sql_active} AS active,

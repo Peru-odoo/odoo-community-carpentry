@@ -4,13 +4,13 @@ from odoo import models, fields, api, tools
 from psycopg2.extensions import AsIs
 
 
-class CarpentryBudgetExpenseHistory(models.Model):
+class CarpentryBudgetExpenseDetail(models.Model):
     """ Should be overriden in each Carpentry module with expense
-        With `date` field
+        Detail because with `date` and `is_temporary` field
     """
-    _name = 'carpentry.budget.expense.history'
+    _name = 'carpentry.budget.expense.detail'
     _inherit = ['carpentry.budget.remaining']
-    _description = 'Expenses History'
+    _description = 'Expenses Detail'
     _auto = False
 
     #===== Fields methods =====#
@@ -20,6 +20,9 @@ class CarpentryBudgetExpenseHistory(models.Model):
         ]
 
     #===== Fields =====#
+    state = fields.Selection(
+        selection_add=[('expense_unposted', 'Unposted expense'), ('expense_posted', 'Posted expense'),],
+    )
     currency_id = fields.Many2one(
         related='project_id.currency_id',
     )
@@ -70,7 +73,6 @@ class CarpentryBudgetExpenseHistory(models.Model):
         readonly=True,
     )
     # cancel fields
-    state = fields.Selection(store=False)
     position_id = fields.Many2one(store=False)
     launch_id = fields.Many2one(store=False)
     amount_subtotal = fields.Float(store=False)
@@ -95,6 +97,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                             expense.analytic_account_id
                         ) AS id,
                         expense.project_id,
+                        expense.state,
                         expense.date,
                         expense.active,
                         
@@ -190,6 +193,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
                     
                     GROUP BY
                         expense.project_id,
+                        expense.state,
                         expense.date,
                         expense.active,
                         expense.record_id,
@@ -251,6 +255,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
 
             sql = f"""
                 SELECT
+                    'reservation' AS state,
                     project_id,
                     date,
                     active AS active,
@@ -275,6 +280,7 @@ class CarpentryBudgetExpenseHistory(models.Model):
 
             sql = f"""
                 SELECT
+                    'expense_posted' AS state,
                     analytic_projects.project_id,
                     analytic.date,
                     TRUE AS active,
@@ -368,12 +374,13 @@ class CarpentryBudgetExpenseHistory(models.Model):
             ) and record.launch_ids
 
 class CarpentryBudgetExpense(models.Model):
-    """ *Not* grouped by date (without history): for *Loss/Gains* report """
+    """ *Not* grouped by `date` neither `state`, for *Loss/Gains* report """
     _name = 'carpentry.budget.expense'
-    _inherit = ['carpentry.budget.expense.history']
+    _inherit = ['carpentry.budget.expense.detail']
     _description = 'Expenses'
     _auto = False
 
+    state = fields.Selection(store=False)
     date = fields.Date(store=False)
 
     def init(self):
@@ -402,7 +409,7 @@ class CarpentryBudgetExpense(models.Model):
                     SUM(amount_expense_valued) AS amount_expense_valued,
                     SUM(amount_gain) AS amount_gain
                 
-                FROM carpentry_budget_expense_history
+                FROM carpentry_budget_expense_detail
                 
                 GROUP BY
                     project_id,

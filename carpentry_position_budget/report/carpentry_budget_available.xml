@@ -48,7 +48,7 @@
             <tree action="open_position_budget" type="object"
                 create="0" delete="0" import="0"
             >
-                <field name="project_id" invisible="1" />
+                <field name="project_id" invisible="context.get('default_project_id')" />
 
                 <field name="analytic_account_id" />
                 <field name="position_id" />
@@ -75,6 +75,8 @@
                 <field name="project_stage_id" />
 
                 <!-- Filters -->
+                <filter string="★ Projects" name="my_favorite_projects" domain="[('project_id.favorite_user_ids', '=', uid)]"/>
+
                 <separator name="budget_type" />
                 <filter string="Goods"        name="filter_goods"   domain="[('budget_type', '=', 'goods')]" />
                 <filter string="Service"      name="filter_service" domain="[('budget_type', '=', 'service')]" />
@@ -93,7 +95,6 @@
                 <filter string="Budget"       name="filter_groupby_analytic_account_id" context="{'group_by': 'analytic_account_id'}" />
 
                 <searchpanel>
-                    <field name="project_id"       select="multi" invisible="context.get('default_project_id')" />
                     <field name="budget_type" />
                     <field name="analytic_account_id" />
                 </searchpanel>

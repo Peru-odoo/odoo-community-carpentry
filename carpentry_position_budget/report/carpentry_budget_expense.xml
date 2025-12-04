@@ -28,7 +28,7 @@
                 <field name="currency_id" invisible="1" />
                 <field name="analytic_account_id" invisible="1" />
                 
-                <field name="record_model_id" type="col" />
+                <field name="record_model_id" type="col" invisible="context.get('fields_history')" />
 
                 <field name="budget_type" type="row" />
                 <field name="analytic_account_id" type="row" />
@@ -68,7 +68,7 @@
                 decoration-success="amount_gain &gt; 0.01"
                 decoration-danger="amount_gain &lt; -0.01"
             >
-                <field name="project_id" invisible="1" />
+                <field name="project_id" select="multi" invisible="context.get('default_project_id')" />
                 <field name="currency_id" invisible="1" />
 
                 <field name="analytic_account_id" />
@@ -122,43 +122,67 @@
 
 
 
+
+    <!-- ========== DETAILED ========== -->
     <!-- History -->
     <record id="action_open_budget_report_expense_history_srv" model="ir.actions.server">
-        <field name="name">Gains &amp; losses (history)</field>
+        <field name="name">History (gain &amp; expenses)</field>
         <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
         <field name="state">code</field>
         <field name="code">
             action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_expense_history')
         </field>
     </record>
-    <!-- Expense report (real action) -->
+    <!-- History (real action) -->
     <record id="action_open_budget_report_expense_history" model="ir.actions.act_window">
-        <field name="name">Gains &amp; losses (history)</field>
-        <field name="res_model">carpentry.budget.expense.history</field>
+        <field name="name">History (gain &amp; expenses)</field>
+        <field name="res_model">carpentry.budget.expense.detail</field>
         <field name="view_mode">graph,pivot,tree</field>
         <field name="context">{
             'display_model_shortname': 1,
-            'search_default_filter_groupby_date': 1,
+            'fields_history': 1,
         }</field>
     </record>
+
+    <!-- Unposted -->
+    <record id="action_open_budget_report_expense_unposted_srv" model="ir.actions.server">
+        <field name="name">Unposted expenses</field>
+        <field name="model_id" ref="project_favorite_switch.model_project_choice_wizard" />
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_choose_project_and_redirect('carpentry_position_budget.action_open_budget_report_expense_unposted')
+        </field>
+    </record>
+    <!-- Unposted (real action) -->
+    <record id="action_open_budget_report_expense_unposted" model="ir.actions.act_window">
+        <field name="name">Unposted expenses</field>
+        <field name="res_model">carpentry.budget.expense.detail</field>
+        <field name="view_mode">pivot,tree</field>
+        <field name="context">{
+            'display_model_shortname': 1,
+        }</field>
+    </record>
+
     <!-- Pivot -->
     <record id="carpentry_budget_report_expense_pivot_history" model="ir.ui.view">
-        <field name="name">carpentry.budget.expense.history.pivot</field>
-        <field name="model">carpentry.budget.expense.history</field>
+        <field name="name">carpentry.budget.expense.detail.pivot</field>
+        <field name="model">carpentry.budget.expense.detail</field>
         <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_expense_pivot" />
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
-            <field name="record_model_id" position="replace">
-                <field name="budget_type" type="col" />
-                <field name="analytic_account_id" type="col" />
+            <field name="record_model_id" position="before">
+                <!-- History: dates in columns -->
+                <field name="date"  type="col" invisible="not context.get('fields_history')" />
+                <!-- Unposted: state in parent-columns -->
+                <field name="state" type="col" invisible="context.get('fields_history')" />
             </field>
         </field>
     </record>
     <!-- Graph -->
     <record id="carpentry_budget_report_expense_graph_history" model="ir.ui.view">
-        <field name="name">carpentry.budget.expense.history.graph</field>
-        <field name="model">carpentry.budget.expense.history</field>
+        <field name="name">carpentry.budget.expense.detail.graph</field>
+        <field name="model">carpentry.budget.expense.detail</field>
         <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_expense_graph" />
         <field name="mode">primary</field>
 
@@ -174,28 +198,33 @@
         </field>
     </record>
     <!-- Tree -->
-    <record id="carpentry_budget_report_expense_history_tree" model="ir.ui.view">
-        <field name="name">carpentry.budget.expense.history.tree</field>
-        <field name="model">carpentry.budget.expense.history</field>
+    <record id="carpentry_budget_report_expense_detail_tree" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.detail.tree</field>
+        <field name="model">carpentry.budget.expense.detail</field>
         <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_expense_tree" />
         <field name="mode">primary</field>
 
         <field name="arch" type="xml">
             <field name="record_ref" position="after">
+                <field name="state" />
                 <field name="date" />
             </field>
         </field>
     </record>
     <!-- Search -->
-    <record id="carpentry_budget_report_expense_history_search" model="ir.ui.view">
-        <field name="name">carpentry.budget.expense.history.search</field>
-        <field name="model">carpentry.budget.expense.history</field>
+    <record id="carpentry_budget_report_expense_detail_search" model="ir.ui.view">
+        <field name="name">carpentry.budget.expense.detail.search</field>
+        <field name="model">carpentry.budget.expense.detail</field>
         <field name="inherit_id" ref="carpentry_position_budget.carpentry_budget_report_expense_search" />
         <field name="mode">primary</field>
         
         <field name="arch" type="xml">
             <!-- Default filters -->
             <filter name="filter_other" position="after">
+                <separator name="posted" />
+                <filter name="filter_posted"   string="Posted"   domain="[('state', '!=', 'expense_unposted')]" />
+                <filter name="filter_unposted" string="Unposted" domain="[('state', '!=', 'expense_posted')]" />
+
                 <separator name="date" />
                 <filter name="date" string="Date" date="date" />
             </filter>

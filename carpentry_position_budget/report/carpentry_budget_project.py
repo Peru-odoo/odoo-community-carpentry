@@ -23,7 +23,10 @@ class CarpentryBudgetProject(models.Model):
     #     group_operator='avg',
     # )
     # re-activated fields
-    state = fields.Selection(store=True)
+    state = fields.Selection(
+        selection_add=[('expense', 'Expense'),],
+        store=True,
+    )
     # cancelled fields
     date = fields.Date(store=False)
     amount_reserved = fields.Float(store=False)

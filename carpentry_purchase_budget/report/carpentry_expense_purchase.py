@@ -2,8 +2,8 @@
 
 from odoo import models, fields
 
-class CarpentryExpenseHistory(models.Model):
-    _inherit = ['carpentry.budget.expense.history']
+class CarpentryExpense(models.Model):
+    _inherit = ['carpentry.budget.expense.detail']
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -27,6 +27,7 @@ class CarpentryExpenseHistory(models.Model):
             
             return f"""
                 SELECT
+                    'expense_unposted' AS state,
                     record.project_id,
                     record.date_budget AS date,
                     record.state NOT IN ('cancel') as active,

@@ -3,7 +3,7 @@
 from odoo import models
 
 class CarpentryExpense(models.Model):
-    _inherit = ['carpentry.budget.expense.history']
+    _inherit = ['carpentry.budget.expense.detail']
 
     #===== View build =====#
     def _get_queries_models(self):
@@ -13,6 +13,8 @@ class CarpentryExpense(models.Model):
         if model == 'project.task':
             return f"""
                 SELECT
+                    'expense_unposted' AS state,
+                    
                     record.project_id,
                     record.date_budget AS date,
                     record.active,
