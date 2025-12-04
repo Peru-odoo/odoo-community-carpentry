@@ -5,6 +5,7 @@ import { useService } from "@web/core/utils/hooks";
 
 import { registry } from '@web/core/registry';
 import { loadJS } from "@web/core/assets";
+import { _lt } from "@web/core/l10n/translation";
 
 //===== Cards =====
 export class PlanningDashboardCard extends Component { }
@@ -35,7 +36,6 @@ export class PlanningDashboard extends Component {
         onWillStart(() => {
             loadJS(["/web/static/lib/Chart/Chart.js"]);
         });
-
         
         this.colorPrefix = "o_status_";
         this.colors = {
@@ -73,7 +73,26 @@ export class PlanningDashboard extends Component {
             resModel: res_model
         });
     }
+    
+    openNextProjectUser(user_id) {
+        this.actionService.doActionButton({
+            type: 'object',
+            name: 'action_open_planning_next_user',
+            resId: this.props.model.projectId,
+            resModel: 'project.project',
+            args: JSON.stringify([user_id])
+        });
+    }
 }
+
+//===== Dashboard items =====
+const dashboardItems = [
+    {id: "next_projects", title: _lt("Next projects"), sequence: 90, icon: "fa-arrow-right"},
+];
+dashboardItems.forEach(item => {
+    registry.category("carpentry_planning.planning_dashboard_item").add(item.id, item);
+});
+
 
 PlanningDashboard.template = "carpentry_planning.PlanningDashboard";
 PlanningDashboard.components = { PlanningDashboardCard };

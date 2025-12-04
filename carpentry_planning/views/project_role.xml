@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Role's Form -->
+    <record id="project_role_view_form" model="ir.ui.view">
+        <field name="name">project.role.view.form.carpentry.planning</field>
+        <field name="model">project.role</field>
+        <field name="inherit_id" ref="carpentry_project.project_role_view_form" />
+
+        <field name="arch" type="xml">
+            <group position="inside">
+                <field name="config_planning_next_project" widget="boolean_toggle" />
+            </group>
+        </field>
+    </record>
+</odoo>

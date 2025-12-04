@@ -4,7 +4,7 @@
     <!-- Planning Dashboard KPI Card: meetings -->
     <t t-name="carpentry_planning.PlanningDashboard.meeting" owl="1">
         <t t-foreach="data.meetings" t-as="meeting" t-key="meeting_index">
-            <div class="d-flex align-items-center  mb-1">
+            <div class="d-flex align-items-center mb-1">
                 <span t-attf-class="o_status {{ statusColor(meeting.kanban_state) }} me-2" />
                 <a class="cursor-pointer" t-on-click="() => this.openDashboardRecord('project.task', meeting.id)">
                     <t t-esc="meeting.display_name" />

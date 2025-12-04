@@ -24,6 +24,7 @@
         'views/carpentry_planning_column.xml',
         'views/carpentry_planning_milestone.xml',
         'views/carpentry_group_launch.xml',
+        'views/project_role.xml',
         # security
         'security/ir.model.access.csv',
     ],

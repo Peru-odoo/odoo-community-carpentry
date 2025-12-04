@@ -21,10 +21,10 @@
         <field name="inherit_id" ref="project_role.project_role_view_form" />
 
         <field name="arch" type="xml">
-            <!-- Add `fold` field in Role form, for Assignation's kanban view -->
-            <form position="inside">
+            <!-- Add `fold` field, for Assignation's kanban view -->
+            <group position="inside">
                 <field name="fold" widget="boolean_toggle" />
-            </form>
+            </group>
         </field>
     </record>
 </odoo>
