@@ -78,23 +78,21 @@ class Project(models.Model):
     #===== Compute: fees, margins =====#
     @api.depends('fees_prorata_rate', 'fees_structure_rate', 'market_reviewed', 'budget_line_sum')
     def _compute_budget_fees_and_margins(self):
-        # 2. Reserved budget & real expense
-        keys = ['reserved', 'expense']
+        keys = ['gain', 'reserved_valued']
         rg_expense = self.env['carpentry.budget.expense'].with_context(active_test=True)._read_group(
             domain=[('project_id', 'in', self.ids)],
-            fields=['amount_' + k + '_valued:sum' for k in keys],
+            fields=['amount_' + k + ':sum' for k in keys],
             groupby=['project_id'],
         )
         mapped_expense = {
-            x['project_id'][0]: {k: x['amount_' + k + '_valued'] for k in keys}
+            x['project_id'][0]: {k: x['amount_' + k] for k in keys}
             for x in rg_expense
         }
-        
         for project in self:
-            actuals = mapped_expense.get(project._origin.id, {k: 0.0 for k in keys})
-            project._compute_budget_fees_and_margins_one(actuals)
+            expense = mapped_expense.get(project._origin.id, {k: 0.0 for k in keys})
+            project._compute_budget_fees_and_margins_one(expense)
         
-    def _compute_budget_fees_and_margins_one(self, actuals):
+    def _compute_budget_fees_and_margins_one(self, expense_dict):
         # fees
         self.fees_prorata   = self.fees_prorata_rate * self.market_reviewed / 100
         self.fees_structure = self.fees_structure_rate * self.market_reviewed / 100
@@ -103,8 +101,8 @@ class Project(models.Model):
         self.margin_costs        = self.market_reviewed - self.budget_line_sum - self.fees_prorata - self.fees_structure
         self.margin_contributive = self.market_reviewed - self.budget_line_sum - self.fees_prorata # ie. on direct costs only
         # actual margins
-        self.margin_costs_actual           = actuals['reserved'] - actuals['expense'] - self.fees_prorata - self.fees_structure
-        self.margin_contributive_actual    = actuals['reserved'] - actuals['expense'] - self.fees_prorata
+        self.margin_costs_actual           = self.margin_costs + expense_dict['gain']
+        self.margin_contributive_actual    = self.margin_contributive + expense_dict['gain']
 
         # rates
         if self.market_reviewed:
@@ -122,7 +120,10 @@ class Project(models.Model):
             self.margin_costs_actual_rate        = 0.0
             self.margin_contributive_actual_rate = 0.0
         
-        self.budget_reservation_progress = bool(self.budget_line_sum) and actuals['reserved'] / self.budget_line_sum * 100
+        self.budget_reservation_progress = (
+            bool(self.budget_line_sum) and
+            expense_dict['reserved_valued'] / self.budget_line_sum * 100
+        )
 
     #===== Compute : sale order line budget updated status =====#
     @api.depends('sale_order_ids.order_line', 'sale_order_ids.order_line.budget_updated', 'sale_order_ids.state')

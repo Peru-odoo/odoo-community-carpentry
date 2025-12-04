@@ -83,8 +83,8 @@
                         >
                             <div>
                                 <field name="margin_contributive_actual"
-                                    decoration-success="margin_contributive_actual &gt; 0"
-                                    decoration-danger="margin_contributive_actual &lt; 0"
+                                    decoration-success="margin_contributive_actual &gt; margin_contributive"
+                                    decoration-danger="margin_contributive_actual &lt; margin_contributive"
                                 />
                             </div>
                             <div>
@@ -109,8 +109,8 @@
                         >
                             <div>
                                 <field name="margin_costs_actual"
-                                    decoration-success="margin_contributive_actual &gt; 0"
-                                    decoration-danger="margin_contributive_actual &lt; 0"
+                                    decoration-success="margin_costs_actual &gt; margin_costs"
+                                    decoration-danger="margin_costs_actual &lt; margin_costs"
                                 />
                             </div>
                             <div>
