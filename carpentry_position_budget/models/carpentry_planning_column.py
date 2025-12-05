@@ -33,42 +33,66 @@ class CarpentryPlanningColumn(models.Model):
             return res
         
         # 1. Available (brut)
+        project = self.env['carpentry.group.launch'].browse(launch_id_).project_id
         domain_budget = [('budget_type', 'in', budget_types)]
-        domain = [('launch_id', '=', launch_id_)] + domain_budget
+        domain_project = domain_budget + [('project_id', '=', project.id), ('launch_id', '!=', False)]
+        domain_launch = domain_budget + [('launch_id', '=', launch_id_)]
         rg_available = self.env['carpentry.budget.available']._read_group(
-            domain=domain, groupby=['budget_type'], fields=['amount_subtotal:sum'],
+            domain=domain_launch, groupby=['budget_type'], fields=['amount_subtotal:sum'],
         )
         mapped_available = {x['budget_type']: x['amount_subtotal'] for x in rg_available}
 
         # 2. Reserved (brut or valued)
         # + for expense distribution per launch (only)
         BudgetMixin = self.env['carpentry.budget.mixin']
+        Reservation = self.env['carpentry.budget.reservation']
         fields = ['amount_reserved', 'amount_reserved_valued']
-        budget_fields = ['project_id', 'launch_id', 'budget_type']
-        rg_reserved = self.env['carpentry.budget.reservation']._read_group(
-            domain=domain_budget, groupby=budget_fields, lazy=False,
+        record_fields = Reservation._get_record_fields()
+        rg_reserved = Reservation._read_group(
+            domain=domain_project + [('amount_reserved', '!=', 0.0)],
             fields=[field + ':sum' for field in fields],
+            groupby=['launch_id', 'budget_type'] + record_fields,
+            lazy=False,
         )
-        mapped_reserved_both, mapped_reserved_value = {}, {}
+        mapped_reserved, mapped_reserved_detail = {}, {}
         for x in rg_reserved:
-            key = BudgetMixin._get_key(vals=x, mode='planning')
-            mapped_reserved_both[key] = {field: x[field] for field in fields}
-            mapped_reserved_value[key] = x['amount_reserved_valued']
-        mapped_ratio = BudgetMixin._get_budget_distribution(mapped_reserved_value)
+            budget_type = x['budget_type']
+            
+            # for expenses ratio: budget per budget_type, launch & records
+            key_planning = BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields)
+            mapped_reserved_detail[key_planning] = x['amount_reserved']
 
-        # 3. Expense, to be distributed by launch as per mapped_ratio
+            # for KPI: sum reserved budget per budget_type, for launch_id_ only
+            if x['launch_id'][0] == launch_id_:
+                if not budget_type in mapped_reserved:
+                    mapped_reserved[budget_type] = {field: 0.0 for field in fields}
+                for field in fields:
+                    mapped_reserved[budget_type][field] += x[field]
+
+        # 3. Expense, distributed for launch_id as per its reserved budget within each section
         fields = ['amount_expense', 'amount_expense_valued']
         rg_expense = self.env['carpentry.budget.expense']._read_group(
-            domain=domain_budget, groupby=['budget_type'],
-            fields=[field + ':sum' for field in fields],
+            domain=domain_project,
+            fields=[field + ':sum' for field in fields + ['amount_reserved']],
+            groupby=['budget_type'] + record_fields,
+            lazy=False,
         )
-        mapped_expense = {
-            x['budget_type']: {field: x[field] for field in fields}
-            for x in rg_expense
-        }
+        mapped_expense = {}
+        for x in rg_expense:
+            # 1st compute share of launch in the expense, at prorata of
+            # its reserved budget in the record on a given `budget_type`
+            key_planning = tuple([launch_id_] + list(BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields)))
+            launch_reserved = mapped_reserved_detail.get(key_planning, 0.0)
+            total_reserved = x['amount_reserved']
+            prorata_reserved = launch_reserved / total_reserved if total_reserved else 1.0
+            
+            budget_type = x['budget_type']
+            if not budget_type in mapped_expense:
+                mapped_expense[budget_type] = {field: 0.0 for field in fields}
+            for field in fields:
+                mapped_expense[budget_type][field] += x[field] * prorata_reserved
 
         # 4. Format data per column
-        project_id = self.env['carpentry.group.launch'].browse(launch_id_).project_id.id
         budget_types_workforce = self.env['account.analytic.account']._get_budget_type_workforce()
         for column in self.filtered('budget_types'):
             # valued ?
@@ -83,11 +107,8 @@ class CarpentryPlanningColumn(models.Model):
             available, reserved, expense = 0.0, 0.0, 0.0
             for budget_type in budget_types:
                 available += mapped_available.get(budget_type, 0.0)
-
-                key_budget = (project_id, launch_id_, budget_type)
-                reserved += mapped_reserved_both.get(key_budget, {}).get('amount_reserved' + valued, 0.0)
-                ratio = mapped_ratio.get(key_budget, 0.0)
-                expense += mapped_expense.get(budget_type, {}) .get('amount_expense'  + valued, 0.0) * ratio
+                reserved += mapped_reserved.get(budget_type, {}).get('amount_reserved' + valued, 0.0)
+                expense += mapped_expense.get(budget_type, {}) .get('amount_expense'  + valued, 0.0)
 
             res[column.id]['budget'] = {
                 'unit': 'h' if is_hour else '€',

@@ -737,13 +737,14 @@ class CarpentryBudgetMixin(models.AbstractModel):
         return mapped_available
 
     @api.model
-    def _get_key(self, rec=None, vals={}, mode='budget'):
+    def _get_key(self, rec=None, vals={}, mode='budget', mask=[]):
         """ Return a tuple like:
             (project_id, launch_id, aac_id, [record_id])
 
             :option `rec`:  record of `reservation`, `available` or `remaining`, ...
             :option `vals`: same, from a _read_group
                             either `rec` or `vals` must be provided
+            :option `mask`: list of fields to append
             
             :return: tuple like: (project_id, launch_id, aac_id, [record_id])
                      computed from `rec` or `vals` depending asked `fields`
@@ -757,9 +758,12 @@ class CarpentryBudgetMixin(models.AbstractModel):
         elif mode == 'full':
             fields = ['project_id', 'launch_id', 'analytic_account_id', self._record_field]
         elif mode == 'planning':
-            fields = ['project_id', 'launch_id'] # +budget_type, added manually
+            fields = ['launch_id'] # +mask and budget_type
         else:
             raise exceptions.UserError(_("Operation not supported."))
+
+        if mask:
+            fields += mask
 
         key = []
         for field in fields:
