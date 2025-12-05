@@ -313,7 +313,10 @@ class ManufacturingOrder(models.Model):
         # 2.
         self['total_budgetable_workorders'] = sum(self.workorder_ids.mapped('duration_expected_hours'))
         
-        compare = float_compare(self.total_budget_reserved_workorders, self.total_budgetable, precision_digits=prec)
+        compare = float_compare(
+            self.total_budget_reserved_workorders, self.total_budgetable_workorders,
+            precision_digits=prec
+        )
         self['show_budget_banner_workorders'] = bool(compare != 0)
 
     #===== Views =====#
