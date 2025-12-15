@@ -51,7 +51,7 @@ class Project(models.Model):
             ('project_id', '!=', False),
         ]
         projects = self.env['project.assignment'].search_read(
-            domain, ['project_id'], order='project_id ASC'
+            domain, ['project_id'], order='project_id DESC'
         )
 
         # 2.
