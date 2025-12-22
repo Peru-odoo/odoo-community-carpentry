@@ -12,13 +12,7 @@ class CarpentryBudgetExpenseDetail(models.Model):
     _inherit = ['carpentry.budget.remaining']
     _description = 'Expenses Detail'
     _auto = False
-
-    #===== Fields methods =====#
-    def _get_record_fields(self):
-        return self.env['carpentry.budget.reservation']._get_record_fields() + [
-            'move_id', 'move_line_id', 'analytic_line_id',
-        ]
-
+    
     #===== Fields =====#
     state = fields.Selection(
         selection_add=[('expense_unposted', 'Unposted expense'), ('expense_posted', 'Posted expense'),],

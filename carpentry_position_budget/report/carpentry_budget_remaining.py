@@ -167,6 +167,11 @@ class CarpentryBudgetRemaining(models.Model):
         return ''
 
     #===== Compute =====#
+    def _get_record_fields(self):
+        return self.env['carpentry.budget.reservation']._get_record_fields() + [
+            'move_id', 'move_line_id', 'analytic_line_id',
+        ]
+
     @api.depends('record_model_id')
     def _compute_record_ref(self):
         record_fields = self._get_record_fields()
