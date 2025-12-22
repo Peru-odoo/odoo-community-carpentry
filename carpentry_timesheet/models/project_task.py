@@ -17,7 +17,10 @@ class Task(models.Model):
         # False by default, True in specific `Timesheet's budget` task view
         default=False,
         store=True,
-        readonly=False
+        readonly=False,
+    )
+    analytic_account_id = fields.Many2one(
+        tracking=True,
     )
     # budget reservation
     reservation_ids = fields.One2many(inverse_name='task_id')
