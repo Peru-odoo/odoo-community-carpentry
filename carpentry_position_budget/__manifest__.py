@@ -53,4 +53,5 @@
             'carpentry_position_budget/static/src/**/*',
         ],
     },
+    'pre_init_hook': 'pre_init_hook',
 }
