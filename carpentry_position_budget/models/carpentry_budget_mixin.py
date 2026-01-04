@@ -188,8 +188,8 @@ class CarpentryBudgetMixin(models.AbstractModel):
     @api.depends('project_id', 'launch_ids', 'budget_analytic_ids')
     def _compute_other_expense_ids(self):
         # optim: only compute at 'Save'
-        if isinstance(fields.first(self).id, models.NewId) and bool(self._origin):
-            self.other_expense_ids = self._origin.other_expense_ids
+        if isinstance(fields.first(self).id, models.NewId):
+            self.other_expense_ids = bool(self._origin) and self._origin.other_expense_ids
             return
         
         for record in self:
