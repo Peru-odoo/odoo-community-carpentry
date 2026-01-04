@@ -2,7 +2,7 @@
 
 from odoo import SUPERUSER_ID, api
 
-def pre_init_hook(cr, registry):
+def pre_init_hook(cr):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _prebuild_budget_analytic_project_rel(cr, env)
 
