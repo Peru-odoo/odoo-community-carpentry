@@ -89,6 +89,9 @@ class AnalyticMixin(models.AbstractModel):
             project = record._get_project_from_parent()._origin
             record._synch_project_analytic_distrib_from_record(project)
 
+            # must be called to enforce other analytics than project
+            record._enforce_internal_analytic()
+
     #====== Compute ======#
     def _synch_project_analytic_distrib_from_record(self, new_project):
         """ Cascade `project_id` of the parent record (if changed)
