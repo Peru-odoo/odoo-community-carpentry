@@ -103,7 +103,6 @@ class CarpentryBudgetProject(models.Model):
                 result.active
         """
     
-    
     #===== Union sub-queries definition =====#
     def _select(self, model, models):
         # SQL for balance_id, purchase_id, production_id, task_id, ...

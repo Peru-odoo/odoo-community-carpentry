@@ -151,4 +151,3 @@ class AccountMoveBudgetLine(models.Model):
             # force re-computation of `debit`, else it's not triggered
             if line.type == 'workforce':
                 line._compute_debit_credit()
-
