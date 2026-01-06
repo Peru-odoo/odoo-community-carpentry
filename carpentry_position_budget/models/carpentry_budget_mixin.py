@@ -758,7 +758,7 @@ class CarpentryBudgetMixin(models.AbstractModel):
         elif mode == 'full':
             fields = ['project_id', 'launch_id', 'analytic_account_id', self._record_field]
         elif mode == 'planning':
-            fields = ['launch_id'] # +mask and budget_type
+            fields = ['launch_id'] # +mask
         else:
             raise exceptions.UserError(_("Operation not supported."))
 
@@ -769,11 +769,11 @@ class CarpentryBudgetMixin(models.AbstractModel):
         for field in fields:
             has_field = hasattr(rec, field) if rec else field in vals
             if has_field:
-                id_ = rec[field].id if rec else vals[field] and vals[field][0]
+                if rec:
+                    id_ = rec[field].id if hasattr(rec[field], 'id') else rec[field]
+                else:
+                    id_ = vals[field][0] if isinstance(vals[field], tuple) else vals[field]
                 key.append(id_)
-        
-        if mode == 'planning':
-            key.append(rec['budget_type'] if rec else vals['budget_type'])
         
         return tuple(key)
     

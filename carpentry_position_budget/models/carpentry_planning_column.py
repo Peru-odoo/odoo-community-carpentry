@@ -23,7 +23,6 @@ class CarpentryPlanningColumn(models.Model):
     def get_headers_data(self, launch_id_):
         """ Add budget information to planning's columns headers """
         res = super().get_headers_data(launch_id_)
-        
         budget_types = list(set([
             budget_type
             for budget_types_char in self.filtered('budget_types').mapped('budget_types')
@@ -54,26 +53,31 @@ class CarpentryPlanningColumn(models.Model):
             groupby=['launch_id', 'budget_type'] + record_fields,
             lazy=False,
         )
-        mapped_reserved, mapped_reserved_detail = {}, {}
+        mapped_reserved = mapped_reserved_detail = mapped_reserved_per_record = {}
         for x in rg_reserved:
             budget_type = x['budget_type']
-            
-            # for expenses ratio: budget per budget_type, launch & records
-            key_planning = BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields)
-            mapped_reserved_detail[key_planning] = x['amount_reserved']
 
-            # for KPI: sum reserved budget per budget_type, for launch_id_ only
+            # for KPI: sum reserved budget per budget_type, for the launch being displayed on Kanban
             if x['launch_id'][0] == launch_id_:
                 if not budget_type in mapped_reserved:
                     mapped_reserved[budget_type] = {field: 0.0 for field in fields}
                 for field in fields:
                     mapped_reserved[budget_type][field] += x[field]
+            
+            # for expenses ratio: budget per budget_type, launch & records
+            # 'planning' key: (launch, records..., budget_type)
+            key_planning = BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields + ['budget_type'])
+            key_record = tuple(list(key_planning)[1:]) # skip launch_id (item 0)
+            mapped_reserved_detail[key_planning] = x['amount_reserved']
+            if not key_record in mapped_reserved_per_record:
+                mapped_reserved_per_record[key_record] = 0.0
+            mapped_reserved_per_record[key_record] += x['amount_reserved']
 
         # 3. Expense, distributed for launch_id as per its reserved budget within each section
         fields = ['amount_expense', 'amount_expense_valued']
         rg_expense = self.env['carpentry.budget.expense']._read_group(
             domain=domain_project,
-            fields=[field + ':sum' for field in fields + ['amount_reserved']],
+            fields=[field + ':sum' for field in fields],
             groupby=['budget_type'] + record_fields,
             lazy=False,
         )
@@ -81,11 +85,14 @@ class CarpentryPlanningColumn(models.Model):
         for x in rg_expense:
             # 1st compute share of launch in the expense, at prorata of
             # its reserved budget in the record on a given `budget_type`
-            key_planning = tuple([launch_id_] + list(BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields)))
+            key_planning = tuple([launch_id_] + list(
+                BudgetMixin._get_key(vals=x, mode='planning', mask=record_fields + ['budget_type'])
+            ))
+            key_record = tuple(list(key_planning)[1:]) # skip launch_id (item 0)
             launch_reserved = mapped_reserved_detail.get(key_planning, 0.0)
-            total_reserved = x['amount_reserved']
-            prorata_reserved = launch_reserved / total_reserved if total_reserved else 1.0
-            
+            total_reserved = mapped_reserved_per_record.get(key_record, 0.0)
+            prorata_reserved = launch_reserved / total_reserved if total_reserved else 0.0
+
             budget_type = x['budget_type']
             if not budget_type in mapped_expense:
                 mapped_expense[budget_type] = {field: 0.0 for field in fields}

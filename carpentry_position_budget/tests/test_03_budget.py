@@ -3,7 +3,6 @@
 from odoo import exceptions, fields, _, Command
 
 from .test_00_position_budget_base import TestCarpentryPositionBudget_Base
-from odoo.addons.carpentry_position_budget.models.carpentry_planning_column import human_readable
 
 from dateutil.relativedelta import relativedelta
 
