@@ -76,7 +76,9 @@ class Project(models.Model):
     )
 
     #===== Compute: fees, margins =====#
-    @api.depends('fees_prorata_rate', 'fees_structure_rate', 'market_reviewed', 'budget_line_sum')
+    @api.depends('fees_prorata_rate', 'fees_structure_rate')
+    # 'market_reviewed', 'budget_line_sum': skippable to avoid expensive SQL call,
+    # as long as computed field are not stored
     def _compute_budget_fees_and_margins(self):
         keys = ['gain', 'reserved_valued']
         rg_expense = self.env['carpentry.budget.expense'].with_context(active_test=True)._read_group(
