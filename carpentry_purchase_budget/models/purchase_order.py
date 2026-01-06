@@ -76,6 +76,12 @@ class PurchaseOrder(models.Model):
     def _get_domain_is_temporary_gain(self):
         return [('invoice_status', '!=', 'invoiced')]
     
+    def _get_default_active(self):
+        """ Default `active` for purchase **reservations** """
+        return super()._get_default_active() and (
+            self.state not in ('draft', 'sent', 'to approve', 'cancel')
+        )
+
     # def _get_auto_budget_analytic_ids(self, _):
     #     """ Used in `_populate_budget_analytics`,
     #         for `budget_analytic_ids` to follow the expense

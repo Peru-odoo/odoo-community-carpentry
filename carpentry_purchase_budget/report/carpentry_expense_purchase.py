@@ -30,7 +30,7 @@ class CarpentryExpense(models.Model):
                     'expense_unposted' AS state,
                     record.project_id,
                     record.date_budget AS date,
-                    record.state NOT IN ('cancel') as active,
+                    record.state NOT IN ('draft', 'sent', 'to approve', 'cancel') as active,
                     {sql_record_id} AS record_id,
                     {models['purchase.order']} AS record_model_id,
                     analytic.id AS analytic_account_id,
