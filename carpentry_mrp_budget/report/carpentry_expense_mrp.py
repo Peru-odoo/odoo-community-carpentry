@@ -119,9 +119,9 @@ class CarpentryExpense(models.Model):
                             -- cannot prorata by reserved budget => do it by reservations count
                             ELSE (CASE
                                 WHEN count_budget_resa_workorders != 0
-                                THEN 1 / count_budget_resa_workorders::float * COUNT(DISTINCT line.id)
+                                THEN 1 / count_budget_resa_workorders::float
                                 ELSE 1.0
-                            END)
+                            END) * COUNT(DISTINCT line.id)
                         END / COUNT(DISTINCT line.id)
                     ) AS amount_expense,
 
@@ -134,9 +134,9 @@ class CarpentryExpense(models.Model):
                             -- cannot prorata by reserved budget => do it by reservations count
                             ELSE (CASE
                                 WHEN count_budget_resa_workorders != 0
-                                THEN 1 / count_budget_resa_workorders::float * COUNT(DISTINCT line.id)
+                                THEN 1 / count_budget_resa_workorders::float
                                 ELSE 1.0
-                            END)
+                            END) * COUNT(DISTINCT line.id)
                         END
                     ) / (CASE WHEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) != 0.0
                         THEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) ELSE 1.0 END)
