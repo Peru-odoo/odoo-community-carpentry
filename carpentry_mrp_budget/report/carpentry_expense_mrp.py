@@ -7,7 +7,7 @@ class CarpentryExpense(models.Model):
 
     #===== View build =====#
     def _get_queries_models(self):
-        """ == Stock moves== 
+        """ == Stock moves==
             * `stock.picking`:  for stock.move estimation before validation
             * `mrp.production`: same, for raw material
             For those 2, expense is summed from `stock.valuation.layer`
@@ -97,7 +97,11 @@ class CarpentryExpense(models.Model):
                                 THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                      / record.total_budget_reserved_workorders
                                 -- cannot prorata by reserved budget => do it by reservations count
-                                ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END) 
+                                ELSE (CASE
+                                    WHEN count_budget_resa_workorders != 0
+                                    THEN 1 / count_budget_resa_workorders::float * COUNT(DISTINCT line.id)
+                                    ELSE 1.0
+                                END)
                             END
                             -- cancel budget_reservation
                             - COALESCE(SUM(reservation.amount_reserved), 0.0)
@@ -113,9 +117,13 @@ class CarpentryExpense(models.Model):
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
-                        END
-                    ) / COUNT(DISTINCT line.id) AS amount_expense,
+                            ELSE (CASE
+                                WHEN count_budget_resa_workorders != 0
+                                THEN 1 / count_budget_resa_workorders::float * COUNT(DISTINCT line.id)
+                                ELSE 1.0
+                            END)
+                        END / COUNT(DISTINCT line.id)
+                    ) AS amount_expense,
 
                     -- expense valued
                     COALESCE(SUM(line.amount), 0.0) * (
@@ -124,7 +132,11 @@ class CarpentryExpense(models.Model):
                             THEN COALESCE(SUM(reservation.amount_reserved), 0.0)
                                  / record.total_budget_reserved_workorders
                             -- cannot prorata by reserved budget => do it by reservations count
-                            ELSE (CASE WHEN count_budget_resa_workorders != 0 THEN 1 / count_budget_resa_workorders::float ELSE 1.0 END)
+                            ELSE (CASE
+                                WHEN count_budget_resa_workorders != 0
+                                THEN 1 / count_budget_resa_workorders::float * COUNT(DISTINCT line.id)
+                                ELSE 1.0
+                            END)
                         END
                     ) / (CASE WHEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) != 0.0
                         THEN COALESCE(COUNT(DISTINCT reservation.id), 0.0) ELSE 1.0 END)
